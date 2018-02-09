@@ -1,0 +1,41 @@
+﻿@using System.Data;
+@using ZoomLa.BLL.Helper
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    ZoomLa.BLL.Shop.B_Order_InvTlp invtBll = new ZoomLa.BLL.Shop.B_Order_InvTlp();
+}
+<div id="EGV">
+    <ul class="list-unstyled zlbox">
+            @foreach (DataRow dr in Model.dt.Rows)
+            {
+                <li class="item">
+                    <div class="item_body">
+                        <div class="item_dom"><i class="fa fa-user"></i> @(dr["InvHead"])(@dr["UserCode"])</div>
+                        <div class="item_dom"><i class="fa fa-navicon"></i> @dr["InvClass"]</div>
+                        <div class="item_dom"><i class="fa fa-navicon"></i> @dr["InvContent"]</div>
+                    </div>
+                    <div class="item_footer">
+                        <a href="InvoiceAdd?ID=@dr["ID"]" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
+                        <a href="javascript:;" onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'Invoice_API?action=del', confirm: '确定要删除吗' });" class="btn btn-danger btn-sm"><i class="fa fa-trash-o"></i></a>
+                    </div>
+                </li>
+            }
+            @if (Model.dt.Rows.Count < invtBll.MaxCount)
+            {
+                <li class="item add" onclick="location = 'InvoiceAdd';" title="添加新发票">
+                    <i class="fa fa-plus-square" style="font-size:70px;"></i>
+                </li>
+            }
+        </ul>
+    <div class="clearfix"></div>
+</div>
+<style type="text/css">
+    .zlbox{}
+    .zlbox .item{position:relative; width:30%;height:200px;float:left; margin-left:5px;margin-bottom:5px;border-radius:3px;
+                box-shadow:rgba(0, 0, 0, 0.0980392) 0px 2px 5px 0px, rgba(0, 0, 0, 0.0784314) 0px 2px 10px 0px;}
+    .zlbox .item.add{color:#999;text-align:center;padding-top:60px;}
+    .zlbox .item_body{padding:5px 8px;}
+    .zlbox .item_footer{padding:5px 8px; height:50px;position:absolute;bottom:0px;width:100%;
+        background-color:rgba(0, 0, 0, 0.0784314);border-top:1px solid #ddd;}
+    .zlbox .item_dom{border-bottom:1px solid #ddd;padding-bottom:5px;padding-top:5px;}
+</style>

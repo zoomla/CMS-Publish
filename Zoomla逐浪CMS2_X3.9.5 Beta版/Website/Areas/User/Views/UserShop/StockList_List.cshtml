@@ -1,0 +1,56 @@
+﻿@using System.Data;
+@using ZoomLa.Common
+@using ZoomLa.BLL.Helper
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string stocktype(string cc)
+    {
+        return cc.Equals("0") ? "入库" : "出库";
+    }
+    public MvcHtmlString ShowProNum(DataRow dr)
+    {
+        int num = DataConverter.CLng(dr["Pronum"]);
+        string r = "";
+        switch (DataConverter.CLng(dr["StockType"]))
+        {
+            case 0:
+                r = "<span style='color:green;'>+" + num + "</span>";
+                break;
+            case 1:
+                r = "<span style='color:red;'>-" + num + "</span>";
+                break;
+            default:
+                break;
+        }
+        return MvcHtmlString.Create(r);
+    }
+}
+@{
+    Model.cols = 9;
+    Model.url = "StockList";
+}
+<div id="EGV">
+    <table class="table table-bordered table-striped">
+        <tr>
+        <td class="td_s">类型</td>
+        <td>商品名</td>
+        <td class="td_m">数量</td>
+        <td class="td_l">录入时间</td>
+        <td class="td_m">录入者</td>
+        @*<td class="td_s">操作</td></tr>*@
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td>@stocktype(DataConverter.CStr(dr["stocktype"]))</td>
+                <td><a href="AddProduct?id=@dr["ProID"]">@dr["ProName"]</a></td>
+                <td>@ShowProNum(dr)</td>
+                <td>@DateHelper.ToDate(dr["addtime"])</td>
+                <td>@dr["adduser"]</td>
+                @*<td>
+                    <a href="StockAdd?id=@dr["id"]">修改</a>
+                </td>*@
+            </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

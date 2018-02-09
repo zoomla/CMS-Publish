@@ -1,0 +1,32 @@
+<ion-view>
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">我的订单</div>
+</ion-header-bar>
+<ion-content style="background:#f0f2f5;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+
+<div class="order_list">
+<div class="order_list_c" ng-repeat="item in orderlist">
+<div class="order_list_ct">订单号：{{item.OrderNo}}</div>
+<div class="media" ng-repeat="pro in item.ProList">
+<div class="media-left"><img class="media-object" ng-src="/UploadFiles/{{pro.Thumbnails}}" alt="{{pro.Proname}}" /></div>
+<div class="media-body media-middle">
+<h4 class="media-heading">{{pro.Proname}}</h4>
+<p>x{{pro.Pronum}} <span style="color:#c00; font-size:1.5em">{{pro.AllMoney | currency:'￥'}}</span></p>
+</div>
+</div>
+<div class="order_list_cp">
+下单时间：{{item.AddTime | date:"yyyy-MM-dd HH:mm:ss"}}<br/>
+付款状态：<span>{{item.OrderStatus==0?'未付款':'已付款'}}</span><br/>
+共1件商品 订单金额：<span>{{item.Ordersamount | currency:'￥'}}</span>
+</div>
+<div class="order_list_cb">
+<button type="button" class="btn btn-default">评价晒单</button>
+<button type="button" class="btn btn-danger">再次购买</button>
+</div>
+</div>
+</div>
+<div class="h48"></div>
+</ion-content>
+</ion-view>

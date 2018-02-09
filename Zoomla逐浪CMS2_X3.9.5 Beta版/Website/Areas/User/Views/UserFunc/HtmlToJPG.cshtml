@@ -1,0 +1,21 @@
+﻿@{
+    Layout = "~/Views/Shared/_empty.cshtml";
+}
+@section head{
+    <title>@ViewBag.title</title>
+    <link href="/App_Themes/User.css" rel="stylesheet" />
+}
+@section content{
+    <div class="container text-center"><img ID="CerPic_Img" src="@ViewBag.imgsrc" alt="@ViewBag.imgalt" class="center-block" /></div>
+    <div class="container text-center btn_green" style="margin-top:10px;">
+        <a href="javascript:;" onclick="downimg();" class="btn btn-primary" target="=_blank" >保存图片</a>
+    </div>
+}
+@section script{
+<script src="/JS/ICMS/ZL_Common.js?v=1"></script>
+<script>
+    function downimg() {
+        zlhelp.downimg("@ViewBag.imgsrc", "cert.jpg");
+    }
+</script>
+}

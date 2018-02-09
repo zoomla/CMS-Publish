@@ -1,0 +1,75 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{ 
+<title>班级列表</title> 
+}
+@section content{
+<div id="pageflag" data-nav="edu" data-ban="ke"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="@Url.Action("Default","")">用户中心</a></li>
+	<li class="breadcrumb-item">班级列表</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+	<div class="input-group mb-3">
+	  <input type="text" id="skey" name="skey" class="form-control mvcparam" placeholder="学校,年级,班级" />
+	  <div class="input-group-append">
+		<input type="button" class="btn btn-outline-info" value="搜索" onclick="mvcpage.load();" />
+	  </div>
+	</div>
+</div>
+<div class="container">
+    @Html.Partial("ClassView_List", Model)
+</div>
+<div style="display:none;" id="remind_div">
+    <form method="post" action="@Url.Action("Class_Apply","Questions")">
+        <div class="panel panel-primary container">
+            <div class="panel-heading row">班级信息</div>
+            <div class="panel-body">
+                <div class="col-md-3 text-right line2rem">班主任:</div>
+                <div class="col-md-9 line2rem">
+                    <span id="tearch_span"></span>
+                </div><div class="clearfix"></div>
+                <div class="col-md-3 text-right line2rem">班级宣言:</div>
+                <div class="col-md-9 line2rem">
+                    <span id="class_span"></span>
+                </div><div class="clearfix"></div>
+                <div class="col-md-3 text-right line2rem">申请理由:</div>
+                <div class="col-md-9 line2rem">
+                    <textarea id="remind_t" name="remind_t" class="form-control"></textarea>
+                </div><div class="clearfix"></div>
+
+            </div>
+        </div>
+        <div class="text-center">
+            <input type="submit" class="btn btn-info" value="确定" />
+            <button type="button" class="btn btn btn-outline-info" onclick="comdiag.CloseModal();">关闭</button>
+            <input type="hidden" id="roomid_hid" name="roomid_hit" />
+        </div>
+    </form>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(3).addClass("active");
+</script>
+}
+@section script{
+    <script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        function ShowRemark(obj) {
+            comdiag.title = "申请理由";
+            comdiag.width = "none";
+            comdiag.content = "remind_div";
+            comdiag.ShowModal();
+            $("#remind_t").val('');
+            $("#roomid_hid").val($(obj).data('id'));
+            $("#tearch_span").text($(obj).data('tearch'));
+            $("#class_span").text($(obj).data('info'));
+        }
+    </script>
+}

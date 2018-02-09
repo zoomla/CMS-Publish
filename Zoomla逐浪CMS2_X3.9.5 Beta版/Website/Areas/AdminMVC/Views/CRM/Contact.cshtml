@@ -1,0 +1,27 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>联系人</title>}
+@section content{
+    <ol id="navWrap" class="breadcrumb navbar-fixed-top">
+    <li><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+    <li><a href="ClientList">客户列表</a></li>
+    <li>
+        <a href="@MvcHtmlString.Create(Request.RawUrl)">联系人列表</a>
+        [<a href="javascript:;" onclick="ShowComDiag('ContactAdd','联系人管理');">添加联系人</a>]
+    </li>
+</ol>
+   @Html.Partial("Contact_List",Model)
+<div>
+    <input type="button" value="批量删除" class="btn btn-info" onclick="mvcpage.bat({url: 'contact_del', confirm: '确定要批量移除吗' });" />
+    <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID();" class="btn btn-info" />
+</div>
+     }
+@section script{
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Label/ZLHelper.js"></script>
+<script>
+    function ContactAddSuccess() {
+        mvcpage.load({ url: "contact", target: "EGV" });
+        CloseComDiag();
+    }
+</script>
+    }

@@ -1,0 +1,49 @@
+﻿@using System.Data
+@model ZoomLaCMS.Areas.User.Models.OrderViewModel
+@{
+    DataTable dt = new DataTable();
+    
+}
+@section head{<title>我的订单</title>
+
+}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="shop"></div>
+    <div class="container ">
+	<nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb" style="margin-bottom:5px;">
+            <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+            <li class="active breadcrumb-item"><a href="OrderList">我的订单</a></li>
+        </ol>
+		</nav>
+        @Html.Partial("OrderTop")
+    </div>
+	
+    <div class="container orderlist">
+        <div class="order_navs">
+            <ul class="nav nav-tabs" id="OrderType_ul" role="tablist">
+                <li role="presentation" data-flag="all"><a href="?filter=&ordertype=@Model.OrderType">全部订单</a></li>
+                <li role="presentation" data-flag="needpay"><a href="?filter=needpay&ordertype=@Model.OrderType">待付款</a></li>
+                <li role="presentation" data-flag="prepay"><a href="?filter=prepay&ordertype=@Model.OrderType">预付款</a></li>
+                <li role="presentation" data-flag="paid"><a href="?filter=paid&ordertype=@Model.OrderType">已付款</a></li>
+                <li role="presentation" data-flag="receive"><a href="?filter=receive&ordertype=@Model.OrderType">待收货</a></li>
+                <li role="presentation" data-flag="comment"><a href="?filter=comment&ordertype=@Model.OrderType">待评价</a></li>
+                <li role="presentation" data-flag="recycle"><a href="?filter=recycle&ordertype=@Model.OrderType">回收站</a></li>
+            </ul>
+            <div class="input-group search_div text_300">
+                <input type="text" id="Skey_T" name="Skey_T" placeholder="商品名称/商品编号/订单号" class="form-control mvcparam" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" id="Search_Btn" ><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+        </div>
+         @Html.Partial("OrderList_List",Model)
+    </div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>		
+}
+@section script{
+    @Html.Partial("OrderList_Res")
+}

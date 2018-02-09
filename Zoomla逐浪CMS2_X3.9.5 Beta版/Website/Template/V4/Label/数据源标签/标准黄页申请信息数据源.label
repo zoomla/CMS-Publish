@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>143</LabelID>
+    <LabelName>标准黄页申请信息数据源</LabelName>
+    <LabelType>3</LabelType>
+    <LabelCate>数据源标签</LabelCate>
+    <LabelDesc />
+    <LabelParam />
+    <LabelTable>ZL_PageReg LEFT JOIN ZL_Reg_Page ON ZL_PageReg.InfoID=ZL_Reg_Page.ID</LabelTable>
+    <LabelField>ZL_PageReg.*,ZL_Reg_Page.*</LabelField>
+    <LabelWhere>ZL_PageReg.ID={$GetRequest(PageID)$}</LabelWhere>
+    <LabelOrder />
+    <LabelContent />
+    <LabelCount>10</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_PageReg","tb_s":"ZL_Reg_Page"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

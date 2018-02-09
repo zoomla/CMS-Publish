@@ -1,0 +1,40 @@
+<ion-view>
+<ion-header-bar class="bar-assertive bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">我的信息</div>
+</ion-header-bar>
+<ion-content>
+<ion-list>
+<ion-item href="#/user/info">
+<div class="login_img">
+<img ng-src="{{userinfo.UserFace}}" alt="{{userinfo.UserName}}" />
+<div class="">
+<span>{{userinfo.UserName}}</span><br/>
+<span>{{userinfo.Purse | currency:'￥'}}</span>
+</div>
+<i class="icon ion-ios-arrow-right"></i>
+</div>
+</ion-item>
+</ion-list>
+<ion-list>
+<div class="list login_list">
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="icon ion-gear-b"></i> 账号信息</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#/tab/login/orderlist">
+<div class="pull-left"><i class="icon ion-ios-cart"></i> 我的订单</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="icon ion-cash"></i> 资金管理</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="icon ion-card"></i> 优惠券</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+</div>
+</ion-list>
+</ion-content>
+</ion-view>

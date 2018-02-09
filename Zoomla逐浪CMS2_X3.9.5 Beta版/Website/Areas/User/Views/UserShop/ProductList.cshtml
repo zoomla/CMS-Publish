@@ -1,0 +1,152 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.BLL
+@using ZoomLa.Controls
+@{
+    B_Node nodeBll = new B_Node();
+    C_TreeView treeMod = new C_TreeView()
+    {
+        NodeID = "NodeID",
+        NodeName = "NodeName",
+        NodePid = "ParentID",
+        DataSource = nodeBll.GetAllUserShopNode(),
+        liAllTlp = "<a href='ProductList'>全部商品</a>",
+        LiContentTlp = "<a href='ProductList?NodeID=@NodeID'>@NodeName</a>",
+        SelectedNode = Request["NodeID"]
+    };
+}
+@section head{
+<title>商品列表</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div> 
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+  <ol class="breadcrumb">
+  	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="ProductList">店铺商品管理</a></li>
+  </ol>
+</nav>
+</div>
+<main class="container">
+    <div>@Html.Partial("UserShopTop")</div>
+<div class="row">
+    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12" >
+        @Html.Partial("_treeview",treeMod)
+    </div>
+    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12">
+    <table class="table table-bordered" >
+        <tbody>
+            <tr>
+                <td>
+                    商品管理：
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            商品管理 <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="SelShopNode">添加商品</a></li>
+                            <li><a href="ProductList?type=0">商品管理</a></li>
+                        </ul>
+                    </div>
+                    <input type="hidden" id="NodeID" value="@Request["NodeID"]" class="mvcparam"/>
+                </td>
+                <td width="66%" align="center">
+                    <div class="input-group">
+                        <span class="input-group-addon">高级查询</span>
+                        <select ID="souchtable" class="form-control">
+                            <option Value="1" selected="selected">商品名称</option>
+                            <option Value="2">商品简介</option>
+                            <option Value="3">商品介绍</option>
+                            <option Value="4">厂商</option>
+                            <option Value="5">品牌/商标</option>
+                            <option Value="6">条形码</option>
+                        </select>
+                        <input type="text" ID="KeyWord" class="form-control mvcparam" placeholder="请输入关键词" />
+                        <span class="input-group-btn">
+                            <input type="button" value="搜索" class="btn btn-primary" onclick="mvcpage.load();" />
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="commodity_listbox">
+        @Html.Partial("ProductList_List",Model)
+        <div class="shop_btnbox">
+            <input type="button" value="保存排序" class="btn btn-outline-info" onclick="sort.save('product_op?a=order');"/>
+            <input type="button" value="整理序列号" class="btn btn-outline-info" onclick="sort.reorder();" />
+        </div>
+        <div class="shop_btnbox">
+            <input type="button" class="btn btn-info" value="开始销售" onclick="mvcpage.bat({ url: 'product_op?a=addsale', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="设为热卖" onclick="mvcpage.bat({ url: 'product_op?a=addhot', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="设为精品" onclick="mvcpage.bat({ url: 'product_op?a=addgood', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="设为新品" onclick="mvcpage.bat({ url: 'product_op?a=addnew', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="停止销售" onclick="mvcpage.bat({ url: 'product_sale?a=removesale', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="取消热卖" onclick="mvcpage.bat({ url: 'product_sale?a=removehot', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="取消精品" onclick="mvcpage.bat({ url: 'product_sale?a=removegood', after: 'reload' });" />
+            <input type="button" class="btn btn-info" value="取消新品" onclick="mvcpage.bat({ url: 'product_sale?a=removenew', after: 'reload' });" />
+            <input type="button" class="btn btn-outline-danger" value="批量删除" onclick="mvcpage.bat({ url: 'product_del',confirm:'确定要删除商品吗', after: 'reload' });" />
+        </div>
+    </div>
+    </div>
+</div>
+</main>
+}
+@section script{
+<script>
+$(function () {
+    if (getParam("quicksouch")) {
+        $("li a[href='#Tabs" + getParam("quicksouch") + "']").parent().addClass("active").siblings("li").removeClass("active");
+    }
+})
+var sort = {};
+sort.up = function (id) {
+    var $tr = $("#tr_" + id);
+    var $pre = $tr.prev(".order_tr");
+    if ($pre.length > 0) {
+        //交换orderID和位置
+        var temp = sort.getorder($tr);
+        sort.setorder($tr, sort.getorder($pre));
+        sort.setorder($pre, temp);
+        $pre.before($tr);
+    }
+}
+sort.down = function (id) {
+    var $tr = $("#tr_" + id);
+    var $next = $tr.next(".order_tr");
+    if ($next.length > 0) {
+        //交换orderID和位置
+        var temp = sort.getorder($tr);
+        sort.setorder($tr, sort.getorder($next));
+        sort.setorder($next, temp);
+        $next.after($tr);
+    }
+}
+sort.reorder = function () {
+    var $trs = $(".order_tr");
+    for (var i = 0; i < $trs.length; i++) {
+        $($trs[i]).find(".order_t").val((i + 1));
+    }
+}
+sort.getorder = function ($tr) {
+    return $tr.find(".order_t").val();
+}
+sort.setorder = function ($tr, order) {
+    $tr.find(".order_t").val(order);
+}
+sort.save = function (url) {
+    var list = [];
+    $(".order_t").each(function () {
+        var data = { "id": $(this).data("id"), "order": $(this).val() };
+        if (parseInt(data.order) && parseInt(data.order) >= 0) {
+            list.push(data);
+        }
+    });
+    $.post(url, { "list": JSON.stringify(list),ids:"1,2,3" }, function (data) {
+        location = location;
+    })
+}
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}

@@ -1,0 +1,268 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.SQLDAL
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    DataTable typeDt = B_GradeOption.GetGradeList(2, 0);
+    DataTable solveDt = (DataTable)ViewBag.solveDt;
+    DataTable hotDt = (DataTable)ViewBag.hotDt;
+}
+@functions{
+    B_GuestAnswer ansBll = new B_GuestAnswer();
+    public DataTable GetChildType(int gid)
+    {
+        return B_GradeOption.GetGradeList(2, gid);
+    }
+    // 获取回答数
+    protected int getanswers(int qid)
+    {
+        return ansBll.GetAnserCountByQid(DataConverter.CLng(qid));
+    }
+    public string GetLeftString(string str, int length)
+    {
+        return str.Length > length ? str.Substring(0, length) + "..." : str;
+    }
+    protected string gettype(string id)
+    {
+        string result = "";
+        if (DataConvert.CLng(id) > 0)
+        {
+            DataTable dt = Sql.Sel("zl_grade", " GradeID=" + Convert.ToInt32(id), "");
+            if (dt.Rows.Count > 0)
+            {
+                result = (dt.Rows[0]["GradeName"]).ToString();
+            }
+        }
+        return result;
+    }
+}
+@section head{
+    <title>问答中心首页</title>                                                                          
+}
+@section content{
+<!-- questions and answers-->
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation" class="qaCenter_breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+<li class="breadcrumb-item active">问答中心</li>
+</ol>
+</nav>
+</div>
+
+<div class="container qaCenter_tow-nav">
+    @Html.Partial("comp/TopLinkBtns")
+</div>
+
+<div class="container qaCenter_main">
+	
+	<div class="row">
+		<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12">
+			<table class="table table-bordered">
+				
+				<tbody class="qaCenter_table">
+					<tr><td colspan="2" class="qaCenter_table-top"><a href="/Ask/Classification">更多<i class="fa fa-angle-double-right" aria-hidden="true"></i></a>问题分类</td></tr>
+					@foreach(DataRow dr in typeDt.Rows)
+					{
+						<tr>
+							<td class="ask_class_tl qaCenter_table-w"><a href="/Ask/Classification?GradeID=@dr["GradeID"]" title="@dr["GradeName"]">@dr["GradeName"]</a></td>
+							<td class="ask_class_tr">
+								@foreach (DataRow row in GetChildType(DataConverter.CLng(dr["GradeID"])).Rows)
+								{
+									<a href="/Ask/Classification?ParentID=@dr["ParentID"]&GradeID=@dr["GradeID"]" title="@dr["GradeName"]">@dr["GradeName"]</a>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		
+		</div>
+		<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+			
+		  <div class="qaCenter_Resolved">
+			   <div class="qaCenter_Resolved_t"><span><i class="fa fa-heart"></i> 我们向您承诺：10分钟内给您满意的答复</span>已解决问题</div>
+				<div class="qaCenter_Resolved_c">
+						<div class="qaCenter_Resolved_cr">
+							<ul class="list-unstyled">
+								@foreach (DataRow dr in solveDt.Rows)
+								{
+									<li>
+										<strong>@getanswers(DataConverter.CLng(dr["ID"]))回答</strong>
+										<a target="_self" href="/Ask/SearchDetails?ID=@dr["ID"]">@GetLeftString(dr["Qcontent"].ToString(),12)</a>
+										<span>[<a target="_self" href="/Ask/List?QueType=@dr["QueType"]&strwhere=">@dr["QueType"]</a>]</span>
+									</li>
+								}
+							</ul>
+							<div class="clearfix"></div>
+						</div>
+				</div>
+			</div>
+			
+			<div class="qaCenter_hotsearch">
+				<div class="qaCenter_hotsearch_t">热门搜索</div>
+				<div id="know">
+					@foreach (DataRow dr in hotDt.Rows)
+					{
+						<a class="btn btn-warning btn_hot" target="_self" href="/Ask/List?QueType=@dr["QueType"]&strwhere=">@gettype(dr["QueType"].ToString())<span></span></a>
+					}
+				</div>
+				<div class="qaCenter_hotsearch_c">
+					<div class="row">
+						<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"> 
+							<button type="button" class="btn bg-secondary text-white">电脑装机</button>
+							<div class="clearfix"></div>
+							<ul class="list-unstyled">
+								@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出指定问题分类最新问题\" ShowNum=\"4\" TitleNum=\"30\" QueType=\"402\" /}"))
+							</ul>
+							<div class="clearfix"></div>
+						</div>
+						<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+							<button type="button" class="btn bg-secondary text-white">体育/运动</button>
+							<div class="clearfix"></div>
+							<ul class="list-unstyled">
+								@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出指定问题分类最新问题\" ShowNum=\"4\" TitleNum=\"30\" QueType=\"392\" /}"))
+							</ul>
+							<div class="clearfix"></div>
+						</div>
+						<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+							<button type="button" class="btn bg-secondary text-white">商业/理财</button>
+							<div class="clearfix"></div>
+							<ul class="list-unstyled">
+								@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出指定问题分类最新问题\" ShowNum=\"4\" TitleNum=\"30\" QueType=\"394\" /}"))
+							</ul>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="qaCenter_Wait">
+				<div class="qaCenter_Wait_t"><a href="/ask/MoreProblems?type=1" class="text-secondary">更多 <i class="fa fa-caret-right"></i></a>待解决问题</div>
+				<div class="qaCenter_Wait_c">
+					
+					<!-- Nav tabs -->
+					<ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item">
+					<a class="nav-link active" id="home-tab1" data-toggle="tab" href="#home1" role="tab" aria-controls="home1" aria-selected="true">电脑装机</a>
+					</li>
+					<li class="nav-item">
+					<a class="nav-link" id="home-tab2" data-toggle="tab" href="#home2" role="tab" aria-controls="home2" aria-selected="true">硬件</a>
+					</li>
+					<li class="nav-item">
+					<a class="nav-link" id="home-tab3" data-toggle="tab" href="#home3" role="tab" aria-controls="home3" aria-selected="true">软件</a>
+					</li><li class="nav-item">
+					<a class="nav-link" id="home-tab4" data-toggle="tab" href="#home4" role="tab" aria-controls="home4" aria-selected="true">反病毒</a>
+					</li><li class="nav-item">
+					<a class="nav-link" id="home-tab5" data-toggle="tab" href="#home5" role="tab" aria-controls="home5" aria-selected="true">互联网</a>
+					</li>
+					</ul>
+					
+					<div class="tab-content" id="myTabContent">
+					<div class="tab-pane fade show active" id="home1" role="tabpanel" aria-labelledby="home-tab1">
+					<ul class="list-unstyled">
+					@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出待解决问题\" TitleNum=\"38\" ShowNum=\"12\" Type=\"402\" /}"))
+					</ul>	
+					</div>
+					<div class="tab-pane fade show" id="home2" role="tabpanel" aria-labelledby="home-tab2">
+					<ul class="list-unstyled">
+					@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出待解决问题\" TitleNum=\"38\" ShowNum=\"6\" Type=\"403\" /}"))
+					</ul>
+					</div>
+					<div class="tab-pane fade show" id="home3" role="tabpanel" aria-labelledby="home-tab3">
+					<ul class="list-unstyled">
+					@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出待解决问题\" TitleNum=\"38\" ShowNum=\"6\" Type=\"404\" /}"))
+					</ul>
+					</div>
+					<div class="tab-pane fade show" id="home4" role="tabpanel" aria-labelledby="home-tab4">
+					<ul class="list-unstyled">
+					@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出待解决问题\" TitleNum=\"38\" ShowNum=\"6\" Type=\"405\" /}"))
+					</ul>
+					</div>
+					<div class="tab-pane fade show" id="home5" role="tabpanel" aria-labelledby="home-tab5">
+					<ul class="list-unstyled">
+					@MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出待解决问题\" TitleNum=\"38\" ShowNum=\"6\" Type=\"406\" /}"))
+					</ul>
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ask_bottom">
+    <p class="text-center"><a target="_blank" title="如何提问" href="http://help.z01.com/?index/help.html#如何提问">如何提问</a> <a target="_blank" title="如何回答" href="http://help.z01.com/?index/help.html#如何回答">如何回答</a> <a target="_blank" title="如何获得积分" href="http://help.z01.com/?index/help.html#如何获得积分">如何获得积分</a> <a target="_blank" title="如何处理问题" href="http://help.z01.com/?index/help.html#如何处理问题">如何处理问题</a></p>
+    <p class="text-center">@MvcHtmlString.Create(Call.GetLabel("{$Copyright/}"))</p>
+</div>
+<input type="hidden" id="hfid" />
+}
+@section script{
+<script>
+    $(function () {
+        $("#top_nav_ul li[title='问答首页']").addClass("active");
+    })
+    function showtop(type) {
+        if (type == 'week') {
+            document.getElementById("weektab").className = "on";
+            document.getElementById("alltab").className = "";
+            document.getElementById("weektop").style.display = "";
+            document.getElementById("alltop").style.display = "none";
+        } else {
+            document.getElementById("weektab").className = "";
+            document.getElementById("alltab").className = "on";
+            document.getElementById("weektop").style.display = "none";
+            document.getElementById("alltop").style.display = "";
+        }
+    }
+    function supplyment() {
+        var div = document.getElementById("divSupplyment");
+        if (div.style.display == "none") {
+            div.style.display = "block";
+        }
+        else {
+            div.style.display = "none";
+        }
+    }
+    function CheckDirty() {
+        var TxtTTitle = document.getElementById("TxtTTitle").value;
+        var TxtValidateCode = document.getElementById("TxtValidateCode").value;
+
+        if (value == "" || TxtTTitle == "" || TxtValidateCode == "") {
+            if (value == "") {
+                var obj = document.getElementById("RequiredFieldValidator1");
+                obj.innerHTML = "<font color='red'>内容不能为空！</font>";
+            }
+            else {
+                var obj = document.getElementById("RequiredFieldValidator1");
+                obj.innerHTML = "";
+            }
+            if (TxtTTitle == "") {
+                var obj2 = document.getElementById("RequiredFieldValidator2");
+                obj2.innerHTML = "<font color='red'>留言标题不能为空！</font>";
+            }
+            else {
+                var obj2 = document.getElementById("RequiredFieldValidator2");
+                obj2.innerHTML = "";
+            }
+            if (TxtValidateCode == "") {
+                var obj3 = document.getElementById("sp1");
+                obj3.innerHTML = "<font color='red'>验证码不能为空！</font>";
+            } else {
+                var obj3 = document.getElementById("sp1");
+                obj3.innerHTML = "";
+            }
+            return false;
+        }
+        else {
+            var obj = document.getElementById("RequiredFieldValidator1");
+            obj.innerHTML = "";
+            var obj2 = document.getElementById("RequiredFieldValidator2");
+            obj2.innerHTML = "";
+            var obj3 = document.getElementById("sp1");
+            obj3.innerHTML = "";
+            document.getElementById("EBtnSubmit2").click();
+        }
+    }
+</script>
+}

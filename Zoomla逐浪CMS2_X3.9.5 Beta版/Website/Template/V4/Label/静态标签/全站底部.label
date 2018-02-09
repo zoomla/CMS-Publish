@@ -1,0 +1,45 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>319</LabelID>
+    <LabelName>全站底部</LabelName>
+    <LabelType>1</LabelType>
+    <LabelCate>静态标签</LabelCate>
+    <LabelDesc />
+    <LabelParam />
+    <LabelTable />
+    <LabelField />
+    <LabelWhere />
+    <LabelOrder />
+    <LabelContent>&lt;div class="home_footer"&gt;
+&lt;div class="container"&gt;
+&lt;ul class="d-flex list-unstyled"&gt;
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="{ZL:GetInfoUrl(20)/}" target="_blank"&gt;关于我们&lt;/a&gt;&lt;/li&gt;  
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="{ZL:GetInfoUrl(22)/}" target="_blank"&gt;法律声明&lt;/a&gt;&lt;/li&gt;
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="{ZL:GetNodeLinkUrl(77)/}" target="_blank"&gt;帮助中心&lt;/a&gt;&lt;/li&gt;
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="{ZL:GetInfoUrl(21)/}" target="_blank"&gt;联系我们&lt;/a&gt;&lt;/li&gt;
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="/guest/" target="_blank"&gt;留言反馈&lt;/a&gt;&lt;/li&gt;
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="/dai/" target="_blank"&gt;真人试戴&lt;/a&gt;&lt;/li&gt; 
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="/Plugins/Camera.aspx" target="_blank"&gt;在线拍照&lt;/a&gt;&lt;/li&gt; 
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="{ZL:GetNodeLinkUrl(106)/}" target="_blank"&gt;网站地图&lt;/a&gt;&lt;/li&gt;
+&lt;li class="mr-1 ml-1"&gt;&lt;a href="{$ManageDir/}login" target="_blank"&gt;管理登录&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;{$Copyright/}&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;</LabelContent>
+    <LabelCount />
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType />
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

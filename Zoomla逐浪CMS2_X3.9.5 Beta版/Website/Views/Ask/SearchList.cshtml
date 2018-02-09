@@ -1,0 +1,43 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+}
+@section head{
+    <title>问题列表_@Call.SiteName</title>
+}
+@section content{
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb mybreadcrumb">
+<li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+<li class="breadcrumb-item"><a href="/Ask">问答中心</a></li>
+<li class="breadcrumb-item active" aria-current="page">搜索列表</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+    <div class="h_mid">
+        <div class="h_mid_l"></div>
+        <div id="tdh" class="h_mid_m">
+            @if(ViewBag.islogin) { <span> <a href="MyAskList">我的提问</a> <a href="MyAnswerlist">我的回答</a></span> }
+				<div class="mytow-nav">
+            @Html.Partial("comp/TopLinkBtns")
+				</div>	
+        </div>
+    </div>
+    <div class="h_b">
+        <div class="h_b_l"></div>
+        <div class="h_b_m">
+            @{Html.Partial("comp/CommonView");}
+            <div class="clr"></div>
+        </div>
+        <div class="h_b_r"></div>
+    </div>
+    <div class="asklist">
+        @Html.Partial("SearchList_List",Model)
+    </div>
+</div>
+}
+@section script{
+    
+}

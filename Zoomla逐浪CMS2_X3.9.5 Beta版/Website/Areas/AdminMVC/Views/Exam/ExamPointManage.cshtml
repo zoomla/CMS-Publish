@@ -1,0 +1,27 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{
+    <title>考点管理</title>
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li><a href='Papers_System_Manage'>教育模块</a></li>
+            <li><a href='QuestionManage'>考试管理</a></li>
+            <li>考点管理<a href='AddExamPoint'>[添加考点]</a></li>
+            @MvcHtmlString.Create(Call.GetHelp(77))
+        </ol>
+    </div>
+</div>
+@Html.Partial("ExamPointManage_List")
+<div>
+    <button type="button" class="btn btn-primary" onclick="mvcpage.bat({ url: 'ExamPoint_Del', confirm: '不可恢复性删除数据,你确定将该数据删除吗？' });" >批量删除</button>
+</div>
+}
+@section script{
+    
+}

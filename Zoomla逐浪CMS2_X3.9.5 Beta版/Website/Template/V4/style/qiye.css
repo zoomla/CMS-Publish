@@ -1,0 +1,101 @@
+﻿@charset "utf-8";
+/* 全局样式定义 Powered by Zoomla!逐浪CMS z01.com*/
+a:active {star:expression(this.onFocus=this.blur());} 
+canvas {-ms-touch-action:double-tap-zoom;}
+.relative { position:relative;}
+.padding15 { padding-left:15px; padding-right:15px;}
+.padding10{ padding-left:10px; padding-right:10px;}
+.padding5{ padding-left:5px; padding-right:5px;}
+.div_h35 { height:35px;}
+.loginNone{display:none;}
+.margin_top20 { margin-top:20px;}
+.margin_bottom20 { margin-bottom:20px;}
+.padding0_lg { padding-left:0; padding-right:0;}
+body { font-family:"STHeiti","Microsoft YaHei","黑体","arial"; }
+/*在内容页的图片，建议采用此定义使图片响应式默认带框 .content img {max-width: 98%;border: inset;}*/
+
+
+
+
+#logos { height:2.5rem;}
+.home_nav { background:rgba(255,255,255,1.00); border:none; border-radius:0; box-shadow:0 0 5px rgba(0,0,0,0.5); }
+.home_nav .navbar-brand { height:auto; }
+.home_nav .navbar-brand img { height:40px; }
+.home_nav .navbar-nav>li>a { padding-top:25px; padding-bottom:25px; }
+
+.home_banner .carousel-inner .item img { width:100%; }
+.home_top_l { margin-top:30px; }
+.home_top_l .media-left { padding-right:30px; }
+.home_top_l .media-body p { margin-bottom:0;}
+.home_top_r { margin-top:30px; }
+.home_top_rt { margin-bottom:10px;}
+.home_top_r .media span { display:block; padding-left:10px; padding-right:10px; padding-top:10px; padding-bottom:10px; width:70px; background:rgba(20, 122, 193, 1); color:rgba(255,255,255,1.00);  font-size:1.2em; font-weight:100; }
+.home_top_r .media span b { font-weight:100; font-size:0.857em; color:rgba(255, 255, 255, .5);}
+.home_top_r .media p { margin-bottom:0;}
+.home_top_r .media-body h5 { font-size:1rem;}
+.home_hangye { margin-top:30px; }
+.home_hangye_t { height:3rem; line-height:3rem;}
+.home_hangye_t .h3 { margin-top:0; margin-bottom:0; }
+.home_hangye_tr span { margin-left:1em; margin-right:1em; color:rgba(0, 0, 0, .1); }
+.home_hangye_c { margin-top:30px; }
+.home_hangye_c h3 { font-size:1.2rem; margin-bottom:0; height:2rem; line-height:2rem;}
+.home_hangye_c img { width:100%;}
+.home_about { margin-top:30px; padding-top:8em; padding-bottom:8em; background:rgba(239, 243, 247, 1);}
+.home_about .media-heading { margin-bottom:0; font-weight:bold; }
+.home_about .media-body p { margin-top:3em; margin-bottom:3em; }
+.home_team_c { margin-top:5em; margin-bottom:5em; }
+.home_team_c .media-left { padding-right:30px; }
+.home_team_c .media-left img { border-radius:50%;}
+.home_team_c .media-body p { margin-bottom:0;}
+.home_friend { padding-top:3em; padding-bottom:3em; text-align:center; border-top:1px solid rgba(0, 0, 0, .05); }
+.home_friend img { width:130px;}
+.home_contact { padding-top:4em; padding-bottom:4em; background:rgba(33, 55, 82, 1); color:rgba(255,255,255,1.00); }
+.home_contact p { line-height:2em; font-weight:100; }
+.home_contact p a { margin-right:2em;  color:rgba(255, 255, 255, .3); font-size:1.2em; }
+.home_copy { line-height:3em;}
+.home_copy p { margin-bottom:0; }
+
+.cont_banner { background:url(images/cont_banner1.jpg) center no-repeat; background-size:cover; height:30em; }
+.cont_banner210 { background:url(images/cont_banner1.jpg) center no-repeat; background-size:cover;}
+.cont_banner217 { background:url(images/cont_banner2.jpg) center no-repeat; background-size:cover;}
+.cont_banner219 { background:url(images/cont_banner3.jpg) center no-repeat; background-size:cover;}
+.cont_banner220 { background:url(images/cont_banner4.jpg) center no-repeat; background-size:cover;}
+.cont_banner221 { background:url(images/cont_banner5.jpg) center no-repeat; background-size:cover;}
+.cont_bannerg109 { background:url(images/cont_banner6.jpg) center no-repeat; background-size:cover;}
+
+.list_main_l { }
+.list_main_l h3 { margin-top:0; }
+.list_main_l ul { padding-left:0; list-style:none;}
+.list_main_l li { padding-left:1em; line-height:3em; border-bottom:1px solid rgba(0, 0, 0, .08);}
+.n_lis { margin-bottom:20px;}
+.n_lis a { color:#333; }
+.myContent { margin-bottom:20px; }
+.myContent_t { margin-bottom:1em; text-align:center; }
+.myContent_t h1 { font-size:1.5em;}
+.myAbbr { color:rgba(153,153,153,1.00); font-size:0.9em; }
+.myAbbr span { margin-left:5px; margin-right:5px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*key:UG93ZXJlZCBieSBab29tbGEh6YCQ5rWqQ01TIHd3d3cuejAxLmNvbQ== */

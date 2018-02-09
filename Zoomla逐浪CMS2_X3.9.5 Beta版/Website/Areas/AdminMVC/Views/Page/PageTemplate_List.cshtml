@@ -1,0 +1,71 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Page
+@using ZoomLa.Model
+@using ZoomLaCMS.Models.Common
+@model ZoomLaCMS.Models.Common.VM_Recursion
+@functions{
+    private int Mid { get { return DataConverter.CLng(Request.QueryString["ID"]); } }
+    B_PageTemplate tll = new B_PageTemplate();
+    public string geticon(DataRow dr)
+    {
+        return Model.alldt.Select("ParentID=" + dr["TemplateID"]).Length > 0 ? "fa fa-folder-open" : "fa fa-file";
+    }
+    public string gettempname(DataRow dr)
+    {
+        int TemplateType = Convert.ToInt32(dr["TemplateType"]);
+        string TemplateName = DataConverter.CStr(dr["TemplateName"]);
+        string str = "";
+        if (Convert.ToInt32(dr["UserID"]) > 0)
+        {
+            str = "<a href=\"PageTemplateAdd?RegID=" + Mid + "\">" + TemplateName + "</a>";
+        }
+        else
+        {
+            str = TemplateName;
+        }
+        return str;
+    }
+    public string gettemptype(string type)
+    {
+        return "栏目型栏目";
+    }
+}
+@{
+   
+} 
+ @foreach (DataRow dr in Model.dt.Rows)
+    {
+        //Model.iconHtml = "<img src=\"/Images/TreeLineImages/t.gif\" /></a>";
+        bool hasChild = Model.alldt.Select("ParentID=" + dr["TemplateID"]).Length > 0;
+        <tr>
+            <td>@dr["templateID"]</td>
+            <td>
+                @Model.H_LineIcon(Model.depth)
+                <a href='PageContent?TemplateID=@dr["templateID"]' title='查看内容'><span class='@geticon(dr)'></span></a>
+                <a href="PageTemplateAdd?ID=@dr["templateID"]"> @MvcHtmlString.Create(gettempname(dr))</a>
+            </td>
+            <td class="text-center">@dr["ArtCount"]</td>
+            <td>@MvcHtmlString.Create(gettemptype(dr["templateType"].ToString()))</td>
+            <td>
+                @if (DataConverter.CLng(dr["isTrue"]) == 1)
+                { <font color='green'>启用</font> }
+                else { <font color='red'>停用</font> }
+            </td>
+            <td>
+                <a href="PageTemplateAdd?ParentID=@dr["templateID"]&RegID=@Mid" class="option_style"><i class="fa fa-plus-square"></i>添加</a>
+                <a href="PageTemplateAdd?ID=@dr["templateID"]" class="option_style"><i class="fa fa-pencil"></i>修改</a>
+                <a href="javascript:;" onclick="mvcpage.del({ id: '@dr["templateID"]', url: 'Nodes_Del', confirm: '不可恢复性删除数据,你确定将该数据删除吗？' });" class="option_style"><i class="fa fa-trash-o"></i>删除</a>
+                @if(hasChild){<a href="javascript:;" onclick="ShowOrder(@dr["templateID"])"><i class="fa fa-exchange"></i>排序</a>}
+            </td>
+        </tr>
+        if (Model.alldt.Select("ParentID=" + dr["templateID"]).Length > 0)
+        {
+            VM_Recursion reMod = new VM_Recursion();
+            Model.alldt.DefaultView.RowFilter = "ParentID=" + dr["templateID"];
+            reMod.alldt = Model.alldt;
+            reMod.dt = Model.alldt.DefaultView.ToTable();
+            reMod.depth = Model.depth + 1;
+            @Html.Partial("PageTemplate_List", reMod);
+        }
+}

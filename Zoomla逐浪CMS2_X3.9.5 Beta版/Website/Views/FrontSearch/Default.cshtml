@@ -1,0 +1,102 @@
+﻿@{
+    Layout = "~/Views/Shared/_empty.cshtml";
+}
+@section head{
+<title>全站搜索_@Call.SiteName</title>
+}
+@section content{
+
+<div class="Search_header">
+<div class="search_overflow">
+<div class="container-fluid">
+<div class="container">
+<div class="row">
+<div class="col-sm-6 col-6"><a href="/"><img src="@Call.LogoUrl" alt="@Call.SiteName" /></a></div>
+<div class="col-sm-6 col-6 search_nav">
+<a href="">注册</a>
+<a href="/user/">登录</a>
+<a href="/help.html">帮助</a>
+</div>
+</div>
+</div>		
+</div>		
+<div class="form-row search_list">
+<div class="form-group col-md-4"></div>
+<div class="form-group col-md-1">
+<select id="ddlnode" name="ddlnode" class="btn btn-default dropdown-toggle search_set">
+<option value="-1">全部栏目</option>
+@MvcHtmlString.Create(ViewBag.nodehtml)
+</select>
+</div>
+<div class="form-group col-md-1"></div>
+<div class="form-group col-md-2">
+<div class="input-group">
+<input type="text" class="form-control input-sm" id="TxtKeyword" name="TxtKeyword" placeholder="请输入关键字" />
+<span class="input-group-btn">
+<input type="button" width="50" value="搜索" class="btn btn-default input-sm" id="btnSearch" name="btnSearch" onclick="search();" />
+</span>
+</div><!-- /input-group -->
+</div>
+<div class="form-group col-md-4"></div>	
+</div>	
+</div>
+</div>
+ <div class="container Search_elit">
+<div class="row">
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/baike" target="_blank"><i class="fa fa-university"></i><p>百科中心</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/guest/" target="_blank"><i class="fa fa-volume-up"></i><p>留言中心</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/ask" target="_blank"><i class="fa fa-puzzle-piece"></i><p>问答中心</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/index" target="_blank"><i class="fa fa-ship"></i><p>论坛</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/dai/" target="_blank"><i class="fa fa-history"></i><p>在线试戴</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/office" target="_blank"><i class="fa  fa-beer"></i><p>OA办公</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/plat" target="_blank"><i class="fa  fa-modx"></i><p>能力中心</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/Class_2/Default.aspx" target="_blank"><i class="fa fa-shopping-bag"></i><p>线上商城</p></a>
+</div>
+</div>
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-12">
+<div class="Search_edivtprj">
+<a href="/payOnline/Donate.aspx" target="_blank"><i class="fa fa fa-thumbs-up"></i><p>捐赠中心</p></a>
+</div>
+</div></div>
+</div>
+
+}
+@section script{
+<script>
+    function search() {
+        var node = $("#ddlnode").val();
+        var keyword = $("#TxtKeyword").val();
+        location = "/Search/SearchList?node=" + node + "&keyword=" + encodeURI(keyword);
+    }
+</script>
+}

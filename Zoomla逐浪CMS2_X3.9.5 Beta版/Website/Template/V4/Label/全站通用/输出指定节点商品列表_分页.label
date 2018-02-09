@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>193</LabelID>
+    <LabelName>输出指定节点商品列表_分页</LabelName>
+    <LabelType>4</LabelType>
+    <LabelCate>全站通用</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,1,1,节点ID|ShowNum,10,1,显示数</LabelParam>
+    <LabelTable>ZL_Commodities</LabelTable>
+    <LabelField>ID,LinPrice,Nodeid,Proname,ShiPrice,Thumbnails</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID) And Sales=1 And istrue=1 And Recycler=0</LabelWhere>
+    <LabelOrder>ZL_Commodities.AddTime DESC</LabelOrder>
+    <LabelContent>&lt;div class="weui-panel weui-panel_access"&gt;
+&lt;div class="weui-panel__hd"&gt;{ZL.Label id="输出指定ID节点名" NodeID="{Field="Nodeid"/}" /}&lt;/div&gt;
+&lt;div class="weui-panel__bd"&gt;
+
+{Repeate}
+&lt;a href="{ZL:GetShopUrl({Field="ID"/})/}" class="weui-media-box weui-media-box_appmsg"&gt;
+&lt;div class="weui-media-box__hd"&gt;
+&lt;img class="weui-media-box__thumb" src="{ZL:GetPicUrl({Field="Thumbnails"/})/}" alt="{Field="Proname"/}" onerror="javascript:this.src='/UploadFiles/nopic.gif';"&gt;
+&lt;/div&gt;
+&lt;div class="weui-media-box__bd"&gt;
+&lt;h4 class="weui-media-box__title"&gt;{Field="Proname"/}&lt;/h4&gt;
+&lt;p class="weui-media-box__desc"&gt;
+&lt;span style="text-decoration:line-through;"&gt;&lt;i class="fa fa-rmb"&gt;&lt;/i&gt;{ZL:GetMoney({Field="ShiPrice"/},2,1)/}&lt;/span&gt;&lt;br/&gt;
+&lt;span style="color:#c00;"&gt;&lt;i class="fa fa-rmb"&gt;&lt;/i&gt;{ZL:GetMoney({Field="LinPrice"/},2,1)/}&lt;/span&gt;  
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;/a&gt;{/Repeate}
+&lt;/div&gt;
+&lt;/div&gt;
+{ZL.Page id="响应式列表分页v3"/}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Commodities","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

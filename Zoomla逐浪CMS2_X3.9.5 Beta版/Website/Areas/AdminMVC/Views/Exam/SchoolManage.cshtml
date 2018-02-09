@@ -1,0 +1,78 @@
+﻿@{
+
+}
+@section head{
+    <title>学校信息配置</title>
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href="<%=customPath2 %>Main.aspx">工作台</a></li>
+            <li><a href="../Exam/Papers_System_Manage.aspx">教育模块</a></li>
+            <li class="active">学校管理<a href="AddSchool">[添加学校]</a></li>
+            <div id="sel_box">
+                <div class="input-group pull-left" style="width:643px">
+                    <select id="pro_para" class="form-control schooldp mvcparam" style="width:120px;"></select>
+                    <select id="city_para" class="form-control schooldp mvcparam" style="width:120px;"></select>
+                    <select id="county_para" class="form-control schooldp mvcparam" style="width:150px;"></select>
+                    <input type="text" id="sname_para" class="form-control text_md mvcparam" placeholder="请输入学校名称" onkeypress="selbox.search();" />
+                    <span class="input-group-btn">
+                        <input type="button" class="btn btn-default" value="搜索" onclick="mvcpage.load();" />
+                    </span>
+                </div>
+                <div class="pull-left" style="margin-left:10px; line-height:30px;">
+                    <label><input type="checkbox" id="nopro_chk" class="mvcparam" checked="checked" />忽略省份</label>
+                    <label><input type="checkbox" id="nocity_chk" class="mvcparam" checked="checked" />忽略城市</label>
+                    <label><input type="checkbox" id="nocounty_chk" class="mvcparam" checked="checked" />忽略县</label>
+                </div>
+            </div>
+            <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="fa fa-search"></i></a></div>
+        </ol>
+    </div>
+</div>
+@Html.Partial("SchoolManage_List")
+<div>
+    <button class="btn btn-primary" onclick='mvcpage.bat({url: "School_Del", confirm: "确定要删除选中数据吗？"});'>批量删除</button>
+</div>
+}
+@section script{
+<script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_PCC.js"></script>
+<script type="text/javascript">
+    var pcc = new ZL_PCC("pro_para", "city_para", "county_para");
+    $(function () {
+        $("#EGV tr").dblclick(function () {
+            window.location.href = "AddSchool.aspx?id="+$(this).find("input[name=idchk]").val();
+        });
+        $("#chkAll").click(function () {//EGV 全选
+            selectAllByName(this, "chkSel");
+        });
+        $(".schooldp").change(function () {
+            setTimeout(function () {
+                var val = $("#tbProvince").val() + "," + $("#tbCity").val() + "," + $("#tbCounty").val();
+                $("#address_hid").val(val);
+            }, 200);
+        });
+        pcc.ProvinceInit();
+    })
+    function IsSelectedId() {
+        var checkArr = $("input[type=checkbox][name=chkSel]:checked");
+        if (checkArr.length > 0)
+            return true
+        else
+            return false;
+    }
+    $("#sel_btn").click(function (e) {
+        if ($("#sel_box").css("display") == "none") {
+            $(this).addClass("active");
+            $("#sel_box").slideDown(300);
+        }
+        else {
+            $(this).removeClass("active");
+            $("#sel_box").slideUp(200);
+        }
+    });
+</script>
+}

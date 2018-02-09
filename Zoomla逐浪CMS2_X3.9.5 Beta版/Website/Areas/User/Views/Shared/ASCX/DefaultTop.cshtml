@@ -1,0 +1,63 @@
+﻿@functions{
+    string usernavBan = ZoomLa.Components.SiteConfig.UserConfig.UserNavBan;
+    public bool IsShowNav(string nav)
+    {
+        if (string.IsNullOrEmpty(usernavBan)) { return true; }
+        else { return !usernavBan.Contains(nav); }
+    }
+ }
+@{
+   ZoomLa.Model.M_UserInfo mu=new ZoomLa.BLL.B_User().GetLogin();
+}
+<div class="d-none d-sm-block">
+@Html.Partial("_leftmenu")
+</div>
+
+<div class="container u_top">
+<div class="row">
+<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+<a href="/" target="_blank"><img src="@Call.LogoUrl" class="img-responsive" alt="@Call.SiteName" /></a>
+</div>
+<div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-12 u_top_r">
+<div class="row justify-content-end">
+<div class="form-group u_search_media">
+<input  type="text" name="key" id="key" class="form-control u_search_box"  placeholder="检索会员功能" onkeydown="return IsEnter(this);" >
+<button class="btn" type="submit" s><i class="fa fa-search" id="sub_btn" title="可按回车键快速检索"></i></button>
+</div>
+<ul class="top_bntbox">
+<li class="d-none d-sm-block"><i class="fa fa-user"></i> @mu.UserName</li>
+<li><a href="/User/Info/UserBase"><i class="fa fa-cog" aria-hidden="true"></i>设置</a></li>
+<li><a href="/User/User/LogOut"><i class="fa fa-sign-out" aria-hidden="true"></i> 退出</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-light u_nav" id="usernav">
+  <div class="container"> <a class="navbar-brand" href="#">快速导航</a>
+   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#usernav1" aria-controls="usernav1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+    <div class="collapse navbar-collapse" id="usernav1">
+    <ul class="navbar-nav">
+	@if (IsShowNav("index"))
+	{<li class="nav-item active" id="nav_home"><a class="nav-link" href="/User/Default">首页</a></li> }
+	@if (IsShowNav("content"))
+	{<li class="nav-item" id="nav_content"><a class="nav-link" href="/User/Content/MyContent"> 内容 </a></li>}
+	@if (IsShowNav("shop"))
+	{<li class="nav-item" id="nav_shop"><a class="nav-link" href="/User/UserShop/Default">商城</a></li>}
+	@if (IsShowNav("exam"))
+	{<li class="nav-item" id="nav_edu"><a class="nav-link" href="/User/Exam/QuestList">教育</a></li> }
+	@if (IsShowNav("page"))
+	{<li class="nav-item" id="nav_page"><a class="nav-link" href="/User/Pages/Default">黄页</a></li> }
+	@if (IsShowNav("cloud"))
+	{<li class="nav-item" id="nav_cloud"><a class="nav-link" href="/User/Cloud/Index">云盘</a></li>}
+	@if (IsShowNav("site"))
+	{<li class="nav-item"><a class="nav-link" href="/Site/Default" target="_blank">建站</a></li> }
+	@if (IsShowNav("office"))
+	{<li class="nav-item" id="nav_office"><a class="nav-link" href="/Office">办公</a></li> }
+	@if (IsShowNav("plat"))
+	{<li class="nav-item" id="nav_ability"><a class="nav-link" href="/Home">能力</a></li>}
+    </ul>
+</div>
+</div>
+</nav>

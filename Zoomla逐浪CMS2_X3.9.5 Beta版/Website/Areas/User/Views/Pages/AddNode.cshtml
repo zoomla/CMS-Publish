@@ -1,0 +1,96 @@
+﻿@model ZoomLa.Model.M_Templata
+@using ZoomLa.AppCode.Controls
+@using ZoomLa.BLL
+@{
+    
+    string action = MVCHelper.GetAction(Url.Action("Node_Add", "Pages"), Request);
+    B_Page pageBll=ViewBag.pageBll;
+}
+@section head{
+    <title>添加栏目</title>
+}
+@section content{
+    <div id="pageflag" data-nav="page" data-ban="page"></div>
+	<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+		<li class="breadcrumb-item"><a href="@Url.Action("Default","Pages")">企业黄页</a></li>
+		<li class="breadcrumb-item"><a href="@Url.Action("ClassManage","Pages")">栏目管理</a></li>
+		<li class="breadcrumb-item active">添加栏目</li>
+	</ol>
+	</nav>
+	</div>
+    <div class="container btn_green">
+        <div>
+            <form method="post" action="@action">
+                <table class="table table-bordered table-hover table-striped">
+                    <tr>
+                        <td colspan="2" class="text-center">@ViewBag.op</td>
+                    </tr>
+                    <tr>
+                        <td>栏目名称： </td>
+                        <td>
+                            <input type="text" class="form-control text_300" id="TemplateName" name="TemplateName" value="@Model.TemplateName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>栏目排序： </td>
+                        <td>
+                            <input type="text" class="form-control text_300" id="OrderID" name="OrderID" value="@Model.OrderID" />
+                        </td> 
+                    </tr>
+                    <tr>
+                        <td>META描述： </td>
+                        <td>
+                            <textarea class="form-control text_300" style="height: 106px;" id="PageMetakeyinfo" name="PageMetakeyinfo">@Model.PageMetakeyinfo</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>关键字： </td>
+                        <td>
+                            <input type="text" class="form-control text_300" id="PageMetakeyword" name="PageMetakeyword" value="@Model.PageMetakeyword" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>栏目提示： </td>
+                        <td>
+                            <input type="text" class="form-control text_300" id="Nodeimgtext" name="Nodeimgtext" value="@Model.Nodeimgtext" />
+                        </td>
+                    </tr>
+                    <tr class="model_tr">
+                        <td>栏目模板</td>
+                        <td>
+                            @MvcHtmlString.Create(PageCommon.GetTlpDP("TemplateUrl"))
+                            <input type="hidden" id="TemplateUrl_hid" name="TemplateUrl_hid" value="@Model.TemplateUrl" />
+                        </td>
+                    </tr>
+                    <tr class="model_tr"><td>内容模型</td><td>@Html.Partial("C_PageModelSel",pageBll)</td></tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" value="@ViewBag.op" class="btn btn-primary" />
+                            <a href="@Url.Action("ClassManage","Pages")" class="btn btn-outline-info">返回列表</a>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+@Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex",""))
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(4).addClass("active");
+</script>
+}
+@section script{
+<style type="text/css">
+    .model_tr .btn-info{display:none;}
+</style>
+<script>
+    $(function () {
+        Tlp_initTemp();
+    })
+</script>
+
+}

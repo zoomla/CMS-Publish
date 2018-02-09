@@ -1,0 +1,48 @@
+﻿@using ZoomLa.BLL.Shop
+@using System.Data
+@using ZoomLa.Common
+@model System.Data.DataRow
+@functions{
+    B_Cart_Present cptBll = new B_Cart_Present();
+    public DataTable GetPresentDT(DataRow dr)
+    {
+        return cptBll.Sel(Convert.ToInt32(dr["CartID"]));
+    }
+}
+@{ 
+    string style = "border:none;line-height:20px; height:20px;text-align:left;";
+    DataTable dt = GetPresentDT(Model);
+}
+<table style="margin-top:10px;color:#999;font-size:12px;">
+@foreach (DataRow dr in dt.Rows)
+{
+    switch (DataConverter.CLng(dr["W_Type"]))
+    {
+        case 0:
+            <tr>
+                <td style="width:80px;@style">【赠品】</td>
+                <td style="width:200px;@style">@dr["Name"]</td>
+                <td style="@style"><a href="/Shop/@(dr["P_ID"]).aspx" target="_blank">浏览商品</a></td>
+            </tr>
+            break;
+        case 1:
+            <tr>
+                <td style="width:80px;@style">【折扣】</td>
+                <td style="width:200px;@style">
+                  @dr["Name"]
+                </td>
+                <td style="@style">共优惠 <span style="color:red;">@("-" + DataConverter.CDouble(dr["R_Price"]).ToString("F2"))</span>元</td>
+            </tr>
+            break;
+        case 2:
+            <tr>
+                <td style="width:80px;@style">【优惠】</td>
+                <td style="width:200px;@style">
+                    @dr["Name"]
+                </td>
+                <td style="@style">共优惠 <span style="color:red;">@("-" + DataConverter.CDouble(dr["R_Price"]).ToString("F2"))</span>元</td>
+            </tr>
+            break;
+    }
+}
+</table>

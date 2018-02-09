@@ -1,0 +1,140 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Controls
+@functions{
+    public string GetDevicePage(string name)
+    {
+        string result = name + "_";
+        if (!string.IsNullOrEmpty(Request["device"]))
+        {
+            result += Request["device"];
+        }
+        else
+        {
+            switch (DeviceHelper.GetAgent())
+            {
+                case DeviceHelper.Agent.Android:
+                case DeviceHelper.Agent.iPhone:
+                case DeviceHelper.Agent.iPad:
+                case DeviceHelper.Agent.WindowsPhone:
+                    result += "Mobile";
+                    break;
+                default:
+                    result += "PC";
+                    break;
+            }
+        }
+        return result;
+    }
+}
+@{
+    
+}
+@section head{
+<title>基本信息</title>
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_PCC.js"></script>
+}
+@section content{
+  @Html.Partial(GetDevicePage("UserBase"))
+}
+@section script{
+<style type="text/css">
+    .modal {
+        z-index: 10000;
+    }
+
+    .cutImg {
+        width: 1100px;
+    }
+
+    .fd_item {
+        list-style-type: none;
+    }
+</style>
+<script src="/JS/DatePicker/WdatePicker.js" type="text/javascript"></script>
+<script src="/JS/Common.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Content.js"></script>
+<script>
+    //判断div元素是否满屏，不满则自动补充高度，
+    $(function (e) {
+        $("#prefile_img").hide();
+        if ($(".u_footer").position().top + $(".u_footer").outerHeight() < window.innerHeight)
+            $(".u_footer").height(window.innerHeight - $(".u_footer").position().top - 3);//-3为减去div的border-top高度，否则出现滚动条
+        if ("@Request.QueryString["sel"]" == "Tabs1") {
+            $(".nav-tabs li").removeClass("active");
+            $(".nav-tabs li:eq(2)").addClass("active");
+        }
+        $("form").validate();
+    });
+    $(function () {
+        switchTab("@Request.QueryString["sel"]");
+        var pcc = new ZL_PCC("tbProvince", "tbCity", "tbCounty");
+        if ($("#address").val() != "") {
+            var attr = $("#address").val().split(',');
+            pcc.SetDef(attr[0], attr[1], attr[2]);
+        }
+        pcc.ProvinceInit();
+    });
+    function SaveAdress() {
+        $("#address").val($("#tbProvince").val() + ',' + $("#tbCity").val() + ',' + $("#tbCounty").val());
+        return true;
+    }
+    function SetCutPic() {
+        var ipath = $("#UserFace_t").val();
+        console.log(ipath);
+        if (!ipath) { alert("请先指定头像"); return; }
+        ShowComDiag("/Plugins/PicEdit/CutPic_User.aspx?ipath=" + ipath, "图片编辑");
+    }
+    function setCutUrl(url) {
+        $("#UserFace_Img").attr("src", url);
+        $("#UserFace").val(url);
+    }
+    function PageCallBack(action, url, pval) {
+        $("#UserFace").val(url);
+        $("#UserFace_Img").attr("src", url + "?" + Math.random());
+        CloseComDiag();
+    }
+    $("#mimenu_btn").click(function (e) {
+        if ($(".user_mimenu_left").width() > 0) {
+            $(".user_mimenu_left ul").fadeOut(100);
+            $(".user_mimenu_left").animate({ width: 0 }, 200);
+        }
+        else {
+            $(".user_mimenu_left").animate({ width: 150 }, 300);
+            $(".user_mimenu_left ul").fadeIn();
+        }
+    });
+    //会员搜索
+    $("#sub_btn").click(function (e) {
+        if ($("#key").val() == "")
+            alert("搜索关键字为空!");
+        else
+            window.location = "/User/SearchResult?key=" + escape($("#key").val());
+    });
+    //搜索回车事件
+    function IsEnter(obj) {
+        if (event.keyCode == 13) {
+            $("#sub_btn").click(); return false;
+        }
+    }
+    function switchTab(id) {
+        switch (id) {
+            case "Tabs1":
+                $("#Tabs0").hide();
+                $("#Tabs1").show();
+                $("#switchID").val("Tabs1");
+                break;
+            case "Tabs0":
+            default:
+                $("#Tabs0").show();
+                $("#Tabs1").hide();
+                $("#switchID").val("Tabs0");
+                break;
+        }
+        $("#switchID").val(id);
+    }
+</script>
+}

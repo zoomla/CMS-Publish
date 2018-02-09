@@ -1,0 +1,16 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL
+@{ 
+    M_UserInfo mu = new B_User().GetLogin();
+}
+<ul class="list-inline mt-2">
+    <li class="list-inline-item on"><a title="问答首页" href="#" class="btn btn-info btn_guest">问答首页</a> </li>
+    <li class="list-inline-item"><a title="问答之星" href="/Ask/Star" class="btn btn-info btn_guest">问答之星</a></li>
+    <li class="list-inline-item"><a title="分类大全" href="/Ask/Classification" class="btn btn-info btn_guest">分类大全</a></li>
+    <li class="list-inline-item"><a href="/ask/List?strWhere=@Server.HtmlEncode(Request["strWhere"])&QueType=@Server.HtmlEncode(Request["QueType"])" class="btn btn-info btn_guest">待完善问题</a></li>
+    @if (!mu.IsNull)
+    {
+        <li class="list-inline-item"><a href="MyAskList" class="btn btn-info btn_guest">我的提问</a></li>
+        <li class="list-inline-item"><a href="MyAnswerlist" class="btn btn-info btn_guest">我的回答</a></li>
+    }
+</ul>

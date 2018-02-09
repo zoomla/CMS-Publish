@@ -1,0 +1,93 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.Common
+@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    DataTable dt = ViewBag.typedt;
+}
+@functions{
+    B_IServer isBll = new B_IServer();
+    protected int returnType(object typeName)
+    {
+        int index = 0;
+        for (int i = 0; i < isBll.TypeArr.Length; i++)
+        {
+            if (typeName.ToString().Trim() == isBll.TypeArr[i])
+            {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+    public string GetUrl(string type = "", string num = "")
+    {
+        string url = "SelectiServer?";
+        if (type == "-100") { }
+        else if (!string.IsNullOrEmpty(type)) { url += "type=" + type + "&"; }
+        else if (!string.IsNullOrEmpty(Request["type"])) { url += "type=" + Request["type"] + "&"; }
+        if (!string.IsNullOrEmpty(num)) { url += "num=" + num + "&"; }
+        else if (!string.IsNullOrEmpty(Request["num"])) { url += "num=" + Request["num"] + "&"; }
+        if (!string.IsNullOrEmpty(Request["filter"])) { url += "filter=" + Request["filter"] + "&"; }
+        return url.TrimEnd('&');
+    }
+    }
+    @section head{
+<title>有问必答</title>
+<style> .allchk_l { display:none; }
+</style>
+}
+    @section content{
+
+<div id="pageflag" data-nav="index" data-ban="cnt"></div>
+<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("FiServer","iServer")">有问必答</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("SelectiServer","Iserver")">问题列表</a></li>
+        <div class="input-group" style="margin:5px 10px;display: inline-flex;">
+            <input type="text" id="strTitle" placeholder="请输入标题" class="form-control text_300 mvcparam" onkeypress="selbox.search();" />
+            <span class="input-group-btn"><input type="button" class="btn btn-info" value="搜索" onclick="mvcpage.load();" /></span>
+        </div>
+    </ol>
+	</nav>
+</div>
+<div class="container btn_green">
+    <div class="filter_wrap">
+        <a href="@(GetUrl("-100"))" class="btn btn-default">All</a>&nbsp;&nbsp;
+        @foreach (DataRow dr in dt.Rows)
+       {
+           <a class="btn btn-default" href='@GetUrl(isBll.GetTypeIndex(dr["type"].ToString()).ToString())'>@dr["type"]</a>
+        }
+    </div>
+    <ul class="nav nav-tabs">
+        <li><a href="@(GetUrl("","0"))" >全部</a></li>
+        <li><a href="@(GetUrl("","1"))">未解决</a></li>
+        <li><a href="@(GetUrl("","2"))">处理中</a></li>
+        <li><a href="@(GetUrl("","3"))">已解决</a></li>
+        <li><a href="@(GetUrl("","4"))">已锁定</a></li>
+    </ul>
+    @switch (Request["filter"])
+    {
+        case "answer":
+            @Html.Partial("ISAnswer_List", Model)
+            break;
+        default:
+            @Html.Partial("SelectServer_List", Model)
+            break;
+    }
+</div>
+}
+@section script{
+<style type="text/css">
+.filter_wrap{background-color:#dbd8d8;padding:5px;margin-bottom:5px;border-radius:5px;}
+</style>
+<script type="text/javascript">
+    $(function () {
+        var num = "@(DataConverter.CLng(Request["num"]))";
+        $(".nav-tabs li:eq(" + num + ")").addClass("active");
+    })
+</script>
+
+}

@@ -1,0 +1,188 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="chat.master.cs" Inherits="ZoomLaCMS.Common.Chat.chat2" EnableViewState="false" ClientIDMode="Static" %><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link type="text/css" rel="stylesheet" href="/dist/css/bootstrap.min.css" />
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+<link rel="stylesheet" href="/dist/css/font-awesome.min.css"/>
+<script src="/JS/jquery.min.js"></script>
+<script src="/dist/js/bootstrap.min.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<link type="text/css" rel="stylesheet" href="/App_Themes/Guest.css" />  
+<asp:ContentPlaceHolder id="head" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+<form id="form1" runat="server">
+<asp:ContentPlaceHolder ID="Content" runat="server">
+
+</asp:ContentPlaceHolder>
+<link type="text/css" href="chat.css" rel="stylesheet" />
+<style type="text/css">
+.form-control {max-width: 200px;margin-bottom: 10px;}
+* { margin:0;}
+body { background:url(chat_bg.jpg) center no-repeat; background-size:cover;}
+</style>
+<script src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="/Plugins/Ueditor/ueditor.all.js?ver=3.1"></script>
+<script src="/JS/Controls/B_User.js"></script>
+<script src="/JS/ZL_Chat.js"></script>
+<script>
+//将ctrl+13取消,其为自动提交表单
+var buser = new B_User();
+var zl_chat = new ZL_Chat();
+function GetToReg() {
+    if (parent) { parent.location = "/User/Register?ReturnUrl=<%=ZoomLa.BLL.SafeSC.RawUrl %>"; } else { location = "/User/Register.aspx?ReturnUrl=<%=ZoomLa.BLL.SafeSC.RawUrl%>"; }
+}
+function AJAXLogin() {
+buser.Login({ name: $("#uname_t").val(), pwd: $("#pwd_t").val() }, function (data) {
+//将信息填充入隐藏字段用户ID:用户名:用户头像
+if (data == "" || data == -1) { alert("用户名或密码错误!!"); }
+else { zl_chat.AddOnline(); }
+});
+}
+function VisitorLogin(name) {
+var uname = $("#visname_t").val();
+zl_chat.AddOnline(uname);
+location = location;
+}
+function VisitorToLogin(name, uid) {
+//管理员后台请求与用户聊天
+zl_chat.AddOnline(name, uid);
+//location = location;
+}
+function ShowModal() {
+$("#modeldiv").modal({ keyboard: false });
+}
+//仅刷新游客列表,加上新登录的游客,10秒检测一次
+function GetOnlineList() {
+zl_chat.GetOnlineList();
+}
+function BeginInit() {
+zl_chat.BeginInit();
+}
+function SetMyInfo(uid, uname, uface) {
+zl_chat.myinfo.UserID = uid;
+zl_chat.myinfo.UserName = uname;
+zl_chat.myinfo.UserFace = uface;
+zl_chat.myinfo.CDate = "00:00:00";
+$("#myfaceimg").attr("src", zl_chat.myinfo.UserFace);
+$("#myid_t").val(zl_chat.myinfo.UserID);
+$("#myname_t").val(zl_chat.myinfo.UserName);
+}
+//关闭窗口
+function closechat() {
+    if (confirm("确定要关闭聊天窗口吗")) {
+        closeWindows();
+    }
+}
+function closeWindows() {
+    var isIE = !!window.ActiveXObject || "ActiveXObject" in window;
+    if (isIE) {
+        this.focus();
+        self.opener = this;
+        self.close();
+    } else {
+        document.title = 'about:blank';
+        location.replace('about:blank');
+    }
+}
+//复制会话链接
+//function copyToClipBoard() {
+//    var url = window.location.href;
+//    var arr = url.split('?');
+//    window.clipboardData.setData('text', arr[0] + "?uid=" + $("#UserID_Hid").val());
+//}
+//显示欢迎信息
+function ShowWel(uname) {
+    var $cbody = zl_chat.GetCurBody();
+    var msg = zl_chat.TlpReplace(zl_chat.tlp_othermsg, { UserFace: "", UserName: uname, CDate: "<%=DateTime.Now%>" }, $("#Wel_Hid").val());
+$($cbody).append(msg);
+setTimeout(zl_chat.setScrollBottom, 1);
+}
+
+var interval = null;
+var chatue = null;
+$(function () {
+$(".list_group").click(function () {
+$(this).parent().find(".list_item_body").toggle("fast");
+});
+chatue = UE.getEditor('content', {
+    toolbars: [['Undo', 'Redo', 'Bold', 'Italic', 'NumberedList', 'BulletedList', 'Smiley', 'ShowBlocks', 'Maximize', 'underline', 'fontborder', 'strikethrough', '|', 'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', 'emotion', 'simpleupload']]
+});
+//监控回车事件
+setTimeout(function () {
+chatue.focus();
+chatue.addListener("keydown", function (type, e) {
+if (e.ctrlKey && e.keyCode == 13) { zl_chat.SendMsg(); return false; }
+});
+}, 1000);
+});
+//------------------------------
+function SendMsg() {
+zl_chat.SendMsg();
+}
+function ChangeTalker(uid, uname,userface)//支持切换
+{
+    $(".chat_top_l").attr("src", userface);
+    return zl_chat.ChangeTalker(uid, uname);
+}
+function ShowHistory() {
+var cuid = $("#ReceUser_Hid").val();
+if (!cuid || cuid == "") { alert("尚未选定用户"); return; }
+window.location.href="/Common/Chat/ChatHistory.aspx?suid=" + cuid;
+}   
+//---------------------------------
+//用户好友列表
+var userlist;
+function InitUserList(obj) {
+userlist = obj;
+}
+function SearchUserList() {
+var text = $("#UserSearch_T").val();
+$('#list_search').html('');
+if (text != "") {
+$('.list_group').hide();
+$('.list_item_body').hide();
+$('.list_search').show();
+var listhtml = "";
+var temp = "<li onclick=\"ChangeTalker(@fid,'@UserName','@UserFace');\" class='list_item' id='list_item_@fid'><img src='@UserFace' class='member_face' onerror=\"shownoface(this);\" /><p class='member_nick'>@UserName<br /><span class='isonline remindgray isonline_@fid'>(检测中)</span><span id='unread_@fid' class='badge'></span></p><div style='clear:both;'></div></li>";
+for (var i = 0; i < userlist.length; i++) {
+if (userlist[i].UserName.indexOf(text) > -1) {
+listhtml += temp.replace(/@fid/g, userlist[i].Fid).replace(/@UserName/g, userlist[i].UserName).replace(/@UserFace/g, userlist[i].UserFace);
+}
+}
+$('.list_search').html(listhtml);
+} else {
+$('.list_group').show();
+$('.list_search').hide();
+}
+}
+//添加好友
+function AddFriend() {
+    $.ajax({
+        type: 'POST',
+        url: '/API/UserCheck.ashx',
+        data: { action: 'AddFriend', value: $('#test_fid').val() },
+        success: function (data) {
+            if (data != "[]" && data != "-1") {
+                var obj = JSON.parse(data);
+                userlist.push(obj[0]);
+                var temp = "<li onclick=\"ChangeTalker(@fid,'@UserName','@UserFace');\" class='list_item' id='list_item_@fid'><img src='@UserFace' class='member_face' onerror=\"shownoface(this);\" /><p class='member_nick'>@UserName<br /><span class='isonline remindgray isonline_@fid'>(检测中)</span><span id='unread_@fid' class='badge'></span></p><div style='clear:both;'></div></li>";
+                var html = temp.replace(/@fid/g, obj[0].Fid).replace(/@UserName/g, obj[0].UserName).replace(/@UserFace/g, obj[0].UserFace);
+                $('.myfriends').append(html);
+                $("#Friend_Num").text(parseInt($("#Friend_Num").text()) + 1);
+            }
+        }
+    });
+}
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+<asp:ContentPlaceHolder ID="Script" runat="server"></asp:ContentPlaceHolder>
+</form>
+</body>

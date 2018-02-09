@@ -1,0 +1,58 @@
+﻿@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    int status = DataConverter.CLng(Request.QueryString["status"], -1);
+}
+@section head{
+    <title>班级信息管理</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb navbar-fixed-top">
+                <li><a href='@(CustomerPageAction.customPath2)Main.aspx'>工作台</a></li>
+                <li><a href='Papers_System_Manage'>教育模块</a></li>
+                <li class='active'>班级管理<a href='AddClassRoom'>[添加班级]</a></li>
+                <div id="sel_box">
+                    <div class="input-group text_300">
+                        <input type="text" id="skey" class="form-control text_300 mvcparam" placeholder="请输入关键词" onkeypress="selbox.search();" />
+                        <span class="input-group-btn">
+                            <input type="button" class="btn btn-default" value="搜索" onclick="mvcpage.load();" />
+                        </span>
+                    </div>
+                </div>
+                <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="fa fa-search"></i></a></div>
+            </ol>
+        </div>
+    </div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active" data-tabid="-1"><a href="ClassRoomManage?status=-1">全部</a></li>
+        <li role="presentation" data-tabid="1"><a href="ClassRoomManage?status=1">已审核</a></li>
+        <li role="presentation" data-tabid="0"><a href="ClassRoomManage?status=0">未审核</a></li>
+    </ul>
+    @Html.Partial("ClassRoomManage_List")
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({ url: "ClassRoom_Del", confirm: "确认要删除选中记录吗？"});'>批量删除</button>
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({ url: "ClassRoom_Audit"});'>批量审核</button>
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({ url: "ClassRoom_CancelAudit"});'>取消审核</button>
+}
+@section script{
+    <script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+    <script>
+        $().ready(function () {
+            $("#Egv tr>th:eq(0)").html("<input type=checkbox id='chkAll'/>");//EGV顶部
+            //$("#Egv  tr>th").css("height", "30px").css("line-height", "30px");
+            $("#chkAll").click(function () {//EGV 全选
+                selectAllByName(this, "chkSel");
+            });
+            $("li[data-tabid]").removeClass('active');
+            $("li[data-tabid='@status']").addClass('active');
+        })
+        function IsSelectedId() {
+            var checkArr = $("input[type=checkbox][name=chkSel]:checked");
+            if (checkArr.length > 0)
+                return true
+            else
+                return false;
+        }
+    </script>
+}

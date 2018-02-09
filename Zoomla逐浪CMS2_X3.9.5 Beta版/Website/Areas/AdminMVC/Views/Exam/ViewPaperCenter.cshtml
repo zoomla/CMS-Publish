@@ -1,0 +1,190 @@
+﻿@using System.Data
+@using System.Text
+@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@{
+    DataTable typeDt = (DataTable)ViewBag.typeDt;
+    DataTable questDt = (DataTable)ViewBag.questDt;
+}
+@functions{
+    public DataTable GetDT(DataRow dr, DataTable questDt)
+    {
+        DataTable dt = null;
+        string normFilter = "p_type=" + dr["QType"] + " AND IsToShare=0 AND (pid=0 OR pid IS NULL)";
+        string bigfilter = "pid=" + dr["QType"] + " AND IsToShare=0";
+        if (dr["IsBig"].ToString().Equals("0")) { questDt.DefaultView.RowFilter = normFilter; }
+        else { questDt.DefaultView.RowFilter = bigfilter; }
+        dt = questDt.DefaultView.ToTable();
+        if (dt.Columns.Contains("order"))
+        {
+            dt.DefaultView.Sort = "order asc";
+        }
+        return dt.DefaultView.ToTable();
+    }
+    public string GetSubmit(DataRow dr)
+    {
+        int id = DataConverter.CLng(dr["p_id"]);
+        string option = SafeSC.ReadFileStr(M_Exam_Sys_Questions.OptionDir + id + ".opt");
+        JArray arr = JsonConvert.DeserializeObject<JArray>(option);
+        StringBuilder builder = new StringBuilder();
+        //单,多,填,解
+        switch (DataConverter.CLng(dr["p_Type"]))
+        {
+            case (int)M_Exam_Sys_Questions.QType.Radio:
+                {
+                    if (arr == null || arr.Count < 1) { return "未定义选项"; }
+                    string name = "srad_" + id;
+                    string tlp = "<li class='opitem'><label><input type='radio' name='{0}' value='{1}'>{1}. {2}</label></li>";
+                    foreach (JObject obj in arr)
+                    {
+                        builder.Append(string.Format(tlp, name, obj["op"], obj["val"]));
+                    }
+                }
+                break;
+            case (int)M_Exam_Sys_Questions.QType.Multi:
+                {
+                    if (arr == null || arr.Count < 1) { return "未定义选项"; }
+                    string name = "mchk_" + id;
+                    string tlp = "<li class='opitem'><label><input class='opitem' type='checkbox' name='{0}' value='{1}'>{1}. {2}</label></li>";
+                    foreach (JObject obj in arr)
+                    {
+                        builder.Append(string.Format(tlp, name, obj["op"], obj["val"]));
+                    }
+                }
+                break;
+            case (int)M_Exam_Sys_Questions.QType.FillBlank:
+                {
+                    //string tlp = "<div contenteditable='true' class='answerdiv'>解：</div>";
+                    //builder.Append(tlp);
+                }
+                break;
+            case (int)M_Exam_Sys_Questions.QType.Answer://放置一个ueditor
+                {
+                    string name = "answer_" + id;
+                    string tlp = "<div id='" + name + "' contenteditable='true' class='answerdiv'>解：</div>";
+                    builder.Append(tlp);
+                }
+                break;
+        }
+        return builder.ToString();
+    }
+}
+@section head{
+}
+@section content{
+    <table class="table table-bordered table-striped table-hover">
+        <tr><td class="td_m">标题:</td><td>@ViewBag.title</td></tr>
+        <tr><td>描述:</td><td>@ViewBag.desc</td></tr>
+        <tr>
+            <td>操作:</td>
+            <td>
+                <a href="Papers_System_Add?id=@ViewBag.paperid" class="btn btn-info" target="_blank">修改试卷</a>
+                <a href="Paper_QuestionManage?pid=@ViewBag.paperid" class="btn btn-info" target="_blank">题目管理</a>
+            </td>
+        </tr>
+    </table>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            @foreach (DataRow dr in typeDt.Rows)
+            {
+                int i = 0;
+                <div style="margin-top: 5px;">
+                    @ZoomLa.BLL.Helper.StrHelper.ConvertIntegral(typeDt.Rows.IndexOf(dr) + 1)．@dr["QName"]（有@(dr["QNum"])小题,共@(dr["TotalScore"])分）
+                    @foreach (DataRow row in GetDT(dr, questDt).Rows)
+                    {
+                        i++;
+                        <div class="item" data-id="@row["p_id"]" id="item_@row["p_id"]">
+                            <div class="content">
+                                <div class="opdiv alert-info">
+                                    <input type="text" id="score_@row["p_id"]" style="width:40px;" value="@row["p_defaultScores"]" /><span>分</span>
+                                    <a href="AddEngLishQuestion?id=@row["p_id"]" target="_blank">修改试题</a>
+                                    <a href="javascript:UPFunc(@row["p_id"]);">上移</a>
+                                    <a href="javascript:DownFunc(@row["p_id"]);">下移</a>
+                                    <a href="javascript:DelThis(@row["p_id"]);">删除</a>
+                                </div>
+                                <span>@(i)．@row["P_Title"]</span>@MvcHtmlString.Create(row["p_content"].ToString())
+                            </div>
+                            <div class="submit">
+                                <ul class="submitul">@MvcHtmlString.Create(GetSubmit(row))</ul>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="Conent_fix">
+        <form method="post" action="@MVCHelper.GetAction("ViewPaperCenter_Update",Request)" onsubmit="return PreSave();">
+            <input type="hidden" id="Qids_Hid" name="Qids_Hid" />
+            <input type="hidden" id="QInfo_Hid" name="QInfo_Hid" />
+            <button type="submit" class="btn btn-primary">保存修改</button>
+        </form>
+    </div>
+}
+@section script{
+    <style type="text/css">
+        .opitem p { display: inline-block; }
+        label { font-weight: normal; }
+        .submitul li { float: left; margin-left: 20px; }
+        .item { border: 1px solid #ddd; padding-left: 20px; padding-top: 5px; text-align: left; margin-bottom: 5px; }
+        .item:hover { border: 1px solid #169bef; }
+        .opdiv { float: right; font-size: 12px; padding: 5px; padding-left: 15px; padding-right: 15px; display: none; }
+        .opdiv > a { margin-left: 8px; }
+    </style>
+    <script src="/JS/ZL_Regex.js"></script>
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script>
+        $(function () {
+            $(".item").hover(function () { $(this).find(".opdiv").show(); }, function () { $(".opdiv").hide(); });
+            ZL_Regex.B_Num('.int');
+            ////下载
+            //$("#paperSize_dp,#orient_dp").change(function () {
+            //    var query = "ID=" + $("#NewID_Hid").val() + "&paperSize=" + $("#paperSize_dp").val() + "&orient=" + $("#orient_dp").val();
+            //    $("#paper_down").attr("href", "/User/Exam/DownPaper?" + query);
+            //});
+        })
+        function DelThis(qid) {
+            $("#item_" + qid).fadeOut(500);
+            $("#item_" + qid).remove();
+            //AddToCart("cart_remove", qid);
+        }
+        //上移与下移
+        function UPFunc(p_id) {
+            var item = $("#item_" + p_id);
+            var pre = item.prev(".item");
+            if (pre.length < 1) { return; }
+            else
+            {
+                pre.before(item); //item.remove();
+            }
+        }
+        function DownFunc(p_id) {
+            var item = $("#item_" + p_id);
+            var next = item.next(".item");
+            if (next.length < 1) { return; }
+            else
+            {
+                next.after(item); //item.remove();
+            }
+        }
+        //预保存
+        function PreSave() {
+            var items = $(".item"); var list = [];
+            for (var i = 0; i < items.length; i++) {
+                var item = $(items[i]);
+                var model = { id: item.data("id"), score: "", order: "" };
+                model.score = ConverToInt(item.find("#score_" + model.id).val(), 0);
+                model.order = i;
+                list.push(model);
+            }
+            console.log(list.GetIDS());
+            console.log(JSON.stringify(list));
+            $("#Qids_Hid").val(list.GetIDS());
+            $("#QInfo_Hid").val(JSON.stringify(list));
+        }
+    </script>
+}

@@ -1,0 +1,49 @@
+<ion-view cache-view="false">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()" ui-sref="tab.dash"></button>
+<div class="title title-center header-item">生活缴费</div>
+</ion-header-bar>
+<ion-content style=" background:#f5f5f9;">
+<div class="pay_area"><span ng-bind-html="city"></span> <i class="fa fa-angle-down"></i></div>
+
+<div class="pay_list">
+<ul>
+<li>
+<a href="#/pay/waterpay/17">
+<span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="ion ion-waterdrop fa-stack-1x fa-inverse"></i></span>
+<h3>水费</h3>
+</a>
+</li>
+<li>
+<a href="#/pay/waterpay/18">
+<span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="ion ion-flame fa-stack-1x fa-inverse"></i></span>
+<h3>电费</h3>
+</a>
+</li>
+<li>
+<a href="#/pay/waterpay/19">
+<span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="ion ion-flash fa-stack-1x fa-inverse"></i></span>
+<h3>燃气费</h3>
+</a>
+</li>
+<li>
+</li>
+<li style="width:50%;">
+<a href="#/pay/billpay">
+<span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="ion ion-iphone fa-stack-1x fa-inverse"></i></span>
+<h3>话费</h3>
+</a>
+</li>
+<li style="width:50%;">
+<a href="#/pay/trafficpay">
+<span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x"></i><i class="ion ion-earth fa-stack-1x fa-inverse"></i></span>
+<h3>流量</h3>
+</a>
+</li>
+
+<div class="clearfix"></div>
+</ul>
+</div>
+
+</ion-content>
+</ion-view>

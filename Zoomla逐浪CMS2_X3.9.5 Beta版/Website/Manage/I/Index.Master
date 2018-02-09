@@ -1,0 +1,33 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Index.master.cs" Inherits="ZoomLaCMS.Manage.I.Index" ClientIDMode="Static"%><!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/dist/css/bootstrap4.min.css" />
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="/dist/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="/App_Themes/V4style.css" />
+<script src="/JS/jquery.min.js"></script>
+<script src="/JS/ICMS/ZL_Common.js?v=<%:ZoomLa.BLL.BLLCommon.Version_JS %>"></script>
+<script src="/JS/Plugs/transtool.js"></script>
+<script src="/JS/ICMS/alt.js?v=<%:ZoomLa.BLL.BLLCommon.Version_JS %>"></script>
+<script src="/dist/js/popper.min.js"></script> 
+<script src="/dist/js/bootstrap4.min.js"></script>
+<asp:ContentPlaceHolder ID="head" runat="server"></asp:ContentPlaceHolder></head>
+<body>
+<form id="form1" runat="server" enctype="multipart/form-data">
+<%--<ol class="breadcrumb navbar-fixed-top" runat="server" id="navWrap" visible="false">
+    <asp:Literal runat="server" ID="navLabel"></asp:Literal>
+</ol>--%>
+<asp:ContentPlaceHolder ID="Content" runat="server"></asp:ContentPlaceHolder>
+<script>
+    var siteconf = {
+        path: "<%=CustomerPageAction.customPath2%>",
+        updir: "<%=ZoomLa.Components.SiteConfig.SiteOption.UploadDir.ToLower()%>"
+    };
+</script>
+<asp:ContentPlaceHolder runat="server" ID="ScriptContent"></asp:ContentPlaceHolder>
+</form>
+</body>
+</html>

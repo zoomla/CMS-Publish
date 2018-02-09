@@ -1,0 +1,72 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>318</LabelID>
+    <LabelName>全站头部</LabelName>
+    <LabelType>1</LabelType>
+    <LabelCate>静态标签</LabelCate>
+    <LabelDesc />
+    <LabelParam />
+    <LabelTable />
+    <LabelField />
+    <LabelWhere />
+    <LabelOrder />
+    <LabelContent>&lt;nav class="navbar navbar-expand-lg navbar-light" id="home_nav"&gt;
+&lt;div class="container relative"&gt;
+&lt;a class="navbar-brand mr-2" href="/"&gt;&lt;img src="{$LogoUrl/}" alt="{$SiteName/}" id="logos" onerror="javascript:this.src='{$LogoUrl/}'" /&gt;&lt;/a&gt;
+&lt;button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation"&gt;
+&lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+&lt;/button&gt;
+&lt;div class="collapse navbar-collapse" id="navbarNavDropdown"&gt;
+&lt;ul class="navbar-nav home_top_nav"&gt;
+&lt;li class="nav-item active"&gt;&lt;a class="nav-link" href="{ZL:GetNodeListUrl(1)/}"&gt;首页&lt;/a&gt;&lt;/li&gt;
+&lt;li class="nav-item"&gt;&lt;a class="nav-link" href="{ZL:GetNodeLinkUrl(1)/}"&gt;门户网站&lt;/a&gt;&lt;/li&gt;
+&lt;li class="nav-item"&gt;&lt;a class="nav-link" href="{ZL:GetNodeLinkUrl(2)/}" target="_blank"&gt;线上商城&lt;/a&gt;&lt;/li&gt;
+&lt;li class="nav-item"&gt;&lt;a class="nav-link" href="/office" target="_blank"&gt;办公平台&lt;/a&gt;&lt;/li&gt;
+&lt;li class="nav-item"&gt;&lt;a class="nav-link" href="/Index" target="_blank"&gt;社区贴吧&lt;/a&gt;&lt;/li&gt;
+&lt;li class="nav-item dropdown"&gt;
+&lt;a class="nav-link" href="#" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true"&gt;更多精彩  &lt;i class="fa fa-caret-down"&gt;&lt;/i&gt;&lt;/a&gt;
+&lt;div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"&gt;
+{ZL.Label id="蓝色经典_顶部节点列表" ParentID="0" ShowNum="7" /}
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;li class="nav-item"&gt;&lt;a class="nav-link" href="javascript:;" onClick="isSearch();"&gt;&lt;i class="fa fa-search"&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+&lt;li class="nav-item dropdown nav_user"&gt;
+&lt;a class="nav-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"&gt;
+&lt;i class="fa fa-user"&gt;&lt;/i&gt;&lt;span class="caret"&gt;&lt;/span&gt;
+&lt;/a&gt;
+&lt;div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"&gt;
+&lt;a class="dropdown-item" href="/User/" target="_blank"&gt;用户登录&lt;/a&gt;
+&lt;a class="dropdown-item" href="/User/Register" target="_blank"&gt;用户注册&lt;/a&gt;
+&lt;a class="dropdown-item" href="/User/Info/UserInfo" target="_blank"&gt;注册信息&lt;/a&gt;
+&lt;a class="dropdown-item" href="javascript:;" onClick="LogoutFun();"&gt;安全退出&lt;/a&gt;
+&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul class="navbar-nav home_search hidden-xs"&gt;
+&lt;form action="/Search/SearchList" target="_blank"&gt;
+&lt;i class="fa fa-search"&gt;&lt;/i&gt;
+&lt;input type="text" class="form-control" placeholder="输入关键字，回车查询" name="keyword" /&gt;
+&lt;a onClick="isClose();" href="javascript:;"&gt;&lt;i class="fa fa-close"&gt;&lt;/i&gt;&lt;/a&gt;
+&lt;/form&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/nav&gt;
+&lt;!-- 导航到此结束 --&gt;</LabelContent>
+    <LabelCount />
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType />
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

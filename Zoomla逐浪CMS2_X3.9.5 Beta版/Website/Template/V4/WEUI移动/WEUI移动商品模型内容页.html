@@ -1,0 +1,283 @@
+﻿{ZL.Source id="常规商品数据源"/}<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="常规商品数据源" FD="Proname" page="0"/}_{$SiteName/}</title>
+<meta name="Keywords" content="{SField sid="常规商品数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="常规商品数据源" FD="Meta_Description" page="0"/}" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+<meta name="renderer" content="webkit">
+<link href="/dist/css/font-awesome.min.css" rel="stylesheet"/>
+<link href="/dist/css/ZLico.css" rel="stylesheet"/>
+<link rel="stylesheet" href="/dist/css/weui.min.css" />
+<script type="text/javascript" src="/JS/jquery-1.11.1.min.js" ></script>
+<link rel="stylesheet" href="/dist/css/swiper.min.css" />
+<script src="/dist/js/swiper.min.js"></script>
+<link rel="stylesheet" href="/dist/css/viewer.min.css" />
+<script src="/dist/js/viewer.min.js"></script>
+<link href="{$CssDir/}style.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet" />
+<style>
+.swiper-slide img { display:block; max-width:100%; }
+</style>
+{ZL:GetCSS(1,1)/}
+</head>
+<body>
+<div class="page tabbar js_show">
+<div class="page__bd" style="height:100%;">
+<div class="weui-tab">
+<div class="weui-tab__panel">
+
+<div class="weui-flex home_header">
+<div class="weui-flex__item">
+<h1><i class="fa fa-dashboard"></i>上海微百货</h1>
+</div><!--头部第一块结束-->
+<div class="weui-flex__item home_header_r" >
+<span class="pull-right"><a href="#" ><i class="fa fa-gift"></i><br/>惊喜</a></span>
+<span class="pull-right"><a href="javascript:;" id="showIOSActionSheet"><i class="fa fa-navicon"></i><br/>Menu</a></span>
+</div>
+</div>
+        
+<div class="home_top " hidden>
+<h1><i class="fa fa-dashboard"></i>上海微百货</h1>
+<!--<a class="logo" ><img src="{$CssDir/}images/logo.jpg" alt="南京微生活" /></a><-->
+
+<form action="#">
+<input type="text" class="form-control" name="keyword" placeholder="输入关键字查询" />
+<button type="submit"><i class="fa fa-search"></i></button>
+</form>
+<a href="#" class="pull-right gift"><i class="fa fa-gift"></i><br/>惊喜</a>
+</div>
+<!--头部结束-->
+
+<div class="page__bd">
+<!--<a href="javascript:;" class="weui-btn weui-btn_primary">点击展现searchBar</a>-->
+<div class="weui-search-bar" id="searchBar">
+<form action="/Search/SearchList" class="weui-search-bar__form" method="get">
+<div class="weui-search-bar__box">
+<i class="weui-icon-search"></i>
+<input type="search" class="weui-search-bar__input" name="keyword" id="searchInput" placeholder="搜索"  />
+<a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+</div>
+<label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+<i class="weui-icon-search"></i>
+<span>搜索</span>
+</label>
+</form>
+<a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+</div>
+<div class="weui-cells searchbar-result" id="searchResult" style="display: none;">
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>苹果</p>
+</div>
+</div>
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>apple</p>
+</div>
+</div>
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>pinguo</p>
+</div>
+</div>
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>test</p>
+</div>
+</div>
+</div>
+</div>
+<!--搜索框结束-->
+
+<div class="page__bd">
+<div class="swiper-container">
+<div class="swiper-wrapper">
+</div>
+<!-- Add Pagination -->
+<div class="swiper-pagination"></div>
+</div>
+
+<form id="form" name="form" method="post" action="/Cart/Cart.aspx" style="margin-bottom:10px;">
+<input name="id" type="hidden" id="id" value="{SField sid="常规商品数据源" FD="ID" page="0"/}" />
+<div class="weui-cells">
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>编号</p></div>
+<div class="weui-cell__ft">{SField sid="常规商品数据源" FD="ProCode" page="0"/}</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>品牌</p></div>
+<div class="weui-cell__ft">{SField sid="常规商品数据源" FD="brand" page="0"/}</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>库存</p></div>
+<div class="weui-cell__ft">{SField sid="常规商品数据源" FD="stock" page="0"/}</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>市场价</p></div>
+<div class="weui-cell__ft"><i class="fa fa-rmb"></i>{ZL:GetMoney({SField sid="常规商品数据源" FD="ShiPrice" page="0"/},2,1)/} 元</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>零售价</p></div>
+<div class="weui-cell__ft"><span style="color:#f40;"><i class="fa fa-rmb"></i>{ZL:GetMoney({SField sid="常规商品数据源" FD="LinPrice" page="0"/},2,1)/}元</span></div>
+</div>
+</div>
+<div class="weui-btn-area">
+<button type="submit" class="weui-btn weui-btn_primary"><i class="fa fa-shopping-cart"></i> 立即购买</button>
+<button type="button" class="weui-btn weui-btn_default"  onClick="AddCart();"><i class="fa fa-plus-square"></i> 加入购物车</button>
+<button type="button" class="weui-btn weui-btn_default" onClick="addfav();"><i class="fa fa-heart"></i> 关注商品</button>
+</div>
+</form>
+<div class="weui-cells__title">商品详情</div>
+<article class="weui-article" style="background:#fff;">
+<h1>{SField sid="常规商品数据源" FD="Proname" page="0"/}</h1>
+{SField sid="常规商品数据源" FD="Procontent" page="0"/}
+</article>
+</div>
+
+<div class="weui-tabbar page__ft j_bottom">
+<a href="/" class="weui-tabbar__item">
+<i class="fa z01-icon001 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">首页</p>
+</a>
+<a href="{ZL:GetNodeListUrl(145)/}" class="weui-tabbar__item">
+<i class="fa z01-icon002 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">商家</p>
+</a>
+<a href="{ZL:GetNodeLinkUrl(177)/}" class="weui-tabbar__item weui-bar__item_on">
+<i class="fa z01-icon003 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">商城</p>
+</a>
+<a href="/User/" class="weui-tabbar__item">
+<i class="fa z01-icon004 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">会员</p>
+</a>
+</div>
+<!--foot end-->
+
+<div>
+<div class="weui-mask" id="iosMask" style="opacity:1; display: none;"></div>
+<div class="weui-actionsheet" id="iosActionsheet">
+<div class="weui-actionsheet__menu">
+<div class="weui-actionsheet__cell">示例菜单</div>
+<div class="weui-actionsheet__cell">示例菜单</div>
+<div class="weui-actionsheet__cell">示例菜单</div>
+<div class="weui-actionsheet__cell">示例菜单</div>
+</div>
+<div class="weui-actionsheet__action">
+<div class="weui-actionsheet__cell" id="iosActionsheetCancel">取消</div>
+</div>
+</div>
+</div>
+<!--下下拉菜单结束-->
+
+</div>
+</div>
+</div>
+</div>
+
+</body>
+</html>
+<script type="text/javascript" src="/JS/Modal/APIResult.js"></script>
+<script>
+$(function(){
+	var $searchBar = $('#searchBar'),
+		$searchResult = $('#searchResult'),
+		$searchText = $('#searchText'),
+		$searchInput = $('#searchInput'),
+		$searchClear = $('#searchClear'),
+		$searchCancel = $('#searchCancel');
+
+	function hideSearchResult(){
+		$searchResult.hide();
+		$searchInput.val('');
+	}
+	function cancelSearch(){
+		hideSearchResult();
+		$searchBar.removeClass('weui-search-bar_focusing');
+		$searchText.show();
+	}
+
+	$searchText.on('click', function(){
+		$searchBar.addClass('weui-search-bar_focusing');
+		$searchInput.focus();
+	});
+	$searchInput
+		.on('blur', function () {
+			if(!this.value.length) cancelSearch();
+		})
+		.on('input', function(){
+			if(this.value.length) {
+				$searchResult.show();
+			} else {
+				$searchResult.hide();
+			}
+		})
+	;
+	$searchClear.on('click', function(){
+		hideSearchResult();
+		$searchInput.focus();
+	});
+	$searchCancel.on('click', function(){
+		cancelSearch();
+		$searchInput.blur();
+	});
+});
+// ios
+$(function(){
+	var $iosActionsheet = $('#iosActionsheet');
+	var $iosMask = $('#iosMask');
+
+	function hideActionSheet() {
+		$iosActionsheet.removeClass('weui-actionsheet_toggle');
+		$iosMask.fadeOut(200);
+	}
+
+	$iosMask.on('click', hideActionSheet);
+	$('#iosActionsheetCancel').on('click', hideActionSheet);
+	$("#showIOSActionSheet").on("click", function(){
+		$iosActionsheet.addClass('weui-actionsheet_toggle');
+		$iosMask.fadeIn(200);
+	});
+});
+
+$().ready(function(e) {
+    var pics='{SField sid="常规商品数据源" FD="pics" page="0"/}';
+	if(pics!=""){
+		pics=JSON.parse(pics);
+		var str="";
+		for(var i=0;i<pics.length;i++){
+			str+='<div class="swiper-slide"><img src="{$UploadDir/}'+pics[i].url+'" alt="'+pics[i].desc+'" /></div>';
+		}
+		$(".swiper-wrapper").html(str);
+		var swiper = new Swiper('.swiper-container', {
+			pagination: '.swiper-pagination',
+			slidesPerView: 1,
+			paginationClickable: true,
+			loop: true,
+			grabCursor: true,
+			autoHeight: true,
+		});
+		$('.swiper-container').viewer();
+	}
+});
+/*加入购物车*/
+function AddCart()
+{
+    $.post("/Cart/Cart.aspx?ID={SField sid="常规商品数据源" FD="ID" page="0"/}&Pronum=1","",function(data){
+		alert("加入购物车成功！");
+	});
+};
+function addfav(){
+	$.post("/API/mod/collect.ashx", {action:"add",favurl:"/Shop/{SField sid="常规商品数据源" FD="ID" page="0"/}.aspx",infoid:"{SField sid="常规商品数据源" FD="ID" page="0"/}",type:2,title:"{SField sid="常规商品数据源" FD="Title" page="0"/}"},function(data){
+		var model=JSON.parse(data);
+		if(APIResult.isok(model)){
+			alert("收藏成功!");
+		}
+		else{
+			alert("收藏失败!原因:"+model.retmsg);
+		}
+	});
+}
+</script>

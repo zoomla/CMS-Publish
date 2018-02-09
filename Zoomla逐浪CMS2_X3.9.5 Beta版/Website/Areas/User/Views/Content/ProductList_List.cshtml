@@ -1,0 +1,56 @@
+﻿@using System.Data;
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public MvcHtmlString forisnew(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? "<span style='color:green;'>新</span>" : "&nbsp;&nbsp;");
+    }
+    public MvcHtmlString forishot(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? "<span style='color:red;'>热</span>" : "&nbsp;&nbsp;");
+    }
+    public MvcHtmlString forisbest(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? "<span style='color:blue;'>精</span>" : "&nbsp;&nbsp;");
+    }
+    public MvcHtmlString formattype(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? ComRE.Icon_OK : ComRE.Icon_Error);
+    }
+}
+@{
+    Model.cols = 9;
+}
+<div id="EGV">
+<table class="table table-bordered table-striped">
+<tr><td></td><td>商品图片</td><td>商品名称</td><td>单位</td><td>价格</td><td>属性</td><td>销售中</td><td>操作</td></tr>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+	<td><input type="checkbox" name="idchk" value='@dr["id"]' /></td>
+	<td><img src="@function.GetImgUrl(dr["Thumbnails"])" class="img50" onerror="shownopic(this);" /></td>
+	<td><a href="/Shop/@(dr["id"]).aspx" title="预览" target="_blank">@dr["proname"]</a></td>
+	<td>@dr["ProUnit"]</td>
+	<td>@Convert.ToDouble(dr["LinPrice"]).ToString("f2")</td>
+	<td>
+	    @forisbest(DataConverter.CStr(dr["isbest"]))
+	    @forishot(DataConverter.CStr(dr["ishot"]))
+	    @forisnew(DataConverter.CStr(dr["isnew"]))
+	</td>
+	<td>@formattype(DataConverter.CStr(dr["Sales"]))</td>
+	<td>
+	    <a href="/Shop/@(dr["id"]).aspx" class="option_style" title="预览" target="_blank"><i class="fa fa-eye"></i></a>
+	    <a href="AddProduct?id=@dr["id"]" title="修改" class="option_style"><i class="fa fa-pencil"></i></a>
+	    @if (DataConverter.CLng(dr["Recycler"]) == 1)
+	    { <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["id"]', url: 'product_del', confirm: '确定要彻底删除这个商品吗？' });"><i class="fa fa-trash"></i></a> }
+	    else
+	    { <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["id"]', url: 'product_del', confirm: '确定要将该商品移入回收站吗？' });"><i class="fa fa-trash"></i></a> }
+
+	    <a href="/User/UserShop/StockAdd?ProID=@dr["ID"]" class="option_style"><i class="fa fa-key"></i>库存管理</a>
+	</td>
+    </tr>
+}
+@Html.Partial("_page", Model)
+</table>
+</div>

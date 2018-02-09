@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+    <title>银行账号管理</title>    
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="UserInfo"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item"><a title="账户管理" href="@Url.Action("Userinfo","info")">账户管理</a></li>
+	<li class="breadcrumb-item active">银行账号管理 <a href="@Url.Action("UserBankAdd")">[添加账号]</a> <a href="@Url.Action("WithDraw","Money")">[申请提现]</a></li>
+</ol>
+</nav>
+</div>
+@Html.Partial("UserBank_List", Model)
+<div class="container">
+    <button type="button" class="btn btn-info" onclick='mvcpage.bat({ url: "UserBank_Del", confirm: "确定要删除选中项吗？"});'>批量删除</button>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>	
+}
+@section script{
+}

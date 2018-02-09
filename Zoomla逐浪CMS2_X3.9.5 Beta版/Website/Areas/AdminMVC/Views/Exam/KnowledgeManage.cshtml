@@ -1,0 +1,115 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{
+    <title>知识点</title>
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li><a href='Papers_System_Manage'>教育模块</a></li>
+            <li><a href='Question_Class_Manage'>分类管理</a></li>
+            <li>知识点管理 @ViewBag.cname<a href='AddKnowledge?nid=@Request.QueryString["nid"]'>[添加知识点]</a></li>
+        </ol>
+    </div>
+</div>
+@Html.Partial("KnowledgeManage_List")
+<div id="Option_Div">
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({ url: "Knowledge_Add", confirm: "确定要删除指定知识点吗？" });'>批量删除</button>
+</div>
+}
+@section script{
+<script type="text/javascript" src="/JS/Controls/ZL_Array.js"></script>
+<script>
+    var selarr = [];//当前选中的知识点
+    var childTlp = '<tr data-layer="@@Layer" data-id="@@k_id" data-pid="@@Pid"><td><input type="checkbox" data-name="@@k_name" value="@@k_id" name="idchk" /></td><td>@@k_id</td>'
+    + '<td onclick="ShowChild(this);" data-child="@@ChildCount">@@LayerHtml<fun>GetIcon(@@ChildCount,@@k_id,\"@@k_name\")</fun></td>'
+    + '<td>@@C_ClassName</td>'
+    + '<td>@@GradeName</td>'
+    + '<td>@@UserName</td>'
+    + '<td><fun>GetStatus(@@Status)</fun></td>'
+    + '<td><fun>GetKnowType(@@IsSys)</fun></td>'
+    +'<td>@@CDate</td>'
+    + '<td><fun>GetOption(@@k_id)</fun></td></tr>';
+
+    //第一次点击时加载,以后点击时显示子级
+    function ShowChild(obj) {
+        if ($(obj).data("child") < 1)//无子级直接返回
+        {
+            obj.onclick = null;
+            return false;
+        }
+        $tr = $(obj).closest("tr");
+        $.post("s", { nid: $tr.data("id") }, function (data) {
+            if (data != "" && data != "[]") {
+                data = JSON.parse(data);
+                var html = ReplaceTlp(childTlp, $tr.data("layer"), data);
+                obj.onclick = function () { ToggleChild(obj); }
+                $tr.after(html);
+                $tr.find("[data-type=icon]").attr("class", "fa fa-folder-open");
+            }
+        });
+    }
+    //确定是要显示还是隐藏
+    function ToggleChild(obj) {
+        $tr = $(obj).closest("tr");
+        var id = $tr.data("id");
+        $trs = $("#EGV tr[data-pid=" + id + "]");
+        if ($trs.length < 1) return;
+        var flag = $trs.is(":visible");
+        if (flag) {
+            HideByPid(id);
+            $tr.find("[data-type=icon]").attr("class", "fa fa-folder");
+        }//隐藏的话递归
+        else {
+            $trs.show();
+            $tr.find("[data-type=icon]").attr("class", "fa fa-folder-open");
+        }
+    }
+    //true隐藏,false显示
+    function HideByPid(pid) {
+        var $trs = $("#EGV tr[data-pid=" + pid + "]");
+        if (!$trs || $trs.length < 1) return;//不存在,或下再无子级时跳出递归
+        for (var i = 0; i < $trs.length; i++) {
+            HideByPid($($trs[i]).data("id"));
+        }
+        $("#EGV tr[data-pid=" + pid + "]").hide();
+    }
+    //附加数据
+    function ReplaceTlp(tlp, layer, list) {
+        var layerTlp = "<img src='/Images/TreeLineImages/tree_line4.gif' />";
+        var layerhtml = "";
+        for (var i = 0; i < layer; i++) {
+            layerhtml += layerTlp;
+        }
+        tlp = tlp.replace("@@LayerHtml", layerhtml).replace("@@Layer", ++layer);
+        //替换模板
+        return JsonHelper.FillData(tlp, list);
+    }
+    //获取状态
+    function GetStatus(status) {
+        if (status==99) {
+            return "<span style='color:green'>启用</span>";
+        }
+        return "<span style='color:red;'>禁用</span>";
+    }
+    //获取操作
+    function GetOption(id) {
+        return "<a href='AddKnowledge?id="+id+"&nid=@Request.QueryString["nid"]' title='修改'><span class='fa fa-pencil'></span></a> "
+           + "<a href='javascript:;' onclick='mvcpage.del({url:\"Knowledge_Del\", ids: "+ id +"});'><span class='fa fa-trash-o'></span></a> ";
+    }
+    function GetKnowType(issys){
+        if(issys==1){ return "系统";}
+        return "自定义";
+    }
+    //获得带图标类型名称
+    function GetIcon(count, id, typename) {
+        var classname = count > 0 ? "fa fa-folder" : "fa fa-file";
+        return "<a href='javascript:;'><span data-type='icon' class='" + classname + "'></span></a> <a href='AddKnowledge?id=" + id + "'>" + typename + "</a>";
+    }
+
+</script>
+}

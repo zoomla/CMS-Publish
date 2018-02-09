@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+    <title>广告计划</title>
+}
+@section content{
+<div id="pageflag" data-nav="group" data-ban="AdPlan"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+	<li class="breadcrumb-item active">广告计划<a href="AdPlanAdd">[申请广告]</a></li>
+</ol>
+</nav>
+</div>
+<div class="container u_cnt">
+    @Html.Partial("AdPlan_List",Model)
+</div> 
+}
+@section script{
+   
+}

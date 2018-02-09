@@ -1,0 +1,135 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@model ZoomLaCMS.Models.Cloud.VM_Cloud
+@{
+    
+}
+@section head{
+<style>
+.cloud_dirdiag { width: 450px; }
+.cloudmanage .hoverDiv a { display: inline-block; margin-left: 10px; }
+</style>
+<link href="/Plugins/Uploadify/style.css" rel="stylesheet" type="text/css" />
+<title>网络云盘</title>
+}
+@section content{
+<div id="pageflag" data-nav="cloud" data-ban="cloud"></div>
+<div class="container u_cnt">
+@if (Model.mu.IsCloud != 1)
+{
+<div id="OpenCloud" style="padding:15px;">
+<a href="Cloud_Open" class="btn btn-info"><i class="fa fa-cloud"></i> 您还没有云盘,点击开通云盘</a>
+</div>
+}
+else
+{
+<div class="cloudmanage margin_t10">
+<div id="Cloud">
+@Html.Partial("Cloud_List")
+</div>
+<div class="us_seta btn_green text-left margin_t10" id="us_seta">
+<button class="btn btn-info" name="demoCode04-3" onclick="ShowFileDiag()">上传文件</button>
+<button class="btn btn-info" id="newFile" onclick="ShowDirDiag()" >新建文件夹</button>
+
+</div>
+</div>
+    <div class="modal fade" id="dir_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">目录管理</div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <input type="text" id="DirName_T" name="DirName_T" class="form-control" />
+                        <span class="input-group-btn"> <input type="button" value="创建目录" class="btn btn-info" onclick="newDir();" /></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">关闭窗口</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="file_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">文件上传</div>
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div class="wrap"><input type="file" id="files" /></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">关闭窗口</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+}
+@section script{
+<script src="/Plugins/Uploadify/jquery.uploadify.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+	$(function(){
+		//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(5).addClass("active");
+	})
+</script>
+<script>
+    function ShowDirDiag() {
+        $("#DirName_T").val("");
+        $("#dir_modal").modal({});
+    }
+    var FileDiag = new ZL_Dialog();
+    function ShowFileDiag() {
+        $("#file_modal").modal({});
+    }
+    var prediag = new ZL_Dialog();
+    function prefile(guid) {
+        prediag.title = "预览文件";
+        prediag.url = "/BU/Front/PreView.aspx?CloudFile=" + guid;
+        prediag.maxbtn = false;
+        prediag.ShowModal();
+        $('.modal').css('top', '100px');
+        $('.modal-body').css('height', '600px');
+    }
+    function newDir() {
+        var dir = $("#DirName_T").val();
+        if (ZL_Regex.isEmpty(dir)) { alert("目标名不能为空"); return; }
+        $.post("cloud_newdir?type=@Model.FType&dir=@Model.VDir", { "DirName_T": dir }, function (data) {
+            location = location;
+        });
+    }
+    $(function () {
+        $("#files").uploadify({
+            //按钮宽高
+            width: 120,
+            height: 35,
+            auto: true,
+            swf: '/Plugins/Uploadify/uploadify.swf',
+            uploader: '/Plugins/Uploadify/UploadFileHandler.ashx',
+            buttonText: "上传附件",
+            buttonCursor: 'hand',
+            fileTypeExts: "*.*",
+            fileTypeDesc: "请选择文件",
+            fileSizeLimit: "50000KB",
+            formData: { "action": "Cloud_Doc", "value": "@Model.VDir", "Type": "@Model.FType" },
+            queueSizeLimit: 3,
+            removeTimeout: 2,
+            multi: true,
+            onUploadStart: function (file) { },
+            onUploadSuccess: function (file, data, response) {//json,result,tru||false
+            },
+            onQueueComplete: function (queueData) { location = location; },
+            onUploadError: function (file) { }
+        });
+    });
+	
+</script>
+}

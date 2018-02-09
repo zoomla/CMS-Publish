@@ -1,0 +1,32 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{
+    <title>试卷管理</title>
+}
+@section content{
+    <div class="container-fluid mysite marginbot10" id="BreadDiv">
+        <div class="row">
+            <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+                <li><a href='Papers_System_Manage'>教育模块</a></li>
+                <li><a href='Papers_System_Manage'>考试管理</a></li>
+                <li>试卷管理[<a href='Papers_System_Add?NodeID=@ViewBag.nodeid'>添加试卷</a>]</li>
+                <div id="sel_box">
+                    <div class="input-group text_300">
+                        <input type="text" id="skey" class="form-control text_300 mvcparam" placeholder="请输入关键词" onkeypress="selbox.search();" />
+                        <span class="input-group-btn">
+                            <input type="button" class="btn btn-default" value="搜索" onclick="mvcpage.load();" />
+                        </span>
+                    </div>
+                </div>
+                <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="fa fa-search"></i></a></div>
+            </ol>
+        </div>
+    </div>
+    @Html.Partial("Papers_System_Manage_List")
+    <button id="del_btn" class="btn btn-primary" onclick="mvcpage.bat({ url: 'Papers_Del', confirm: '确定要删除选中的数据吗？' });">批量删除</button> 
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+}

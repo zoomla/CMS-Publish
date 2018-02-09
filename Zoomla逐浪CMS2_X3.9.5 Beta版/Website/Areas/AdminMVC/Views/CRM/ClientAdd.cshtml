@@ -1,0 +1,142 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Model.Client
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.BLL
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Client
+@model ZoomLa.Model.Client.M_CRMS_Client
+@{ 
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    B_Model modBll = new B_Model();
+    DataTable valueDT = ViewBag.valueDT;
+    DataTable fieldDT = ViewBag.fieldDT;
+    DataTable ctypeDT = attrBll.Sel("ctype");
+    PageSetting conSetting = ViewBag.conSetting;
+}
+@section head{
+<title>客户管理</title>
+<style type="text/css">
+.r_red{padding-left:5px;color:red;}
+</style>
+<script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="~/Plugins/Ueditor/ueditor.all.js"></script>
+}
+@section content{
+ <ol id="navWrap" class="breadcrumb navbar-fixed-top">
+    <li><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+    <li><a href="ClientList">客户列表</a></li>
+    <li>
+        <a href="@MvcHtmlString.Create(Request.RawUrl)">客户管理</a>
+    </li>
+    <div id="help" class="pull-right"><a onclick="help_show('47')" title="帮助"><i class="fa fa-question-circle"></i></a></div>
+</ol>   
+<form method="post" action="@MVCHelper.GetAction("Client_Add",Request)">
+<ul class="nav nav-tabs">
+        <li class="active"><a href="#client" data-toggle="tab">客户信息</a></li>
+        <li><a href="#contact" data-toggle="tab">联系人</a></li>
+        <li><a href="#extend" data-toggle="tab">扩展信息</a></li>
+    </ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="client">
+        <table class="table table-bordered table-striped">
+        <tr>
+            <td class="td_m">客户类型</td>
+            <td colspan="3">
+                @MVCHelper.H_Checks("ClientType",ctypeDT,"id","value", Model.ClientType)
+            </td>
+        </tr>
+        <tr>
+            <td class="td_m">客户名称</td>
+            <td>@Html.TextBoxFor(m => m.ClientName, new { @class = "form-control text_300 required" })<span class="r_red">*</span></td>
+            <td class="td_m">电话</td>
+            <td>@Html.TextBoxFor(m => m.Phone, new { @class = "form-control text_300" })</td>
+        </tr>
+        <tr>
+            <td>省份</td>
+            <td>
+                <select id="Province" name="Province" class="form-control text_200_auto"></select>
+                <select id="City" name="City" class="form-control text_200_auto"></select>
+                <select id="County" name="County" class="form-control text_200_auto"></select>
+            </td>
+            <td>详细地址</td>
+            <td>@Html.TextBoxFor(m => m.Address, new { @class = "form-control text_300" })</td>
+        </tr>
+        <tr>
+            <td>客户级别</td>
+            <td>
+                @Html.DropDownListFor(m => m.ClientLevel,
+               MVCHelper.ToSelectList("重点客户|普通客户|非优先客户".Split('|'), "A|B|C".Split('|'), Model.ClientLevel),
+               new { @class = "form-control text_300" })
+            </td>
+            <td>行业</td>
+            <td>@Html.TextBoxFor(m => m.ClientClass, new { @class = "form-control text_300" })</td>
+        </tr>
+        <tr>
+            <td>邮政编码</td>
+            <td>@Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control text_300 digits", maxlength = 6 })</td>
+            <td>传真</td>
+            <td>@Html.TextBoxFor(m => m.Fax, new { @class = "form-control text_300" })</td>
+        </tr>
+        <tr>
+            <td>公司网址</td>
+            <td>@Html.TextBoxFor(m => m.WebSiteUrl, new { @class = "form-control text_300 url" })</td>
+            <td>微博</td>
+            <td>@Html.TextBoxFor(m => m.MicroBlogUrl, new { @class = "form-control text_300 url" })</td>
+        </tr>
+        <tr><td>备注</td><td colspan="3">@Html.TextBoxFor(m => m.Remind, new { @class = "form-control" })</td></tr>
+    </table>
+    </div>
+    <div class="tab-pane" id="contact" style="padding-top:5px;">
+        @if (conSetting != null&&conSetting.dt.Rows.Count>0)
+        { @Html.Partial("Contact_List", conSetting);
+        }
+        else
+        {<div class="alert alert-info">无联系人信息</div> }
+        @if (Model.ID > 0)
+        {
+            <div>
+                <input type="button" value="添加联系人" class="btn btn-info" onclick="showAddContact();" />
+                <input type="button" value="批量删除" class="btn btn-info" onclick="mvcpage.bat({url: 'contact_del', confirm: '确定要批量移除吗' });"/>
+            </div>
+        }
+    </div>
+    <div class="tab-pane" id="extend">
+        <ul>
+            @Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(fieldDT, valueDT))
+        </ul>
+    </div>
+    <div class="Conent_fix">
+        <input type="submit" value="保存信息" class="btn btn-info" />
+        <a href="ClientList" class="btn btn-default">返回列表</a>
+    </div>
+</div>
+    </form>
+    }
+@section script{
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_PCC.js"></script>
+<script src="/JS/Common.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Content.js?v=20160514"></script>
+<script>
+    $(function () {
+        $("form").validate();
+        var pcc = new ZL_PCC("Province", "City", "County");
+        if ("@Model.ID" != "0") {
+            pcc.SetDef("@Model.Province", "@Model.City", "@Model.County");
+        }
+        pcc.ProvinceInit();
+    });
+    function showAddContact(id) {
+        if (!id) { id = 0;}
+        ShowComDiag("ContactAdd?Cid=@(Model.ID)&ID="+id, "联系人管理");
+    }
+    function ContactAddSuccess() {
+        mvcpage.load({ url: "contact?cid=@Model.ID", target: "EGV" });
+        CloseComDiag();
+    }
+</script>
+
+}

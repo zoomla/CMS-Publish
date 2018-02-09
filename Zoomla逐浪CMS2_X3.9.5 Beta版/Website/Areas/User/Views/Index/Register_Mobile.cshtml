@@ -1,0 +1,48 @@
+﻿@{
+    Layout = "~/Areas/User/Views/Index/_RegisterLayout.cshtml";
+}
+@section head{<title>手机注册</title>}
+@section content{
+<form method="post" action="/User/Index/Register_MobileCheck">
+    <div id="MobileRegis" class="col-lg-6 offset-lg-3 u_login">
+  <h1>快速手机注册</h1>
+	 <div class="form-group row">	      
+    <label for="TxtMobile" class="col-sm-2 col-form-label">手机号码</label>
+    <div class="col-sm-10">
+	  <input type="text" ID="TxtMobile" name="TxtMobile" class="form-control required mobile" placeholder="请输入11位手机号码" maxlength="11"/>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputPassword3" class="col-sm-2 col-form-label">安全验证</label>
+    <div class="col-sm-10">
+      <input type="text" ID="MobileCode" name="MobileCode" placeholder="验证码" MaxLength="6" class="form-control" hidden />
+	  <input type="hidden" id="MobileCode_hid" name="MobileCode_hid" />	  
+	  @Html.Partial("Verify/Index")
+    </div>
+  </div>
+ <div class="form-group row">	      
+    <label for="MobileCode_T" class="col-sm-2 col-form-label">短信验证码</label>
+    <div class="col-sm-10 input-group">
+	<input type="text" ID="MobileCode_T" name="MobileCode_T" class="form-control required" /> 
+  <div class="input-group-append">
+    <button type="button" id="send_btn" class="input-group-text">点此获取验证码</button>
+  </div>
+  </div>
+  </div>
+  <div class="text-center"><input type="submit" value="下一步" class="btn btn-info" /></div>  
+  </div>
+</form>
+}
+@section script{
+<script src="/JS/Controls/Control.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script>
+$(function () {
+	//短信发送
+	$("#send_btn").click(function () {
+		Control.Mobile.SendVaildMsg("send_btn", "VCode", "VCode_hid", $("#TxtMobile").val());
+	});
+	$("form").validate();
+})
+</script>
+}

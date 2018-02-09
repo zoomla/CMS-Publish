@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>315</LabelID>
+    <LabelName>输出数字出版列表_带时间属性_响应式分页v4</LabelName>
+    <LabelType>4</LabelType>
+    <LabelCate>全站通用</LabelCate>
+    <LabelDesc />
+    <LabelParam>TitleNum,30,1,标题长度|ShowNum,10,1,分页显示数</LabelParam>
+    <LabelTable>ZL_Content_Publish</LabelTable>
+    <LabelField>CDate,ID,NewsName</LabelField>
+    <LabelWhere>Pid=0</LabelWhere>
+    <LabelOrder>ZL_Content_Publish.CDate DESC</LabelOrder>
+    <LabelContent>&lt;ul class="list-group"&gt;
+{Repeate}&lt;li class="list-group-item"&gt;&lt;a href="/Rss/ViewPublish?Pid={Field="ID"/}" title="{Field="NewsName"/}"&gt;{ZL:CutText({Field="NewsName"/},@TitleNum,)/}&lt;/a&gt;&lt;span class="pull-right"&gt;{ZL:FormatDate({Field="CDate"/},yyyy-MM-dd)/}&lt;/span&gt;&lt;/li&gt;{/Repeate}
+&lt;/ul&gt;
+&lt;div class="clearfix"&gt;&lt;/div&gt;
+{ZL.Page id="大图标响应式列表分页v4"/}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Content_Publish","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam>{"PureT1":"ZL_CommonModel","PureT2":"","T1":"ZoomlaCMS.dbo.ZL_CommonModel","T2":"","JoinType":"left join","OnField1":"because_back","OnField2":""}</ProceParam>
+  </Table>
+</NewDataSet>

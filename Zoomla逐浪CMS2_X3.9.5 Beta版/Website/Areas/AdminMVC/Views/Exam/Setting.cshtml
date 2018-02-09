@@ -1,0 +1,32 @@
+﻿@{
+}
+@section head{ <title>配置中心</title> }
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li><a href='Papers_System_Manage'>教育模块</a></li>
+            <li><a href='QuestionManage'>考试管理</a></li>
+            <li class='active'>配置中心</li>
+        </ol>
+    </div>
+</div>
+<form method="post" action="Setting_Update">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td class="td_m">难度更新</td>
+            <td>
+                <div class="input-group" style="width:482px;">
+                    <input type="text" id="stime" name="stime" value="@ViewBag.stime" class="form-control text_md" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'etime\')}', dateFmt: 'yyyy-MM-dd HH:mm' });" />
+                    <input type="text" id="etime" name="etime" value="@ViewBag.etime" class="form-control text_md" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'stime\')}', dateFmt: 'yyyy-MM-dd HH:mm' });" />
+                    <span class="input-group-btn"><button type="submit" class="btn btn-primary">难度更新</button></span>
+                </div>
+            </td>
+        </tr>
+    </table>
+</form>
+}
+@section script{
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+}

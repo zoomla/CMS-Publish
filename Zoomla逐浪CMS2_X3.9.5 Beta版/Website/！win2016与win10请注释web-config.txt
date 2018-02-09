@@ -1,0 +1,2 @@
+win2016与win10请注释web.config文件中的下方一行：
+ <mimeMap fileExtension=".woff2" mimeType="font/x-woff" />

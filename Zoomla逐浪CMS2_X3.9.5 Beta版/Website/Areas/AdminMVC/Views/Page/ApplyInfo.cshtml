@@ -1,0 +1,84 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.AppCode.Controls
+@using ZoomLa.Controls
+@model ZoomLa.Model.Page.M_PageReg
+@{
+    DataTable styleDt = (DataTable)ViewBag.styleDt;
+    DataTable applyModDT = (DataTable)ViewBag.applyModDT;
+}
+@section head{
+<script type="text/javascript" charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+@section content{
+<div class="container-fluid mysite" id="BreadDiv">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li><a href='ApplyAudit'>企业黄页</a></li>
+            <li><a href='ApplyAudit'>黄页管理</a>
+            <li class="active">查看黄页申请</li>
+        </ol>
+    </div>
+</div>
+<div class="container margin_t5">
+    <form method="post" action="@MVCHelper.GetAction("Apply_Update",Request)">
+    <ul class="fd_body">
+    <li class="fd_item">
+    <div class="fd_item_head">
+    <p style="width:100%;margin:0px;" class="text-center">黄页信息</p>
+    <span class="margin_r5">会员账号 :@Model.UserName </span>
+    </div>
+    </li>
+    @if (Model.ID < 1)//仅初次申请时显示,不可修改
+    {
+
+        <li class="fd_item">
+        <div class="fd_item_head">申请类型</div>
+        <div class="fd_item_field">
+        @MVCHelper.H_Radios("ApplyModel_Rad", applyModDT, "ModelID", "ModelName", Model.ModelID == 0 ? "" : Model.ModelID.ToString())
+        </div>
+        </li>
+    }
+
+    <li class="fd_item">
+    <div class="fd_item_head">企业名称</div>
+    <div class="fd_item_field">
+    @Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control text_300" })
+    </div>
+    </li>
+    <li class="fd_item">
+    <div class="fd_item_head">企业LOGO:</div>
+    <div class="fd_item_field">
+    @Html.Partial("C_SFileUP", new C_SFileUP { FileType = "img", ID = "LOGO",Value=Model.LOGO })
+    </div>
+    </li>
+    <li class="fd_item">
+    <div class="fd_item_head">企业说明:</div>
+    <div class="fd_item_field">
+    @Html.TextAreaFor(m => m.PageInfo, new { @style = "width:800px;height:400px;" })
+    </div>
+    </li>
+    @Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(Model.ModelID, 0, new ModelConfig() { Source = ModelConfig.SType.Admin }, 0,(DataRow)ViewBag.valuedr))
+    <li class="fd_item">
+    <div class="fd_item_head">黄页样式</div>
+    <div class="fd_item_field">
+    @Html.Partial("C_TemplateView", new C_TemplateView(styleDt))
+    </div>
+    </li>
+    </ul>
+    <div class="clear"></div>
+    <div class="text-center">
+    <input type="submit" value="提交信息" class="btn btn-primary" />
+    </div>
+    </form>
+</div>
+}
+@section script{
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script type="text/javascript" src="/JS/ZL_Content.js"></script>
+@MvcHtmlString.Create(Call.GetUEditor("PageInfo", 2))
+}

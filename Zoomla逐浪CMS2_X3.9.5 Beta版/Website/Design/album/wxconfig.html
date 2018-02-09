@@ -1,0 +1,38 @@
+﻿    if (window.wx) {
+        wx.config({
+            debug: false,
+            appId: '{appid}',
+            timestamp: '{timestamp}',
+            nonceStr: '{noncestr}',
+            signature: '{sign}',
+            jsApiList: [
+                'checkJsApi',
+                'onMenuShareTimeline',
+                'onMenuShareAppMessage',
+                'onMenuShareQQ',
+                'onMenuShareWeibo',
+            ]
+        });
+        var link = "{shareLink}";
+        var title = '{shareTitle}';
+        var desc = "{shareTitle}";
+        var imgs = '{shareImg}';
+        wx.ready(function () {
+            wx.onMenuShareTimeline({
+                title: title,
+                desc: desc,
+                link: link,
+                imgUrl: imgs,
+                trigger: function (res) {
+                },
+            });
+            wx.onMenuShareAppMessage({
+                title: title,
+                desc: desc,
+                link: link,
+                imgUrl: imgs,
+                trigger: function (res) {
+                },
+            });
+        });
+    }

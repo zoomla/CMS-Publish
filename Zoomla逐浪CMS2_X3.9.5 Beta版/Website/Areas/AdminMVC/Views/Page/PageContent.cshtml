@@ -1,0 +1,91 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.Common
+@{
+    int ModelID=DataConverter.CLng(Request.QueryString["ModelID"]);
+    int Status=DataConverter.CLng(Request.QueryString["Status"]);
+}
+@section head{
+<title>黄页内容</title>
+}
+@section content{
+<ol class="breadcrumb navbar-fixed-top">
+    	<li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+        <li><a href='ApplyAudit'>企业黄页</a></li>
+        <li>
+            @if (Status == -2)
+            { <a href="@Request.RawUrl">回收站</a> @(MvcHtmlString.Create("[<a href='PageContent'>返回内容管理</a>]"))}
+            else
+            { <a href="@Request.RawUrl">内容管理</a> @(MvcHtmlString.Create("[<a href='PageContent?status=-2'>内容回收站</a>]"))}  
+
+        </li>
+        <div id="sel_box">
+            <div class="input-group">
+                <span class="input-group-addon">排序</span>
+                <select class="form-control text_md mvcparam" id="orderby_dp">
+                    <option selected="selected" value="GeneralID">内容ID</option>
+                    <option value="CreateTime">添加时间</option>
+                    <option value="UpDateTime">更新时间</option>
+                    <option value="Hits">点击数</option>
+                    <option value="EliteLevel">推荐级别</option>
+                </select>
+                <select class="form-control text_md mvcparam" id="order_dp">
+                    <option value="desc">降序</option>
+                    <option value="asc">升序</option>
+                </select>
+                <input type="text" id="title_t" class="form-control text_md mvcparam" placeholder="标题" />
+                <input type="text" id="inputer_t" class="form-control text_md mvcparam" placeholder="录入者" />
+                <input type="button" value="搜索" class="btn btn-info" onclick="mvcpage.load();" />
+            </div>
+        </div>
+        <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="fa fa-search"></i></a></div>
+    </ol>
+<ul class="nav nav-tabs" id="navul">
+            <li><a href="PageContent?ModelID=@ModelID&li=0">内容列表</a></li>
+            <li><a href="PageContent?ModelID=@ModelID&status=99&li=1">已审核内容</a></li>
+            <li><a href="PageContent?ModelID=@ModelID&status=0&li=2">未审核内容</a></li>
+            @*<li><a href="PageContent?ModelID=@ModelID&flag=Elite&li=3">推荐内容</a></li>*@
+    </ul>
+@Html.Partial("PageContent_List")
+@if (Status == -2)
+{
+    <div class="margint5">
+        <input type="button" class="btn btn-info" value="恢复内容" onclick="mvcpage.bat({url: 'content_recovery',after:'reload' });" />
+        <input type="button" class="btn btn-danger" value="彻底删除" onclick="mvcpage.bat({url: 'content_realdel',after:'reload' });" />
+    </div>
+}
+else
+{
+    <div class="margint5">
+        <input type="button" class="btn btn-primary" value="审核通过" onclick="mvcpage.bat({url: 'content_audit',after:'reload' });" />
+        <input type="button" class="btn btn-primary" value="取消审核" onclick="mvcpage.bat({url: 'content_unaudit',after:'reload' });" />
+        <input type="button" class="btn btn-primary" value="批量删除" onclick="mvcpage.bat({url: 'content_del', confirm: '确定要批量移除吗',after:'reload' });" />
+    </div>
+}
+
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script>
+    function SetLI()
+    {
+        var id = '@Request.QueryString["li"]';
+        if (id == "") { $("#navul li:first").addClass("active"); }
+        else { $("#navul").children("li:eq(" + id + ")").addClass("active"); }
+        console.log(id);
+    }
+    $().ready(function () {
+        SetLI();
+        $("#chkAll").click(function () {//EGV 全选
+            selectAllByName(this, "chkSel");
+        });
+    })
+    function IsSelectedId() {
+        var checkArr = $("input[type=checkbox][name=chkSel]:checked");
+        if (checkArr.length > 0)
+            return true
+        else
+            return false;
+    }
+</script>
+}

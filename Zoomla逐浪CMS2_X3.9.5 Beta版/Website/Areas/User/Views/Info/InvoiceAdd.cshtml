@@ -1,0 +1,52 @@
+﻿@model ZoomLa.Model.Shop.M_Order_Invoice
+@section head{
+    <title>发票管理</title>
+}
+@section content{
+    <div id="pageflag" data-nav="home" data-ban="UserInfo"></div>
+<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="/User/Default.aspx">会员中心</a></li>
+        <li class="breadcrumb-item active">发票管理</li>
+	</ol>
+	</nav>
+    <form method="post" action="@MVCHelper.GetAction("Invoice_Add",Request)">
+        <div class="margin_t5">
+            <table class="table table-border table-striped">
+                <tr><td>发票类型</td><td>电子发票</td></tr>
+                <tr>
+                    <td class="td_l">发票抬头</td>
+                    <td>@Html.TextBoxFor(m => m.InvHead, new { @class = "form-control text_300 required",placeholder="请输入个人或公司名称" })</td>
+                </tr>
+                <tr>
+                    <td>纳税人识别码</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.UserCode, new { @class = "form-control text_300" })
+                        <a href="http://www.gsxt.gov.cn" target="_blank">(查询统一社会信用代码)</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>发票类型</td>
+                    <td>
+                        @MVCHelper.H_Radios("InvClass",Model.InvClassArr,Model.InvClassArr,Model.InvClass);
+                    </td>
+                </tr>
+                <tr>
+                    <td>发票内容</td>
+                    <td>@Html.TextAreaFor(m=>m.InvContent,new {@class="form-control m715-50",style="height:120px;" })</td>
+                </tr>
+                <tr><td></td><td>
+                    <input type="submit" class="btn btn-info" value="保存信息" />
+                    <a href="Invoice" class="btn btn-default">返回列表</a>
+                    </td></tr>
+            </table>
+        </div>
+    </form>
+</div>
+}
+@section script{
+    <script>
+        $("form").validate({});
+    </script>
+}

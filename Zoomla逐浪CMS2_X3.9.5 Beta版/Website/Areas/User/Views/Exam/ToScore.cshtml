@@ -1,0 +1,33 @@
+﻿
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+   
+   
+    
+}
+@section head{
+<title>试卷评阅</title>
+}
+@section content{
+
+<div id="pageflag" data-nav="edu" data-ban="ke"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="@Url.Action("QuestionManage", "Exam")">组卷管理</a></li>
+	<li class="breadcrumb-item active">试卷批阅</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+   @Html.Partial("ToScore_List",Model)
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(3).addClass("active");
+</script>
+}
+@section script{
+<script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+<script type="text/javascript" src="/JS/Drag.js"></script>
+}

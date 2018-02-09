@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>305</LabelID>
+    <LabelName>输出多级店铺节点导航_V4</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>列表专用</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,1,1,节点ID|ShowNum,30,1,显示数|UserShopID,0,1,店铺ID</LabelParam>
+    <LabelTable>ZL_Node</LabelTable>
+    <LabelField>NodeID,NodeName,ParentID</LabelField>
+    <LabelWhere>NodeID=@NodeID</LabelWhere>
+    <LabelOrder />
+    <LabelContent>&lt;li&gt;&lt;a href="/Store/StoreList?NodeID={Field="NodeID"/}&amp;ID=@UserShopID"&gt;{Field="NodeName"/}&lt;/a&gt;&lt;/li&gt;</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>参数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue>0</Modelvalue>
+    <Valueroot>{Field="ParentID"/}</Valueroot>
+    <IsOpen>1</IsOpen>
+    <FalseContent>{ZL.Label id="输出多级店铺节点导航_V4" NodeID="{Field="ParentID"/}" ShowNum="30" UserShopID="@UserShopID" /}
+&lt;li&gt;&lt;a href="/Store/StoreList?NodeID={Field="NodeID"/}&amp;ID=@UserShopID"&gt;{Field="NodeName"/}&lt;/a&gt;&lt;/li&gt;</FalseContent>
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Node","tb_s":""}</DataSourceType>
+    <ConnectString>DBO</ConnectString>
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

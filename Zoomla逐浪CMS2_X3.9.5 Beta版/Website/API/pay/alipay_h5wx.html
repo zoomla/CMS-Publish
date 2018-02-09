@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="msapplication-TileColor" content="#1A0066"/>
+<meta name="msapplication-TileImage" content="/images/win8_symbol_140x140.png"/>
+<title>在线支付</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="renderer" content="webkit">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+<link href="/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<!--[if lt IE 9]>
+	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+	<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="/JS/jquery.min.js" ></script>
+<script src="/dist/js/bootstrap.min.js"></script>
+<link href="/dist/css/font-awesome.min.css" rel="stylesheet"/>
+<style>
+.share_body { position: fixed; z-index: 1200; width: 100%; height: 100%; top: 0; left: 0; background:rgba(0,0,0,0.9); font-family:"STHeiti","Microsoft YaHei","黑体","arial";}/*分享图层*/
+.share_body_t { padding:15px; text-align:right;}
+.share_body_c { padding:30px; color:#fff; font-size:1.5em;}
+</style>
+</head>
+<body>
+<div class="share_body">
+<div class="share_body_t"><img src="data:image/png;base64,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" alt=""></div>
+<div class="share_body_c">
+<p>请点击右上角以safari或其它浏览器继续支付。</p>
+</div>
+</div>
+</body>
+</html>

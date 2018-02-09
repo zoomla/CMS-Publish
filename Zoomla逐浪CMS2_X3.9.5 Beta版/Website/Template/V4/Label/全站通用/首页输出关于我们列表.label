@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>188</LabelID>
+    <LabelName>首页输出关于我们列表</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>全站通用</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,1,1,节点ID|ShowNum,10,1,显示数</LabelParam>
+    <LabelTable>ZL_CommonModel LEFT JOIN ZL_C_Article ON ZL_CommonModel.ItemID=ZL_C_Article.ID</LabelTable>
+    <LabelField>ZL_CommonModel.CreateTime,ZL_CommonModel.GeneralID,ZL_CommonModel.NodeID,ZL_CommonModel.Title,ZL_CommonModel.TopImg,ZL_C_Article.author,ZL_C_Article.source,ZL_C_Article.synopsis</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID) And ModelID=2 And Status=99</LabelWhere>
+    <LabelOrder>ZL_CommonModel.CreateTime DESC</LabelOrder>
+    <LabelContent>{Repeate}
+&lt;div class="weui-media-box weui-media-box_text"&gt;
+&lt;h4 class="weui-media-box__title"&gt;&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}" target="{ZL:GetInfoOpen({Field="NodeID"/})/}"&gt;{Field="Title"/}&lt;/a&gt;&lt;/h4&gt;
+&lt;p class="weui-media-box__desc"&gt;{Field="synopsis"/}&lt;/p&gt;
+&lt;ul class="weui-media-box__info"&gt;
+&lt;li class="weui-media-box__info__meta"&gt;文字来源：{Field="source"/}&lt;/li&gt;
+&lt;li class="weui-media-box__info__meta"&gt;2017/3/18&lt;/li&gt;
+&lt;li class="weui-media-box__info__meta weui-media-box__info__meta_extra"&gt;{Field="author"/}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_C_Article"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

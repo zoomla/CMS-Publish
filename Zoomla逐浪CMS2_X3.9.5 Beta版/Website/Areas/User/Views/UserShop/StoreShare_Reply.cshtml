@@ -1,0 +1,32 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.Model.Shop
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@using ZoomLa.Components
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string Mode = Request.QueryString["Mode"] ?? "";
+    Model.cols = 10;
+    Model.mvcparam = "." + Model.target;
+}
+<div id="@Model.target">
+    @if (Model.dt.Rows.Count > 0)
+    {<input type="hidden" class="@Model.target" id="pid" value="@Model.dt.Rows[0]["Pid"]" />}
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <div class="comment-reply-item">
+            <div class="reply-infor">
+                <a class="user-name" href="javascript:;">店主回复</a>
+                <span class="words">@dr["MsgContent"]</span>
+                <span class="time">@DateHelper.ToDate(dr["CDate"])</span>
+            </div>
+        </div>
+    }
+    @if (Model.pageCount > 1)
+    {
+        @Html.Partial("_page2", Model)
+    }
+</div>

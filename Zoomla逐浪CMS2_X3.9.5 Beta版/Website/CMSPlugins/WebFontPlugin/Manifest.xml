@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Bundle xmlns="urn:uiosp-bundle-manifest-2.0" Name="Web字体" SymbolicName="WebFontPlugin" Version="1.0.0.0" InitializedState="Active">
+  <Activator Type="WebFontPlugin.Activator" Policy="Immediate" />
+  <Runtime>
+    <Assembly Path="bin\WebFontPlugin.dll" Share="false" />
+  </Runtime>
+  <BundleInfo Author="Zoomla" Category="/WebFont/write/default.aspx" Description="字体在线生成书写,生成"/>
+</Bundle>

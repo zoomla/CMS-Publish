@@ -1,0 +1,69 @@
+﻿@using System.Data;
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public MvcHtmlString forisnew(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? "<span style='color:green;'>新</span>" : "&nbsp;&nbsp;");
+    }
+    public MvcHtmlString forishot(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? "<span style='color:red;'>热</span>" : "&nbsp;&nbsp;");
+    }
+    public MvcHtmlString forisbest(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? "<span style='color:blue;'>精</span>" : "&nbsp;&nbsp;");
+    }
+    public MvcHtmlString formattype(string type)
+    {
+        return MvcHtmlString.Create(type.Equals("1") ? ComRE.Icon_OK : ComRE.Icon_Error);
+    }
+}
+@{
+    Model.cols = 10;
+    Model.url = "ProductList";
+}
+<div id="EGV">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td class="td_xs"></td>
+            <td class="td_m">商品图片</td>
+            <td>商品名称</td>
+            <td class="td_s">单位</td>
+            <td class="td_m">价格</td>
+            <td class="td_m">属性</td>
+            <td class="td_s">销售中</td>
+            <td class="td_m">排序</td>
+            <td class="td_m">序号</td>
+            <td class="td_l">操作</td>
+        </tr>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr class="order_tr" id="tr_@dr["ID"]">
+                <td><input type="checkbox" name="idchk" value='@dr["id"]' /></td>
+                <td><img src="@function.GetImgUrl(dr["Thumbnails"])" class="img50" onerror="shownopic(this);"/></td>
+                <td><a href="/Store/StoreContent?id=@(dr["id"])" title="预览" target="_blank">@dr["proname"]</a></td>
+                <td>@dr["ProUnit"]</td>
+                <td>@Convert.ToDouble(dr["LinPrice"]).ToString("f2")</td>
+                <td>
+                    @forisbest(DataConverter.CStr(dr["isbest"]))
+                    @forishot(DataConverter.CStr(dr["ishot"]))
+                    @forisnew(DataConverter.CStr(dr["isnew"]))
+                </td>
+                <td>@formattype(DataConverter.CStr(dr["Sales"]))</td>
+                <td>
+                    <a href="javascript:;" onclick="sort.up('@dr["ID"]');"><i class="fa fa-long-arrow-up"></i> 上移</a>
+                    <a href="javascript:;" onclick="sort.down('@dr["ID"]');"><i class="fa fa-long-arrow-down"></i> 下移</a>
+                </td>
+                <td><input type="text" value="@dr["ComModelID"]" class="form-control text_xs order_t" data-id="@dr["ID"]" name="idtxt_@dr["ID"]"/></td>
+                <td>
+                    <a href="/Store/StoreContent?id=@(dr["id"])" class="option_style" title="预览" target="_blank"><i class="fa fa-eye"></i></a>
+                    <a href="AddProduct?id=@dr["id"]" title="修改" class="option_style"><i class="fa fa-pencil"></i></a>
+                    <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["id"]', url: 'product_del', confirm: '确定要将该商品移入回收站吗' });"><i class="fa fa-trash"></i></a>
+                    <a href="StockAdd?ProID=@dr["ID"]" class="option_style"><i class="fa fa-key"></i>库存管理</a>
+                </td>
+            </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

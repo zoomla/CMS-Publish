@@ -1,0 +1,47 @@
+﻿@using System.Data
+@model ZoomLaCMS.Areas.User.Models.OrderViewModel
+@{
+    DataTable dt = new DataTable();
+}
+@section head{<title>我的订单</title>
+
+}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="shop"></div>
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+            <li class="breadcrumb-item"><a href="OrderList">店铺订单</a></li>
+        </ol>
+        @Html.Partial("UserShopTop")
+    </div>
+    <div class="container orderlist margin_t5">
+        <div class="order_navs row">
+            <ul class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-7 nav nav-tabs" id="OrderType_ul" role="tablist">
+                <li class="nav-item" role="presentation" data-flag="all"><a class="nav-link active" aria-selected="true" href="?filter=&ordertype=@Model.OrderType">全部订单</a></li>
+                <li class="nav-item" role="presentation" data-flag="needpay"><a class="nav-link" aria-selected="false" href="?filter=needpay&ordertype=@Model.OrderType">待付款</a></li>
+                <li class="nav-item" role="presentation" data-flag="prepay"><a class="nav-link" aria-selected="false" href="?filter=prepay&ordertype=@Model.OrderType">预付款</a></li>
+                <li class="nav-item" role="presentation" data-flag="paid"><a class="nav-link" aria-selected="false" href="?filter=paid&ordertype=@Model.OrderType">已付款</a></li>
+                <li class="nav-item" role="presentation" data-flag="receive"><a class="nav-link" aria-selected="false" href="?filter=receive&ordertype=@Model.OrderType">待收货</a></li>
+                <li class="nav-item" role="presentation" data-flag="comment"><a class="nav-link" aria-selected="false" href="?filter=comment&ordertype=@Model.OrderType">待评价</a></li>
+                <li class="nav-item" role="presentation" data-flag="recycle"><a class="nav-link" aria-selected="false" href="?filter=recycle&ordertype=@Model.OrderType">回收站</a></li>
+            </ul>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-5 input-group">
+                <input type="text" id="ProName_T" placeholder="商品名称" class="form-control mvcparam" />
+                <input type="text" id="SKey_T" placeholder="订单ID" class="form-control mvcparam" />
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-default" id="Search_Btn" onclick="mvcpage.load();"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+            <input type="hidden" value="oid" id="SType" class="mvcparam"/>
+        </div>
+        @Html.Partial("OrderList_List", Model)
+    </div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>	
+}
+@section script{
+    @Html.Partial("../Order/OrderList_Res")
+}

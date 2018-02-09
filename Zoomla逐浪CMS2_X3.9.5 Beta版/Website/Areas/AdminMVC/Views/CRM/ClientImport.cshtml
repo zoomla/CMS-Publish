@@ -1,0 +1,35 @@
+﻿@{ 
+
+}
+@section head{<title>客户导入</title>}
+@section content{
+
+<form method="post" action="Import_Client" enctype="multipart/form-data" style="float:left;" >
+<div class="input-group" style="width:580px;">
+    <input type="file" class="form-control text_500" name="file_up" id="file_up"/>
+    <span class="input-group-btn">
+        <input type="submit" class="btn btn-info" value="上传文档" onclick="return checkSub();" />
+    </span>
+</div>
+</form>
+<form method="post" action="Import_DownTlp" style="float:left;margin-left:5px;">
+<input type="submit" value="下载客户导入模板" class="btn btn-primary" />
+</form>
+<div class="clearfix"></div>
+<div class="alert alert-info" style="margin-top:5px;">
+    <div>1,下载模板,按照规范填写好数据</div>
+    <div>2,打开页面,上传填写好的文档</div>
+</div>
+    }
+@section script{
+<style type="text/css">
+    #navHolder { display: none; }
+</style>
+<script>
+    function checkSub() {
+        var fname=$("#file_up").val();
+        if (fname == "") { alert("未选定文件"); return false; }
+        return true;
+    }
+</script>
+}

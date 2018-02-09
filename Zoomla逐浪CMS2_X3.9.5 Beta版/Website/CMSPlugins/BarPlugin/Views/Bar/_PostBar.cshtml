@@ -1,0 +1,158 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.SQLDAL
+@{
+B_User buser = new B_User();
+M_UserInfo mu=new B_User().GetLogin();
+}<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="renderer" content="webkit">
+<link href="/dist/css/weui.min.css" rel="stylesheet" />
+<link href="/dist/css/bootstrap4.min.css" rel="stylesheet"/>
+<script type="text/javascript" src="/JS/jquery.min.js" ></script>
+<script src="/dist/js/popper.min.js"></script>
+<script src="/dist/js/bootstrap4.min.js"></script>
+<link href="/dist/css/font-awesome.min.css" rel="stylesheet"/>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<link href="/App_Themes/v4.css?id=v3.9.3" rel="stylesheet" />
+<script src="/JS/mvcpage.js?v=@(ZoomLa.BLL.BLLCommon.Version_JS)"></script>
+<script>function SetImg(url) { $("#BarImage_img").attr("src", url); }</script>
+@RenderSection("head")
+</head>
+<body>
+<header class="headerT navbar-fixed-top hidden-xs forum_top">
+<div class="container">
+<div class="row">
+<div class="col-xl-7 col-lg-7 col-md-7 col-sm-7 col-12">
+<ul>
+	<li><a href="/" target="_blank" class="btn btn-link"><span class="fa fa-home"></span> 官网</a></li>
+	<li><a href="/Home" target="_blank" class="btn btn-link">能力中心</a></li>
+	<li><a href="/Index" target="_blank" class="btn btn-link">社区</a></li>
+	<li><a href="/Ask" target="_blank" class="btn btn-link">问答</a></li>
+	<li><a href="/Guest" target="_blank" class="btn btn-link">留言</a></li>
+	<li><a href="/Baike" target="_blank" class="btn btn-link">百科</a></li>
+	<li><a href="/Office" target="_blank" class="btn btn-link">OA</a></li>
+</ul>
+</div>
+<div class="col-xl-5 col-lg-5 col-md-5 hidden-sm hidden-xs forum_search">
+<div class="input-group float-left" style="width: 260px;">
+<input type="text" onkeydown="if(event.keyCode ==13){SearchStr();return false;}" id="souchkey" class="form-control" placeholder="请输入检索内容标题" />
+<span class="input-group-btn"><button id="sousuo" class="btn btn-default" onclick="SearchStr()" type="button"><span class="fa fa-search"></span></button>
+</span>
+</div>
+<div class="float-right" style="margin-top: .4rem;">
+@if (mu.IsNull)
+{
+<div class="no_longin" id="login_div">
+	<a class="header_index_login_run headerTButton" href="/User/Login?returnUrl=/Index" style="text-decoration: none;">登录</a>
+	<a class="header_index_login_reg headerTButton" href="/User/Register" style="text-decoration: none; margin-left: 8px;">注册</a>
+	<a href='javascript:ShowHelp();'><span class="fa fa-question-circle btn btn-sm"></span></a>
+</div>
+}
+else
+{
+<div class="has_login" id="userlog_div">
+<div class="btn-group">
+  <button type="button" class="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span id="uname_span">@mu.HoneyName</span>
+  </button>
+  <a href='javascript:ShowHelp();'><span class="fa fa-question-circle btn btn-sm"></span></a>
+  <div class="dropdown-menu">
+    <a class="dropdown-item" href="/PostSearch?uid=@mu.UserID" id="mypost_a">我的贴子</a>
+    <a class="dropdown-item" href="/PostSearch?islike=1">我的收藏</a>
+    <a class="dropdown-item" href="/User/Message/Message">站内邮件</a>
+    <a class="dropdown-item" href="/User/Chang/Pwd">修改密码</a>
+    <a class="dropdown-item" href="/User/Info/UserBase">修改信息</a>
+    <a class="dropdown-item" href="/User/User/Logout?nologurl=/Index">退出登录</a>
+  </div>
+</div>
+
+</div>
+}
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal-content" style="display: none;" id="helpdiv">
+<div class="modal-body">
+<div>
+1、普通会员只能发帖，不能改;<br />
+2、聚合认证过的可以修改自己的帖子;<br />
+3、版主（吧主）可以修改当前版面的帖子;<br />
+4、管理员可以修改所有的帖子;<br />
+5、为防灌水，回复帖子间隔时间为60秒，主题帖子发表间隔时间为5分钟，版主不受此限制;<br />
+6、新注册会员120分钟内不能发帖;
+</div>
+<iframe id="cate_ifr" style="width: 100%; height: 400px; border: none;" src=""></iframe>
+</div>
+</div>
+</header>
+
+<div class="forum_navBox">
+<div class="container">
+<div class="row">
+<div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-12 forum_logo"><a href="/Index">@(Call.SiteName)社区</a></div>
+<div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-12 forum_nav">
+<ul>
+<li><a href="/index">社区首页</a></li>
+@Call.MVCLabel("{ZL.Label id=\"输出贴吧父级列表\" ShowNum=\"10\" /}")
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="centerdiv">
+@RenderSection("content")
+<footer class="forum_bottom">
+<div class="container">
+@MvcHtmlString.Create(Call.GetLabel("{$Copyright/}"))
+</div>
+</footer>
+</div>
+@RenderSection("script")
+<script>
+$().ready(function (e) {
+$(window).scroll(function () {
+if ($(window).scrollTop() >= 50) {
+$(".index_totop").animate({ right: '0' });
+}
+else {
+$(".index_totop").animate({ right: '-71px' });
+}
+});
+
+$(".index_totop").click(function () {
+$("body").animate({ scrollTop: 0 }, 1000, function () {
+$(".index_totop").animate({ right: '-71px' });
+});
+});
+})
+$(function () {
+$("#souchkey").val("@Request["skey"]".replace(/\|/g, " "));
+})
+function SearchStr() {
+var key = $("#souchkey").val().replace(" ", "");
+if (key != "") {
+var searchstr = $("#souchkey").val().trim().replace(/ +/g, '|');
+location = "postsearch?skey=" + searchstr.trim();
+}
+}
+var diag = new ZL_Dialog();
+diag.title = "社区帮助";
+diag.width = 600;
+diag.content = "helpdiv";
+function ShowHelp() {
+diag.ShowModal();
+}
+</script>
+</body>
+</html>

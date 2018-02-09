@@ -1,0 +1,35 @@
+﻿@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{  
+    Model.cols = 6;
+}
+@functions{
+    public string GetIcon(string icon)
+    {
+        if (icon.Contains("/"))//判断是否为路径
+        { return "<img src='" + icon + "' onerror=\"this.src = '/UploadFiles/nopic.gif'\" style='width:30px; height:30px;' />"; }
+        return "<span class='" + icon + "'></span>";
+    }
+}
+<table class="table table-bordered table-striped table-hover margin_t10">
+    <tr>
+        <td></td>
+        <td>ID</td>
+        <td>学校名称</td>
+        <td>省份</td>
+        <td>城市</td>
+        <td>区域</td>
+    </tr>
+    @foreach(DataRow dr in Model.dt.Rows)
+    {
+     <tr>
+        <td><input type="button" value="选定" class="btn btn-xs btn-info" onclick="GetSchoolName('@dr["schoolname"]');" /></td>
+        <td>@dr["ID"]</td>
+        <td>@MvcHtmlString.Create(GetIcon(dr["Country"].ToString()))<span>@dr["SchoolName"]</span></td>
+        <td>@dr["Province"]</td>
+        <td>@dr["City"]</td>
+        <td>@dr["County"]</td>
+    </tr>   
+    }
+    @Html.Partial("_page",Model)
+</table> 

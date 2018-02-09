@@ -1,0 +1,76 @@
+﻿@model ZoomLa.Model.M_Questions_Knowledge
+@{
+
+}
+@section head{
+    <title>编辑知识点</title>
+    <link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb navbar-fixed-top">
+                <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+                <li><a href='Papers_System_Manage'>教育模块</a></li>
+                <li><a href='KnowledgeManage'>知识点管理</a></li>
+                <li class='active'>编辑知识点</a></li>
+            </ol>
+        </div>
+    </div>
+    <form method="post" action="@MVCHelper.GetAction("Knowledge_Add",Request)">
+        <table class="table table-striped table-bordered table-hover">
+
+            <tr>
+                <td class="text-right">所属科目:</td>
+                <td>@ViewBag.cname</td>
+            </tr>
+            <tr>
+                <td class="td_m text-right">名称:</td>
+                <td>
+                    @Html.TextBoxFor(m => m.K_name, new { @class = "form-control text_300" })
+                </td>
+            </tr>
+
+            <tr>
+                <td class="text-right">所属年级:</td>
+                <td>
+                    @Html.DropDownListFor(m => m.Grade, ViewBag.gradelist as SelectList, new { @class = "form-control text_300" })
+                </td>
+            </tr>
+            <tr>
+                <td class="text-right">是否启用</td>
+                <td>
+                    <input type="checkbox" id="Status" name="Status" class="switchChk" @(Model.Status == 1 || Model.K_id < 1 ? "checked='checked'" : "") />
+                </td>
+            </tr>
+            <tr>
+                <td class="text-right">系统知识点:</td>
+                <td>
+                    <input type="checkbox" id="IsSys" name="IsSys" class="switchChk" @(Model.IsSys == 1 ? "checked='checked'" : "" ) />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <a href="KnowledgeManage?nid=@Request.QueryString["nid"]" class="btn btn-primary">返回</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+}
+@section script{
+    <script src="/dist/js/bootstrap-switch.js"></script>
+    <script>
+        $(function () {
+            validate.zl_init($("form"), {
+                rules: {
+                    K_name: { required: true }
+                },
+                messages: {
+                    K_name: { required: "知识点名称不能为空" }
+                },
+            }, { placement: 'right', style: 'green' });
+        });
+    </script>
+}

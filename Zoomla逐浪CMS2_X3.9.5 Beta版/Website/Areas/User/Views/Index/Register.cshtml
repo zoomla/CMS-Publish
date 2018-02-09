@@ -1,0 +1,319 @@
+﻿@using System.Data
+@using ZoomLa.Components
+@using ZoomLa.Common
+@model ZoomLaCMS.Models.Front.VM_Register
+@{
+    Layout = "~/Areas/User/Views/Index/_RegisterLayout.cshtml";
+    int gid = DataConverter.CLng(Request.QueryString["gid"]);
+    bool check = true;
+    foreach(DataRow dr in Model.groupDT.Rows)
+    {
+        if (gid == DataConverter.CLng(dr["GroupID"])){ check = false; break;}
+    }
+    if (check && Model.groupDT.Rows.Count > 0) { gid = DataConverter.CLng(Model.groupDT.Rows[0]["GroupID"]); }
+}
+@section head{
+<title>用户注册-@Call.SiteName</title>
+}
+@section content{
+<form method="post" action="@MVCHelper.GetAction("/User/Index/Register_Submit", Request)">
+<input type="hidden" name="ReturnUrl_Hid" value="@Model.ReturnUrl" />
+<input type="hidden" id="ParentUser_Hid" name="ParentUser_Hid" value="@Model.pmu.UserName"/>
+<main class="container">
+<div class="row">
+<div class="col-lg-6 offset-lg-3 u_login">
+<div id="reg_main">
+<div class="reg_sub">
+<h1 class="text-center">注册会员</h1>
+@*------------------------------------------------------------------------*@
+<div class="reg_sub_item">
+<div class="weui-cells__title"><i class="fa fa-user"></i> 基本信息</div>
+<div class="weui-cells weui-cells_form" style="overflow:visible;">
+
+<div class="weui-cell">
+<div class="weui-cell__hd"><label class="weui-label">用户名</label></div>
+<div class="weui-cell__bd">
+<input type="text" id="TxtUserName" name="TxtUserName" class="form-control input-sm" onblur="CheckUserName(this);" title="用户名不能为空" value="@Model.Mobile" />
+<div class="check_sp"></div>
+<div class="msg"></div>
+</div>
+</div>
+
+<div class="weui-cell">
+<div class="weui-cell__hd"><label class="weui-label">密码</label></div>
+<div class="weui-cell__bd">
+<input type="password" id="TxtPassword" name="TxtPassword" class="form-control input-sm" onfocus="focusinput();" onkeyup="f_checkrank();"/>
+<div id="valPass" style="display:none;">
+<span class="spantxt">
+<a id="apass1" class="a_bor visible-xs"></a>
+<a id="apass2" class="a_bor visible-xs"></a>
+<a id="apass3" class="a_bor visible-xs"></a>
+</span>
+<span class="spantxt"><a id="idshow" class="atxt"></a></span>
+</div>
+</div>
+</div>
+
+<div class="weui-cell">
+<div class="weui-cell__hd"><label class="weui-label">确认密码</label></div>
+<div class="weui-cell__bd">
+<input type="password" id="TxtPwdConfirm" name="TxtPwdConfirm" class="form-control" />
+<div class="msg"></div>
+</div>
+</div>
+
+@if (SiteConfig.UserConfig.EnableCheckCodeOfReg)
+{
+<div class="weui-cell">
+<div class="weui-cell__hd"><label class="weui-label">验证码</label></div>
+<div class="weui-cell__bd">
+    <div id="trVcodeRegister">
+        @Html.Partial("Verify/Index")
+    </div>
+</div>
+</div>
+}
+
+</div>
+<!--基本信息 end-->
+<div class="weui-cells__title" id="safe_title"><i class="fa fa-lock"></i> 安全设置</div>
+<div class="weui-cells weui-cells_form">
+
+<div class="weui-cell safe_question">
+<div class="weui-cell__hd"><label class="weui-label">密码问题</label></div>
+<div class="weui-cell__bd">
+<select ID="Question_DP" name="Question_DP" class="form-control input-sm">
+<option value="最喜欢的运动是什么？">最喜欢的运动是什么？</option>
+<option value="最喜欢的运动员是谁？">最喜欢的运动员是谁？</option>
+<option value="我最喜欢的物品的名称？">我最喜欢的物品的名称？</option>
+<option value="我最喜欢的歌曲？">我最喜欢的歌曲？</option>
+<option value="我最喜欢的食物？">我最喜欢的食物？</option>
+<option value="我最爱的人的名字？">我最爱的人的名字？</option>
+<option value="我最爱的电影？">我最爱的电影？</option>
+<option value="我妈妈的生日？">我妈妈的生日？</option>
+<option value="我的初恋日期？">我的初恋日期？</option>
+</select>
+</div>
+</div>
+
+<div class="weui-cell safe_question">
+<div class="weui-cell__hd"><label class="weui-label">问题答案</label></div>
+<div class="weui-cell__bd">
+<input type="text" ID="TxtAnswer" name="TxtAnswer" class="form-control required input-sm" title="答案不能为空" />
+<div class="msg"></div>
+</div>
+</div>
+
+<div class="weui-cell" id="safe_email">
+<div class="weui-cell__hd"><label class="weui-label">Email</label></div>
+<div class="weui-cell__bd">
+<input type="email" ID="TxtEmail" name="TxtEmail" class="form-control input-sm required email" onblur="CheckEmail(this);" />
+@*<div class="check_sp"></div>*@
+<div class="msg"></div>
+</div>
+</div>
+
+</div>
+<!--安全设置 end-->
+
+<div class="weui-cells__title reg_must"><i class="fa fa-cog"></i> 用户信息</div>
+<div class="weui-cells weui-cells_form reg_must">
+
+<div class="weui-cell" id="Reg_SelGroup">
+<div class="weui-cell__hd"><label class="weui-label">用户类型</label></div>
+<div class="weui-cell__bd">
+@MVCHelper.H_Radios("UserGroup", Model.groupDT, "GroupID", "GroupName", gid.ToString())
+</div>
+</div>
+
+<!--必填字段-->
+@if (!string.IsNullOrEmpty(SiteConfig.UserConfig.RegFieldsMustFill))
+{
+@Html.Partial("Register_Field", "must")
+}
+
+<!--组模型字段 AJAX-->
+<div id="ModelFiled_table" class="register_modeltable weui-cells weui-cells_form"></div>
+@Html.Partial("Fields/Index_User_Register", Model.mustDT)
+</div>
+<!--用户信息 end-->
+
+<div class="weui-cells__title" onclick="SwicthSelectFill();" id="disable_btn" style="cursor: pointer;"><i class="fa fa-angle-double-down"></i> 选填信息</div>
+@if (!string.IsNullOrEmpty(SiteConfig.UserConfig.RegFieldsSelectFill))
+{
+<div class="weui-cells weui-cells_form selectFill" id="TableRegisterSelect" style="display:none;">
+@Html.Partial("Register_Field", "select")
+</div>
+}
+</div>
+
+<div class="u_reg_sub_bot">
+<div class="u_reg_prompt">以上所有信息除选填项都必须先正确填写后才能成功注册</div>
+<div id="checkAgreement" class="u_login_type">
+<label><input type="checkbox" checked="checked" onclick="checkreg(this)"/> 同意并接受</label>
+<a href="javascript:;" title="点击查看注册协议" data-toggle="modal" data-target="#exampleModalLong" class="text-secondary">《注册协议》</a>
+</span>
+<button type="submit" id="BtnSubmit" class="btn btn-info btn-block" disabled="disabled">注册</button>
+<p class="u_reg_tex">已有帐号？ <a href="/User/Index/Login">立即登录</a></p>
+</div>
+@*---------------------------------------------------------------*@
+</div>
+</div>
+</div>
+</div>
+</main>
+</form>
+
+<!-- Modal注册协议 -->
+<div id="exampleModalLong" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+<div class="modal-dialog max_width1100" role="document">
+  <div class="modal-content">
+	<div class="modal-header">
+	  <h5 class="modal-title" id="exampleModalLongTitle">注册协议</h5>
+	  <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span aria-hidden="true">&times;</span> </button>
+	</div>
+	<div class="modal-body">
+	@MvcHtmlString.Create(ZoomLa.BLL.SafeSC.ReadFileStr(Server.MapPath("~/Config/Protocol.txt"), true))
+	</div>
+	<div class="modal-footer">
+	  <button type="button" class="btn btn-primary" data-dismiss="modal">确认</button>
+	</div>
+  </div>
+</div>
+</div>
+
+}
+@section script{
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/PassStrong.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_PCC.js"></script>
+<script src="/JS/Controls/Control.js"></script>
+<script src="/JS/ZL_Content.js"></script>
+<script src="/JS/ICMS/MainBlog.js"></script>
+<script>
+    var curflag = true;
+    var pcc = new ZL_PCC("selprovince", "selcity", "selcoutry");
+    $(function () {
+        pcc.ProvinceInit();
+        //$("#MobileCode").ValidateCode();
+        if ("@Model.cityMod.IsValid" == "True") {
+            pcc.SetDef('@Model.cityMod.Province', '@Model.cityMod.City', '@Model.cityMod.County');
+        }
+        validate.zl_init($("form"), {
+            rules: {
+                TxtUserName: { required: true },
+                TxtPassword: { required: true },
+                TxtPwdConfirm: { required: true, equalTo: "#TxtPassword" }
+            },
+            messages: {
+                TxtUserName: { required: "用户名不能为空" },
+                TxtPassword: { required: "密码不能为空" },
+                TxtPwdConfirm: { required: "确认密码不能为空", equalTo: "必须同于密码" }
+            },
+        }, { placement: 'top', style: 'black' });
+        $("#TxtMobile").val("@Model.Mobile");
+        initModelFied(@gid);
+        reghelp.init();
+        setInterval(function () { reghelp.subCheck(); }, 1500);
+    });
+    function CheckUserName(input) {
+        if (ZL_Regex.isEmpty(input.value)) { reghelp.need.uname = false; return; }
+        reghelp.check("uname", input.value,
+           function () { reghelp.showok(input); reghelp.need.uname = true; reghelp.canSubmit(); }, function (model) { reghelp.showerr(model.retmsg, input); reghelp.need.uname = false; reghelp.canSubmit(); });
+    }
+    function CheckEmail(input) {
+        if (reghelp.need.checkEmail == false) { return; }
+        if (ZL_Regex.isEmpty(input.value) || !ZL_Regex.isEmail(input.value)) { reghelp.need.email = false; return; }
+        reghelp.check("email", input.value,
+           function () { reghelp.showok(input); reghelp.need.email = true; reghelp.canSubmit(); }, function (model) { reghelp.showerr(model.retmsg, input); reghelp.need.email = false; reghelp.canSubmit(); });
+    }
+    var reghelp = {};
+    reghelp.check = function (action, value, ok, err) {
+        $.post("/User/Index/Register_API?action=" + action, { "value": value }, function (data) {
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) {
+                if (ok) { ok(model.rseult); }
+            }
+            else { err(model); }
+        });
+    }
+    //返回dom,validate验证与ajax验证分开显示
+    //reghelp.getsp = function (dom, css) {
+    //    if (!css) { css = ".msg:first"; }
+    //    var $li = $(dom).closest("li");
+    //    console.log($li.length);
+    //    if ($li.length > 0) { return $li.find(css); }
+    //}
+    //是否可以提交
+    reghelp.showerr = function (msg, element) {
+        validate.showError({ message: msg, "element": element });
+    }
+    reghelp.showok = function (element) {
+        validate.showSuccess(element);
+    }
+    reghelp.canSubmit = function () {
+        var need = reghelp.need;
+        var subBtn = document.getElementById("BtnSubmit");
+        if (need.uname && need.email && need.protocol) { subBtn.disabled = false; }
+        else { subBtn.disabled = true; }
+    }
+    reghelp.subCheck = function () {
+        var need = reghelp.need;
+        if (!need.uname) { CheckUserName(document.getElementById("TxtUserName")); }
+        if (!need.email) { CheckEmail(document.getElementById("TxtEmail")); }
+    }
+    reghelp.need = { uname: false, email: false, protocol: true, checkEmail: true };
+    reghelp.init = function () {
+        if ("@SiteConfig.UserConfig.Reg_SelGroup" == "False")
+        {
+            $("#Reg_SelGroup").remove();
+            //如果必填字段为空,则将用户信息栏全部隐藏
+            if ("@SiteConfig.UserConfig.RegFieldsMustFill" == "") { $(".reg_must").remove(); }
+        }
+        if ("@SiteConfig.UserConfig.Reg_EmailMust" == "False") {
+            reghelp.need.email = true;
+            reghelp.need.checkEmail = false;
+            $("#safe_email").remove();
+        }
+        if ("@SiteConfig.UserConfig.Reg_AnswerMust" == "False") {
+            $(".safe_question").remove();
+            if (reghelp.need.checkEmail == false) { $("#safe_title").remove(); }
+        }
+    }
+    //--------------------------------------------------
+    $("input[type='radio'][name='UserGroup']").change(function () { initModelFied($(this).val()); });
+    //初始化用户组模型字段
+    function initModelFied(groupid) {
+        $.post("/User/Index/Register_API?action=GetModelFied", { value: groupid }, function (data) {
+            console.log("success", data);
+            $("#ModelFiled_table").html(data);
+        });
+    }
+    function checkreg(chk) {
+        reghelp.need.protocol = chk.checked;
+        reghelp.canSubmit();
+    }
+    //function ShowUserModelHtml(html) {
+    //    console.log("this",html);
+    //    $("#ModelFiled_table").html(html);
+    //}
+    function showagr() {
+        $("#agr_content").show();
+        $(".border_right").hide();
+    }
+    function hideagr() {
+        $("#agr_content").hide();
+        $(".border_right").show();
+    }
+    //显示或关闭选填信息
+    function SwicthSelectFill() {
+        $(".selectFill").toggle();
+    }
+    function hidenbtn() {
+        $(".selectFill").hide();
+        document.getElementById("checkSelectFill").checked = false;
+    }
+	</script>
+}

@@ -1,0 +1,44 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>优惠卷管理</title>}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="shop"></div>
+<div class="container">
+<nav nav aria-label="breadcrumb" role="navigation">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+        <li class="breadcrumb-item"><a href="@Request.RawUrl">优惠券管理</a> <a href="ArriveAdd">[生成优惠券]</a></li>
+    </ol>
+    @Html.Partial("UserShopTop")
+	</nav>
+</div> 
+<div class="container ">
+    @Html.Partial("ArriveManage_List", Model)
+    <div>
+        <input type="button" value="批量删除" class="btn btn-info" onclick="mvcpage.bat({ url: 'arrive_api?action=del', confirm: '确定要批量移除吗' });"/>
+        <input type="button" value="批量激活" class="btn btn-info" onclick="mvcpage.bat({ url: 'arrive_api?action=change&state=1' });"/>
+        <input type="button" value="取消激活" class="btn btn-danger" onclick="mvcpage.bat({ url: 'arrive_api?action=change&state=0' });"/>
+        <input type="button" class="btn btn-outline-info" value="绑定用户" onclick="SelUser();" />
+    </div>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script>
+function SelUser() {
+    comdiag.maxbtn = false;
+    ShowComDiag("/Common/Dialog/SelGroup.aspx?selmode=single","选择用户");
+}
+function UserFunc(list, select) {
+    var uid = list[0].UserID;
+    if (!uid || uid == "0") { alert("尚未选择用户"); return false; }
+    mvcpage.bat({ url: "arrive_api?action=bind", data: { "uid": uid } });
+    CloseComDiag();
+}
+</script>    
+}

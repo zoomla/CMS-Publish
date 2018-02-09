@@ -1,0 +1,62 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+<title>试题管理</title>
+}
+@section content{
+<div id="pageflag" data-nav="edu" data-ban="ke"></div>
+<div class="container u_mysite">
+<nav aria-label="breadcrumb" role="navigation">
+  <ol class="breadcrumb">
+   	<li class="breadcrumb-item"><a href="/user">用户中心</a></li>
+    <li class="breadcrumb-item">试题管理<asp:Label ID="AddQuest_L" runat="server"></asp:Label></li>       
+  </ol>
+</nav>
+</div>
+<div class="container">
+<div class="row">
+<div id="nodeNav" class="col-12 col-sm-2 col-md-2 col-lg-2 col-xl-2 divBorder" style="padding:0;height:500px;overflow-y:auto;">
+<div>
+	<div>
+		@Html.Partial("_treeview", ViewBag.treeMod as ZoomLa.Controls.C_TreeView)
+	</div>
+</div>
+</div>
+<div class="col-12 col-sm-10 col-md-10 col-lg-10 col-xl-10">
+	<div class="input-group text_300">
+		<asp:TextBox ID="Skey_T" runat="server" CssClass="form-control" placeholder="试题名"></asp:TextBox>
+		<span class="input-group-btn">
+			<asp:LinkButton ID="Search_B" runat="server" OnClick="Search_B_Click" CssClass="btn btn-default"><i class="fa fa-search"></i></asp:LinkButton>
+		</span>
+	</div>
+	<ul class="nav nav-tabs">
+		<li class="nav-item" id="tab_99"><a class="nav-link active"  href="javascript:;" onclick="ShowTabs(99)">所有试题</a></li>
+		<li class="nav-item" id="tab_0"><a class="nav-link"  href="javascript:;" onclick="ShowTabs(0)">单选题</a></li>
+		<li class="nav-item" id="tab_1"><a class="nav-link"  href="javascript:;" onclick="ShowTabs(1)">多选题</a></li>
+		<li class="nav-item" id="tab_2"><a class="nav-link"  href="javascript:;" onclick="ShowTabs(2)">填空题</a></li>
+		<li class="nav-item" id="tab_4"><a class="nav-link"  href="javascript:;" onclick="ShowTabs(4)">完型填空题</a></li>
+		<li class="nav-item" id="tab_3"><a class="nav-link"  href="javascript:;" onclick="ShowTabs(3)">解析题</a></li>
+		<li class="nav-item" id="tab_10"><a class="nav-link"  href="javascript:;" onclick="ShowTabs(10)">大题</a></li>
+	</ul>
+	<div>
+		@Html.Partial("_qlist",Model)
+	</div>
+</div>
+</div>
+</div>
+}
+@section script{
+<script>
+    function ShowTabs(qtype) {
+        var url = "QuestList?qtype=" + qtype + "&skey=@Request.QueryString["Skey"]";
+        location = url;
+    }
+    $(function () {
+        $("#tab_@ViewBag.QType").addClass("active");
+    })
+	//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(3).addClass("active");
+</script>
+}

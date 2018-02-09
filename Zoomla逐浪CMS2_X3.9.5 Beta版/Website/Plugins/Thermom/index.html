@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Demo</title>
+<script src="/JS/jquery.min.js"></script>
+<script src='./goal-thermometer.js'></script>
+</head>
+<body>
+	<div style="width:200px;height:230px;float:left;"id="demo"></div>
+	<div style="width:250px;height:300px;float:left;"id="demo1"></div>
+	<div style="width:300px;height:400px;float:left;"id="demo2"></div>
+	<div style="width:200px;height:600px;float:left;"id="demo3"></div>
+	<script>
+		$(function(){
+			var temper = new canvasPanel();
+			var temper1 = new canvasPanel();
+			var temper2 = new canvasPanel();
+			var temper3 = new canvasPanel();
+			temper3.bgColor = 'rgb(159,159,3)';
+			temper2.bgColor = 'rgb(3,159,3)';
+			temper1.bgColor = 'rgb(159,3,3)';
+
+			temper2.MaxNum = 200;
+    		temper2.MinNum = 20;
+			temper.init('demo');
+			temper1.init('demo1');
+			temper2.init('demo2');
+			temper3.init('demo3');
+			
+			//setInterval(function(){
+			//	var num = Math.round(Math.random()*100);
+			//	var num1 = Math.round(Math.random()*100);
+			//	var num2 = Math.round(Math.random()*180)+20;
+			//	var num3 = Math.round(Math.random()*100);
+
+			//	temper.paintNowValue(num);
+			//	temper1.paintNowValue(num1);
+			//	temper2.paintNowValue(num2);
+			//	temper3.paintNowValue(num3);
+			//},1000);
+		});
+	</script>
+</body>
+</html>

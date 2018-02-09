@@ -1,0 +1,149 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@model ZoomLa.Model.M_IServer
+@{
+    B_IServer isBll = new B_IServer();
+    M_UserInfo ccmu = new B_User().SelReturnModel(DataConverter.CLng(Request["uid"]));
+    var list = @MVCHelper.ToSelectList(isBll.TypeArr, isBll.TypeArr);
+}
+@section head{
+    <title>提交问题</title>
+    <script type="text/javascript" src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+    <script type="text/javascript" src="/JS/DatePicker/WdatePicker.js"></script>
+}
+@section content{
+    <div id="pageflag" data-nav="index" data-ban="cnt"></div>
+	<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+		<li class="breadcrumb-item"><a href="/User/iServer/FiServer">有问必答</a></li>
+		<li class="breadcrumb-item active">提交问题</li>
+	</ol>
+	</nav>
+	</div>
+    <div class="container">
+        <form method="post" action="@MVCHelper.GetAction("Question_Add",Request)">
+            <table class="table table-striped table-bordered">
+                <tr><td colspan="2" class="text-center">提交问题</td></tr>
+                <tr>
+                    <td class="w_10rem">优先级<span style="color: red">*</span>
+                    </td>
+                    <td>
+                        <label><input type="radio" name="Priority" value="低" checked="checked" />低</label>
+                        <label><input type="radio" name="Priority" value="中" />中</label>
+                        <label><input type="radio" name="Priority" value="高" />高</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>问题类别*</td>
+                    <td>
+                        @Html.DropDownListFor(m => m.Type, list,new { @class= "form-control text_md" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>期待解决时间</td>
+                    <td id="dropdownlist3">
+                        <select id="date_sel" class="form-control text_md" onchange="AddDate(this)">
+                            <option value="0">立时</option>
+                            <option value="1">1个工作日</option>
+                            <option value="7">一周以内</option>
+                            <option value="3650">不限</option>
+                            <option value="-1">自选具体时间</option>
+                        </select>
+                        <input type="text" id="mydate_t" name="mydate_t" class="form-control text_md" onfocus="$('#date_sel').val('-1');WdatePicker({dateFmt:'yyyy/MM/dd'})" value="@DateTime.Now.ToString("yyyy/MM/dd")" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>抄送用户</td>
+                    <td>
+						<div class="input-group">
+						  <input type="text" class="form-control" id="CCUser_T" value="@ccmu.UserName" />
+						  <div class="input-group-append">
+                        	<input type="hidden" name="CCUser_Hid" id="CCUser_Hid" value="@ccmu.UserID" />
+							<input type="button" class="input-group-text" value="选择用户" onclick="SelUser();" />
+						  </div>
+						</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>问题标题 *
+                    </td>
+                    <td>
+                        <input type="text" id="title_t" name="title_t" class="form-control"  value="@Request.QueryString["title"]" />
+                        <label id="label1"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        问题内容*
+                    </td>
+                    <td>
+                        <textarea id="txtContent" name="txtContent" class="max_height30rem">@Request.QueryString["con"]</textarea>
+                        @MvcHtmlString.Create(Call.GetUEditor("txtContent", 4))
+                        <label id="label2" class="ckeditor"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>附件</td>
+                    <td>
+                        <input type="button" id="upfile_btn" class="btn btn-light btn-sm" value="选择文件" />
+                        <div id="uploader" class="uploader"><ul class="filelist"></ul></div>
+                        <input type="hidden" id="Attach_Hid" name="Attach_Hid" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <button type="submit" class="btn btn-info">提交</button>
+                        <a href="FiServer" class="btn btn-outline-info">取消</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div class="alert alert-info">
+        <i class="fa fa-lightbulb-o"></i>
+        提示：您可以使用AddQuestion?title=222&con=content&uid=UserID的方法进行GET传递。
+    </div>
+    </div>
+}
+@section script{
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script type="text/javascript" src="/JS/Controls/ZL_Webup.js"></script>
+<script type="text/javascript">
+    $(function () {
+        //ZL_Webup.config.json.accept = 'img';
+        $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+        $("form").validate({//
+            rules: {
+                title_t: { required: true },
+                txtContent: { required: true }
+            },
+            message: {
+                title_t: { required: "提问标题不能为空!" },
+                txtContent: { required: "提问内容不能为空!" }
+            }
+        });
+    })
+    function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+    function AddDate(dp) {
+        var d = new Date();
+        if (parseInt($(dp).val()) == -1) return;
+        d.setDate(d.getDate() + parseInt($(dp).val()));
+        var month = d.getMonth() + 1;
+        if (month < 10) { month = "0" + month; }
+        $("#mydate_t").val(d.getUTCFullYear() + "/" + month + "/" + d.getDate());
+    }
+    function SelUser() {
+        comdiag.maxbtn = false;
+        ShowComDiag("/Common/Dialog/SelGroup.aspx?selmode=single", "选择用户");
+    }
+    function UserFunc(list, select) {
+        $("#CCUser_Hid").val(list[0].UserID);
+        $("#CCUser_T").val(list[0].UserName);
+        CloseComDiag();
+    }
+</script>
+}

@@ -1,0 +1,88 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="节点栏目信息数据源" FD="NodeName" page="0"/}_{ZL.Label id="输出指定店铺名称" UserShopID="{$GetRequest(ID)$}" /}</title>
+<meta name="Keywords" content="{SField sid="节点栏目信息数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="节点栏目信息数据源" FD="Meta_Description" page="0"/}" />
+{ZL:Boot4()/}
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<style>
+.bs-header { margin-top:0;}
+#home_nav { position: relative;}
+</style>
+</head>
+<body>
+{ZL.Label id="全站头部"/}
+
+<!--导航到此结束-->
+
+<div class="bs-header">
+<div class="container">
+<h1>{ZL.Label id="输出指定店铺名称" UserShopID="{$GetRequest(ID)$}" /}</h1>
+<p>脚比路更长+服务到现场+智慧的思想....</p>
+</div>
+</div>
+<!--banner结束-->
+<main role="main">
+<div class="container">
+<div class="row">
+<div class="col-lg-3 col-sm-3 col-md-3 col-xs-12">
+{ZL.Label id="输出指定店铺左侧信息" UserShopID="{$GetRequest(ID)$}" /}
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+{ZL.Label id="循环输出店铺节点列表" NodeID="3" UserShopID="{$GetRequest(ID)$}" /}
+</div>
+</div>
+
+<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+<div class="mySites margintop10">
+<nav aria-label="breadcrumb" role="navigation" style="font-size: 0.9rem;">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="/">首页</a></li>
+{ZL.Label id="输出多级节点导航_V4" NodeID="{SField sid="节点栏目信息数据源" FD="NodeID" page="0"/}" ShowNum="30" /}
+</ol>
+</nav>
+</div>
+
+<div class="list-group">
+<div class="n_lis">
+{ZL.Label id="输出指定节点标题列表_带时间属性_响应式分页v4" NodeID="{$GetRequest(NodeID)$}" TitleNum="120" ShowNum="20" /}
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</main>
+<!--内容主体结束 -->     
+{ZL.Label id="全站底部"/}
+
+
+<script>
+$(window).scroll(function(){
+	if($(window).scrollTop()>0){
+		$("#home_nav").css("position","fixed").addClass("active")
+	}
+	else{
+		$("#home_nav").css("position","relative").removeClass("active");
+	}
+});
+/*显示搜索框*/
+function isSearch(){
+    $(".home_search").css("opacity","1").css("z-index","1").css("right","0").css("top","0.5rem");
+    $(".home_top_nav").fadeOut(200);
+    $(".home_search .form-control").focus();
+}
+/*关闭搜索框*/
+function isClose(){
+    $(".home_search").css("opacity","0").css("z-index","-1").css("right","-1em");
+    $(".home_top_nav").fadeIn(1000);
+}
+
+$().ready(function(e) {
+	$("#usershop_node{$GetRequest(NodeID)$}").addClass("active");
+	$("#accordion .panel:nth-child(1) .panel-collapse").addClass("in");
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+﻿@model ZoomLa.Model.M_IServer
+@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@using ZoomLa.Model
+@functions{
+    public bool IsWorking(M_IServer isMod)
+    {
+        if (isMod.State == "处理中" || isMod.State == "未解决") { return true; }
+        else { return false; }
+    }
+}
+@{
+    B_IServer isBll = new B_IServer();
+    DataTable replydDt = ViewBag.replydt;
+    M_UserInfo mu = ViewBag.mu;
+    M_IServer isMod = isBll.SelReturnModel(DataConverter.CLng(Request["ID"]));
+    if (isMod == null) { function.WriteErrMsg("指定的问答不存在"); }
+}
+@functions{
+}
+@section head{
+    <title>问题详情</title>
+    <script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+@section content{
+    <div id="pageflag" data-nav="index" data-ban="cnt"></div>
+    <div class="container margin_t5">
+        <ol class="breadcrumb">
+            <li><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+            <li><a href="@Url.Action("FiServer","iServer")">有问必答</a></li>
+            <li class="active">问题详情 <a href="/User/iServer/AddQuestion">[提交新问题]</a></li>
+        </ol>
+    </div>
+    <div class="container margin_t5 btn_green">
+        <table class="table table-striped table-bordered">
+            <tr><td class="td_m">提问人</td><td>@Model.UserName</td></tr>
+            <tr>
+                <td>标题</td>
+                <td>@Model.Title</td>
+            </tr>
+            <tr>
+                <td>状态</td>
+                <td>
+                    <div style="display:inline-block;width:120px;">
+                        @Model.State
+                    </div>
+                    @*@if (Model.State == isBll.GetStatus(1) || Model.State == isBll.GetStatus(2))
+                    {
+                        <input type="button" class="btn btn-info" value="关闭问题" onclick="changeState(-1);"/>
+                        <input type="button" class="btn btn-info" value="已解决" onclick="changeState(3);"/>
+                    }*@
+                </td>
+            </tr>
+            <tr>
+                <td>优先级</td>
+                <td>@Model.Priority</td>
+            </tr>
+            <tr>
+                <td>提交来源</td>
+                <td>@Model.Root</td>
+            </tr>
+            <tr>
+                <td>问题类别</td>
+                <td>@Model.Type</td>
+            </tr>
+            <tr>
+                <td>已读次数</td>
+                <td>@Model.ReadCount</td>
+            </tr>
+            <tr>
+                <td>提交时间</td>
+                <td>@Model.SubTime </td>
+            </tr>
+            <tr>
+                <td>解决时间</td>
+                <td>@(Model.State.Equals("已解决") ? Model.SolveTime.ToString() : "")</td>
+            </tr>
+            <tr>
+                <td>内容</td>
+                <td>@MvcHtmlString.Create(Model.Content)</td>
+            </tr>
+            <tr>
+                <td>附件</td>
+                <td class="attch_td">
+                    <div style="margin-top: 10px;" id="Quest_Attch" class="uploader">
+                        <ul class="filelist"></ul>
+                    </div>
+                    <asp:HiddenField ID="Quest_Attch_Hid" class="uploader_hid" value="@Model.Path.Trim('|')" />
+                </td>
+            </tr>
+          @if (Model.CCUser.Equals(mu.UserID.ToString()))
+          {
+            <tr>
+                <td></td>
+                <td>
+                    <input type="button" value="回复信息" onclick="showEditReply(0)" class="btn btn-info" />
+                </td>
+            </tr>
+          }
+        </table>
+          @foreach (DataRow dr in replydDt.Rows) {
+                <div class="panel @((DataConverter.CLng(dr["AdminID"]) == 0)?"panel-info":"panel-warning")">
+                    <div class="panel-heading">
+                        <span>[@(DataConverter.CLng(dr["AdminID"])==0?"用户":"管理员")] </span>
+                        <span><i class="fa fa-user"></i> @dr["UserName"]</span>
+                        <span><i class="fa fa-clock-o"></i> @DateHelper.ToDate(dr["ReplyTime"])</span>
+                       
+                        @*@if (mu.UserID == DataConverter.CLng(dr["UserID"]))
+                        { <span>
+                            <button type="button" class="btn btn-sm btn-info" onclick="showEditReply(@dr["ID"]);"><i class="fa fa-pencil"></i></button>
+                        </span>
+                        }*@
+                       
+                    </div>
+                    <div class="panel-body">
+                      @MvcHtmlString.Create(dr["content"].ToString())
+                    </div>
+                </div>
+          }
+        @if (replydDt.Rows.Count < 1)
+        {
+            <div id="Reply_Empty" class="alert alert-warning">
+                暂无回复数据
+            </div>
+        }
+        @if (isMod.UserId != mu.UserID || (IsWorking(isMod) == false)) { }
+        else
+        {
+            <div class="text-center alert alert-info">
+                <input type="button" value="追加提问" class="btn btn-info" onclick="showReply();" />
+                <input type="button" value="已解决" class="btn btn-info" onclick="postAPI('solve');" />
+                <input type="button" value="关闭问题" class="btn btn-danger" onclick="postAPI('close');" />
+            </div>
+        }
+    </div>
+}
+@section script{
+    <link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Controls/ZL_Webup.js"></script>
+    <script>
+        function fn_CheckSupportTicket(theForm) {
+            if (!fn_CheckRequired(theForm.content, "回复内容"))
+                return false;
+            return true;
+        }
+        $(function () {
+            //ZL_Webup.config.json.accept = 'img';
+            $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+            $(".attch_td").each(function () {
+                var attchpre = new MFileUP({ id: $(this).find(".uploader").attr('id'), hid: $(this).find(".uploader_hid").attr('id') });
+                attchpre.AddReadOnlyLi($(this).find(".uploader_hid").attr('value'));
+            });
+            $("form").validate({//
+                rules: {
+                    Content_T: { required: true }
+                },
+                message: {
+                    Content_T: { required: "回复内容不能为空!" }
+                }
+            });
+        })
+        function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+        function showEditReply(id) {
+            ShowComDiag("ISReplyAdd?Qid=@isMod.QuestionId&ID=" + id, "回复信息");
+        }
+        function showReply() {
+            ShowComDiag("ISReplyAdd?Qid=@isMod.QuestionId", "回复信息");
+        }
+        function postAPI(action) {
+            if (!confirm("确定要执行操作吗")) { return; }
+            $.post("IServer_API?action=" + action + "&id=@(isMod.QuestionId)", {}, function () {
+                location = location;
+            })
+        }
+    </script>
+}

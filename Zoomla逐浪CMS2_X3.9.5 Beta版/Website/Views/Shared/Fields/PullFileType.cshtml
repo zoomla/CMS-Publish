@@ -1,0 +1,49 @@
+﻿@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Components
+@using System.Data
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+    // 下拉文件
+    string Name = Model.fieldMod.FieldName;
+    string path = function.VToP("/" + Model.fieldMod.Content.TrimStart('/'));
+    FieldModel model = new FieldModel(Model.fieldMod.Content);
+}
+@functions{
+    //用于下拉文件
+    private MvcHtmlString bindTemplatefolder(string pathstr, DataRow dr)
+    {
+        DataTable tables = FileSystemObject.GetDirectoryAllInfos(pathstr, FsoMethod.File);
+        string value = "";
+        if (dr != null&&dr.Table.Columns.Contains(Model.fieldMod.FieldName)) {
+            value = DataConverter.CStr(dr[Model.fieldMod.FieldName]);
+        }
+        string Result = "";
+        for (int i = 0; i < tables.Rows.Count; i++)
+        {
+            if (tables.Rows[i]["type"].ToString() != "")
+            {
+                string path = tables.Rows[i]["rname"].ToString();
+                string pathdir = (SiteConfig.SiteMapath()).Replace(@"\\", @"\");//path.Replace(@"\\", @"\");
+                path = path.Replace(pathdir, "");
+                path = path.Replace(@"\", @"/");
+                if (path.IndexOf(".svn") == -1)
+                {
+                    if (path.Substring(0, 5) != "/style")
+                    {
+                        Result += "<option value=\"" + path + "\"> " + path + "</option>";
+                        Result += string.Format("<option value='{0}' {1} >{2}</option>", path, (path.Equals(value) ? "selected='selected'" : ""), path);
+                    }
+                }
+            }
+        }
+        tables.Dispose();
+        return MvcHtmlString.Create(Result);
+    }
+}
+<select name="txt_@Name" class="form-control m715-50" id="txt_@Name">
+    <option value="">请选择</option>
+    @bindTemplatefolder(path, Model.valueDR)
+</select>

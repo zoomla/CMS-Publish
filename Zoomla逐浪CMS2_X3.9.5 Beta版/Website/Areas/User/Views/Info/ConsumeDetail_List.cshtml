@@ -1,0 +1,42 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Helper
+@using ZoomLa.SQLDAL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public MvcHtmlString ShowImgs(DataRow dr)
+    {
+        string html = "";
+        string attach = DataConvert.CStr(dr["attach"]);
+        if (string.IsNullOrEmpty(attach)) { return MvcHtmlString.Create(""); }
+        foreach (string img in attach.Split('|'))
+        {
+            if (string.IsNullOrEmpty(img)) { continue; }
+            html += "<a class='img_wrap' href='" + img + "' target='_blank' title='点击查看大图'><img src='" + img + "' /></a>";
+        }
+        return MvcHtmlString.Create(html);
+    }
+}
+@{
+    Model.cols = 3;
+    Model.url = "ConsumeDetail";
+}
+<style type="text/css">
+    .img_wrap { padding: 5px; display: inline-block; text-decoration: none; }
+    .img_wrap img { max-width: 80px; }
+</style>
+
+<div id="EGV">
+    <table class="table table-bordered table-striped">
+        <tr><td class="td_md">金额变更</td><td>凭证</td><td>详情备注</td><td>日期</td></tr>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td class="td_s">@DataConvert.CDouble(dr["score"]).ToString("f2")</td>
+                <td>@ShowImgs(dr)</td>
+                <td>@dr["Detail"]</td>
+                <td>@DateHelper.ToDate(dr["HisTime"])</td>
+            </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

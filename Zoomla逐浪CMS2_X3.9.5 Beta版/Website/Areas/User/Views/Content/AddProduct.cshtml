@@ -1,0 +1,707 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.AppCode.Controls
+@model ZoomLaCMS.Models.Product.VM_Product
+@{
+    
+}
+@section head{
+<style>
+.fd_td_l {width:120px; }
+.proclass_tab {display:none;}
+#Proname{background: url(/Images/bg1.gif) repeat-x;}
+#cbind_btn{display:none;}
+</style>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.js"></script>
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<title>商品管理</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div> 
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="ProductList">我的商品</a></li>
+	<li class="breadcrumb-item active">商品管理</li>
+	<div class="clearfix"></div>
+</ol>
+</nav>
+</div>
+<div class="container btn_green">
+    <form method="post" id="form1">
+        <ul class="nav nav-tabs">
+            <li class="nav-item active"><a class="nav-link active" href="#Tabs0" data-toggle="tab">基本信息</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tabs1" data-toggle="tab">商品说明</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tabs2" data-toggle="tab">库存厂税</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tabs3" data-toggle="tab">价格运费</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tabs4" data-toggle="tab">促销推广</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tabs5" data-toggle="tab">详细属性</a></li>
+        </ul>
+        <div class="tab-content panel-body padding0">
+            <div id="Tabs0" class="tab-pane active manage_content">
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="td_m"><strong>所属节点：</strong></td>
+                            <td>
+                                @Model.nodeMod.NodeName
+                                <input type="hidden" id="Bind_Hid" name="Bind_Hid" value="@Model.bindList" />
+                                <input type="hidden" id="Group_Hid" name="Group_Hid" value="@Model.groupList" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品编号：</strong></td>
+                            <td>
+                                <input type="text" id="ProCode" name="ProCode" class="form-control text_300" value="@Model.proMod.ProCode" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品名称：</strong></td>
+                            <td>
+                                <input type="text" id="Proname" name="Proname" class="form-control text_500 required" onkeydown="isgoEmpty('Proname','span_Proname');" title="商品名称不能为空" value="@Model.proMod.Proname" />
+                                <a href="javascript:;" title="捆绑销售" id="bind_btn" onclick="showbind();" class="btn btn-default"><i class="fa fa-link"></i></a>
+                                <a href="javascript:;" title="取消捆绑" id="cbind_btn" onclick="clearbind();" class="btn btn-default"><i class="fa fa-minus"></i></a>
+                                <span id="span_Proname"></span><span><span class="vaild_tip"></span></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>短名称：</strong></td>
+                            <td>
+                                <input type="text" id="ShortProName" name="ShortProName" class="form-control text_300" maxlength="5" value="@Model.proMod.ShortProName" />
+                                <span>(5个字符以内(如:滋养型,无硅油),为空则会自动截取商品名称前5个字符)</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>关键字：</strong></td>
+                            <td>
+                                <div id="OAkeyword" style="display: inline-block; min-width: 300px;"></div>
+                                <input type="text" id="Keywords" name="Keywords" style="display:none;" value="@Model.proMod.Kayword" />
+                                <input type="hidden" id="IgnoreKey_Hid" name="IgnoreKey_Hid" />
+                                <span>(空格或回车键分隔，长度不超过10字符或5汉字)</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品类型：</strong></td>
+                            <td>
+                                @MVCHelper.H_Radios("proclass_rad", "正常商品|虚拟商品|特价|积分|团购|IDC|旅游|酒店".Split('|'), "1,5,2,3,4,6,7,8".Split(','), Model.proMod.ProClass.ToString(), "onclick=\"proclass.switch (this.value);\"");
+                                <div class="proclass_tab" id="proclass_tab6">
+                                    <table class="table table-bordered table-striped" style="width:400px;">
+                                        <tr><td class="td_m">期限</td><td class="td_m">价格</td><td class="td_xs"><a href="javascript:;" class="btn btn-primary" onclick="idc.addrow();"><i class="fa fa-plus"></i></a></td></tr>
+                                        <tbody id="idc_list">
+                                            <tr><td><input type="text" class="form-control time" value="7天" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="15天" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="1月" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="季度" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="半年" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="1年" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="2年" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                            <tr><td><input type="text" class="form-control time" value="无限期" /></td><td><input type="text" class="form-control price" value="0" /></td><td><a href="javascript:;" class="btn btn-info" onclick="idc.del(this);"><i class="fa fa-minus"></i></a></td></tr>
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" id="IDC_Hid" name="IDC_Hid" value="@Model.proMod.IDCPrice" />
+                                    <div class="alert alert-info">价格或期限为空则不显示,支持(天|月|年|季度|无限期)</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>多价格：</strong></td>
+                            <td>
+                                <table class="table table-bordered table-striped table-hover">
+                                    <tbody id="child_tb">
+                                        <tr class="childtr">
+                                            <td>
+                                                <input type="hidden" name="C_code_hid" value="@MvcHtmlString.Create("@code")" />
+                                                <span>品名：<input type="text" name="C_Proname_T" class="form-control text_md" value="@MvcHtmlString.Create("@Proname")" /></span>
+                                                <span>价格：<input type="text" name="C_LinPrice_T" class="form-control text_md" value="@MvcHtmlString.Create("@LinPrice")" /></span>
+                                                <span>零售价：<input type="text" name="C_ShiPrice_T" class="form-control text_md" value="@MvcHtmlString.Create("@ShiPrice")" /></span>
+                                                <a href="javascript:;" class="btn btn-default addchild"><i class="fa fa-plus"></i></a>
+                                                <a href="javascript:;" class="btn btn-default delchild"><i class="fa fa-minus"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <input type="hidden" id="ChildPro_Hid" name="ChildPro_Hid" value="@Model.proMod.Wholesalesinfo" />
+                            </td>
+                        </tr>
+                        <tr id="bindpro_tr" hidden>
+                            <td><strong>捆绑销售：</strong></td>
+                            <td>
+                                <div class="marginbot10">
+                                    <input type="button" class="btn btn-info" value="添加捆绑" onclick="OpenSelect();" />
+                                    <input type="button" class="btn btn-info" value="清空捆绑" onclick="ClearSelect();" />
+                                </div>
+                                <table id="bindpro_table" style="display: none;" class="table table-striped table-bordered">
+                                    <tr>
+                                        <td>ID</td>
+                                        <td>商品图片</td>
+                                        <td>零售价</td>
+                                        <td>商品名称</td>
+                                    </tr>
+                                    <tbody id="bindpro_body"></tbody>
+                                    <tr>
+                                        <td colspan="5">
+                                            <input type="button" class="btn btn-info" value="移除选定捆绑" onclick="RemoveBind();" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品单位：</strong></td>
+                            <td>
+                                <input type="text" id="ProUnit" name="ProUnit" class="form-control text_md required" title="商品单位不能为空" value="@Model.proMod.ProUnit" />
+                                <div id="Unitd" class="btn btn-group">
+                                    <button type="button" class="btn btn-default">件</button>
+                                    <button type="button" class="btn btn-default">个</button>
+                                    <button type="button" class="btn btn-default">只</button>
+                                    <button type="button" class="btn btn-default">组</button>
+                                    <button type="button" class="btn btn-default">套</button>
+                                    <button type="button" class="btn btn-default">把</button>
+                                    <button type="button" class="btn btn-default">双</button>
+                                    <button type="button" class="btn btn-default">台</button>
+                                    <button type="button" class="btn btn-default">年</button>
+                                    <button type="button" class="btn btn-default">月</button>
+                                    <button type="button" class="btn btn-default">日</button>
+                                    <button type="button" class="btn btn-default">季</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品重量：</strong></td>
+                            <td>
+                                <div class="text_md input-group">
+                                    <input type="text" id="Weight_T" name="Weight_T" class="form-control text_md number" title="商品重量必须是数字" value="@Model.proMod.Weight" />
+                                    <span class="input-group-addon">千克</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>条形码：</strong></td>
+                            <td>
+                                <input type="text" id="BarCode" name="BarCode" class="form-control text_300 num nofocus" value="@Model.proMod.BarCode" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>销售状态：</strong></td>
+                            <td>
+                                <label><input type="checkbox" id="Sales_Chk" name="Sales_Chk" value="1" @(Model.proMod.Sales == 1 ? "checked='checked'" : "") />打勾表示销售中，否则为停售状态</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>属性设置：</strong></td>
+                            <td>
+                                <label><input type="checkbox" id="istrue_chk" name="istrue_chk" value="1" @(Model.proMod.Istrue == 1 ? "checked='checked'" : "") />审核通过</label>
+                                <label><input type="checkbox" id="isnew_chk" name="isnew_chk" value="1" @(Model.proMod.Isnew == 1 ? "checked='checked'" : "") />新品</label>
+                                <label><input type="checkbox" id="ishot_chk" name="ishot_chk" value="1" @(Model.proMod.Ishot == 1 ? "checked='checked'" : "") />热销</label>
+                                <label><input type="checkbox" id="isbest_chk" name="isbest_chk" value="1" @(Model.proMod.Isgood == 1 ? "checked='checked'" : "") />精品</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>售后设置：</strong></td>
+                            <td>
+                                <label><input type="checkbox" name="GuessXML" value="drawback" checked="checked" />退货</label>
+                                <label><input type="checkbox" name="GuessXML" value="exchange" />换货</label>
+                                <label><input type="checkbox" name="GuessXML" value="repair" />维修</label>
+                                <input type="hidden" id="restate_hid" value="@Model.proMod.GuessXML" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>会员特选：</strong></td>
+                            <td>
+                                <label><input type="checkbox" id="Largess" name="Largess" class="switchChk" value="1" @(Model.proMod.Largess == 1 ? "checked='checked'" : "") /></label>
+                                <span class="rd_green">(设置为特选商品后,只有指定会员才可购买)</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="Tabs1" class="tab-pane">
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="td_l"><strong>商品简介：</strong></td>
+                            <td>
+                                <textarea id="Proinfo" name="Proinfo" class="form-control m715-50" style="height:70px" placeholder="用于首页及栏目页显示，最多255个字符">@Model.proMod.Proinfo</textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>详细介绍：</strong></td>
+                            <td>
+                                <textarea id="Procontent" name="Procontent" style="width: 715px; height: 300px;">@Model.proMod.Procontent</textarea>
+                                @MvcHtmlString.Create(Call.GetUEditor("Procontent", 3))
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品清晰图：</strong></td>
+                            <td>
+                                <input type="text" id="txt_Clearimg" name="txt_Clearimg" value="@Model.proMod.Clearimg" class="form-control text_300" />
+                                <iframe id="bigimgs" style="top: 2px; width: 100%; height: 25px;" src="/Common/fileupload.aspx?FieldName=Clearimg&ModelID=@Model.ModelID&NodeID=@Model.NodeID" frameborder="0" marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                            </td>
+                        </tr>
+                        <tr id="addsmallimg">
+                            <td><strong>商品缩略图：</strong></td>
+                            <td>
+                                <input type="text" id="txt_Thumbnails" name="txt_Thumbnails" value="@Model.proMod.Thumbnails" class="form-control text_300" />
+                                <iframe id="smallimgs" style="top: 2px; width: 100%; height: 25px;" src="/Common/fileupload.aspx?FieldName=Thumbnails&ModelID=@Model.ModelID&NodeID=@Model.NodeID" frameborder="0" marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>个性模板：</strong></td>
+                            <td>
+                                @MvcHtmlString.Create(PageCommon.GetTlpDP("ModeTemplate"))
+                                <input type="hidden" id="ModeTemplate_hid" name="ModeTemplate_hid" value="@Model.proMod.ModeTemplate" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>点击数：</strong></td>
+                            <td>
+                                <input type="text" id="AllClickNum" name="AllClickNum" value="@Model.proMod.AllClickNum" class="form-control text_300" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>发布时间：</strong></td>
+                            <td>
+                                <input type="text" id="AddTime" name="AddTime" value="@Model.proMod.AddTime" class="form-control text_300" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' });" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>更新时间：</strong></td>
+                            <td>
+                                <input type="text" id="UpdateTime" name="UpdateTime" value="@Model.proMod.UpdateTime" class="form-control text_300" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' });" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="Tabs2" class="tab-pane">
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        @*<tr>
+                            <td><strong>生 产 商：</strong></td>
+                            <td>
+                                <div class="input-group text_300">
+                                    <input type="text" id="Producer" name="Producer" class="form-control text_300" value="@Model.proMod.Producer" />
+                                    <span class="input-group-btn"><input type="button" value="选择" class="btn btn-info" onclick="SelectProducer();" /></span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>品牌/商标：</strong></td>
+                            <td>
+                                <div class="input-group text_300">
+                                    <input type="text" id="Brand" name="Brand" class="form-control text_300" value="@Model.proMod.Brand" />
+                                    <span class="input-group-btn">
+                                        <input type="button" value="选择" class="btn btn-info" onclick="SelectBrand();" />
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>*@
+                        <tr>
+                            <td class="td_l"><strong>缺货时允许购买：</strong></td>
+                            <td>
+                                <label><input type="checkbox" id="Allowed" name="Allowed" value="1" @(Model.proMod.Allowed == 1 ? "checked='checked'" : "") />打勾表示缺货时允许购买， 否则缺货时不允许购买</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>限购数量：</strong></td>
+                            <td>
+                                <label><input type="radio" name="Quota_Rad" value="0" onclick="$('#Quota_EGV').hide();" checked="checked" />不设置</label>
+                                <label><input type="radio" name="Quota_Rad" value="2" onclick="$('#Quota_EGV').show();" />按会员组</label>
+                                <table class="table table-bordered table-striped text_405" id="Quota_EGV" style="display:none;">
+                                    <tr><td class="td_l">会员组</td><td>数量(0为禁止,-1不限)</td></tr>
+                                    @foreach (DataRow dr in Model.gpriceDT.Rows)
+                                    {
+                                        <tr><td><label>@dr["GroupName"]</label></td><td><input type="text" class="form-control Quota_Group_T" data-gid="@dr["GroupID"]" value="@ZoomLa.Common.DataConverter.CLng(dr["quota"],-1)" /></td></tr>
+                                    }
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>最低购买数量：</strong></td>
+                            <td>
+                                <label><input type="radio" name="DownQuota_Rad" value="0" onclick="$('#DownQuota_EGV').hide();" checked="checked" />不设置</label>
+                                <label><input type="radio" name="DownQuota_Rad" value="2" onclick="$('#DownQuota_EGV').show();" />按会员组</label>
+                                <table class="table table-bordered table-striped text_405" id="DownQuota_EGV" style="display:none;">
+                                    <tr><td class="td_l">会员组</td><td>数量</td></tr>
+                                    @foreach (DataRow dr in Model.gpriceDT.Rows)
+                                    {
+                                        <tr><td><label>@dr["GroupName"]</label></td><td><input type="text" class="form-control DownQuota_Group_T" data-gid="@dr["GroupID"]" value="@ZoomLa.Common.DataConverter.CLng(dr["downquota"],1)" /></td></tr>
+                                    }
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>数量模式：</td>
+                            <td>
+                                <input type="text" id="DownCar" name="DownCar" class="form-control text_300 digits" value="@Model.proMod.DownCar" style="width:100px;" /><span class="rd_green">购买时必须为该数值的倍数</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>库存数量:</strong></td>
+                            <td>
+                                <input type="text" id="Stock" name="Stock" class="form-control digits" value="@Model.proMod.Stock" style="width:100px;" />
+                                @if (Model.proMod.ID > 0)
+                                { <a href="javascript:;" class="btn btn-info" onclick='SetStocssk();'>管理库存</a> }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>库存报警下限：</strong></td>
+                            <td>
+                                <input type="text" id="StockDown" name="StockDown" value="@Model.proMod.StockDown" class="form-control digits" title="库存报警下限必须是数字!" style="width:100px;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>前台库存计算方式:</strong></td>
+                            <td>
+                                <label><input type="radio" name="JisuanFs" value="0" checked="checked" />实际库存</label>
+                                <label><input type="radio" name="JisuanFs" value="1" />虚拟库存</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>税率设置:</strong></td>
+                            <td>
+                                @MVCHelper.H_Radios("Rateset", "含税，不开发票时有税率优惠,含税，不开发票时没有税率优惠,不含税，开发票时需要加收税费,不含税，开发票时不需要加收税费".Split(','), "1,2,3,4,5".Split(','), Model.proMod.Rateset.ToString())
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品税率:</strong></td>
+                            <td>
+                                <div class="input-group text_s">
+                                    <input type="text" id="Rate" name="Rate" class="form-control text_s number" title="商品税率必须是数字!" value="@Model.proMod.Rate.ToString("F0")" />
+                                    <span class="input-group-addon">%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>商品推荐等级:</strong></td>
+                            <td>
+                                @MVCHelper.H_Radios("Dengji", "★★★★★,★★★★,★★★,★★,★".Split(','), "5,4,3,2,1".Split(','), Model.proMod.Rateset.ToString())
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="Tabs3" class="tab-pane">
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="td_l"><strong>市场价格：<span class="rd_red">*</span></strong></td>
+                            <td>
+                                <div class="input-group text_s">
+                                    <input type="text" id="ShiPrice" name="ShiPrice" class="form-control text_s" value="@Model.proMod.ShiPrice" />
+                                    <span class="input-group-addon">元</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>零售价：<span class="rd_red">*</span></strong></td>
+                            <td>
+                                <div class="input-group text_s">
+                                    <input type="text" id="LinPrice" name="LinPrice" class="form-control text_s linprice" value="@Model.proMod.LinPrice" />
+                                    <span class="input-group-addon">元</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>预订价格:</strong></td>
+                            <td>
+                                <div class="input-group text_s">
+                                    <input type="text" id="BookPrice" name="BookPrice" class="form-control text_s linprice" value="@Model.proMod.BookPrice" />
+                                    <span class="input-group-addon">元</span>
+                                </div>
+                                <div class="rd_green">如设定了预订价,则购买时只需支付预定金额</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>折扣优惠:</strong></td>
+                            <td>
+                                <div class="input-group text_s">
+                                    <input type="text" id="Recommend" name="Recommend" class="form-control text_s number" value="@Model.proMod.Recommend" /><span class="input-group-addon">%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        @*<tr>
+                                <td><strong>附加售价：</strong></td>
+                                <td>
+                                    <div id="linprice_td">
+                                        <div class="input-group text_405">
+                                            <span class="input-group-addon">余额</span><input type="text" id="LinPrice_Purse_T" name="LinPrice_Purse_T" class="form-control text_s curprice number" title="余额只能为数字" />
+                                            <span class="input-group-addon">银币</span><input type="text" id="LinPrice_Sicon_T" name="LinPrice_Sicon_T" class="form-control text_s curprice number" title="银币只能为数字" />
+                                            <span class="input-group-addon">积分</span><input type="text" id="LinPrice_Point_T" name="LinPrice_Point_T" class="form-control text_s curprice number" title="积分只能为数字" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>*@
+                        @*<tr>
+                            <td><strong>区域价格:</strong></td>
+                            <td>
+                                <div class="input-group text_405">
+                                    <input type="text" id="region_skey_t" placeholder="请输入地区名称" class="form-control text_300" />
+                                    <span class="input-group-btn">
+                                        <a href="javascript:;" onclick="region.search();" class="btn btn-info"><i class="fa fa-search"></i></a>
+                                        <button class="btn btn-info" type="button" onclick="region.add()">设置多区域价格</button>
+                                    </span>
+                                </div>
+                                <div style="width:600px;max-height:300px;overflow-y:auto;">
+                                    <table class="table table-bordered table-striped margin_t5">
+                                        <tr><td>区域名称</td><td>会员组|价格</td><td>操作</td></tr>
+                                        <tbody id="region_div"></tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>*@
+                        <tr>
+                            <td><strong>会员价:</strong></td>
+                            <td>
+                                <label><input type="radio" value="0" name="UserPrice_Rad" onclick="$('.user_price_div').hide();" checked="checked" />不设置</label>
+                                <label><input type="radio" value="1" name="UserPrice_Rad" onclick="$('.user_price_div').hide(); $('#price_member_div').show();" />会员价</label>
+                                <label><input type="radio" value="2" name="UserPrice_Rad" onclick="$('.user_price_div').hide(); $('#price_group_div').show();" />按会员组</label>
+                                <span class="rd_green">为0则按原价计算</span>
+                                <div id="price_member_div" style="@(Model.proMod.UserType != 1 ? "display: none;" : "")" class="input-group text_md user_price_div">
+                                    <span class="input-group-addon">会员价</span>
+                                    <input type="text" id="UserPrice" name="UserPrice" class="form-control" value="@Model.proMod.UserPrice" />
+                                    <span class="input-group-addon">元</span>s
+                                </div>
+                                <div id="price_group_div" style="@(Model.proMod.UserType!=2?"display: none;":"")" class="user_price_div">
+                                    @foreach (DataRow dr in Model.gpriceDT.Rows)
+                                    {
+                                        <div class="input-group text_300 margin_t5">
+                                            <span class="input-group-addon" style="min-width:100px;">@dr["GroupName"]</span>
+                                            <input type="text" data-gid="@dr["GroupID"]" class="form-control Price_Group_T" value="@dr["price"]" />
+                                            <span class="input-group-addon">元</span>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>运费设置:</strong></td>
+                            <td>
+                                <div>
+                                    @MVCHelper.H_Radios("FareTlp_Rad", Model.fareDT, "ID", "TlpName", Model.proMod.FarePrice)
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="Tabs4" class="tab-pane">
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        <tr>
+                            <td class="td_l">单品组合：</td>
+                            <td>
+                                <div id="grouppro_td" style="max-height:300px;overflow-y:auto;"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>赠送积分：</td>
+                            <td>
+                                <input type="text" id="PointVal" name="PointVal" class="form-control text_s number" title="积分值必须是数字" value="@Model.proMod.PointVal" />
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <td>特选商品：</td>
+                            <td>
+                                <input type="button" value="选择用户" onclick="user.sel('uprobind', 'user');" class="btn btn-info" />
+                                <input type="hidden" id="uprouids_hid" name="uprouids_hid" value="@ViewBag.prouids" />
+                                <input type="hidden" id="uprouids_old_hid" name="uprouids_old_hid" value="@ViewBag.prouids" />
+                                <div id="upro_wrap"></div>
+                            </td>
+                        </tr>*@
+                    </tbody>
+                </table>
+                <script>
+                $("#grouppro_td").load("/common/comp/GroupPro.aspx?ID=@Model.proMod.ParentID");
+                //var upro = {
+                //    del: function (btn, uid) {
+                //        $(btn).closest("tr").remove();
+                //        var ids = idshelp.del($("#uprouids_hid").val(), uid);
+                //        $("#uprouids_hid").val(ids);
+                //        upro.render();
+                //    },
+                //    init: function () {
+                //        user.hook["uprobind"] = function (list, select) {
+                //            var ids = list.GetIDS("UserID");
+                //            ids = idshelp.merge($("#uprouids_hid").val(), ids);
+                //            $("#uprouids_hid").val(ids);
+                //            upro.render();
+                //            CloseDiag();
+                //        }
+                //        upro.render();
+                //    },
+                //    render: function () {
+                //        $("#upro_wrap").load("/common/comp/UserList.aspx?del=upro.del", { "ids": $("#uprouids_hid").val() });
+                //    }
+                //};
+                //$(function () { upro.init(); })
+                </script>
+            </div>
+            <div id="Tabs5" class="tab-pane">
+                <table class="table table-striped table-bordered">
+                    @Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(Model.ModelID, Model.NodeID, new ModelConfig() { Source = ModelConfig.SType.UserContent, ValueDT = Model.ValueDT }, 0))
+                </table>
+            </div>
+        </div>
+        <div class="text-center">
+            <input type="button" class="btn btn-primary" onclick="subData('@(MVCHelper.GetAction("Product_Add",Request))');" value="保存商品信息" />
+            @if (Model.proMod.ID > 0)
+            {
+                <input type="button" class="btn btn-primary" onclick="subData('@(MVCHelper.GetAction("Product_AddToNew",Request))');" value="添加为新商品" />
+            }
+            <a href="@(CustomerPageAction.customPath2+"Shop/")ProductManage.aspx?@("NodeID="+Model.NodeID+" &StoreID="+Model.proMod.UserShopID)" class="btn btn-primary">返回列表<i class="fa fa-arrow-circle-up"></i></a>
+        </div>
+        <input type="hidden" id="Price_Group_Hid" name="Price_Group_Hid" />
+        <input type="hidden" id="Quota_Group_Hid" name="Quota_Group_Hid" />
+        <input type="hidden" id="DownQuota_Group_Hid" name="DownQuota_Group_Hid" />
+    </form>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+@Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex", ""))
+}
+@section script{
+<script src="/dist/js/bootstrap-switch.js"></script>
+<script src="/JS/OAKeyWord.js"></script>
+<script src="/JS/Common.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/ZL_Content.js"></script>
+<script src="/JS/Modal/shop.js?v=4"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+    var present = { scope: { presave: function () { } }, $hid: $("#present_hid") };
+        $(function () {
+            $.extend($.validator.defaults, { ignore: "" });
+            //---------------------------
+            MultiPrice.Init();
+            ZL_Regex.B_Num(".num");
+            $("#Unitd").find("button").click(function () { $("#ProUnit").val($(this).text()); });
+            //----商品类型
+            if (proclass.$hid.val() == "") { proclass.$hid.val("1"); }
+            proclass.$rads.each(function () { if ($(this).val() == proclass.$hid.val()) { $(this).click(); } });
+            idc.init();
+            group.init();
+            //----模板信息
+            Tlp_initTemp();
+            BindPro();//旅游订单不显示
+            //售后设置属性
+            var revalues = $("#restate_hid").val().split(',');
+            if (revalues.length > 0) {
+                $("input[name='GuessXML']").each(function () { this.checked = false; })
+                for (var i = 0; i < revalues.length; i++) {
+                    if (!ZL_Regex.isEmpty(revalues[i])) {
+                        var chk = $("input[name=GuessXML][value=" + revalues[i] + "]")[0];
+                        if (chk) { chk.checked = true; }
+                    }
+                }
+            }
+            //---------------赋值
+            SetRadVal("JisuanFs", "@Model.proMod.JisuanFs");
+            SetRadVal("UserPrice_Rad", "@Model.proMod.UserType");
+            SetRadVal("DownQuota_Rad", "@Model.proMod.DownQuota");
+            SetRadVal("Quota_Rad", "@Model.proMod.Quota");
+        });
+        var diag = new ZL_Dialog();
+        function subData(url) {
+            if (!PreSubmit()) { return; }
+            var valid = $("form").validate({});
+            if (!valid.form()) { alert("商品信息不完整"); return false; }
+            mvcpage.help.submit({ "url": url });
+        }
+        //捆绑商品操作
+        function BindPro(projson) {
+            if (projson) { $("#Bind_Hid").val(projson); }
+            if ($("#Bind_Hid").val() == "") { $("#bindpro_body").html(""); return; }
+            $(".td_binddata").remove();//清空之前捆绑数据
+            var proattr = [];
+            try { proattr = JSON.parse($("#Bind_Hid").val()); } catch (ex) { }
+            var trtlp = "<tr class='td_binddata'><td class='td_s'><label><input type='checkbox' name='bind_chk' value='@@id'>@@id</label></td><td class='td_m'><img onerror=\"shownopic(this);\" style='width:60px;height:45px;' src='/@@Thumbnails' /></td><td class='td_m'>@@LinPrice</td><td>@@Proname</td></tr>";
+            var html = JsonHelper.FillData(trtlp, proattr);
+            $("#bindpro_body").append(html);
+            $("#bindpro_table").show();
+            showbind();
+        }
+        //移除选定捆绑
+        function RemoveBind() {
+            var $chks = $("input[name=bind_chk]:checked");
+            if ($chks.length < 1) { alert("请先选中需要清除的捆绑"); return false; }
+            var bindArr = JSON.parse($("#Bind_Hid").val());
+            $chks.each(function () {
+                bindArr.RemoveByID($(this).val());
+            });
+            if (bindArr.length < 1) { $("#Bind_Hid").val(""); }
+            else { $("#Bind_Hid").val(JSON.stringify(bindArr)); }
+            BindPro();
+        }
+        function OpenSelect() {
+            diag.title = "添加捆绑商品";
+            diag.maxbtn = false;
+            diag.width = "none";
+            diag.url = "/Common/AddbindPro.aspx?id=@(Model.proMod.ID)&filter=user";
+            diag.ShowModal();
+            return false;
+        }
+        function ClearSelect() {
+            $("#Bind_Hid").val("");
+            $("#bindpro_body").html("");
+            $("#bindpro_table").hide();
+        }
+        function showbind() {
+            $("#bindpro_tr").show();
+            $("#bind_btn").hide();
+            $("#cbind_btn").show();
+        }
+        function clearbind() {
+            ClearSelect();
+            $("#bindpro_tr").hide();
+            $("#bind_btn").show();
+            $("#cbind_btn").hide();
+        }
+        //选择
+        @*function SelectProducer() {
+            window.open('@(CustomerPageAction.customPath2)Shop/Producerlist.aspx', '', 'width=600,height=450,resizable=0,scrollbars=yes');
+        }
+        function ProductsSelect(act) {
+            window.open('@(CustomerPageAction.customPath2)Shop/ProductsSelect.aspx?act=' + act, '', 'width=600,height=450,resizable=0,scrollbars=yes');
+        }
+        function OpenprojectSelect() {
+            window.open('@(CustomerPageAction.customPath2)Shop/projectSelect.aspx', '', 'width=600,height=450,resizable=0,scrollbars=yes');
+            return false;
+        }
+        function SelectBrand() {
+            window.open('@(CustomerPageAction.customPath2)Shop/Brandlist.aspx?producer=' + document.getElementById('Producer').value + '', '', 'width=600,height=450,resizable=0,scrollbars=yes');
+        }*@
+        function CloseDiag() {
+            diag.CloseModal();
+            comdiag.CloseModal();
+        }
+        function addStock(pronum) {
+            CloseDiag();
+            var num = parseInt($("#Stock").val());
+            $("#Stock").val(pronum + num);
+        }
+        //-------------------------------------------------------
+        var group = { list: [] }
+        group.getName = function (gid) {
+            var model = group.list.GetByID(gid, "GroupID");
+            if (!model) { return "未匹配"; }
+            else { return model.GroupName; }
+        }
+        group.init = function () {
+            var str = $("#Group_Hid").val();
+            if (ZL_Regex.isEmpty(str)) { return; }
+            group.list = JSON.parse($("#Group_Hid").val());
+        }
+        //--------------------多区域价格(增加筛选搜索,增加为0不显示)
+  
+    
+</script>
+}

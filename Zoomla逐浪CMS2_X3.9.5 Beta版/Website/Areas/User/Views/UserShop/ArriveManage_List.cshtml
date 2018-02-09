@@ -1,0 +1,37 @@
+﻿@using System.Data;
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_Arrive avBll = new B_Arrive();
+}
+@{
+    Model.cols = 10;
+    Model.url = "ArriveManage";
+
+}
+<div id="EGV">
+    <table class="table table-bordered table-striped">
+        <tr><td class="td_s"></td><td class="td_s">ID</td><td>卡别名</td><td class="td_m">优惠券号</td>
+        <td class="td_m">金额</td><td class="td_m">所属用户</td><td class="td_m">生效时间</td><td class="td_m">到期时间</td><td class="td_m">状态</td><td class="td_l">操作</td></tr>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td>@dr["ID"]</td>
+                <td>@dr["ArriveName"]</td>
+                <td>@dr["ArriveNo"]</td>
+                <td>@Convert.ToDouble(dr["Amount"]).ToString("F2")</td>
+                <td>@dr["UserName"]</td>
+                <td>@DateHelper.ToDate(dr["AgainTime"],"yyyy-MM-dd")</td>
+                <td>@DateHelper.ToDate(dr["EndTime"], "yyyy-MM-dd")</td>
+                <td>@MvcHtmlString.Create(avBll.GetStateStr(Convert.ToInt32(dr["State"])))</td>
+                <td>
+                    <a href="ArriveAdd?id=@dr["id"]" class="option_style"><i class="fa fa-pencil" title="修改"></i>修改</a>
+                    <a href="javascript:;" class="option_style"  onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'arrive_api?action=del', confirm: '确定要删除吗' });"><i class="fa fa-trash-o" title="删除"></i>删除</a>
+                </td>
+            </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

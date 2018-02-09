@@ -1,0 +1,78 @@
+﻿@using ZoomLa.AppCode.Verify
+@model ZoomLa.AppCode.Controls.C_Verify
+<div class="input-group vcode_wrap">
+    <input type="text" id="@Model.Name" name="@Model.Name" maxlength="6" class="form-control" style="border-right:none;" placeholder="验证码" autocomplete="off">
+    <span class="input-group-addon" style="background-color:#fff;padding:0 2px;position:relative;">
+        <span style="position:absolute;left:-25px;z-index:100;top:10px;" class="vcode_check"></span>
+        <img id="@(Model.Name)_img" title="点击刷新验证码" class="codeimg" style="max-width:130px;"/>
+    </span>
+</div>
+<input type="hidden" id="@(Model.Name)_hid" name="@(Model.Name)_hid" />
+<script>
+    (function ($) {
+        $.fn.extend({
+            ValidateCode: function (options, callback) {//callback暂未用
+                var opts = $.extend({}, $.fn.ValidateCode.defaults, options), CodeCheck = $.fn.ValidateCode.CodeCheck;
+                var isok = false;
+                var obj = this;//text
+                if (!obj || obj == null || !obj.attr("id")) return;
+                var $wrap = $(obj).closest(".vcode_wrap");
+                var objimg = $("#" + obj[0].id + "_img");
+                var objhid = $("#" + obj[0].id + "_hid");
+                //提交的信息
+                var model = { vtype: 0, token: "", sid: Math.random().toFixed(6), name: "@Model.Name" };
+                objimg.attr("src", "/Common/ValidateCode.aspx?key=" + model.sid + "&t=" + Math.random());
+                //----事件
+                objimg.click(function () {
+                    var url = "/Common/ValidateCode.aspx?key=" + model.sid + "&t=" + Math.random();
+                    $(this).attr("src", url); obj.val(""); obj.keyup(); obj.focus();
+                });
+                obj.click(function(){
+                    objimg.click();
+                });
+                $(obj).keyup(function () {
+                    var v = $(obj).val(), k = model.sid;
+                    if (v.length < opts.num) { return; }
+                    else if (v.length == opts.num) { model.token = v; objhid.val(JSON.stringify(model)); }
+                    //--------------------
+                    var $check = $wrap.find(".vcode_check");
+                    $check.html('<i class="fa fa-close" style="color:#ed6d6d;position:static;"></i>');
+                    CodeCheck(v, k, function (data) {
+                        console.log(data);
+                        if (data == 0) {
+                            $check.html('<i class="fa fa-close" style="color:#ed6d6d;position:static;"></i>');
+                            isok = false;
+                        }
+                        else if (data == 1) {
+                            $check.html('<i class="fa fa-check" style="color:#b9f373;position:static;"></i>');
+                            isok = true;
+                        }
+                    });
+                });//keyup end;
+                if (opts.submitchk)//提交验证
+                {
+                    $(obj).parent("form").submit(function (e) {
+                        var v = $(obj).val();
+                        if (v.length < opts.num) { isok = false; }
+                        if (isok == false) { alert("验证码不正确"); }
+                        return isok;
+                    });
+                }
+            }
+        })//fn end;
+        $.fn.ValidateCode.defaults = { okcss: "codeok", nocss: "codeno", num: @(ZoomLa.Components.SiteConfig.SiteOption.VerifyLen), submitchk: true };//参数赋值
+        $.fn.ValidateCode.CodeCheck = function (v, k, callback) {
+            a = "checkcode";
+            $.ajax({
+                type: "Post",
+                async: true,
+                url: "/Common/ValidateCode.aspx",
+                data: { action: a, value: v, key: k },
+                success: function (data) {
+                    callback(data);
+                }
+            });
+        };
+    })(jQuery)
+    $("#VCode").ValidateCode();
+</script>

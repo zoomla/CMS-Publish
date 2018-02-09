@@ -1,0 +1,36 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    B_User buser = new B_User();
+    Model.cols = 5;
+}
+<div class="us_pynews u_cnt">
+    <table id="EGV" class="table table-striped table-bordered table-hover">
+        <tr>
+            <td>选择</td>
+            <td>主题</td>
+            <td>收件人</td>
+
+            <td>发送日期sss</td>
+            <td>操作</td>
+        </tr>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["msgid"]" /></td>
+                <td>@dr["Title"]</td>
+                <td>@buser.GetUserNameByIDS(DataConverter.CStr(dr["Incept"]))</td>
+
+                <td>@DateHelper.ToDate(dr["PostDate"])</td>
+                <td>
+                    <a href="MessageRead?id=@dr["msgid"]"><i class="fa fa-eye"></i>阅读</a>
+                    <a href="javascript:;" onclick="mvcpage.del({ ids: '@dr["MsgID"]', url: 'message_del', confirm: '你确定将该数据彻底删除吗' });"><i class="fa fa-trash">删除</i></a>
+                </td>
+            </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

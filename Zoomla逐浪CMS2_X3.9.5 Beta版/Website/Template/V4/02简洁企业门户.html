@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="msapplication-TileColor" content="#1A0066"/>
+<meta name="msapplication-TileImage" content="/images/win8_symbol_140x140.png"/>
+<title>{$SiteName/}_首页</title>
+{$MetaKeywords/}
+{$MetaDescription/}
+{ZL:Boot4()/}
+<script src="/JS/scrolltopcontrol.js"></script>
+<link href="{$CssDir/}qiye.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light" id="home_nav">
+<div class="container relative">
+<a class="navbar-brand mr-2" href="/"><img src="{$LogoUrl/}" alt="{$SiteName/}" id="logos" onerror="javascript:this.src='{$LogoUrl/}'" /></a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNavDropdown">
+<ul class="navbar-nav">
+<li class="nav-item active"><a class="nav-link" href="/">首页</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(210)/}">行业资讯</a></li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">关于我们</a>
+<div class="dropdown-menu">
+<a class="dropdown-item" href="{ZL:GetInfoUrl(111)/}">集团介绍</a>
+<a class="dropdown-item" href="{ZL:GetInfoUrl(110)/}">董事长致辞</a>
+<a class="dropdown-item" href="{ZL:GetNodeLinkUrl(218)/}">大事件</a>
+</div>
+</li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(219)/}">咨询业务</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(220)/}">精英团队</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(221)/}">最新动态</a></li>
+<li class="nav-item" id="nav_g"><a class="nav-link" href="{ZL:GetInfoUrl(109)/}">联系我们</a></li>
+</ul>
+</div>
+</div>
+</nav>
+<!--导航结束-->
+
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+<ol class="carousel-indicators">
+<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+<li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+<li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+</ol>
+<div class="carousel-inner">
+<div class="carousel-item active">
+<a href="#"><img src="{$CssDir/}images/home_banner1.jpg" alt="..." /></a>
+</div>
+<div class="carousel-item">
+<a href="#"><img src="{$CssDir/}images/home_banner2.jpg" alt="..." /></a>
+</div>
+<div class="carousel-item">
+<a href="#"><img src="{$CssDir/}images/home_banner3.jpg" alt="..." /></a>
+</div>
+</div>
+<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+</a>
+<a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+<span class="carousel-control-next-icon" aria-hidden="true"></span>
+</a>
+</div>
+<!--home_banner end-->
+
+<div class="container home_top">
+<div class="row">
+<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+<div class="home_top_l">
+<div class="home_top_lt"><h3>咨询业务</h3></div>
+{ZL.Label id="首页输出最新资讯业务" NodeID="219" ShowNum="1" TitleNum="30" SysNum="200" /}
+</div>
+</div>
+<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+<div class="home_top_r">
+<div class="home_top_rt">最新动态<span class="pull-right"><a href="{ZL:GetNodeLinkUrl(221)/}"><i class="fa fa-long-arrow-right"></i></a></span></div>
+<ul class="list-unstyled">
+{ZL.Label id="首页输出最新动态" NodeID="221" TitleNum="30" ShowNum="3" SysNum="60" /}
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!--home_top end-->
+
+<div class="container home_hangye">
+<div class="home_hangye_t">
+<div class="pull-left h3">行业咨询</div>
+<div class="home_hangye_tr pull-right">
+<a href="{ZL:GetNodeLinkUrl(211)/}">战略规划</a><span>|</span>
+<a href="{ZL:GetNodeLinkUrl(212)/}">金融行业</a><span>|</span>
+<a href="{ZL:GetNodeLinkUrl(213)/}">风险内控</a><span>|</span>
+<a href="{ZL:GetNodeLinkUrl(214)/}">电子制造</a><span>|</span>
+<a href="{ZL:GetNodeLinkUrl(215)/}">其他</a><span>|</span>
+<a href="{ZL:GetNodeLinkUrl(210)/}"><i class="fa fa-long-arrow-right"></i></a>
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="row">
+{ZL.Label id="首页输出行业资讯" NodeID="210" TitleNum="30" ShowNum="4" SysNum="60" /}
+</div>
+</div>
+<!--home_hangye end-->
+
+<div class="home_about">
+<div class="container">
+<div class="media">
+<div class="media-body media-middle">
+<h4 class="media-heading">集团介绍</h4>
+<p>“追逐未来、只争第一”--上海逐一软件科技有限公司旗下拥有逐浪软件、华夏互联、华夏营销网三大门户，集有上海、南昌两大全资集团化研发公司，逾十年网站开发与解决方案服务经验，服务包括政府、军工、外企、世界五百强企业和诸多本土站长，致力于打造最优秀的网站内核管理系统，是目前国内最大的CMS研发法人机构...</p>
+<a href="{ZL:GetInfoUrl(111)/}" class="btn btn-default">MORE</a>
+</div>
+<div class="media-right">
+<a href="{ZL:GetInfoUrl(111)/}"><img class="media-object" src="{$CssDir/}images/home_about1.jpg" alt="" /></a>
+</div>
+</div>
+</div>
+</div>
+<!--home_about end-->
+
+<div class="container home_team">
+<div class="row">
+{ZL.Label id="首页输出精英团队" NodeID="220" TitleNum="30" ShowNum="2" SysNum="200" /}
+</div>
+</div>
+<!--home_team end-->
+
+<div class="home_friend">
+<div class="container">
+{ZL.Label id="友情链接_企业站简缩图列表" ShowNum="10" NodeID="222" /}
+</div>
+</div>
+<!--home_friend end-->
+
+<div class="home_contact">
+<div class="container">
+<div class="row">
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+<h3>联系</h3>
+<p>Contact</p>
+</div>
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+<h3>关注</h3>
+<p><a href="#"><i class="fa fa-weibo"></i></a><a href="#"><i class="fa fa-qq"></i></a><a href="#"><i class="fa fa-weixin"></i></a></p>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<h3>中国软件产业集团</h3>
+<div class="row">
+<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<p>
+南昌市江大南路55号华成家园A7F<br/>
+电话：0791-86161900<br/>
+传真：0791-86161900-8009
+</p>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<p>
+邮编：330099<br/>
+手机：131-77777-7714<br/>
+邮箱：web@z01.com
+</p>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+<!--home_contact end-->
+
+<div class="home_copy">
+<div class="container">
+<p>{$Copyright/}</p>
+</div>
+</div>
+</body>
+</html>

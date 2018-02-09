@@ -1,0 +1,180 @@
+﻿@using System.Data
+@using ZoomLa.Model.Design
+@model ZoomLa.Model.Design.M_Design_Ask
+@{
+    Layout = "/Views/Shared/_empty.cshtml";
+    DataTable questDT = ViewBag.questDT;
+    string Mode = ViewBag.Mode;
+}
+@section head{
+<title>@Model.Title</title>
+<style type="text/css">
+body{background-color:rgba(0, 0, 0, 0.0784314);}
+.container{background-color:#fff;box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 5px 0px, rgba(0, 0, 0, 0.0784314) 0px 2px 10px 0px;margin-top:70px;padding:10px 50px;}
+.ask_head{border-bottom:1px dashed #ddd;margin-bottom:25px;}
+.ask_head .title{color:#39a4db;font-weight:bold;font-size:24px;padding:15px 0;text-align:center;}
+.ask_body{line-height:25px;}
+.ask_body .quest_wrap{border-bottom:1px solid #ddd;margin-bottom:15px;padding-bottom:10px;}
+.ask_body .quest_title{font-weight:bold;line-height:20px;color:#444444;font-size:15px;margin-bottom:10px;}
+.quest_wrap .radLabel{font-weight:normal;overflow:hidden;text-wrap:none;text-overflow:ellipsis;}
+.quest_wrap .radLabel input{margin-right:2px;position:relative;top:2px;}
+.quest_wrap .inputtext{border:solid 1px #cdcdcd;padding:3px;line-height:22px;font-size:12px;}
+.ask_foot{height:80px;line-height:80px;}
+</style>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/ZL_ValidateCode.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script src="/JS/ZL_ValidateCode.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+}
+@section content{
+<div class="container">
+    <div class="ask_wrap">
+        <div class="ask_head">
+            <h1 class="title">@Model.Title</h1>
+            <div>@MvcHtmlString.Create(Model.Remind)</div>
+        </div>
+        <div class="ask_body">
+            <ul>
+                @Html.Partial("Quest_Index", questDT)
+            </ul>
+        </div>
+        @if (Mode == "user")
+        {
+            <div class="ask_foot text-center">
+                <div>
+                    @if (Model.IsEnableVCode == 1)
+                    {
+                        <input type="text" id="VCode" name="VCode" placeholder="验证码" maxlength="6" class="form-control text_x" autocomplete="off" />
+                        <img id="VCode_img" class="codeimg" title="点击刷新验证码" />
+                        <input type="hidden" id="VCode_hid" name="VCode_hid" />
+                    }
+                    <input type="button" value="提交问卷" class="btn btn-lg btn-primary" onclick="UserSubmit();" />
+                </div>
+            </div>
+            <script>
+                function UserSubmit() {
+                    var anslist = collectAnswer();
+                    if (anslist == false) { return; }
+                    var data= { answer: JSON.stringify(anslist), vcode: $("#VCode").val(), vkey: $("#VCode_hid").val() };
+                    submit("Vote_Submit?ID=@Model.ID",data);
+                }
+            </script>
+        }
+        else if (Mode == "answer")
+        {
+            M_Design_Answer ansMod = ViewBag.ansMod;
+          <script>
+              var anslist =@MvcHtmlString.Create(ansMod.Answer);
+             //anslist=[{"qid":"1","qtype":"checkbox","answer":"2891"},{"qid":"2","qtype":"radio","answer":"2389"},{"qid":"3","qtype":"blank","answer":"sadfasdfasdfa"}];
+              for (var i = 0; i < anslist.length; i++) {
+                  var model=anslist[i];
+                  var name="q"+model.qid;
+                  switch(model.qtype)
+                  {
+                      case "checkbox":
+                      case "radio":
+                          SetValue(name,model.answer);
+                          break;
+                      case "blank":
+                          $("#"+name).val(model.answer);
+                          break;
+                  }
+              }
+          </script>
+        }
+        else if (Mode == "admin")
+        {
+            <div class="ask_foot text-center" style="line-height:normal;">
+                <div class="input-group" style="width:260px;">
+                    <span class="input-group-addon">人数</span>
+                    <input type="text" id="ansnum" value="100" class="form-control text_150"/>
+                    <span class="input-group-btn">
+                        <input type="button" value="增加投票" class="btn btn-primary" onclick="ResultAddSubmit();"/>
+                    </span>
+                </div>
+            </div>
+            <script>
+                function ResultAddSubmit() {
+                    var anslist = collectAnswer();
+                    if (anslist == false) { return; }
+                    var data={ answer: JSON.stringify(anslist), ansnum: $("#ansnum").val() };
+                    if (!ZL_Regex.isInt(data.ansnum)||data.ansnum<1) { alert("投票人数不正确"); return false; }
+                    if (!confirm("确定要操作投票吗")) { return false; }
+                    submit("ResultAdd_Submit?ID=@Model.ID",data);
+                }
+            </script>
+        }
+    </div>   
+</div>                                                                   
+}
+@section script{
+<script>
+    $(function () {
+        $("#VCode").ValidateCode();
+    })
+    function collectAnswer() {
+        //需要处理的调查信息
+        var qlist = [];
+        var anslist = [];//用户回答
+        $(".quest_wrap").each(function () {
+            var questMod = $(this).data("info");
+            qlist.push(questMod);
+        });
+        //-----------------------
+        for (var i = 0; i < qlist.length; i++) {
+            var questMod = qlist[i];
+            var ansMod = { "qid": questMod.id, "qtype": questMod.qtype, "answer": "" };
+            //-----------------------------------
+            var name = "q" + ansMod.qid;
+            switch (questMod.qtype) {
+                case "blank":
+                    {
+                        ansMod.answer = $("#" + name).val();
+                    }
+                    break;
+                case "checkbox":
+                    $("input[name='" + name + "']:checked").each(function () {
+                        ansMod.answer += this.value + ",";
+                    });
+                    ansMod.answer = StrHelper.trim(ansMod.answer, ",");
+                    break;
+                case "radio":
+                    {
+                        var tar = document.getElementsByName(name)[0];
+                        switch (tar.type) {
+                            case "radio":
+                                ansMod.answer = $("input[name='" + name + "']:checked").val();
+                                break;
+                            case "select":
+                            case "select-one":
+                                ansMod.answer = tar.value;
+                                break;
+                        }
+                    }
+                    break;
+            }
+            if (questMod.required == "True") {
+                if (ZL_Regex.isEmpty(ansMod.answer)) { alert("第" + questMod.index + "个问题未填写"); return false; }
+            }
+            anslist.push(ansMod);
+        }
+        return anslist;
+    }
+    function submit(url,postData) {
+        //ajax提交,避免不符合条件造成需重填
+        var mask = new ZL_Dialog();
+        mask.closebtn = false;
+        mask.ShowMask("正在提交");
+        $.post(url, postData, function (data) {
+            if (data == APIResult.Success) {
+                location = "VoteResult?id=@Model.ID";
+            }
+            else { alert(data); }
+            mask.CloseModal();
+        });
+    }
+</script>         
+
+}

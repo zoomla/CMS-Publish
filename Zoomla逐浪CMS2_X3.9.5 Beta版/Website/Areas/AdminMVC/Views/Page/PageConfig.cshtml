@@ -1,0 +1,46 @@
+﻿@using ZoomLa.Components
+@{
+
+}
+@section head{<title>黄页配置</title>}
+@section content{
+<div class="container-fluid mysite" id="BreadDiv">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li><a href='ApplyAudit'>企业黄页</a></li>
+            <li class="active">黄页配置</li>
+        </ol>
+    </div>
+</div>
+<form method="post" action="PageConfig_Update">
+<table class="table table-bordered table-striped">
+    <tr>
+        <td><strong>申请是否需要审核:</strong></td>
+        <td>
+            <input type="checkbox" class="switchChk" id="RegPageStart_Chk" name="RegPageStart_Chk" @(SiteConfig.SiteOption.RegPageStart ? "checked='checked'" : "") />
+        </td>
+    </tr>
+    <tr>
+        <td class="td_l"><strong>黄页内容默认审核:</strong></td>
+        <td>
+            <input type="checkbox" class="switchChk" id="IsAudit_Chk" name="IsAudit_Chk" @(SiteConfig.YPage.IsAudit ? "checked='checked'" : "") />
+        </td>
+    </tr>
+    <tr>
+        <td><strong>用户可否自建栏目:</strong></td>
+        <td>
+            <input type="checkbox" class="switchChk" id="UserCanNode_Chk" name="UserCanNode_Chk" @(SiteConfig.YPage.UserCanNode ? "checked='checked'" : "") />
+        </td>
+    </tr>
+    <tr><td></td><td>
+        <input type="submit" value="保存配置" class="btn btn-primary" />
+        <a href="PageStyle" class="btn btn-primary">返回列表</a></td>
+    </tr>
+</table>
+</form>
+}
+@section script{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/dist/js/bootstrap-switch.js"></script>
+}

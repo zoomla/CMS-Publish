@@ -1,0 +1,20 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@using ZoomLa.BLL.Helper
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_empty.cshtml";
+}
+@section head{
+<title>评价列表</title>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+}
+@section content{
+<div class="margin_t10" style="margin-bottom:120px;">
+    @Html.Partial("ShareList_List", Model)
+</div>
+}
+@section script{
+@Html.Partial("/Areas/User/Views/Order/Share_RES.cshtml")
+}

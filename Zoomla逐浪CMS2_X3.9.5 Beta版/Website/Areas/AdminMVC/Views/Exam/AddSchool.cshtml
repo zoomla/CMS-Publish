@@ -1,0 +1,90 @@
+﻿@model ZoomLa.Model.M_School
+@{
+    SelectList typelist = MVCHelper.ToSelectList("小学,中学,大学,其它".Split(','), "1,2,3,4".Split(','), Model.SchoolType.ToString());
+    SelectList vislist = MVCHelper.ToSelectList("公办,私立".Split(','), "1,2".Split(','), Model.Visage.ToString());
+}
+@section head{
+<title>添加学校信息</title>
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_PCC.js"></script>    
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)Main.aspx'>工作台</a></li>
+            <li><a href='@(CustomerPageAction.customPath2)User/UserManage'>会员管理</a></li>
+            <li><a href='SchoolManage'>学校信息配置</a></li>
+            <li class='active'>添加学校</li>
+        </ol>
+    </div>
+</div>
+<form method="post" action="@MVCHelper.GetAction("School_Add",Request)">
+    <table class="table table-striped table-bordered table-hover">
+        <tr>
+            <td class="td_l tdleft"><strong>学校名称:</strong></td>
+            <td>
+                @Html.TextBoxFor(m => m.SchoolName, new { @class = "form-control text_300" })
+            </td>
+        </tr>
+        <tr>
+            <td class="tdleft"><strong>所属省市:</strong></td>
+            <td>
+                <select name="province_dp" class="form-control text_s" id="province_dp"></select>
+                <select name="city_dp" class="form-control text_s" id="city_dp"></select>
+                <select name="county_dp" class="form-control text_s" id="county_dp"></select>
+            </td>
+        </tr>
+        <tr>
+            <td class="tdleft"><strong>学校类型:</strong></td>
+            <td>
+                @Html.DropDownListFor(m => m.SchoolType, typelist, new { @class = "form-control", @style = "width:150px;" })
+            </td>
+        </tr>
+        <tr>
+            <td class="tdleft"><strong>学校性质:</strong></td>
+            <td>
+                @Html.DropDownListFor(m => m.Visage, vislist, new { @class = "form-control", @style = "width:150px;" })
+            </td>
+        </tr>
+        <tr>
+            <td class="tdleft"><strong>学校微标:</strong></td>
+            <td>
+                @Html.TextBoxFor(m => m.Country, new { @class = "form-control text_300" })
+            </td>
+        </tr>
+        <tr>
+            <td class="tdleft"><strong>学校信息:</strong></td>
+            <td>
+                @Html.TextAreaFor(m => m.SchoolInfo, new { @class = "form-control", @style = "width:451px;height:148px;" })
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-center">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a href="SchoolManage" class="btn btn-primary">返回</a>
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" id="pro_hid" name="pro_hid" value="" />
+</form>
+}
+@section script{
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script type="text/javascript" src="/JS/Plugs/IconSelector.js"></script>
+<script>
+    $(function () {
+        var pcc = new ZL_PCC("province_dp", "city_dp", "county_dp");
+            pcc.ProvinceInit();
+        var iconselecter = new iconSelctor("Country");
+        validate.zl_init($("form"), {
+            rules: {
+                SchoolName: { required: true }
+            },
+            messages: {
+                SchoolName: { required: "学校名称不能为空" }
+            },
+        }, { placement: 'right', style: 'green' });
+    })
+</script>
+}

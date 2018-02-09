@@ -1,0 +1,157 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLaCMS.Models.Ask
+@using System.Data.SqlClient
+@model ZoomLa.Model.M_Ask
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    DataTable ansDt = (DataTable)ViewBag.ansDt;
+    VM_AskInfo vmask = new VM_AskInfo();
+}
+@functions{
+    B_Ask askBll = new B_Ask();
+    B_GuestAnswer ansBll = new B_GuestAnswer();
+    protected string getstatus(string status)
+    {
+        switch (status)
+        {
+            case "1": return "<span class='btn btn-success btn-xs'>推荐答案</span>";
+            case "0": return "";
+            default: return "";
+        }
+    }
+    public DataTable GetDt1(DataRow dr)
+    {
+        string Aid = (dr["ID"]).ToString();
+        M_Ask askMod = askBll.SelReturnModel(DataConverter.CLng(Request["ID"]));
+        SqlParameter[] sp = new SqlParameter[] { new SqlParameter("id", Aid) };
+        return ansBll.Sel(" supplymentid=@id And Userid=" + askMod.UserId, "", sp);
+    }
+    public DataTable GetDt2(DataRow dr)
+    {
+        int QuestionId = DataConverter.CLng(Request["ID"]);
+        M_Ask askMod = askBll.SelReturnModel(QuestionId);
+        string Aid = (dr["ID"]).ToString();
+        string queid = (dr["QueId"]).ToString();
+        return ansBll.Sel(" supplymentid=" + Aid + " And Userid<>" + askMod.UserId, "", null);
+    }
+    public bool ShowReplyBtn(DataRow dr)
+    {
+        int QuestionId = DataConverter.CLng(Request["ID"]);
+        M_Ask askMod = askBll.SelReturnModel(QuestionId);
+        string Aid = (dr["ID"]).ToString();
+        string queid = (dr["QueId"]).ToString();
+        DataTable dt1 = ansBll.Sel(" QueId=" + queid + " and Userid<>" + askMod.UserId, "", null);
+        DataTable dt2 = ansBll.Sel(" QueId=" + queid + " and Userid=" + askMod.UserId, "", null);
+        return dt1.Rows.Count != dt2.Rows.Count;
+    }
+}
+@section head{
+    <title>我的问答中心-@(Call.SiteName)问答</title>
+}
+@section content{
+    <div class="container">
+        <ol class="breadcrumb">
+            <li>您的位置：<a href="/">网站首页</a></li>
+            <li><a href="/Ask">问答中心</a></li>
+            <li><a href="List">问题列表</a></li>
+            <li class="active"><a href="MyAnswer?ID=@Request["ID"]">问题详情</a></li>
+        </ol>
+        @Html.Partial("comp/CommonView")
+        <div class="myanswer">
+            <div class="aacengter">
+                <div class="ask_detial_t"><span>提问问题</span><div class="clearfix"></div></div>
+                <div class="ask_detial_tc">
+                    <ul class="list-unstyled" style="padding:10px;margin:0;">
+                        <li>
+                            <span>问题内容：</span>@Model.Qcontent <span class="pull-right">
+                                <a href="javascript:;" onclick="LikeQue();">
+                                    <span class="fa fa-star"></span> 收藏
+                                </a>
+                            </span>
+                        </li>
+                        <li><span>提问用户：</span>@MvcHtmlString.Create(Model.IsNi == 1 ? "匿名" : "<a href='javascript:;'>" + Model.UserName + "</a>")</li>
+                        <li><span>提问日期：</span>@Model.AddTime.ToString("yyyy/MM/dd HH:mm")</li>
+                    </ul>
+                </div>
+                <div class="ask_detial_t"><span>补充问题</span><div class="clearfix"></div></div>
+                <div class="ask_detial_tc">
+                    <div style="padding:10px;">@MvcHtmlString.Create(Model.Supplyment)</div>
+                </div>
+                <div class="ask_detial_t"><span>您的回答</span><div class="clearfix"></div></div>
+                <div class="ask_detial_tc">
+                    <form method="post" action="@MVCHelper.GetAction("/Ask/Answer", Request)">
+                        <div class="ask_txt">
+                            <textarea id="txtContent" name="txtContent" class="form-control" style="height:100px"></textarea>
+                            <div class="text-right" style="margin-bottom:15px;">
+                                <span>
+                                    <label><input type="checkbox" id="CkIsNi" name="CkIsNi" />匿名</label>
+                                    <input type="submit" id="btnSubmit" value="提交回答" class="btn btn-info" />
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="ask_detial_t"><span>其它回答</span><div class="clearfix"></div></div>
+                <div class="ask_detial_th">
+                    <div style="min-height:50px;">
+                        @foreach (DataRow dr in ansDt.Rows)
+                        {
+                            <div class="ask_detial_tl">
+                                <div class="ask_detial_tlt">
+                                    <span class="pull-right">@DataConverter.CDate(dr["AddTime"]).ToString("yyyy-MM-dd")</span>
+                                    @MvcHtmlString.Create(dr["IsNi"].ToString() == "1" ? "匿名" : "<a href='/ShowList?id=" + dr["UserID"] + "' target='_blank'>" + dr["UserName"] + "</a>")
+                                </div>
+                                <div class="ask_detial_tlc">
+                                    <div class="ask_detial_tlch"><span class="ask_detial_hui">回答：</span>@dr["Content"] @MvcHtmlString.Create(getstatus(dr["Status"].ToString()))</div>
+                                    @foreach (DataRow row in GetDt1(dr).Rows)
+                                    {
+                                        <div>
+                                            <div><span class="ask_detial_zhui">追问：</span>@dr["Content"]</div>
+                                            @foreach (DataRow row2 in GetDt2(dr).Rows)
+                                            {
+                                                <div>@row2["Content"]</div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ask_bottom">
+        <p class="text-center"><a target="_blank" title="如何提问" href="http://help.z01.com/?index/help.html#如何提问">如何提问</a> <a target="_blank" title="如何回答" href="http://help.z01.com/?index/help.html#如何回答">如何回答</a> <a target="_blank" title="如何获得积分" href="http://help.z01.com/?index/help.html#如何获得积分">如何获得积分</a> <a target="_blank" title="如何处理问题" href="http://help.z01.com/?index/help.html#如何处理问题">如何处理问题</a></p>
+        <p class="text-center">@MvcHtmlString.Create(Call.GetLabel("{$Copyright/}"))</p>
+    </div>
+    <input type="hidden" name="hfsid" />
+}
+@section script{
+    <script type="text/javascript" src="/JS/Modal/APIResult.js"></script>
+    <script type="text/javascript">
+        function show() {
+            var div = document.getElementById("show");
+            if (div.style.display == "none") {
+                div.style.display = "block";
+            }
+            // else {div.style.display = "none";}
+
+        }
+        //收藏问题
+        function LikeQue() {
+            $.post('/API/mod/collect.ashx', { action: "add", favurl: "@Request.RawUrl", infoid: "@Request["ID"]", type: 4, title: $("#question").text() }, function (data) {
+                var model = JSON.parse(data);
+                if (APIResult.isok(model)) {
+                    alert("收藏成功!");
+                } else {
+                    alert("收藏失败!原因:" + model.retmsg);
+                }
+            });
+            //location.href="/User/Content/AddToFav.aspx?Url=<%=Request.RawUrl %>&itemid=<%=Request["ID"] %>&type=4&title="+$("#question").text();
+        }
+    </script>
+}

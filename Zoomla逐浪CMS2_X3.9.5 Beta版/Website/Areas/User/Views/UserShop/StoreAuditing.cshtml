@@ -1,0 +1,31 @@
+﻿@{
+    
+}
+@section head{<title>店铺审核中</title>}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div> 
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="/User/Index/Default">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="ProductList">我的店铺</a></li>
+	<li class="breadcrumb-item">修改申请信息</li>
+</ol>
+</nav>
+</div>
+
+<div class="container">
+    <div class="text_600 text-center r_gray" style="margin:0 auto;">
+        <i class="fa fa-bank margin_t10" style="font-size:120px;"></i>
+        <div class="margin_t10" style="font-size:18px;">店铺正在审核,请等待管理员开通您的店铺功能!</div>
+        <div class="margin_t10"><a href="StoreApply?action=edit" class="btn btn-outline-info">修改申请信息</a></div>
+    </div>
+</div>
+<script>
+$(function(){
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+})
+</script>
+}
+@section script{}

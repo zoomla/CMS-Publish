@@ -1,0 +1,34 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>38</LabelID>
+    <LabelName>首页输出最新资讯列表_商城</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>全站通用</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,1,1,节点ID|ShowNum,10,1,显示数|TitleNum,30,1,标题长|SysNum,80,1,简介数</LabelParam>
+    <LabelTable>ZL_Commodities left join ZL_P_Shop on ZL_Commodities.ItemID=ZL_P_Shop.ID</LabelTable>
+    <LabelField>ZL_Commodities.ID,ZL_Commodities.Proinfo,ZL_Commodities.Proname,ZL_Commodities.Thumbnails</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID) And ZL_Commodities.Sales=1 And istrue=1 And ParentID=1</LabelWhere>
+    <LabelOrder>ZL_Commodities.AddTime DESC</LabelOrder>
+    <LabelContent>{Repeate}&lt;div class="home_news_list"&gt;
+&lt;a href="{ZL:GetShopUrl({Field="ID"/})/}" title="{Field="Proname"/}" target="_blank"&gt;&lt;img class="img-fluid" src="{ZL:GetPicUrl({Field="Thumbnails"/})/}" onerror="javascript:this.src='/Images/nopic.gif';" alt="{Field="Proname"/}" /&gt;&lt;/a&gt;
+&lt;h3&gt;&lt;a href="{ZL:GetShopUrl({Field="ID"/})/}" title="{Field="Proname"/}" target="_blank"&gt;{ZL:CutText({Field="Proname"/},@TitleNum,)/}&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;{ZL:CutText({Field="Proinfo"/},@SysNum,...)/}&lt;/p&gt;
+&lt;/div&gt;{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue>0</Modelvalue>
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Commodities","tb_s":"ZL_P_Shop"}</DataSourceType>
+    <ConnectString>DBO</ConnectString>
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

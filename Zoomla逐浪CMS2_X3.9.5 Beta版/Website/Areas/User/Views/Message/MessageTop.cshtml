@@ -1,0 +1,15 @@
+﻿<div>
+    <div class="btn-group">
+        <a href="@Url.Action("MessageSend","Message")" class="btn btn-primary">新消息</a>
+        <a href="@Url.Action("Message", "Message")" class="btn btn-primary">收件箱</a>
+        <a href="@Url.Action("MessageOutbox", "Message")" class="btn btn-primary">发件箱</a>
+        <a href="@Url.Action("MessageDraftbox", "Message")" class="btn btn-primary">草稿箱</a>
+        <a href="@Url.Action("MessageRecycle", "Message")" class="btn btn-primary">垃圾箱</a>
+    </div>
+    <div class="input-group" style="width: 350px;float:right;">
+        <input type="text" id="skey_t" class="form-control text_300 mvcparam" placeholder="请输入邮件名称" />
+        <span class="input-group-btn">
+            <input type="button" id="skey_btn" class="btn btn-primary " value="搜索" onclick="mvcpage.load();" />
+        </span>
+    </div>
+</div>

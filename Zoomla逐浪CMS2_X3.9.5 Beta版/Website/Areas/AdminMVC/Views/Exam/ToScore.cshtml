@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    ViewBag.Title = "ToScore";
+}
+@section head{
+<title>试卷评阅</title>    
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top">
+            <li><a href='Papers_System_Manage'>教育模块</a></li>
+            <li><a href='ToScore'>阅卷中心</a></li>
+            <li>评阅试卷</li>
+            @MvcHtmlString.Create(Call.GetHelp(79))
+        </ol>
+    </div>
+</div>
+@Html.Partial("ToScore_List")
+}
+@section script{
+<script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+<script type="text/javascript" src="/JS/Drag.js"></script>
+}

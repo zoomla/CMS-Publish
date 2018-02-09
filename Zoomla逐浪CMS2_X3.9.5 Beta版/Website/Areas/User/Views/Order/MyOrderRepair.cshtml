@@ -1,0 +1,34 @@
+﻿@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+<title>返修/退货记录</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="shop"></div> 
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item active">返修/退货记录</li>
+</ol>
+</nav>
+    @Html.Partial("OrderTop")
+</div>
+<div class="container myorderrepair">
+    @Html.Partial("MyOrderRepair_List")
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>	
+}
+@section script{
+<style>
+.myorderrepair .proinfo_div div{float:left;margin-left:5px;}
+.myorderrepair .proinfo_div .pro_img img{width:70px;height:80px;}
+.myorderrepair .proinfo_div .pro_title{padding-top:10px;}
+</style>
+}

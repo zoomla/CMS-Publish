@@ -1,0 +1,103 @@
+﻿@using ZoomLa.AppCode.Controls
+@model ZoomLa.Model.M_Course
+@{
+
+}
+@section head{
+    <link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <title>添加课程</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb navbar-fixed-top">
+                <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+                <li><a href='Papers_System_Manage'>教育模块</a></li>
+                <li><a href='QuestionManage'>考试管理</a></li>
+                <li><a href='CourseManage'>课程管理</a></li>
+                <li class="active">编辑课程</li>
+            </ol>
+        </div>
+    </div>
+    <form method="post" action="@MVCHelper.GetAction("Course_Add",Request)">
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <td colspan="2" class="text-center">@(Model.id > 0 ? "修改课程" : "添加课程")</td>
+            </tr>
+            <tbody id="Tabs0">
+                <tr>
+                    <td style="width: 10%" align="right">课程名称：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.CourseName, new { @class = "form-control", @style = "width:200px;", @onkeyup = "Getpy('CourseName','CoureseThrun');" })
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">课程缩写：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.CoureseThrun, new { @class = "form-control", @style = "width:100px;" })
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">课程代码：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.CoureseCode, new { @class = "form-control", @style = "width:100px;" })
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">课程分类：</td>
+                    <td>
+                        @Html.Partial("C_TreeTlpDP", (C_TreeTlpDP)ViewBag.treeMod)
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">课程学分：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.CoureseCredit, new { @class = "form-control", @style = "width:100px;" })
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">是否热门：</td>
+                    <td>
+                        <input type="checkbox" id="Hot" name="Hot" class="switchChk" @(Model.Hot == 1 ? "checked='checked'" : "") />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">课程简介：</td>
+                    <td>
+                        @Html.TextAreaFor(m => m.CoureseRemark, new { @class = "form-control", @style = "height:123px;width:306px;" })
+                    </td>
+                </tr>
+            </tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <a href="CourseManage" class="btn btn-primary">返回列表</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+}
+@section script{
+    <script type="text/javascript" src="/dist/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="/JS/Dialog.js"></script>
+    <script src="/JS/chinese.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("form").validate({
+                rules: {
+                    CourseName: { required: true },
+                    CoureseThrun: { required: true },
+                    CoureseCode: { required: true },
+                    CoureseCredit: { required: true, digits: true }
+                },
+                messages: {
+                    CourseName: { required: "课程名称不能为空" },
+                    CoureseThrun: { required: "课程缩写不能为空" },
+                    CoureseCode: { required: "课程代码不能为空" },
+                    CoureseCredit: { required: "课程学分不能为空", digits: "学分只能为整数" }
+                },
+            })
+        });
+    </script>
+}

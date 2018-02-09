@@ -1,0 +1,162 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.AppCode.Controls
+@model ZoomLa.Model.Exam.M_Exam_Version
+@{
+    int action = DataConverter.CLng(ViewBag.action);
+}
+@section head{
+    <title>添加教材版本</title>
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)"I/Main.aspx'>工作台</a></li>
+            <li><a href='Papers_System_Manage'>教育模块</a></li>
+            <li><a href='VersionList'>教材版本</a></li>
+            <li class='active'>版本管理</li>
+        </ol>
+    </div>
+</div>
+<form method="post" action="@MVCHelper.GetAction("Version_Add",Request)">
+    <div>
+        <div class="input-group" style="width:550px;margin:5px 0;">
+            <span class="input-group-addon">所属目录</span><span class="form-control" style="width:200px;" disabled="disabled">未指定</span>
+            <span class="input-group-addon">上传人</span><span class="form-control" style="width:200px;" disabled="disabled">@ViewBag.inputer</span>
+        </div>
+        <table class="table table-bordered table-striped">
+            <tr>
+                <td style="width:120px;">版本名称：</td>
+                <td>
+                    @Html.TextBoxFor(m => m.VersionName, new { @class = "form-control text_300" })
+                </td>
+            </tr>
+            <tr>
+                <td>科目：</td>
+                <td>
+                    @Html.Partial("C_TreeTlpDP", (C_TreeTlpDP)ViewBag.treeMod)
+                </td>
+            </tr>
+            <tr>
+                <td>版本时间：</td>
+                <td>
+                    @Html.TextBoxFor(m => m.VersionTime, new { @class = "form-control text_300", @onfoucs = "WdatePicker({dateFmt:'yyyy'})", @value = Model.ID > 0 ? Model.VersionTime : DateTime.Now.ToString("yyyy") })
+                </td>
+            </tr>
+            <tr>
+                <td>册序：</td>
+                <td>
+                    @Html.TextBoxFor(m => m.Volume, new { @class = "form-control text_300" })
+                    <div id="btnlist" class="btn btn-group">
+                        <button type="button" class="btn btn-default">上册</button>
+                        <button type="button" class="btn btn-default">中册</button>
+                        <button type="button" class="btn btn-default">下册</button>
+                        <button type="button" class="btn btn-default">全册</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>年级：</td>
+                <td>
+                    @MVCHelper.H_Radios("Grade", ViewBag.gradedt as DataTable, "GradeID", "GradeName", Model.Grade.ToString())
+                </td>
+            </tr>
+            <tr>
+                <td>标价：</td>
+                <td>
+                    @Html.TextBoxFor(m => m.Price, new { @class = "form-control text_300 float", @value = Model.Price.ToString("f2") })
+                </td>
+            </tr>
+            <tr id="Chapter_Tr">
+                <td>章(单元)名称：</td>
+                <td>
+                    @Html.TextBoxFor(m => m.Chapter, new { @class = "form-control text_300" })
+                </td>
+            </tr>
+            <tbody id="Section_Body">
+                <tr>
+                    <td>节名称：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.SectionName, new { @class = "form-control text_300" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>课名称：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.CourseName, new { @class = "form-control text_300" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>知识点：</td>
+                    <td>
+                        <div id="Examkeyword"></div>
+                        <button type="button" onclick="SelKnow()" class="btn btn-primary btn-sm">选择知识点</button>
+                        <input type="hidden" id="TagKey_T" name="TagKey_T" />
+                    </td>
+                </tr>
+            </tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" class="btn btn-primary">确定</button>
+                    <a href="VersionList" class="btn btn-primary">返回</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>    
+}
+@section script{
+    <script src="/JS/DatePicker/WdatePicker.js"></script>
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/ZL_Regex.js"></script>
+    <script src="/JS/OAKeyWord.js"></script>
+    <script src="/JS/ICMS/ZL_Exam_Controls.js"></script>
+    <script>
+        $(function () {
+            ZL_Regex.B_Float(".float");
+            InitKeyWord($("#TagKey_T").val());
+            $("#btnlist button").click(function () {
+                $("#Volume").val($(this).text());
+            });
+            //科目改变时初始化知识点
+            var oNodeID = "";
+            $("#TreeTlp ul li").click(function () {
+                var NodeID = $("#TreeTlp_hid").val();
+                console.log(NodeID);
+                if (oNodeID != NodeID) {
+                    InitKeyWord($("#TagKey_T").val());
+                    $("#TagKey_T").val("");
+                    oNodeID = NodeID;
+                }
+            });
+            validate.zl_init($("form"), {
+                rules: {
+                    Name: { required: true },
+                    MaxCount: { digits: true }
+                },
+                messages: {
+                    Name: { required: "学科名称不能为空" },
+                    MaxCount: { digits: "最大安排数只能为整数" }
+                },
+            }, { placement: 'right', style: 'green' });
+            //-----
+            var action = @action;
+            if(action!=1&&action!=-1){
+                $("#VersionName").attr("readonly","readonly");
+                $("#VersionTime").attr("readonly","readonly");
+                $("input[name='Grade']").attr("disabled","disabled");
+                $("#Price").attr("readonly","readonly");
+                $("#Volume").attr("readonly","readonly");
+                $("#btnlist").hide();
+                $('#TreeTlp button').attr('disabled', 'disabled');
+                $('#VersionTime').removeAttr('onfocus');
+                if(action==3||action==-3){
+                    $("#Chapter").attr("readonly","readonly");
+                }
+            }
+        })
+    </script>
+}

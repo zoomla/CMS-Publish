@@ -1,0 +1,28 @@
+﻿@model System.Data.DataTable
+@using System.Data
+@using ZoomLa.Common
+@{
+    string totalMoney = DataConverter.CDouble(Model.Compute("SUM(ALLMoney)", "")).ToString("F2");
+}
+
+<table class="table table-bordered table-striped" id="EGV">
+    <tr>
+        <td class="td_m">类别</td>
+        <td>销售额</td>
+        <td class="td_l">操作</td>
+    </tr>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <tr>
+            <td>@dr["NodeName"]</td>
+            <td>@DataConverter.CDouble(dr["AllMoney"]).ToString("F2")</td>
+            <td><a href="SaleByProduct?NodeID=@dr["NodeID"]"><i class="fa fa-list"></i>查看详情</a></td>
+        </tr>
+    }
+    <tr>
+        <td colspan="4">
+            销售总计：<label class="r_red_mid">@totalMoney</label>
+            <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID()" class="btn btn-outline-info" />
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,73 @@
+﻿<ion-view cache-view="false">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()" ui-sref="tab.dash"></button>
+<div class="title title-center header-item">{{tmu.honeyname}}</div>
+</ion-header-bar>
+<ion-content style="background:#ebebeb; bottom:44px;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="查看聊天记录" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="chatpart">
+    <div class="msgflow" onclick="$('#wl_faces_box').hide();">
+        
+        <span id="msg_end" style="overflow:hidden"></span>
+<!--        <div class="onemsg_wrap">
+            <div class="onemsg_contain">
+                <div class="onemsg">
+                    <div class="msgbody">
+                        <div>dasdasd</div>
+                    </div>
+                    <span class="arrow-before arrow"></span>
+                    <span class="arrow-after arrow"></span>
+                </div>
+                <img src="http://l.hx008.com//UploadFiles/User/admin1/20160524150119ZVst.jpg" class="uface" alt="" />
+            </div>
+        </div>
+        <div class="onemsg_wrap self">
+            <div class="onemsg_contain">
+            	<div class="onemsg">
+                	<div class="msgbody">
+                    	<div>asdasdasd</div>
+                    </div>
+                    <span class="arrow-before arrow"></span>
+                    <span class="arrow-after arrow"></span>
+                </div>
+                <img src="http://l.hx008.com//UploadFiles/User/admin1/20160524150119ZVst.jpg" class="uface" alt="" />
+            </div>
+    	</div>-->
+    </div>
+</div>
+</ion-content>
+<div class="bar bar-footer sendbar">
+<div id="wl_faces_box" class="wl_faces_box">
+<div class="wl_faces_content">
+<div class="title">
+<ul>
+<li class="wl_faces_close"><span onclick="turnoffFaces_box()"></span></li>
+</ul>
+</div>
+<div id="wl_faces_main" class="wl_faces_main">
+<ul id="emotionUL"></ul>
+</div>
+</div>
+<div class="wlf_icon"></div>
+</div>
+<div class="sendbar_l">
+<input type="text" id="send_msg_text" class="msgedit" onkeydown="onTextareaKeyDown()" />
+</div>
+<div class="sendbar_r">
+<a href="javascript:;" class="emotion_a" onclick="showEmotionDialog()"><i class="fa fa-smile-o"></i></a>
+<input type="button" value="发送" class="btn btn-info" onclick="onSendMsg()" style="margin-left:10px;" />
+</div>
+</div>
+<script src="js/im/webim.js"></script>
+<script src="js/im/show_one_msg.js"></script>
+<script src="js/im/send_common_msg.js"></script>
+<script>
+//不需要好友关联也可聊天
+var selType = webim.SESSION_TYPE.C2C;//当前聊天类型
+var selToID = "";//当前选中聊天id（当聊天类型为私聊时，该值为好友帐号，否则为群号）
+var friendHeadUrl = "";
+var emotionFlag = false;//是否打开过表情选择框
+var loginInfo = null;
+var selSess = null;
+</script>
+</ion-view>

@@ -1,0 +1,19 @@
+﻿@model System.Data.DataTable
+@using System.Data
+@using ZoomLa.Common
+@{
+    string totalMoney = DataConverter.CDouble(Model.Compute("SUM(total)", "")).ToString("F2");
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <tr><td class="td_m">日期</td><td>在线支付</td><td>余额支付</td><td>总计销售</td></tr>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <tr><td>@dr["date"]</td><td>@dr["pay_online"]</td><td>@dr["pay_purse"]</td><td>@dr["total"]</td></tr>
+    }
+    <tr>
+        <td colspan="4">
+            销售总计：<label class="r_red_mid">@totalMoney</label>
+            <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID()" class="btn btn-outline-info" />
+        </td>
+    </tr>
+</table>

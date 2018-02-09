@@ -1,0 +1,339 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+}
+@section head{
+    <title>问题列表-@(Call.SiteName)问答</title>
+}
+@section content{
+    <div class="container">
+			<nav aria-label="breadcrumb" role="navigation" class="qaCenter_breadcrumb">
+			<ol class="breadcrumb">
+			<li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+			<li class="breadcrumb-item"><a href="/Ask">问答中心</a></li>
+			<li class="breadcrumb-item active" aria-current="page"><a href="List?strWhere=&QueType=">我要回答</a></li>
+			</ol>
+			</nav>
+    </div>
+
+<div class="container qaCenter_tow-nav">
+@Html.Partial("comp/TopLinkBtns")
+</div>
+
+    <div class="container">
+        @{Html.Partial("comp/CommonView");}
+<ul class="nav nav-tabs qa_list-nav">
+<li class="nav-item" id="all_li">
+<a class="nav-link active" href="list?QueType=@Request.QueryString["QueType"]">全部问答</a>
+</li>
+<li class="nav-item" id="wait_li">
+<a class="nav-link" href="list?type=1&QueType=@Request.QueryString[" QueType"]">待完善问题</a>
+</li>
+</ul>
+		
+        <div class="asklist qa_allqa">
+<!--            @Html.Partial("List_List", Model)-->
+			<div id="EGV">
+        <ul class="ask-list">
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2200">
+                                我的疑问是什么呢？
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag">1111111 </a>
+                                <span class="ask-list-time">
+                                    游客[zY0FTg9QoL] · 2016/01/16 09:49
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2199">
+                                请问如何设定IIS指向程序源文件？
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                    游客[sytFrlwao4] · 2015/12/03 11:53
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2198">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2197">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2196">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2195">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2194">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2193">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2192">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="ask-list-nums">
+                        <p class="ask-focus-nums">
+                            <span class="num">0</span>收藏
+                        </p>
+                        <p class="ask-answer-nums">
+                            <span class="num">0</span>回答
+                        </p>
+                    </div>
+                    <div class="ask-list-detials">
+                        <h2>
+                            <a href="MyAnswer?ID=2191">
+                                1
+                            </a>
+                        </h2>
+                        <div class="ask-info" title="最新回答"> </div>
+                        <div class="ask-list-legend">
+                            <p class="tags">
+                                <span class="tag-title">分类：</span>
+                                <a href="List?QueType=" class="tag"> </a>
+                                <span class="ask-list-time">
+                                     · 2015/03/05 09:02
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </li>
+        </ul>
+        <div class="text-center">
+<ul class="pagination mvcpage" style="margin:0 0 0 0;position:relative;top:3px;" data-for="EGV" data-cpage="1" data-psize="10" data-url="" data-pcount="203" data-icount="2030" data-mvcparam=".mvcparam">
+    <li class="disabled"><a href="javascript:;" title="首页" onclick="mvcpage.load({ target: 'EGV', page: 'first' });">«</a></li>
+            <li><a href="javascript:;" onclick="mvcpage.load({ target: 'EGV', page: 2 })">...<span class="sr-only">(current)</span></a></li>
+    <li class=""><a href="javascript:;" title="尾页" onclick="mvcpage.load({ target: 'EGV', page: 'last' });">»</a></li>
+</ul></div>
+</div>
+        </div>
+    </div>
+    <div class="ask_bottom">
+        <p class="text-center"><a target="_blank" title="如何提问" href="http://help.z01.com/?index/help.html#如何提问">如何提问</a> <a target="_blank" title="如何回答" href="http://help.z01.com/?index/help.html#如何回答">如何回答</a> <a target="_blank" title="如何获得积分" href="http://help.z01.com/?index/help.html#如何获得积分">如何获得积分</a> <a target="_blank" title="如何处理问题" href="http://help.z01.com/?index/help.html#如何处理问题">如何处理问题</a></p>
+        <p class="text-center">@MvcHtmlString.Create(Call.GetLabel("{$Copyright/}"))</p>
+    </div>
+}
+@section script{
+    <script type="text/javascript">
+        function show() {
+            var div = document.getElementById("show");
+            if (div.style.display == "none") {
+                div.style.display = "block";
+            }
+        }
+        $(function () {
+            $("#top_nav_ul li[title='问题库']").addClass("active");
+            var type = '@Request.QueryString["type"]';
+            if (type == '1')
+                $("#wait_li").addClass('active');
+            else
+                $("#all_li").addClass('active');
+        });
+    </script>}

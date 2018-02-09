@@ -1,0 +1,54 @@
+﻿@{
+   
+}
+@section head{<title>黄页审核</title>}
+@section content{
+<div class="container-fluid mysite" id="BreadDiv">
+<div class="row">
+<ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+    <li><a href='@(CustomerPageAction.customPath2)Main.aspx'>工作台</a></li>
+    <li><a href="AuditApply">企业黄页</a></li>
+    <li>黄页审核</li>
+    <div id="sel_box">
+        <div class="input-group">
+            <input type="text" id="skey" class="form-control" placeholder="请输入关键词" onkeypress="selbox.search();" />
+            <span class="input-group-btn">
+                <input type="button" class="btn btn-default" value="搜索" onclick="mvcpage.load();" />
+            </span>
+        </div>
+    </div>
+    <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="fa fa-search"></i></a></div>
+</ol>
+</div>
+</div>
+    <ul class="nav nav-tabs margint5">
+        <li data-status="-100"><a href="#tab0" data-toggle="tab" onclick="ShowTabs(-100)">全部</a></li>
+        <li data-status="99"><a href="#tab1" data-toggle="tab" onclick="ShowTabs(99)">已审核</a></li>
+        <li data-status="0"><a href="#tab2" data-toggle="tab" onclick="ShowTabs(0)">待审核</a></li>
+    </ul>
+    @Html.Partial("ApplyAudit_List")
+<div class="margint5">
+    <input type="button" class="btn btn-primary" value="批量审核" onclick="mvcpage.bat({url: 'page_audit' });" />
+    <input type="button" class="btn btn-primary marginl5" value="取消审核" onclick="mvcpage.bat({url: 'page_unaudit' });" />
+    <input type="button" class="btn btn-primary marginl5" value="批量删除" onclick="mvcpage.bat({url: 'page_del' });" />
+    <input type="button" class="btn btn-primary marginl5" value="批量推荐" onclick="mvcpage.bat({url: 'page_recom' });" />
+    <input type="button" class="btn btn-primary marginl5" value="取消推荐" onclick="mvcpage.bat({url: 'page_unrecom' });" />
+</div>
+    }
+@section script{
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script >
+    $(function () {
+        var status = getParam("status");
+        if (status) {
+            $(".nav li[data-status='" + status + "']").addClass("active");
+        }
+        else { $(".nav li:first").addClass("active"); }
+        $("#chkAll").click(function () { selectAllByName(this, "idchk"); });
+    })
+    function ShowTabs(status) {
+        location.href = "ApplyAudit?status="+status;
+    }
+</script>
+}

@@ -1,0 +1,24 @@
+<ion-view>
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">我的地址</div>
+</ion-header-bar>
+<ion-content style="background:#f0f2f5;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="recei_list">
+<ion-list>
+<ion-item ng-repeat="item in receilist">
+<p>
+<span>收件人：{{item.ReceivName}}</span>
+<span>手机号码：{{item.MobileNum}}</span><br/>
+<span>所在地区：{{item.Provinces}}</span><br/>
+<span>详细地址：{{item.Street}}</span>
+</p>
+<ion-option-button class="button-positive" ng-click="edit(item)">编辑</ion-option-button>
+<ion-option-button class="button-assertive" ng-click="del(item)">删除</ion-option-button>
+</ion-item>
+</ion-list>
+<div class="recei_list_b"><button type="button" class="btn btn-danger btn-block" ng-click="AddFun()">添加新地址</button></div>
+</div>
+</ion-content>
+</ion-view>

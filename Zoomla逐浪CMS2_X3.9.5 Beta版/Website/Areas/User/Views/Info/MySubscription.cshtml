@@ -1,0 +1,22 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{<title>订阅管理</title>}
+@section content{
+<div id="pageflag" data-nav="group" data-ban="sub"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="/User/Default.aspx">会员中心</a></li>
+	<li class="breadcrumb-item active">订阅管理</li> 
+</ol>
+</nav>
+</div>
+<div class="container btn_green">
+    @Html.Partial("MySubScription_List",Model)
+</div>
+}
+@section script{
+
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>302</LabelID>
+    <LabelName>循环输出店铺节点列表</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>店铺</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,0,1,节点ID|UserShopID,0,1,店铺ID</LabelParam>
+    <LabelTable>ZL_Node</LabelTable>
+    <LabelField>NodeID,NodeName</LabelField>
+    <LabelWhere>ParentID=@NodeID</LabelWhere>
+    <LabelOrder>ZL_Node.OrderID ASC</LabelOrder>
+    <LabelContent>{Repeate}
+&lt;div class=" list-group" style="margin-bottom:1rem;"&gt;
+&lt;div class="panel-heading" role="tab" id="heading_{Field="NodeID"/}"&gt;
+&lt;h4 class="panel-title list-group-item d-flex justify-content-between align-items-center list-group-item-success" style="font-size:1.1rem;"&gt;
+&lt;a data-toggle="collapse" data-parent="#accordion" href="#collapse_{Field="NodeID"/}" aria-expanded="true" aria-controls="collapse_{Field="NodeID"/}" class="text-info" &gt;
+{Field="NodeName"/}&lt;/a&gt;
+&lt;span class="badge"&gt;&lt;a href="/Store/StoreList?NodeID={Field="NodeID"/}&amp;ID=@UserShopID" class="badge badge badge-info badge-pill"&gt;更多&lt;/a&gt;&lt;/span&gt;
+&lt;/h4&gt;
+&lt;/div&gt;
+&lt;div id="collapse_{Field="NodeID"/}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{Field="NodeID"/}"&gt;
+&lt;div class="panel-body"&gt;
+&lt;ul class="media-list list-unstyled list-group p-0"&gt;
+{ZL.Label id="店铺节点列表" ParentID="{Field="NodeID"/}" ShowNum="100" UserShopID="@UserShopID" /}
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+{/Repeate}
+
+</LabelContent>
+    <LabelCount />
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Node","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

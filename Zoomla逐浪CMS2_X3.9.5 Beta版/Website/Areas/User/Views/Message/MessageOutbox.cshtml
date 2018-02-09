@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+
+@section head{
+<title>发件箱</title>
+}
+@section content{
+<div id="pageflag" data-nav="index" data-ban="pub"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("", "Index")">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="@Url.Action("Message", "Message")">消息中心</a></li>
+	<li class="breadcrumb-item active">发件箱</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+    @Html.Partial("MessageTop")
+</div>
+<div class="container margin_t5 btn_green">
+    @Html.Partial("MessageOutbox_List", Model)
+    <div>
+       <button id="batdel_btn" class="btn btn-primary" onclick="mvcpage.bat({ url: 'message_del', confirm: '你确定要将所选中的项删除吗' });">批量删除</button>
+    </div>
+</div>
+}
+@section script{
+
+}

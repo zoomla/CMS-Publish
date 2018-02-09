@@ -1,0 +1,24 @@
+﻿@using System.Data
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using ZoomLa.Common
+@model ZoomLa.Model.Design.M_Design_Question
+@{
+    DataTable options = JsonConvert.DeserializeObject<DataTable>(Model.QOption);
+    JObject json = JsonConvert.DeserializeObject<JObject>(Model.QFlag);
+    string type = json["type"].ToString();
+    int num = DataConverter.CLng(json["num"].ToString());
+    //---------------------------
+    string id = "q" + Model.ID;
+    string style = "";
+    if (num <= 1) { style = "display:block;"; }
+    else
+    {
+        style = "display:inline-block;";
+        style += "width:" + Convert.ToInt32((100 / num)) + "%;";
+    }
+}
+@foreach (DataRow dr in options.Rows)
+{
+    <label style="@style" class="radLabel"><input type="checkbox" name="@id" value="@dr["value"]" />@dr["text"]</label>
+}

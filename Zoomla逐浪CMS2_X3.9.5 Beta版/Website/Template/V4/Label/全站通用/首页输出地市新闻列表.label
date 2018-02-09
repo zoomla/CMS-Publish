@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>187</LabelID>
+    <LabelName>首页输出地市新闻列表</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>全站通用</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,0,1,节点ID|ShowNum,10,1,显示数</LabelParam>
+    <LabelTable>ZL_CommonModel LEFT JOIN ZL_C_Article ON ZL_CommonModel.ItemID=ZL_C_Article.ID</LabelTable>
+    <LabelField>Title,GeneralID,NodeID,TopImg,synopsis</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID) And Status=99</LabelWhere>
+    <LabelOrder>CreateTime DESC</LabelOrder>
+    <LabelContent>{Repeate}
+&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}" target="{ZL:GetInfoOpen({Field="NodeID"/})/}" class="weui-cell weui-cell_access" href="javascript:;"&gt;
+&lt;div class="weui-cell__hd"&gt;&lt;img src="{Field="TopImg"/}" alt="{Field="Title"/}" style="width:20px;margin-right:5px;display:block" onerror="javascript:this.src='/UploadFiles/nopic.gif';" /&gt;&lt;/div&gt;
+&lt;div class="weui-cell__bd weui-cell_primary"&gt;
+&lt;p&gt;{Field="Title"/}&lt;/p&gt;
+&lt;/div&gt;
+&lt;span class="weui-cell__ft"&gt;&lt;/span&gt;
+&lt;/a&gt;{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_C_Article"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

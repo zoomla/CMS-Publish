@@ -1,0 +1,43 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+<title>优惠劵管理</title>
+}
+@section content{
+<div id="pageflag" data-nav="group" data-ban="ArriveManage"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	 <li class="breadcrumb-item"><a href="/User">会员中心</a></li>
+     <li class="breadcrumb-item"><a href="@Url.Action("UserInfo","Info")">账户管理</a></li>
+     <li class="breadcrumb-item">优惠劵管理</li>
+</ol>
+</nav>
+</div>
+<div class="container arrive">
+
+    <ul class="nav nav-tabs">
+        <li id="tab1"><a href="ArriveManage?State=1">未使用</a></li>
+        <li id="tab2"><a href="ArriveManage?State=10">已使用</a></li>
+        <li id="tab3"><a href="ArriveManage?addon=expired">已过期</a></li>
+    </ul>
+    @Html.Partial("ArriveManage_List",Model)
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}
+@section script{
+    <script>
+        $(function () {
+            var state = '@Request.QueryString["state"]';
+            var addon = '@Request.QueryString["addon"]';
+            if(addon=='expired'){ $("#tab3").addClass("active"); }
+            else if (state == '10') { $("#tab2").addClass("active"); }
+            else { $("#tab1").addClass("active"); }
+        })
+    </script>
+}

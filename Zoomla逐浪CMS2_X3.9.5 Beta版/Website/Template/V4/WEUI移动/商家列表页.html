@@ -1,0 +1,199 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>商家列表_{$SiteName/}</title>
+<meta name="Keywords" content="{SField sid="节点栏目信息数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="节点栏目信息数据源" FD="Meta_Description" page="0"/}" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+<meta name="renderer" content="webkit">
+<link href="/dist/css/font-awesome.min.css" rel="stylesheet"/>
+<link href="/dist/css/ZLico.css" rel="stylesheet"/>
+<link rel="stylesheet" href="/dist/css/weui.min.css" />
+<script type="text/javascript" src="/JS/jquery-1.11.1.min.js" ></script>
+<link rel="stylesheet" href="/dist/css/swiper.min.css" />
+<script src="/dist/js/swiper.min.js"></script>
+<link href="{$CssDir/}style.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet" />
+<style>
+</style>
+{ZL:GetCSS(1,1)/}
+</head>
+<body>
+<div class="page tabbar js_show">
+<div class="page__bd" style="height:100%;">
+<div class="weui-tab">
+<div class="weui-tab__panel">
+
+<div class="weui-flex home_header">
+<div class="weui-flex__item">
+<h1><i class="fa fa-dashboard"></i>上海微百货</h1>
+</div><!--头部第一块结束-->
+<div class="weui-flex__item home_header_r" >
+<span class="pull-right"><a href="#" ><i class="fa fa-gift"></i><br/>惊喜</a></span>
+<span class="pull-right"><a href="javascript:;" id="showIOSActionSheet"><i class="fa fa-navicon"></i><br/>Menu</a></span>
+</div>
+</div>
+        
+<div class="home_top " hidden>
+<h1><i class="fa fa-dashboard"></i>上海微百货</h1>
+<!--<a class="logo" ><img src="{$CssDir/}images/logo.jpg" alt="南京微生活" /></a><-->
+
+<form action="#">
+<input type="text" class="form-control" name="keyword" placeholder="输入关键字查询" />
+<button type="submit"><i class="fa fa-search"></i></button>
+</form>
+<a href="#" class="pull-right gift"><i class="fa fa-gift"></i><br/>惊喜</a>
+</div>
+<!--头部结束-->
+
+<div class="page__bd">
+<!--<a href="javascript:;" class="weui-btn weui-btn_primary">点击展现searchBar</a>-->
+<div class="weui-search-bar" id="searchBar">
+<form action="/Search/SearchList" class="weui-search-bar__form" method="get">
+<div class="weui-search-bar__box">
+<i class="weui-icon-search"></i>
+<input type="search" class="weui-search-bar__input" name="keyword" id="searchInput" placeholder="搜索"  />
+<a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+</div>
+<label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+<i class="weui-icon-search"></i>
+<span>搜索</span>
+</label>
+</form>
+<a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+</div>
+<div class="weui-cells searchbar-result" id="searchResult" style="display: none;">
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>苹果</p>
+</div>
+</div>
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>apple</p>
+</div>
+</div>
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>pinguo</p>
+</div>
+</div>
+<div class="weui-cell weui-cell_access">
+<div class="weui-cell__bd weui-cell_primary">
+<p>test</p>
+</div>
+</div>
+</div>
+</div>
+<!--搜索框结束-->
+
+<div class="page__hd">
+{ZL.Label id="输出商家列表_分页" ShowNum="10" /}
+</div>
+
+
+<div class="weui-tabbar page__ft j_bottom">
+<a href="/" class="weui-tabbar__item">
+<i class="fa z01-icon001 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">首页</p>
+</a>
+<a href="{ZL:GetNodeListUrl(145)/}" class="weui-tabbar__item weui-bar__item_on">
+<i class="fa z01-icon002 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">商家</p>
+</a>
+<a href="{ZL:GetNodeLinkUrl(177)/}" class="weui-tabbar__item">
+<i class="fa z01-icon003 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">商城</p>
+</a>
+<a href="/User/" class="weui-tabbar__item">
+<i class="fa z01-icon004 weui-tabbar__icon"></i>
+<p class="weui-tabbar__label">会员</p>
+</a>
+</div>
+<!--foot end-->
+
+<div>
+<div class="weui-mask" id="iosMask" style="opacity:1; display: none;"></div>
+<div class="weui-actionsheet" id="iosActionsheet">
+<div class="weui-actionsheet__menu">
+<div class="weui-actionsheet__cell">示例菜单</div>
+<div class="weui-actionsheet__cell">示例菜单</div>
+<div class="weui-actionsheet__cell">示例菜单</div>
+<div class="weui-actionsheet__cell">示例菜单</div>
+</div>
+<div class="weui-actionsheet__action">
+<div class="weui-actionsheet__cell" id="iosActionsheetCancel">取消</div>
+</div>
+</div>
+</div>
+<!--下下拉菜单结束-->
+
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
+<script>
+$(function(){
+	var $searchBar = $('#searchBar'),
+		$searchResult = $('#searchResult'),
+		$searchText = $('#searchText'),
+		$searchInput = $('#searchInput'),
+		$searchClear = $('#searchClear'),
+		$searchCancel = $('#searchCancel');
+
+	function hideSearchResult(){
+		$searchResult.hide();
+		$searchInput.val('');
+	}
+	function cancelSearch(){
+		hideSearchResult();
+		$searchBar.removeClass('weui-search-bar_focusing');
+		$searchText.show();
+	}
+
+	$searchText.on('click', function(){
+		$searchBar.addClass('weui-search-bar_focusing');
+		$searchInput.focus();
+	});
+	$searchInput
+		.on('blur', function () {
+			if(!this.value.length) cancelSearch();
+		})
+		.on('input', function(){
+			if(this.value.length) {
+				$searchResult.show();
+			} else {
+				$searchResult.hide();
+			}
+		})
+	;
+	$searchClear.on('click', function(){
+		hideSearchResult();
+		$searchInput.focus();
+	});
+	$searchCancel.on('click', function(){
+		cancelSearch();
+		$searchInput.blur();
+	});
+});
+// ios
+$(function(){
+	var $iosActionsheet = $('#iosActionsheet');
+	var $iosMask = $('#iosMask');
+
+	function hideActionSheet() {
+		$iosActionsheet.removeClass('weui-actionsheet_toggle');
+		$iosMask.fadeOut(200);
+	}
+
+	$iosMask.on('click', hideActionSheet);
+	$('#iosActionsheetCancel').on('click', hideActionSheet);
+	$("#showIOSActionSheet").on("click", function(){
+		$iosActionsheet.addClass('weui-actionsheet_toggle');
+		$iosMask.fadeIn(200);
+	});
+});
+</script>

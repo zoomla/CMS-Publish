@@ -1,0 +1,97 @@
+﻿    <style>
+        .table { margin-bottom: 0; }
+        .orderlist .order-item { border: 1px solid #ddd; margin-top: 10px; }
+        .orderlist .gray9 { color: #999; }
+        .orderlist .orderinfo { line-height: 20px; }
+        .orderlist .shopinfo { line-height: 20px; }
+        .orderlist .opinfo { line-height: 20px; text-align: right; padding-right: 15px; font-size: 1.2em; color: gray; }
+        .orderlist .tips_div { background-color: #f5f5f5; }
+        .orderlist .top_div { line-height: 30px; background-color: #f5f5f5; margin-top: 10px; }
+        .orderlist .prolist td { line-height: 70px; border-left: 1px solid #ddd; height: 70px; text-align: center; }
+        .orderlist .prolist td:last-child { border-right: none; }
+        .orderlist .proname div { padding: 5px; }
+        .orderlist .goodservice { text-align: right; padding-right: 20px; }
+        .orderlist .prolist .rowtd { line-height: 20px; padding-top: 30px; }
+        .orderlist .order_navs { position: relative; }
+        .orderlist .search_div { position: absolute; right: 0; top: 3px; }
+        .orderlist .ordertime { color: #999; font-size: 12px; }
+        .orderlist .order_bspan { font-size: 1.2em; }
+        .orderlist .idcmessage { color: #999; line-height: normal; margin: 0; }
+        .orderlist .idm_tr td { line-height: normal; height: auto; text-align: left; }
+    </style>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Controls/DateHelper.js"></script>
+    <script>
+    function ConfirmAction(obj, a) {
+        if (!confirm("确定要执行该操作吗?")) { return false; }
+        var oid = $(obj).data("oid");
+        $.post("Order_API", { action: a, "oid": oid }, function (data) {
+            location = location;
+        })
+    }
+    function ShowDrawback(oid) {
+        comdiag.maxbtn = false;
+        comdiag.title = "取消订单";
+        comdiag.url = "/User/Order/DrawBack?id=" + oid;
+        comdiag.ShowModal();
+    }
+    function Back_Deal(oid) {
+        comdiag.maxbtn = false;
+        comdiag.title = "订单退款处理";
+        comdiag.url = "/User/Order/Admin/Back.aspx?id=" + oid;
+        comdiag.ShowModal();
+    }
+    function CheckOrderType(flag) {
+        $("#OrderType_ul li").removeClass('active');
+        $("#OrderType_ul [data-flag='" + flag + "']").addClass('active');
+    }
+    $(function () {
+        ComputeTime();
+        setInterval(function () { ComputeTime(); }, 1000);
+        CheckOrderType("@Model.Filter")
+    })
+    //倒计时
+    function ComputeTime() {
+        $(".ordertime").each(function () {
+            var seconds = parseInt($(this).data("time") - 1);
+            var timeMod = DateHelper.SecondToTime((seconds));
+            if (timeMod.isHasTime()) {
+                var str = timeMod.hour + '小时' + timeMod.minute + '分' + timeMod.second + '秒';
+                if (timeMod.day > 0) { str = timeMod.day + "天" + str; }
+                $(this).html('<span class="fa fa-clock-o"></span>' + str);
+                $(this).data("time", seconds);
+            }
+            else { $(this).html('订单关闭'); }
+        });
+    }
+    $().ready(function (e) {
+        $(".order_ico0").html("<i class='fa fa-shopping-cart'></i>");//正常订单
+        $(".order_ico1").html("<i class='fa fa-building'></i>");//酒店订单
+        $(".order_ico2").html("<i class='fa fa-plane'></i>");//航班订单
+        $(".order_ico3").html("<i class='fa fa-plane'></i>");//旅游订单
+        $(".order_ico4").html("<i class='fa fa-database'></i>");//积分商品订单
+        $(".order_ico5").html("<i class='fa fa-shopping-cart'></i>");//域名订单
+        $(".order_ico6").html("<i class='fa fa-rmb'></i>");//余额充值订单
+        $(".order_ico7").html("<i class='fa fa-server'></i>");//IDC订单
+        $(".order_ico8").html("<i class='fa fa-credit-card-alt'></i>");//虚拟商品订单
+        $(".order_ico9").html("<i class='fa fa-server'></i>");//IDC续费订单
+        $(".order_ico10").html("<i class='fa fa-shopping-cart'></i>");//代购订单
+    });
+    var order = {
+        slideup: function (obj) {
+            var $btn = $(obj).find("i");
+            var $wrap = $(obj).closest(".prolist").find('.prowrap');
+            if ($wrap.is(":visible")) { $wrap.hide(); $btn.removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-right"); }
+            else { $wrap.show(); $btn.removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-down"); }
+        }
+    };
+    //超出5个商品时显示,点击后加载数据隐藏自身
+    order.showMore = function (btn) {
+        $wrap = $(btn).closest(".prowrap");
+        $wrap.find(".pro_more").removeClass("hidden");
+        $(btn).closest("tr").hide();
+    }
+    order.showSuit = function (cartid) {
+        ShowComDiag("/common/comp/SuitPro_Cart.aspx?CartID=" + cartid, "促销组合");
+    }
+    </script>

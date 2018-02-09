@@ -1,0 +1,151 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.Components
+@using System.Data
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    DataTable typeDt = (DataTable)ViewBag.typeDt;
+    M_UserInfo mu = new B_User().GetLogin();
+    bool needLogin = GuestConfig.GuestOption.WDOption.IsLogin;
+}
+@section head{
+    <title>在线提问_@(Call.SiteName)问答</title>
+    <script type="text/javascript" src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+    <link href="/App_Themes/User.css" rel="stylesheet" />
+}
+@section content{
+    <form method="post" action="@MVCHelper.GetAction("/Ask/Add_Submit",Request)" onsubmit="return CheckData();">
+        <div class="container">
+				<nav aria-label="breadcrumb" role="navigation">
+					<ol class="breadcrumb mybreadcrumb">
+						<li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+						<li class="breadcrumb-item"><a href="/Ask">问答中心</a></li>
+						<li class="breadcrumb-item active" aria-current="page">我要提问</li>
+					</ol>
+				</nav>
+				
+				<div class="qa_add-input">
+				<select name="ddlCate" id="ddlCate" class="form-control text_md pull-left">
+				@foreach (DataRow dr in typeDt.Rows)
+				{
+					<option value="@dr["GradeID"]">@dr["GradeName"]</option>
+				}
+            </select>
+					<style>
+/*						.qa_add-select{height: 2.4rem;color: red;}*/
+					
+					
+					</style>
+					
+            <div class="input-group pull-left" style="width:240px;margin-left:5px;">
+                <span class="input-group-addon" style="height: 2.4rem;">悬赏分</span>
+                <select ID="ddlScore" class="form-control text_150">
+                    <option value="0">0</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                    <option value="60">60</option>
+                    <option value="70">70</option>
+                    <option value="80">80</option>
+                    <option value="90">90</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="input-group-addon" style="height: 2.4rem;"><label style="margin-bottom: 0;"> <input type="checkbox" name="isAnony_Chk" value="1" />匿名</label></span>
+            </div>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+				</div>	
+					
+					
+				<div class="mytow-nav">
+            @Html.Partial("comp/TopLinkBtns")
+				</div>
+            <div role="form">
+                <div class="form-group">
+                    <label>请将您的疑问告诉我们吧：</label>
+                    <div style="padding: 5px 0 5px 0;">
+                        <textarea id="txtContent" name="txtContent" class="form-control" placeholder="说点什么吧..." rows="10">@ViewBag.title</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtSupplyment">补充问题(选填)：</label>
+                    <textarea id="txtSupplyment" name="txtSupplyment" data-type="normal" style="height:200px;width:100%;"></textarea>
+                    @MvcHtmlString.Create(Call.GetUEditor("txtSupplyment", 4))
+                </div>
+                <div class="form-group">
+                    @if (mu.IsNull)
+                    {
+                        if (needLogin)
+                        { <div id="needlog_div" class="alert alert-danger" role="alert">提示:当前系统不支持游客身份提问,请<a href="/User/Login?ReturnUrl=/Ask/Add">登录</a></div> }
+                        else
+                        {  <div class="alert alert-warning" role="alert">提示：当前系统支持游客身份提问，我们建议您以会员登陆提问获得更优体验。</div>}
+                    }
+                    else
+                    {
+                        @*<div id="vode_div">
+                            <input type="text" id="VCode" name="VCode" placeholder="验证码" maxlength="6" class="form-control text_x" />
+                            <img id="VCode_img" class="codeimg" title="点击刷新验证码" />
+                            <input type="hidden" id="VCode_hid" name="VCode_hid" />
+                        </div>*@
+                    }
+                </div>
+                <div class="text-center">
+                    <input type="submit" value="提交问题" class="btn bg-info text-white" />
+                </div>
+            </div>
+        </div>
+    </form>
+    <input type="hidden" id="hfid" name="hfid" />
+    <div class="ask_bottom">
+        <p class="text-center"><a target="_blank" title="如何提问" href="http://help.z01.com/?index/help.html#如何提问">如何提问</a> <a target="_blank" title="如何回答" href="http://help.z01.com/?index/help.html#如何回答">如何回答</a> <a target="_blank" title="如何获得积分" href="http://help.z01.com/?index/help.html#如何获得积分">如何获得积分</a> <a target="_blank" title="如何处理问题" href="http://help.z01.com/?index/help.html#如何处理问题">如何处理问题</a></p>
+        <p class="text-center">@MvcHtmlString.Create(Call.GetLabel("{$Copyright/}"))</p>
+    </div>
+}
+@section script{
+    <script src="/JS/ZL_ValidateCode.js"></script>
+    <script>
+        $(function () {
+            $("#top_nav_ul li[title='在线提问']").addClass("active");
+            $("#VCode").ValidateCode();
+            getgrade($("#ddlCate").val());
+            $("#ddlCate").change(function () {
+                getgrade($(this).val());
+            });
+        });
+        function getgrade(value) {
+            $.post('/Ask/GetGrade', { action: 'getgrade', value: value }, function (data) {
+                InitSubGrade(JSON.parse(data));
+            })
+        }
+        function removeFix() {
+            if (confirm("你确定要删除求助对象？")) {
+                document.getElementById("fix").style.display = "none";
+            }
+        }
+        function CheckData() {
+            var msg = $("#txtContent").val();
+            if (msg.replace(" ", "") == "") { alert("内容不能为空"); return false; }
+        }
+        function InitSubGrade(gradearr) {
+            $("#subgrade").html('');
+            for (var i = 0; i < gradearr.length; i++) {
+                $("#subgrade").append('<option value="' + gradearr[i].GradeID + '">' + gradearr[i].GradeName + '</option>');
+            }
+        }
+    </script>
+}

@@ -1,0 +1,32 @@
+<ion-view view-title="便宜购">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()" ui-sref="tab.dash"></button>
+<div class="title title-center header-item">便宜购</div>
+</ion-header-bar>
+<ion-content style="background:#f5f5f5;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+
+<div class="discount_list">
+<div class="discount_list_t">
+<ul>
+<li><a href="#">推荐</a></li>
+<li><a href="#">销量</a></li>
+<li><a href="#">新品</a></li>
+<li><a href="#">价格</a></li>
+<div class="clearfix"></div>
+</ul>
+</div>
+<div class="media" ng-repeat="item in prolist">
+<a href="#/product/detail/{{item.id}}">
+<div class="media-left media-middle"><img class="media-object" ng-src="/UploadFiles/{{item.thumbnails}}" alt="{{item.proname}}" /></div>
+<div class="media-body">
+<h4 class="media-heading">{{item.proname}}</h4>
+<p class="discount_list_p1">{{item.proinfo}}</p>
+<p class="discount_list_p2"><strong>{{item.linprice | currency:'￥'}}</strong><span>{{item.shiprice | currency:'￥'}}</span></p>
+</div>
+</a>
+</div>
+</div>
+<ion-infinite-scroll ng-if="pullup.canbeload" on-infinite="pullup.load();" distance="1%"></ion-infinite-scroll>
+</ion-content>
+</ion-view>

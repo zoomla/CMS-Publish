@@ -1,0 +1,271 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="msapplication-TileColor" content="#1A0066"/>
+<meta name="msapplication-TileImage" content="/images/win8_symbol_140x140.png"/>
+<title>{SField sid="节点栏目信息数据源" FD="NodeName" page="0"/}_{$SiteTitle/}</title>
+{$MetaKeywords/}
+{$MetaDescription/}
+{ZL:Boot4()/}
+<link href="{$CssDir/}global.css?id={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<script src="/js/scrolltopcontrol.js"></script>
+<script type="text/javascript" src="{$CssDir/}js/server.js"></script>
+<script src="/JS/Controls/B_User.js"></script>
+
+</head> 
+<body>
+<div class="home_main">
+{ZL.Label id="全站头部"/}
+</div>
+<div class="home_show">
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+<ol class="carousel-indicators">
+<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+<li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+<li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+<li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+</ol>
+<div class="carousel-inner">
+<div class="carousel-item active">
+<div class="container">
+<a class="item_c" href="https://www.z01.com/index.shtml" target="_blank"><img src="https://www.z01.com/Template/office/style/images/phone1.jpg" alt="领先的全门户网站构建软件"></a>
+<div class="carousel-caption">
+<h2>领先的全门户网站构建软件</h2>
+<p>专注于商业平台、地方门户、企业推广与政府网站之核...</p>
+<p><a class="btn btn-lg btn-primary" href="https://www.z01.com/index.shtml" role="button">进入官网</a></p>
+</div>
+</div>
+</div>
+<div class="carousel-item">
+<div class="container">
+<a class="item_c" href="https://www.z01.com/m/" target="_blank"><img src="https://www.z01.com/Template/office/style/images/phone2.jpg" alt="App应用与移动门户一体化"></a>
+<div class="carousel-caption">
+<h2>App应用与移动门户一体化</h2>
+<p>微信营销、微博接入、WEB App、全产品线手机客户端-全网覆盖与无处不在的WEB应用体验.</p>
+<p><a class="btn btn-lg btn-primary" href="https://www.z01.com/m/" role="button" target="_blank">了解详情</a></p>
+</div>
+</div>
+</div>
+<div class="carousel-item">
+<div class="container">
+<a class="item_c" href="https://www.z01.com/pub/2090.shtml" target="_blank"><img src="https://www.z01.com/Template/office/style/images/phone3.jpg" alt="智能管理与信息化产品"></a>
+<div class="carousel-caption">
+<h2>智能管理与信息化产品</h2>
+<p>脚比路更长+服务到现场+智慧的思想....</p>
+<p><a class="btn btn-lg btn-primary" href="https://www.z01.com/pub/2090.shtml" role="button" target="_blank">访问体验</a></p>
+</div>
+</div>
+</div>
+<div class="carousel-item">
+<div class="container">
+<a class="item_c" href="https://www.z01.com/pub/2090.shtml" target="_blank"><img src="https://www.z01.com/Template/office/style/images/phone3.jpg" alt="智能管理与信息化产品"></a>
+<div class="carousel-caption">
+<h2>智能管理与信息化产品</h2>
+<p>脚比路更长+服务到现场+智慧的思想....</p>
+<p><a class="btn btn-lg btn-primary" href="https://www.z01.com/pub/2090.shtml" role="button" target="_blank">访问体验</a></p>
+</div>
+</div>
+</div>
+</div>
+<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+<span class="fa fa-chevron-left"></span>
+</a>
+<a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+<span class="carousel-control-next-icon" aria-hidden="true"></span>
+<span class="fa fa-chevron-right"></span>
+</a>
+</div>
+</div>
+<!-- 中部滚动四块到此结束 -->
+
+<main role="main">
+
+<div class="container news_elite">
+<ul>
+{ZL.Label id="资讯频道输出推荐新闻列表" NodeID="{SField sid="节点栏目信息数据源" FD="NodeID" page="0"/}" ShowNum="7" /}
+<div class="clearfix"></div>
+</ul>
+</div>
+
+<div class="container">
+<ul class="home_show_ul">
+<li><a href="{ZL:GetNodeLinkUrl(1)/}" title="资讯中心" target="_blank">资讯中心</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(84)/}" title="资源下载" target="_blank">资源下载</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(85)/}" title="图库中心" target="_blank">图库中心</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(99)/}" title="分类信息" target="_blank">分类信息</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(86)/}" title="在线视频" target="_blank">在线视频</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(3)/}" title="网店频道" target="_blank">网店频道</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(2)/}" title="在线商城" target="_blank">在线商城</a></li>
+<div class="clearfix"></div>
+</ul>
+</div>
+
+<div class="container margin-bot">
+<div class="row p-2">
+<div class="col-lg-8 col-md-8 col-sm-12 col-12 ">
+<div class="row ">
+<div class="col-lg-6 col-md-6 col-sm-12 col-12 px-2" data-label="输出指定节点标题_无时间属性">
+<div class="borders"> 
+<div class="list-group">
+<a href="{ZL:GetProposeinfo(1)/}" class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
+资讯中心<span class="badge badge-light badge-pill ">更多</span></a>
+</div>
+<div class="first_img">
+{ZL.Label id="文章缩略图_带标题简介v4" NodeID="1" TitleNum="22" ShowNum="1" synNum="100" /}
+</div>
+
+<div class="new_li padding10"> 
+<ul class="list-unstyled"> 
+{ZL.Label id="输出指定节点标题_带时间属性" NodeID="1" TitleNum="36" ShowNum="10" /}
+</ul>
+</div>
+</div>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-12 col-12 px-2" data-label="输出指定节点标题_无时间属性">
+<div class="borders">
+<div class="list-group">
+<a href="{ZL:GetNodeLinkUrl(85)/}" class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">图库中心<span class="badge badge badge-light badge-pill ">更多</span></a></div>
+<ul class="first_img">
+{ZL.Label id="图库缩略图_带标题简介V4" NodeID="85" TitleNum="30" ShowNum="1" synNum="100" /}
+</ul>
+<div class="new_li padding10"> 
+<ul class="list-unstyled">
+{ZL.Label id="输出指定节点标题_带时间属性" NodeID="85" TitleNum="36" ShowNum="10" /}
+</ul>
+</div>
+</div>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-12 col-12 px-2" data-label="输出指定节点标题_无时间属性">
+<div class="borders"> 
+<div class="list-group ">
+<a href="{ZL:GetNodeLinkUrl(84)/}" class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
+资源下载<span class="badge badge badge-light badge-pill ">更多</span></a></div>
+<ul class="first_img">
+{ZL.Label id="下载缩略图_带标题简介v4" NodeID="84" TitleNum="30" ShowNum="1" synNum="100" /}
+</ul>
+<div class="new_li"> 
+<ul class="list-unstyled"> 
+{ZL.Label id="输出指定节点标题_带时间属性" NodeID="84" TitleNum="36" ShowNum="10" /}
+</ul>
+</div>
+</div>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-12 col-12 px-2">
+<div class="borders">
+<div class="list-group">
+<a href="{ZL:GetNodeLinkUrl(99)/}" class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
+分类信息<span class="badge badge badge-light badge-pill">更多</span></a></div>
+<ul class="media-list first_img">
+{ZL.Label id="分类信息缩略图_带标题简介v4" NodeID="99" TitleNum="30" ShowNum="1" synNum="100" /}
+</ul>
+<div class="new_li padding10"> 
+<ul class="list-unstyled">
+{ZL.Label id="输出指定节点标题_带时间属性" NodeID="99" TitleNum="36" ShowNum="10" /}
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+<div class="col-lg-4 col-md-4 col-sm-12 col-12 px-2">
+<div class="borders minheight">
+<div class="list-group">
+<a href="{ZL:GetNodeLinkUrl(76)/}" class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">
+动态公告<span class="badge badge badge-light badge-pill">更多</span></a></div>
+<div class="new_li padding10"> 
+<ul class="list-unstyled"> 
+{ZL.Label id="输出指定节点标题_无时间属性" NodeID="76" TitleNum="40" ShowNum="10" /}
+</ul>
+</div>
+</div>
+<div class="borders minheight">
+<div class="list-group">
+<a href="#" class="list-group-item d-flex justify-content-between align-items-center list-group-item-success">排行</a></div>
+<div class="new_li padding10"> 
+<ul class="list-unstyled"> 
+{ZL.Label id="输出指定节点标题_按点击" NodeID="1" TitleNum="30" ShowNum="8" /}
+</ul>
+</div>
+</div>
+<div id="botM_dh">
+<a href="/Admin/Panoramic/PanoramicShow.aspx?id=1" class="border btn btn-light" target="_blank">三维全景</a>
+<a href="/Dai/" target="_blank" class="btn btn-primary">在线试戴</a> 
+<a href="/D3/" target="_blank" class="btn btn-success ">3D商街</a>
+<a href="/Questions/Default.aspx?id=1" target="_blank" class="btn btn-info">智能组卷</a>
+<a href="/Guest" target="_blank" class="btn btn-warning ">在线留言</a>
+<a href="/User/UserZone/Default" target="_blank"  class="btn btn-info">SNS社区</a>
+<a href="/Edit" target="_blank"  class="btn btn-success">在线助写</a>
+<a href="/Prompt/correct.aspx" target="_blank"  class="btn btn-primary">在线纠错</a>
+<a href="/Prompt/EmailSender.aspx" target="_blank"  class="btn btn-danger">邮件订阅</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+{ZL.Label id="全站底部"/}
+</body>
+</html>
+<script>
+//检测固顶事件
+var IO=document.getElementById('home_nav'),Y=IO,H=0,IE6;
+IE6=window.ActiveXObject&&!window.XMLHttpRequest;
+while(Y){H+=Y.offsetTop;Y=Y.offsetParent};
+if(IE6)
+    IO.style.cssText="position:absolute;top:expression(this.fix?(document"+
+        ".documentElement.scrollTop-(this.javascript||"+H+")):0)";
+window.onscroll=function (){
+    var d=document,s=Math.max(d.documentElement.scrollTop,document.body.scrollTop);
+     if(s>H&&IO.fix||s<=H&&!IO.fix)return;
+    if(!IE6)IO.style.position=IO.fix?"":"fixed";        
+    IO.fix=!IO.fix;
+    
+};
+try{document.execCommand("BackgroundImageCache",false,true)}catch(e){};
+//]]>
+$(window).scroll(function(){
+	if($(window).scrollTop()>0){
+		$("#home_nav").addClass("active")
+	}
+	else{
+		$("#home_nav").removeClass("active");
+	}
+});
+$(".shop_top .navbar-nav>li.dropdown").mouseover(function(){
+	$(this).addClass("open");
+}).mouseout(function(){
+	$(this).removeClass("open");
+});
+//会员ajax登录状态需要结合JS/Controls/B_User.js引用同步生效
+var buser = new B_User();
+buser.IsLogged(function(data,flag){
+	if(flag)
+	{
+		data=JSON.parse(data);
+		$(".nav_user>a").html(data.UserName);
+		$(".nav_user .dropdown-menu li:nth-child(1) a").html("会员中心");
+		$(".nav_user .dropdown-menu li:nth-child(2)").remove();
+        $("#iframe_comm").show();
+	}
+});
+function LogoutFun()
+{
+	buser.Logout(function(){location=location;});
+};
+
+/*显示搜索框*/
+function isSearch(){
+    $(".home_search").css("opacity","1").css("z-index","1").css("right","0").css("top","0.5rem");
+    $(".home_top_nav").fadeOut(200);
+    $(".home_search .form-control").focus();
+}
+/*关闭搜索框*/
+function isClose(){
+    $(".home_search").css("opacity","0").css("z-index","-1").css("right","-1em");
+    $(".home_top_nav").fadeIn(1000);
+}
+</script>

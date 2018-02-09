@@ -1,0 +1,42 @@
+﻿@using ZoomLa.BLL;
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+    string id = "txt_" + Model.fieldMod.FieldName;
+    FieldModel model = new FieldModel(Model.fieldMod.Content);
+    string selHtml = "";
+    string def = model.GetValue("DefaultValue");
+    //添加时才可使用默认值
+    if (Model.GeneralID < 1&&string.IsNullOrEmpty(Model.GetValue()))
+    {
+        string value = def.Split('|')[0];
+        //处理预占符
+        if (value.Equals("{nowuser}"))
+        {
+            if (Model.config.Source == ModelConfig.SType.Admin)
+            {
+                value = B_Admin.GetLogin().AdminName;
+            }
+            else
+            {
+                value = new B_User().GetLogin().UserName;
+            }
+        }
+        Model.SetValue(value);
+    }
+    selHtml = model.GetHtml(id, model.TlpReplace(def));
+    string selvideo = "";//选择视频
+    if (model.GetValBool("SelVideo"))
+    {
+        selvideo = "<input type=\"button\" onclick=\"ShowSelVideo('" + id + "');\" class='btn btn-info' value='选择视频' />";
+    }
+    if (model.GetValBool("SelIcon"))
+    {
+        selvideo += "<input type=\"button\" onclick=\"ShowSelIcon('" + id + "');\" class='btn btn-info' value='选择图标' /><span id='sp_" + id + "' style='margin-left:5px;font-size:1.5em;'></span>";
+    }
+}
+<input type="text" id="@id" name="@id" class="form-control @(Model.fieldMod.IsNotNull?"required":"") m715-50" value="@Model.GetValue()" />
+@if (Model.config.Source == ModelConfig.SType.Admin)
+{
+    @MvcHtmlString.Create(selHtml + selvideo)
+}
+

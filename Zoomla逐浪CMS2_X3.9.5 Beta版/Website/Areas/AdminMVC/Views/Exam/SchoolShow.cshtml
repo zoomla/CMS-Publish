@@ -1,0 +1,77 @@
+﻿@model ZoomLa.Model.M_School
+@{
+
+}
+@functions{
+    public string GetSchoolType(int type)
+    {
+        switch (type)
+        {
+            case 1:
+                return "小学";
+            case 2:
+                return "中学";
+            case 3:
+                return "大学";
+            default:
+                return "其它";
+        }
+    }
+    public string GetIcon(string icon)
+    {
+        icon = string.IsNullOrEmpty(icon) ? "/UploadFiles/nopic.gif" : icon;
+        if (icon.Contains("/") || string.IsNullOrEmpty(icon))//判断是否为路径
+        { return "<a href='" + icon + "' target='_bank'><img src='" + icon + "' onerror=\"shownopic(this);\" style='width:30px; height:30px;' /></a>"; }
+        return "<span class='" + icon + "'></span>";
+    }
+}
+@section head{
+    <title>学校预览</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+                <li><a href='@(CustomerPageAction.customPath2)Main.aspx'>工作台</a></li>
+                <li><a href='@(CustomerPageAction.customPath2)User/UserManage.aspx'>会员管理</a></li>
+                <li><a href='SchoolManage'>学校信息</a></li>
+                <li class='active'>学校浏览</li>
+            </ol>
+        </div>
+    </div>
+    <table class="table table-striped table-bordered table-hover">
+        <tr>
+            <td class="td_m text-right">学校名称:</td>
+            <td>@Model.SchoolName</td>
+        </tr>
+        <tr>
+            <td class="text-right">所属省市:</td>
+            <td>@(Model.Province + " " + Model.City + " " + Model.County)</td>
+        </tr>
+        <tr>
+            <td class="text-right">学校类型:</td>
+            <td>@GetSchoolType(Model.SchoolType)</td>
+        </tr>
+        <tr>
+            <td class="text-right">学校性质:</td>
+            <td>@(Model.Visage == 1 ? "公办" : "私立")</td>
+        </tr>
+        <tr>
+            <td class="text-right">学校微标:</td>
+            <td>@MvcHtmlString.Create(GetIcon(Model.Country))</td>
+        </tr>
+        <tr>
+            <td class="text-right">学校信息:</td>
+            <td>
+                @Model.SchoolInfo
+            </td>
+        </tr>
+    </table>
+    <div class="text-center">
+        <a href="AddSchool?id=@Request.QueryString["ID"]" class="btn btn-primary">重新修改</a>
+        <a href="SchoolManage" class="btn btn-primary">返回列表</a>
+    </div>
+}
+@section script{
+
+}

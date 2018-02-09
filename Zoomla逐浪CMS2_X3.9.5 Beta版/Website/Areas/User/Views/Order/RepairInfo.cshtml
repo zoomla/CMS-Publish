@@ -1,0 +1,180 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.Model
+@model ZoomLa.Model.Shop.M_Order_Repair
+@{
+    
+    M_CartPro cartMod = ViewBag.cartMod;
+    M_Product proMod = ViewBag.proMod;
+    string ServiceType = "", CretType = "";
+    switch (Model.ServiceType)
+    {
+        case "drawback": ServiceType = "退货"; break;
+        case "exchange": ServiceType = "换货"; break;
+        case "repair": ServiceType = "维修"; break;
+    }
+    string[] crets = Model.CretType.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+    if (string.IsNullOrEmpty(Model.CretType) || crets.Length == 0) { CretType = "无"; }
+    else
+    {
+        foreach (string cret in crets)
+        {
+            if (DataConverter.CLng(cret) == 1) { CretType += "有发票,"; }
+            if (DataConverter.CLng(cret) == 2) { CretType += "有检测报告,"; }
+        }
+        CretType = CretType.Trim(',');
+    }
+    string takedate = (DateTime.Now.Hour > 19 ? DateTime.Now.AddDays(1) : DateTime.Now).ToString("yyyy-MM-dd  15:00-19:00");
+}
+@section head{
+    <title>售后详情</title>
+}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="shop"></div>
+	<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+		<li class="breadcrumb-item"><a href="/User/MyOrderRepair">返修/退货记录</a></li>
+		<li class="breadcrumb-item active">售后详情</li>
+	</ol>
+	</nav>
+	</div>
+    <div class="container reqrepair">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title">申请服务详情</h3></div>
+            <div class="panel-body">
+                <span class="pull-left" style="margin-right:30px;"><img src="@function.GetImgUrl(proMod.Thumbnails)" onerror="shownopic(this);" id="ProImgSrc" style="height:80px;margin-right:10px;" /> @cartMod.Proname （x@(Model.ProNum)）</span>
+                <div>
+                    <p>订单号：@Model.OrderNO</p>
+                    <p>单价：￥@cartMod.Shijia</p>
+                    <p>购买时间：@cartMod.Addtime.ToString("yyyy-MM-dd")</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title">售后信息</h3></div>
+            <div class="panel-body">
+                <div class="step_div">
+                    <ol class="step ui-step ui-step-5">
+                        <li class="step-start step-done">
+                            <div class="ui-step-line"></div>
+                            <div class="ui-step-cont">
+                                <span class="ui-step-cont-number">1</span>
+                                <span class="ui-step-cont-text">提交申请</span>
+                            </div>
+                        </li>
+                        <li class="step-active">
+                            <div class="ui-step-line"></div>
+                            <div class="ui-step-cont">
+                                <span class="ui-step-cont-number">2</span>
+                                <span class="ui-step-cont-text">管理员审核</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="ui-step-line"></div>
+                            <div class="ui-step-cont">
+                                <span class="ui-step-cont-number">3</span>
+                                <span class="ui-step-cont-text">商家收货</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="ui-step-line"></div>
+                            <div class="ui-step-cont">
+                                <span class="ui-step-cont-number">4</span>
+                                <span class="ui-step-cont-text">退款</span>
+                            </div>
+                        </li>
+                        <li class="step-end">
+                            <div class="ui-step-line"></div>
+                            <div class="ui-step-cont">
+                                <span class="ui-step-cont-number">5</span>
+                                <span class="ui-step-cont-text">完成</span>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+                <div class="info_div">
+                    <div class="title"><strong>处理环节</strong>&nbsp;&nbsp;<i class="fa fa-circle"></i></div>
+                    <div class="left_line"></div>
+                    <div class="content">
+                        <strong>处理信息：</strong>
+                        <p>您的售后申请已提交，请等待后台管理员审核</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title">服务单信息</h3></div>
+            <div class="panel-body">
+                <table id="infotab">
+                    <tr>
+                        <td width="130px;">退款方式</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>商品处理方式</td>
+                        <td>客户申请 <strong>"@ServiceType"</strong></td>
+                    </tr>
+                    <tr>
+                        <td>申请凭据</td>
+                        <td>@CretType</td>
+                    </tr>
+                    <tr>
+                        <td>问题描述</td>
+                        <td>@Model.Deailt</td>
+                    </tr>
+                    <tr>
+                        <td>收货地址</td>
+                        <td>@(Model.ReProCounty + " " + Model.ReProAddress)</td>
+                    </tr>
+                    <tr>
+                        <td>取件地址</td>
+                        <td>@(Model.TakeProCounty + " " + Model.TakeProAddress)</td>
+                    </tr>
+                    <tr>
+                        <td>联系信息</td>
+                        <td>联系人：@Model.UserName &nbsp;&nbsp; 手机：@Model.Phone</td>
+                    </tr>
+                    <tr>
+                        <td>预约取件时间</td>
+                        <td>@takedate</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+@section script{
+<style>
+    #infotab { margin-left: 30px;font-size:13px; }
+    #infotab tr { height: 26px; }
+    .info_div{margin-top:50px;padding-left:15%;border-top:1px dashed #e0e0e0;}
+    .info_div .title { color:#3c3; }
+    .info_div .left_line{float:left; margin-left:84px; width:2px;height:100px;background-color:#85e085;}
+    .info_div .content { float:left; line-height: 30px; margin-left: 20px; }
+    /*进度条*/
+    ol.step { list-style: none outside none; }
+    .ui-step { color: #b7b7b7; padding: 0 60px; margin-bottom: 35px; position: relative; }
+    .ui-step:after { display: block; content: ""; height: 0; font-size: 0; clear: both; overflow: hidden; visibility: hidden; }
+    .ui-step li { float: left; position: relative; }
+    .ui-step .step-end { width: 120px; position: absolute; top: 0; right: -60px; }
+    .ui-step-line { height: 5px; background-color: #e0e0e0; box-shadow: inset 0 1px 1px rgba(0,0,0,.2); margin-top: 15px; }
+    .step-end .ui-step-line { display: none; }
+    .ui-step-cont { width: 120px; position: absolute; top: 0; left: -15px; text-align: center; }
+    .ui-step-cont-number { display: inline-block; *zoom: 1; position: absolute; left: 0; top: 0; width: 30px; height: 30px; line-height: 25px; color: #fff;  border-radius: 50%; border-left: 2px solid #fff; border-right: 2px solid #fff; border: 2px solid rgba(224,224,224,1); font-family: tahoma; font-weight: bold; font-size: 16px; background-color: #b9b9b9; box-shadow: inset 1px 1px 2px rgba(0,0,0,.2); }
+    .ui-step-cont-text { position: relative; top: 34px; left: -42px; font-size: 12px; }
+    /** 步骤数定义 **/
+    .ui-step-3 li { width: 50%; }
+    .ui-step-4 li { width: 33.3%; }
+    .ui-step-5 li { width: 25%; }
+    .ui-step-6 li { width: 20%; }
+    /* Done */
+    .step-done .ui-step-cont-number { background-color: #85e085; }
+    .step-done .ui-step-cont-text { color: #85e085; }
+    .step-done .ui-step-line { background-color: #6c6; }
+    /* Active */
+    .step-active .ui-step-cont-number { background-color: #3c3; }
+    .step-active .ui-step-cont-text { color: #3c3; font-weight: bold; }
+    .step-active .ui-step-line { background-color: #e0e0e0; }
+</style>
+}

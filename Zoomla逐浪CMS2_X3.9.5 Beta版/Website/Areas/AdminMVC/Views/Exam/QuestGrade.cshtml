@@ -1,0 +1,54 @@
+﻿@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    int CateID = DataConverter.CLng(Request.QueryString["cate"]);
+}
+@section head{
+    <title>@(ViewBag.cateName)管理</title>
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li><a href='Papers_System_Manage'>教育模块</a></li>
+            <li>@(ViewBag.cateName)管理 [<a href='javascript:;' onclick="ShowGrade()">添加@(ViewBag.cateName)</a>]</li>
+        </ol>
+    </div>
+</div>
+@Html.Partial("QuestGrade_List")
+<div id="EditGrade_div" style="display:none;">
+    <form method="post" action="@MVCHelper.GetAction("QuestGrade_Add",Request)">
+        <div class="text-center">
+            <div class="input-group" style="width:350px;margin:20px auto;">
+                <input type="text" id="GradeName_T" name="GradeName_T" class="form-control text_300 GradeName_T" />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">确定</button>
+                </span>
+            </div>
+            <input type="hidden" id="GradeID_Hid" name="GradeID_Hid" />
+        </div>
+    </form>
+</div>
+}
+@section script{
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script>
+        $(function () {
+            $("#chkAll").click(function () {
+                var curobj = $(this)[0];
+                $("input[name='idchk']").each(function () {
+                    $(this)[0].checked = curobj.checked;
+                });
+            });
+        })
+        function ShowGrade(id, name) {
+            comdiag.width = "none";
+            comdiag.content = "EditGrade_div";
+            var title = id ? "修改@(ViewBag.cateName)" : "添加@(ViewBag.cateName)";
+            ShowComDiag("", title);
+            $(".GradeName_T").val(name ? name : "");
+            $("#GradeID_Hid").val(id ? id : "");
+        }
+</script>
+}

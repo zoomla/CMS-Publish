@@ -1,0 +1,24 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="/dist/css/bootstrap4.min.css" rel="stylesheet"/>
+<link href="/dist/css/font-awesome.min.css" rel="stylesheet"/>
+<link href="/App_Themes/V4.css" rel="stylesheet"/>
+<script src="/JS/jquery.min.js" ></script>
+<script src="/dist/js/popper.min.js"></script>
+<script src="/dist/js/bootstrap4.min.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/ICMS/ZL_Common.js?v=@(ZoomLa.BLL.BLLCommon.Version_JS)"></script>
+<script src="/JS/mvcpage.js?v=@(ZoomLa.BLL.BLLCommon.Version_JS)"></script>
+@RenderSection("head")
+</head>
+<body>
+@RenderSection("content")
+@RenderSection("script")
+</body>
+</html>
+

@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>325</LabelID>
+    <LabelName>sadfsadfsdaf内容解析_自动获得所有字段内容值</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>文章中心</LabelCate>
+    <LabelDesc />
+    <LabelParam>Gid,,2,Gid变量</LabelParam>
+    <LabelTable>ZL_ModelField</LabelTable>
+    <LabelField>FieldAlias,FieldName,ModelID</LabelField>
+    <LabelWhere>ZL_ModelField.ModelId=(SELECT ModelID FROM ZL_CommonModel WHERE GeneralID=@Gid) AND FieldName NOT IN ('NodeID','SpecialID','InfoID','Titlecolor','GeneralID','EliteLevel' ,'HtmlLink' ,'IsCreate','Status' ,'UpDateType' ,'PdfLink' ,'tablename' ,'ItemID' ,'Template' ,'FirstNodeID' ,'TitleStyle')</LabelWhere>
+    <LabelOrder>OrderID ASC</LabelOrder>
+    <LabelContent>{Repeate}&lt;a href="#" class="list-group-item"&gt;&lt;h4 class="list-group-item-heading"&gt;{Field="FieldAlias"/}&lt;/h4&gt;&lt;p class="list-group-item-text"&gt;{ZL.Label id="sadfsadfsdaf内容解析_根据变量输出单字段内容" TitleName="{Field="FieldName"/}" /}&lt;/p&gt;&lt;/a&gt;{/Repeate}</LabelContent>
+    <LabelCount>100</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo />
+    <addroot />
+    <setroot />
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_ModelField","tb_s":""}</DataSourceType>
+    <ConnectString />
+  </Table>
+</NewDataSet>

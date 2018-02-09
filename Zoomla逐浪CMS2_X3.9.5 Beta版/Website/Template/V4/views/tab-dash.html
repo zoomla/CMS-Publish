@@ -1,0 +1,106 @@
+<ion-view view-title="逐浪CMS">
+<ion-header-bar class="bar-calm bar bar-header home_top" align-title="center">
+<div class="buttons buttons-left header-item">
+<span class="left-buttons">
+<a href="#/tab/selcity" ng-bind-html="city"></a>
+</span>
+</div>
+<div class="title title-center header-item">
+<div class="home_top_f">
+<input type="search" class="form-control" placeholder="输入商品关键字" id="keyword" />
+<button type="button" class="btn btn-default" ng-click="searchSelect();"><i class="icon ion-ios-search placeholder-icon"></i></button>
+</div>
+</div>
+<div class="buttons buttons-right header-item">
+<span class="right-buttons">
+<a href="#/product/cart"><i class="ion ion-ios-cart"></i></a>
+<a href="#/product/cart"><i class="ion ion-android-contacts"></i></a>
+</span>
+</div>
+</ion-header-bar>
+<ion-content>
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新商品" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+
+<ion-slide-box>
+<ion-slide>
+<div class="box">
+<a href="#"><img class="full-image" src="/Template/v4/style/images/home_banner_ionic.jpg" alt="" /></a>
+</div>
+</ion-slide>
+<ion-slide>
+<div class="box yellow">
+<a href="#"><img class="full-image" src="/Template/v4/style/images/home_banner_ionic.jpg" alt="" /></a>
+</div>
+</ion-slide>
+<ion-slide>
+<div class="box yellow">
+<a href="#"><img class="full-image" src="/Template/v4/style/images/home_banner_ionic.jpg" alt="" /></a>
+</div>
+</ion-slide>
+<ion-slide>
+<div class="box">
+<a href="#"><img class="full-image" src="/Template/v4/style/images/home_banner_ionic.jpg" alt="" /></a>
+</div>
+</ion-slide>
+</ion-slide-box>
+<ion-slide-box class="home_class">
+<ion-slide>
+<div class="box home_class_b1">
+<ul>
+<li><a href="#/shop/list/1"><span></span>临化连锁</a></li>
+<li><a href="#/shop/list/2"><span></span>有机农庄</a></li>
+<li><a href="#/news/index/206"><span></span>结婚</a></li>
+<li><a href="#/news/courier/187"><span></span>快递员</a></li>
+<li><a href="#/news/restaurants/186"><span></span>特色餐馆</a></li>
+<li><a href="#/product/list/202"><span></span>精品服装</a></li>
+<li><a href="#/news/index/208"><span></span>房产</a></li>
+<li><a href="#/pay/list"><span></span>生活缴费</a></li>
+<li><a href="#/news/index/189"><span></span>妈妈帮</a></li>
+<li><a href="#/news/index/190"><span></span>车队友</a></li>
+<li><a href="#/im/chat/1"><span></span>IM测试</a></li>
+<li><a href="#/im/chat/19"><span></span>IM测试</a></li>
+</ul>
+</div>
+</ion-slide>
+<ion-slide>
+<div class="box home_class_b2">
+<ul>
+<li><a href="#/news/videolist/191"><span></span>多学一点</a></li>
+<li><a href="#/news/index/192"><span></span>同城小贷</a></li>
+<li><a href="#/news/index/193"><span></span>广告通</a></li>
+<li><a href="#/news/index/194"><span></span>车快洗</a></li>
+<li><a href="#/news/index/195"><span></span>快洗衣</a></li>
+<li><a href="#/news/index/196"><span></span>发小</a></li>
+<li><a href="#/news/index/197"><span></span>装修家</a></li>
+<li><a href="#/news/index/198"><span></span>求职招聘</a></li>
+<li><a href="#/news/index/199"><span></span>好楼盘</a></li>
+<li><a href="#/news/index/200"><span></span>租房</a></li>
+</ul>
+</div>
+</ion-slide>
+</ion-slide-box>
+
+<div class="home_news">
+<div class="home_news_l" ng-bind-html="city"></div>
+<a href="javascript:;" ng-click="openPay()"><i class="fa fa-star"></i></a>
+<span id="result_div" style="color:red;display:none;">尚无结果</span>
+<span class="pull-right"><a href="#/product/cart"><i class="ion ion-ios-cart"></i></a></span>
+</div>
+
+<div class="home_pro">
+<div class="home_pro_t"><span><i class="fa fa-heart"></i> 猜你喜欢</span></div>
+<div class="home_pro_c" ng-repeat="item in prolist">
+<a ng-href="#product/detail/{{item.id}}">
+<div class="item item-thumbnail-left">
+<img ng-src="/UploadFiles/{{item.thumbnails}}" alt="{{item.proname}}" />
+<h2 class="positive">{{item.proname}}</h2>
+<p>{{item.proinfo}}</p>
+<div class="home_pro_cp"><strong>{{item.linprice | currency:'￥'}}</strong><span>{{item.shiprice | currency:'￥'}}</span><b>{{item.storename}}</b></div>
+</div>
+</a>
+</div>
+</div>
+
+<ion-infinite-scroll ng-if="pullup.canbeload" on-infinite="pullup.load();" distance="1%"></ion-infinite-scroll>
+</ion-content>
+</ion-view>

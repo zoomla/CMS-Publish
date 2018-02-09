@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>306</LabelID>
+    <LabelName>店铺节点列表</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>列表专用</LabelCate>
+    <LabelDesc />
+    <LabelParam>ParentID,0,1,父节点ID|ClassName,,1,自定类名|UserShopID,0,1,店铺ID</LabelParam>
+    <LabelTable>ZL_Node</LabelTable>
+    <LabelField>NodeID,NodeName</LabelField>
+    <LabelWhere>ParentID=@ParentID</LabelWhere>
+    <LabelOrder>ZL_Node.OrderID ASC</LabelOrder>
+    <LabelContent>{Repeate}&lt;li class="@ClassName list-group-item"&gt;&lt;a href="/Store/StoreList?NodeID={Field="NodeID"/}&amp;ID=@UserShopID" target="{ZL:GetNodeOpen({Field="NodeID"/})/}"&gt;{Field="NodeName"/}&lt;/a&gt;&lt;/li&gt;
+{/Repeate}</LabelContent>
+    <LabelCount />
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue>0</Modelvalue>
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Node","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam>{"PureT1":"ZL_Node","PureT2":"","T1":"ZoomlaCMS.dbo.ZL_Node","T2":"","JoinType":"left join","OnField1":"AddMoney","OnField2":""}</ProceParam>
+  </Table>
+</NewDataSet>

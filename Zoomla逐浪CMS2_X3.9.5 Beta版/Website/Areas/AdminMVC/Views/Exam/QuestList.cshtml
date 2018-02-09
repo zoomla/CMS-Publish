@@ -1,0 +1,57 @@
+﻿@{
+    SelectList list = ViewBag.gradelist as SelectList;
+}
+@section head{
+    <title>试题管理</title>
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top">
+            <li><a href="Papers_System_Manage.aspx">教育模块</a></li>
+            <li><a href="Papers_System_Manage.aspx">试卷管理</a></li>
+            <li>
+                <a href="@Request.RawUrl">@ViewBag.nodename</a>
+                @if (ViewBag.nodeid > 0)
+                {
+                    <span id="add_sp"><a href='AddEnglishQuestion?NodeID=@ViewBag.nodeid&Grade=@ViewBag.grade'>[添加试题]</a></span>
+                }
+            </li>
+            <div id="sel_box">
+                <div class="input-group" style="width:373px;">
+                    @Html.DropDownList("grade", list, new { @class= "form-control mvcparam", @style="width:120px" })
+                    <input type="text" id="keyWord" class="form-control text_md mvcparam" placeholder="请输入关键词" onkeypress="selbox.search();" />
+                    <span class="input-group-btn">
+                        <input type="button" class="btn btn-default" value="搜索" onclick="mvcpage.load();" />
+                    </span>
+                </div>
+            </div>
+            <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="fa fa-search"></i></a></div>
+        </ol>
+    </div>
+</div>
+<div>
+    <ul class="nav nav-tabs margin_t5">
+        <li id="tab_99"><a href="javascript:;" onclick="ShowTabs(99)">所有试题</a></li>
+        <li id="tab_0"><a href="javascript:;" onclick="ShowTabs(0)">单选题</a></li>
+        <li id="tab_1"><a href="javascript:;" onclick="ShowTabs(1)">多选题</a></li>
+        <li id="tab_2"><a href="javascript:;" onclick="ShowTabs(2)">填空题</a></li>
+        <li id="tab_4"><a href="javascript:;" onclick="ShowTabs(4)">完型填空题</a></li>
+        <li id="tab_3"><a href="javascript:;" onclick="ShowTabs(3)">解析题</a></li>
+        <li id="tab_10"><a href="javascript:;" onclick="ShowTabs(10)">大题</a></li>
+    </ul>
+    @Html.Partial("QuestList_List")
+</div>
+<button id="del_btn" class="btn btn-primary" onclick="mvcpage.bat({ url: 'Question_Del', confirm: '确定删除选中项吗？' });">批量删除</button>
+}
+@section script{
+<script>
+    $(function () {
+        $("#tab_@ViewBag.qtype").addClass('active');
+    })
+    function ShowTabs(qtype) {
+        var url = "QuestList?qtype=" + qtype + "&NodeID=@ViewBag.nodeid&Grade=@ViewBag.grade";
+        location = url;
+    }
+</script>
+}

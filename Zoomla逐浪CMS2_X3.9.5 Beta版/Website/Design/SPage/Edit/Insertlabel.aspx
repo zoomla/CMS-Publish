@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Insertlabel.aspx.cs" Inherits="ZoomLaCMS.Design.SPage.Edit.Insertlabel" %>

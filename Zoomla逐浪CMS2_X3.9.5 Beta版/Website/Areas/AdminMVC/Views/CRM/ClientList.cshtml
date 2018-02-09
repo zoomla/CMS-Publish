@@ -1,0 +1,28 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{
+    <title>客户列表</title>
+}
+@section content{
+<ol id="navWrap" class="breadcrumb navbar-fixed-top">
+    <li><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+    <li>
+        <a href="@MvcHtmlString.Create(Request.RawUrl)">客户管理</a>
+        <a href="ClientAdd">[添加客户]</a>
+        <a href="javascript:;" onclick="ShowComDiag('ClientImport','导入客户');">[导入客户]</a>
+    </li>
+    <div id="help" class="pull-right"><a onclick="help_show('47')" title="帮助"><i class="fa fa-question-circle"></i></a></div>
+</ol>
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#tab0" data-toggle="tab" onclick="ShowTabs(this,0)">全部客户</a></li>
+</ul>  
+    @Html.Partial("ClientList_List", Model)
+<div>
+    <input type="button" value="批量删除" class="btn btn-info" onclick="mvcpage.bat({url: 'client_del', confirm: '确定要批量移除吗' });" />
+    <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID();" class="btn btn-info" />
+</div>
+<input type="hidden" id="ctype" value="@Request["ctype"]"/>
+    }
+@section script{
+<script src="/JS/Label/ZLHelper.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+    }

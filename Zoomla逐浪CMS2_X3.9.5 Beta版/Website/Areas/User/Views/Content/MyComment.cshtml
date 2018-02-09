@@ -1,0 +1,31 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting 
+@{
+    
+}
+@section head{<title>我的评论</title>
+<script src="/JS/Controls/Emotion.js"></script>
+}
+@section content{
+<div id="pageflag" data-nav="content" data-ban="cnt"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item active">我的评论 </li>
+</ol>
+</nav>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(1).addClass("active");
+</script>
+<div class="container">
+    @Html.Partial("MyComment_List", Model)
+    <input type="button" value="批量删除" onclick="mvcpage.bat({ 'url': 'comment_del', confirm: '确定要移除吗', after: 'reload' });" />
+</div>
+@*<button id="bat_del" class="btn btn-primary" onclick="Bat_Del_Click" >批量删除</button>*@ 
+   
+}
+@section script{
+
+}

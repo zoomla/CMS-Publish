@@ -1,0 +1,63 @@
+﻿@model ZoomLa.Model.M_ExamPoint
+@{
+    string title = Model.ID > 0 ? "修改考点" : "添加考点";
+}
+@section head{
+    <title>@title</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb navbar-fixed-top">
+                <li><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+                <li><a href='Papers_System_Manage'>教育模块</a></li>
+                <li><a href='QuestionList'>考试管理</a></li>
+                <li>@title</li>
+            </ol>
+        </div>
+    </div>
+    <form method="post" action="@MVCHelper.GetAction("ExamPoint_Add",Request)">
+        <table class="table table-striped table-bordered table-hover">
+            <tbody>
+                <tr align="center">
+                    <td class="spacingtitle" colspan="2">@title</td>
+                </tr>
+                <tr>
+                    <td class="tdbhleft" width="10%" align="right">考点名称</td>
+                    <td class="bqright">
+                        @Html.TextBoxFor(m => m.TestPoint, new { @class = "form-control text_300" })
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdbgleft" align="right">排序：</td>
+                    <td class="bqright">
+                        @Html.TextBoxFor(m => m.OrderBy, new { @class = "form-control text_md" })
+                    </td>
+                </tr>
+            </tbody>
+            <tr class="tdbgbottom">
+                <td colspan="2">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <a href="ExamPointManage" class="btn btn-primary">返回列表</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+}
+@section script{
+    <script type="text/javascript" src="/JS/Dialog.js"></script>
+    <script type="text/javascript">
+            $(function () {
+                validate.zl_init($("form"), {
+                    rules: {
+                        TestPoint: { required: true },
+                        OrderBy: { digits: true }
+                    },
+                    messages: {
+                        TestPoint: { required: "考点名称不能为空" },
+                        OrderBy: { digits: "排序只能为整数" }
+                    },
+                }, { placement: 'right', style: 'green' });
+            });
+    </script>
+}

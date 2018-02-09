@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <ZLFont>
+    <name>繁体创意书法</name>
+    <css>ZoomlaXingtiJ</css>
+  </ZLFont>
+  <ZLFont>
+    <name>简体创意书法</name>
+    <css>ZoomlaXingtiJ2</css>
+  </ZLFont>
+  <ZLFont>
+    <name>书法楷体</name>
+    <css>ZoomlaXingtiJ3</css>
+  </ZLFont>
+  <ZLFont>
+    <name>流行草书</name>
+    <css>ZoomlaXingtiJ4</css>
+  </ZLFont>
+  <ZLFont>
+    <name>米芾草书</name>
+    <css>ZoomlaXingtiJ5</css>
+  </ZLFont>
+  <ZLFont>
+    <name>毛泽东伟人体</name>
+    <css>ZoomlaXingtiJ6</css>
+  </ZLFont>
+  <ZLFont>
+    <name>逐浪经典粗黑</name>
+    <css>zFont1</css>
+  </ZLFont>
+  <ZLFont>
+    <name>逐浪时尚钢笔</name>
+    <css>zFont2</css>
+  </ZLFont>
+  <ZLFont>
+    <name>逐浪新宋超细</name>
+    <css>ZoomlaXSongExtraLight</css>
+  </ZLFont>
+</NewDataSet>

@@ -1,0 +1,53 @@
+﻿@using ZoomLa.BLL.Client
+@using ZoomLa.Model.Client
+@using ZoomLa.Common
+@using System.Data
+@model ZoomLa.Model.Client.M_CRMS_Contact
+@functions{
+    int Cid { get { return DataConverter.CLng(Request.QueryString["Cid"]); } }
+}
+@{
+    DataTable clientDT = ViewBag.clientDT;
+    B_CRMS_Client clientBll = new B_CRMS_Client();
+    M_CRMS_Client clientMod = null;
+    if (Model.ID > 0)
+    {
+        clientMod = clientBll.SelReturnModel(Model.ClientID);
+    }
+    else
+    {
+        clientMod = clientBll.SelReturnModel(Cid);
+    }
+    if (clientMod == null) { clientMod = new M_CRMS_Client(); }
+}
+@section head{<title>联系人</title>}
+    @section content{
+<form method="post" action="@MVCHelper.GetAction("Contact_Add",Request)">
+    <table class="table table-bordered table-striped">
+        <tr><td class="td_m">所属</td><td>
+            @Html.DropDownListFor(m=>Model.ClientID, @MVCHelper.ToSelectList(clientDT, "ClientName", "ID", clientMod.ID.ToString()),new {@class="form-control text_300" })
+            </td></tr>
+        <tr><td class="td_m">姓名</td><td>@Html.TextBoxFor(m => Model.Name, new { @class = "form-control text_300 required" })</td></tr>
+        <tr><td>部门</td><td>@Html.TextBoxFor(m => Model.DepName, new { @class = "form-control text_300" })</td></tr>
+        <tr><td>职务</td><td>@Html.TextBoxFor(m => Model.Post, new { @class = "form-control text_300" })</td></tr>
+        <tr><td>电话</td><td>@Html.TextBoxFor(m => Model.Mobile, new { @class = "form-control text_300 mobile" })</td></tr>
+        <tr><td>邮件</td><td>@Html.TextBoxFor(m => Model.Email, new { @class = "form-control text_300 email" })</td></tr>
+        <tr><td>地址</td><td>@Html.TextBoxFor(m => Model.Address, new { @class = "form-control text_300" })</td></tr>
+        <tr><td>备注</td><td>@Html.TextBoxFor(m => Model.Remind, new { @class = "form-control text_300" })</td></tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" value="保存信息" class="btn btn-info" />
+            </td>
+        </tr>
+    </table>
+</form>
+    }
+@section script{
+<style type="text/css">
+    #navHolder { display: none; }
+</style>
+<script>
+    $("form").validate();
+</script>
+}

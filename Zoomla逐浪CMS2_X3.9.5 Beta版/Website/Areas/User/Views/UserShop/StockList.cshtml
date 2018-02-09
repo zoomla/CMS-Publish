@@ -1,0 +1,68 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Controls
+@{
+    B_Node nodeBll = new B_Node();
+    C_TreeView treeMod = new C_TreeView()
+    {
+        NodeID = "NodeID",
+        NodeName = "NodeName",
+        NodePid = "ParentID",
+        DataSource = nodeBll.GetAllShopNode(),
+        liAllTlp = "<a href='StockList'>全部商品</a>",
+        LiContentTlp = "<a href='StockList?NodeID=@NodeID'>@NodeName</a>",
+        SelectedNode = DataConverter.CLng(Request["NodeID"]).ToString()
+    };
+}
+@section head{
+  <title>库存管理</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div> 
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+        <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+        <li class="breadcrumb-item"><a href="ProductList">我的店铺</a></li>
+        <li class="breadcrumb-item">库存管理</li>
+    </ol>
+</nav>	
+@Html.Partial("UserShopTop")
+</div>
+<main class="container">
+<div class="row">
+    <div>
+        <div class="input-group">
+            <select class="form-control mvcparam" id="StockType">
+                <option value="-100">全部</option>
+                <option value="0">入库</option>
+                <option value="1">出库</option>
+            </select>
+            <input type="text" class="form-control text_md mvcparam" id="proid" placeholder="商品ID"/>
+            <input type="text" class="form-control text_md mvcparam" id="proname" placeholder="商品名"/>
+            <input type="text" class="form-control text_md mvcparam" id="adduser" placeholder="录入者"/>
+            <input type="text" class="form-control text_md mvcparam" id="sdate" placeholder="起始时间" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'edate\')}' });"/>
+            <input type="text" class="form-control text_md mvcparam" id="edate" placeholder="结束时间"onclick="WdatePicker({ minDate: '#F{$dp.$D(\'sdate\')}' });"/>
+            <input type="hidden" class="mvcparam" id="nodeid" value="@DataConverter.CLng(Request["NodeID"])"/>
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary" onclick="mvcpage.load();"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </div>
+    <div class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-2">
+        @Html.Partial("_treeview",treeMod)
+    </div>
+    <div class="col-12 col-sm-8 col-md-9 col-lg-9 col-xl-10">
+        @Html.Partial("StockList_List", Model)
+    </div>
+	</div>
+</main>
+<script>
+	//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}
+@section script{
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+}

@@ -1,0 +1,114 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="节点栏目信息数据源" FD="NodeName" page="0"/}_{$SiteName/}</title>
+<meta name="Keywords" content="{SField sid="节点栏目信息数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="节点栏目信息数据源" FD="Meta_Description" page="0"/}" />
+{ZL:Boot4()/}
+<link href="{$CssDir/}qiye.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<script src="/js/scrolltopcontrol.js" type="text/javascript"></script>
+</head> 
+<body>
+<nav class="navbar navbar-expand-lg navbar-light" id="home_nav">
+<div class="container relative">
+<a class="navbar-brand mr-2" href="/"><img src="{$LogoUrl/}" alt="{$SiteName/}" id="logos" onerror="javascript:this.src='{$LogoUrl/}'" /></a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNavDropdown">
+<ul class="navbar-nav">
+<li class="nav-item active"><a class="nav-link" href="/">首页</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(210)/}">行业资讯</a></li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">关于我们</a>
+<div class="dropdown-menu">
+<a class="dropdown-item" href="{ZL:GetInfoUrl(111)/}">集团介绍</a>
+<a class="dropdown-item" href="{ZL:GetInfoUrl(110)/}">董事长致辞</a>
+<a class="dropdown-item" href="{ZL:GetNodeLinkUrl(218)/}">大事件</a>
+</div>
+</li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(219)/}">咨询业务</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(220)/}">精英团队</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(221)/}">最新动态</a></li>
+<li class="nav-item" id="nav_g"><a class="nav-link" href="{ZL:GetInfoUrl(109)/}">联系我们</a></li>
+</ul>
+</div>
+</div>
+</nav>
+<!--导航结束-->
+
+<div class="cont_banner cont_banner{SField sid="节点栏目信息数据源" FD="ParentID" page="0"/}"></div>
+
+<div class="container">
+<div class="row">
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+<div class="list_main_l">
+<h3>{ZL.Label id="输出指定ID节点名" NodeID="{SField sid="节点栏目信息数据源" FD="ParentID" page="0"/}" /}</h3>
+<ul>
+{ZL.Label id="节点列表" ParentID="{SField sid="节点栏目信息数据源" FD="ParentID" page="0"/}" /}
+</ul>
+</div>
+</div>
+
+<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+<nav aria-label="breadcrumb" role="navigation" style="font-size:0.9rem;">
+<ol class="breadcrumb">
+<li><a href="/">首页</a></li>
+{ZL.Label id="输出多级节点导航_V4" NodeID="{SField sid="节点栏目信息数据源" FD="NodeID" page="0"/}" ShowNum="30" /}
+<li class="breadcrumb-item active">正文</li>
+</ol>
+</nav>
+
+<div class="n_lis">
+{ZL.Label id="输出指定节点标题列表_带时间属性_响应式分页v4" NodeID="{SField sid="节点栏目信息数据源" FD="NodeID" page="0"/}" TitleNum="120" ShowNum="20" /}
+</div>
+
+</div>
+</div>
+</div>
+
+
+<div class="home_contact">
+<div class="container">
+<div class="row">
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+<h3>联系</h3>
+<p>Contact</p>
+</div>
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+<h3>关注</h3>
+<p><a href="#"><i class="fa fa-weibo"></i></a><a href="#"><i class="fa fa-qq"></i></a><a href="#"><i class="fa fa-weixin"></i></a></p>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<h3>江西逐浪软件科技有限公司</h3>
+<div class="row">
+<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<p>
+南昌市江大南路55号华成家园A7F<br/>
+电话：0791-86161900<br/>
+传真：0791-86161900-8009
+</p>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+<p>
+邮编：330099<br/>
+手机：131-77777-7714<br/>
+邮箱：web@z01.com
+</p>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+<!--home_contact end-->
+
+<div class="home_copy">
+<div class="container">
+<p>{$Copyright/}</p>
+</div>
+</div>
+</body>
+</html>

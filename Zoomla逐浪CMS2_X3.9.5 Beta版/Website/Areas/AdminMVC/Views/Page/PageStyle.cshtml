@@ -1,0 +1,41 @@
+﻿@{
+
+}
+@section head{
+<title>黄页模板</title>
+<style type="text/css">
+.templebig_img { position: absolute; max-width: 300px; max-height: 300px; display: none; margin-left: 5px; }
+#EGV tr td { padding-left: 8px; padding-bottom: 3px; padding-top: 3px; }
+</style>
+}
+@section content{
+<div class="container-fluid mysite" id="BreadDiv">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top" id="BreadNav">
+            <li><a href='@(CustomerPageAction.customPath2)Main.aspx'>工作台</a></li>
+            <li><a href="ApplyAudit">企业黄页</a></li>
+            <li class='active'>样式管理<a href='PageStyleAdd'>[添加样式]</a></li>
+        </ol>
+    </div>
+</div>
+@Html.Partial("PageStyle_List")
+<div class="rd_green">
+ *每个样式可以绑定不同的栏目,公用栏目允许全局使用
+</div>
+@*<div class="margint5">
+<input type="button" class="btn btn-primary" value="启用" onclick="mvcpage.bat({url: 'favour_del', confirm: '确定要批量移除吗',after:'reload' });"/>
+<input type="button" class="btn btn-primary" value="停用" onclick="mvcpage.bat({url: 'favour_del', confirm: '确定要批量移除吗',after:'reload' });"/>
+</div>*@
+@*<asp:Button ID="Enable_Btn" runat="server" CssClass="btn btn-primary" OnClick="Enable_Btn_Click" Text="启用" />
+  <asp:Button ID="Disble_Btn" runat="server" CssClass="btn btn-primary" OnClick="Disble_Btn_Click" Text="停用" />*@
+}
+@section script{
+<script type="text/javascript">
+    function getinfo(id) {
+        location.href = 'PageTemplate.aspx?styleid=' + id;
+    }
+    $().ready(function () {
+        $('.temple_img').hover(function () { $(this).next().show(); }, function () { $(this).next().hide(); });
+    });
+</script>
+}

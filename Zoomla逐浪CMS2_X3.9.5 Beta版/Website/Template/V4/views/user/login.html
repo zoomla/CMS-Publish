@@ -1,0 +1,94 @@
+<ion-view>
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">{{title}}</div>
+</ion-header-bar>
+<ion-content>
+<div ng-hide="show.showuser">
+
+<div class="login_form">
+<div class="weui_cell">
+<div class="weui_cell_hd"><label class="weui_label">账号</label></div>
+<div class="weui_cell_bd weui_cell_primary">
+<input type="text" class="weui_input" ng-model="loginuser.name" placeholder="请输入用户名" />
+</div>
+</div>
+<div class="weui_cell">
+<div class="weui_cell_hd"><label class="weui_label">密码</label></div>
+<div class="weui_cell_bd weui_cell_primary">
+<input type="password" class="weui_input" ng-model="loginuser.pwd" placeholder="请输入密码" />
+</div>
+</div>
+<div class="login_form_b">
+<button type="button" class="button button-block button-assertive" ng-click="loginfun();">立即登录</button>
+</div>
+<div class="login_form_d">
+<span class="pull-left"><a href="#">手机快速注册</a></span>
+<span class="pull-right"><a href="#">找回密码</a></span>
+<div class="clearfix"></div>
+</div>
+
+<div class="login_form_t">
+<ul>
+<li><a href="#"><span><i class="fa fa-weixin"></i></span>微信登录</a></li>
+<li><a href="#"><span><i class="fa fa-qq"></i></span>QQ登录</a></li>
+<div class="clearfix"></div>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div ng-show="show.showuser">
+<ion-list>
+<ion-item href="#/user/info">
+<div class="login_img">
+<img ng-src="{{userinfo.UserFace}}" alt="{{userinfo.UserName}}" onerror="javascript:this.src='/Images/userface/noface.gif';" />
+<div class="">
+<span>{{userinfo.UserName}}</span><br/>
+<span>{{userinfo.Purse | currency:'￥'}}</span>
+</div>
+<i class="icon ion-ios-arrow-right"></i>
+</div>
+</ion-item>
+</ion-list>
+<ion-list>
+<div class="list login_list">
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="fa fa-cog"></i> 账号信息</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="fa fa-bicycle"></i> 快递员</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="fa fa-car"></i> 顺风车</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+
+<a class="item info-item" href="#/user/orderlist">
+<div class="pull-left"><i class="fa fa-shopping-cart"></i> 我的订单</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#/user/receilist">
+<div class="pull-left"><i class="fa fa-map-marker"></i> 我的地址</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="fa fa-money"></i> 资金管理</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" href="#">
+<div class="pull-left"><i class="fa fa-credit-card"></i> 优惠券</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+<a class="item info-item" ng-click="loginout()">
+<div class="pull-left"><i class="fa fa-power-off"></i> 退出登录</div>
+<div class="ion-ios-arrow-right"></div>
+</a>
+</div>
+</ion-list>
+</div>
+</ion-content>
+</ion-view>

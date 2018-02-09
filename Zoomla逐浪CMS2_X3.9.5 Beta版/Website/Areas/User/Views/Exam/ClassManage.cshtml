@@ -1,0 +1,45 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+ 
+}
+@section head{<title>班级管理</title>
+}
+@section content{
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="@Url.Action("Default","")">用户中心</a></li>
+	<li class="breadcrumb-item active">班级管理 [<a href="@Url.Action("AddClass","Exam")">申请班级</a>]</li>
+</ol>
+</nav>
+</div>
+<div class="container btn_green">
+    <ul class="nav nav-tabs"  id="StuClass_Div"  role="tablist">
+        <li class="nav-item active" role="presentation" data-tab="-1"><a class="nav-link" href="@Url.Action("ClassManage","Exam")">全部班级</a></li>
+        <li class="nav-item" role="presentation" data-tab="1"><a class="nav-link" href="ClassManage?audit=1">已通过班级</a></li>
+        <li class="nav-item" role="presentation" data-tab="0"><a class="nav-link" href="ClassManage?audit=0">未通过班级</a></li>
+    </ul>
+    @Html.Partial("ClassManage_List",Model)
+    <input type="hidden" id="delclass_hid" />
+    <button id="del_btn" class="btn btn-primary" style="display:none;" onclick="Button3_Click" >删除</button>
+</div>
+}
+@section script{
+<script type="text/javascript">
+    $().ready(function () {
+        $("#chkAll").click(function () {
+            $("[name='Item']").each(function (i, v) {
+                $(v)[0].checked = $("#chkAll")[0].checked;
+            });
+        });
+    });
+    function InitTab(id) {
+        $("[data-tab]").removeClass('active');
+        $("[data-tab='" + id + "']").addClass('active');
+    }
+    function DelByID(id) {
+        $("#DelClass_Hid").val(id);
+        $("#Del_Btn").click();
+    }
+</script>
+}

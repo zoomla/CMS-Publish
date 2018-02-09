@@ -1,0 +1,247 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="节点栏目信息数据源" FD="NodeName" page="0"/}_{$SiteName/}</title>
+<meta name="Keywords" content="{SField sid="节点栏目信息数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="节点栏目信息数据源" FD="Meta_Description" page="0"/}" />
+{ZL:Boot4()/}
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<script src="/js/scrolltopcontrol.js" type="text/javascript"></script>
+<script src="/JS/Controls/B_User.js"></script>
+<style>
+
+</style>
+</head>
+<body>
+<div class="home_main">
+{ZL.Label id="全站头部"/}
+</div>
+<div class="shop_banner"></div>
+<div class="container">
+<div class="row">
+<div class="col-lg-2 col-md-2 col-sm-2 col-12"><div class="shop_t"><a href="{ZL:GetNodeLinkUrl(75)/}">服装鞋帽</a></div></div>
+<div class="col-lg-2 col-md-2 col-sm-2 col-12"><div class="shop_t"><a href="{ZL:GetNodeLinkUrl(133)/}">营养美食</a></div></div>
+<div class="col-lg-2 col-md-2 col-sm-2 col-12"><div class="shop_t"><a href="{ZL:GetNodeLinkUrl(132)/}">珠宝首饰</a></div></div>
+<div class="col-lg-2 col-md-2 col-sm-2 col-12"><div class="shop_t"><a href="{ZL:GetNodeLinkUrl(131)/}">体育用品</a></div></div>
+<div class="col-lg-2 col-md-2 col-sm-2 col-12"><div class="shop_t"><a href="{ZL:GetNodeLinkUrl(130)/}">手机数码</a></div></div>
+<div class="col-lg-2 col-md-2 col-sm-2 col-12"><div class="shop_t"><a href="{ZL:GetNodeLinkUrl(129)/}">日常用品</a></div></div>
+</div>
+</div>
+
+<!--店铺-->
+<div class="shop_store_list">
+<div class="container">
+<div class="row">
+{ZL.Label id="商城店铺列表_不分页" ShowNum="2" TitleNum="50" /}
+</div>
+</div>
+</div>
+
+<div class="shop_ad" style="margin-top:1em;">
+<div class="shop_ad_t">
+<div class="media">
+<div class="media-body media-middle">
+<h4 class="media-heading">动力逐浪</h4>
+<p>在线云建站  微信3分极速场景</p>
+<p>微调查微相册全搞定   不用代码也能做开发</p>
+<p>http://v.z01.com</p>
+<a href="http://v.z01.com" target="_blank">免费体验</a>
+</div>
+<a href="#">
+<img class="media-object ml-3" src="{$CssDir/}images/Big_Micro.jpg" alt="{$SiteName/}"/>
+</a>
+</div>
+</div>
+</div>
+
+<div class="shop_list">
+<div class="container">
+<div class="list-group" id="NodeID75"><h3>服装鞋帽<a href="{ZL:GetNodeLinkUrl(75)/}"><i class="fa fa-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="75" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID133"><h3>营养美食<a href="{ZL:GetNodeLinkUrl(133)/}"><i class="fa fa-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="133" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID132"><h3>珠宝首饰<a href="{ZL:GetNodeLinkUrl(132)/}"><i class="fa fa-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="132" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID131"><h3>体育用品<a href="{ZL:GetNodeLinkUrl(131)/}"><i class="fa fa-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap" >
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="131" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID130"><h3>手机数码<a href="{ZL:GetNodeLinkUrl(130)/}"><i class="fa fa-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="130" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID129"><h3>日常用品<a href="{ZL:GetNodeLinkUrl(129)/}"><i class="fa fa-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="129" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="container" style="margin-top:2em;">
+<div class="home_link">
+<div class="row">
+<div class="col-lg-6 col-md-6 col-sm-6 col-12 home_link_l">
+<div class="row">
+<ul class="list-unstyled d-flex justify-content-between w-100 flex-wrap">
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank"><i class="fa fa-video-camera"></i></a></h3>
+<p><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank">视频</a></p>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="{ZL:GetNodeLinkUrl(2)/}" target="_blank"><i class="fa fa-shopping-cart"></i></a></h3>
+<p><a href="{ZL:GetNodeLinkUrl(2)/}" target="_blank">商城</a></p>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="/Office" target="_blank"><i class="fa fa-cloud"></i></a></h3>
+<p><a href="/Office" target="_blank">办公</a></p>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="/Dai/" target="_blank"><i class="fa fa-eye"></i></a></h3>
+<p><a href="/Dai/" target="_blank">试戴</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="col-lg-6 col-md-6 col-sm-6 col-12 home_link_r">
+<div class="row">
+<ul class="list-unstyled d-flex justify-content-between w-100 flex-wrap">
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="http://pano.z01.com/" target="_blank"><i class="fa fa-binoculars"></i></a></h3>
+<p><a href="http://pano.z01.com/" target="_blank">全景</a></p>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="/User/Exam/QuestionManage" target="_blank"><i class="fa fa-shopping-cart"></i></a></h3>
+<p><a href="/User/Exam/QuestionManage" target="_blank">组卷</a></p>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="/Plat/Blog/" target="_blank"><i class="fa fa-pencil-square-o"></i></a></h3>
+<p><a href="/Plat/Blog/" target="_blank">助写</a></p>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-3 col-6">
+<h3><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank"><i class="fa fa-music"></i></a></h3>
+<p><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank">音乐</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--通栏块结束 -->
+<div class="container"><img class="w-100 center-block" src="{$CssDir/}images/home_bottombg.jpg" alt="{$SiteName/}" /></div>
+{ZL.Label id="全站底部"/}
+</body>
+</html>
+<script>
+//检测固顶事件
+var IO=document.getElementById('home_nav'),Y=IO,H=0,IE6;
+IE6=window.ActiveXObject&&!window.XMLHttpRequest;
+while(Y){H+=Y.offsetTop;Y=Y.offsetParent};
+if(IE6)
+    IO.style.cssText="position:absolute;top:expression(this.fix?(document"+
+        ".documentElement.scrollTop-(this.javascript||"+H+")):0)";
+window.onscroll=function (){
+    var d=document,s=Math.max(d.documentElement.scrollTop,document.body.scrollTop);
+     if(s>H&&IO.fix||s<=H&&!IO.fix)return;
+    if(!IE6)IO.style.position=IO.fix?"":"fixed";        
+    IO.fix=!IO.fix;
+    
+};
+try{document.execCommand("BackgroundImageCache",false,true)}catch(e){};
+//]]>
+
+//兼容wp8
+if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+  var msViewportStyle = document.createElement("style");
+  msViewportStyle.appendChild(
+    document.createTextNode(
+      "@-ms-viewport{width:auto!important}"
+    )
+  );
+  document.getElementsByTagName("head")[0].
+    appendChild(msViewportStyle);
+}
+
+$(window).scroll(function(){
+	if($(window).scrollTop()>0){
+		$("#home_nav").addClass("active")
+	}
+	else{
+		$("#home_nav").removeClass("active");
+	}
+});
+//会员ajax登录状态需要结合JS/Controls/B_User.js引用同步生效
+var buser = new B_User();
+buser.IsLogged(function(data,flag){
+	if(flag)
+	{
+		data=JSON.parse(data);
+		$(".nav_user>a").html(data.UserName);
+		$(".nav_user .dropdown-menu li:nth-child(1) a").html("会员中心");
+		$(".nav_user .dropdown-menu li:nth-child(2)").remove();
+	}
+});
+function LogoutFun()
+{
+	buser.Logout(function(){location=location;});
+};
+$(".shop_top .navbar-nav>li.dropdown").mouseover(function(){
+	$(this).addClass("open");
+}).mouseout(function(){
+	$(this).removeClass("open");
+});
+/*显示搜索框*/
+function iSearch(){
+	if($(".home_search").is(":hidden")){
+		$(".home_search").fadeIn(250);
+	}else{
+		$(".home_search").fadeOut(250);
+	}
+};
+
+/*显示搜索框*/
+function isSearch(){
+    $(".home_search").css("opacity","1").css("z-index","1").css("right","0").css("top","0.5rem");
+    $(".home_top_nav").fadeOut(200);
+    $(".home_search .form-control").focus();
+}
+/*关闭搜索框*/
+function isClose(){
+    $(".home_search").css("opacity","0").css("z-index","-1").css("right","-1em");
+    $(".home_top_nav").fadeIn(1000);
+}
+
+
+</script>

@@ -1,0 +1,123 @@
+﻿@using ZoomLa.BLL
+@model ZoomLa.Model.M_Exam_Sys_Questions
+@{
+Layout = "~/Areas/User/Views/Shared/_empty.cshtml";
+}
+@section head{
+<script src="/Plugins/Ueditor/ueditor.config.js" charset="utf-8"></script>
+<script src="/Plugins/Ueditor/ueditor.all.min.js" charset="utf-8"></script>
+<script src="/Plugins/Ueditor/kityformula-plugin/addKityFormulaDialog.js"></script>
+<script src="/Plugins/Ueditor/kityformula-plugin/getKfContent.js"></script>
+<script src="/Plugins/Ueditor/kityformula-plugin/defaultFilterFix.js"></script>
+}
+@section content{
+<div id="pageflag" data-nav="edu" data-ban="ke"></div>
+<div class="container">
+    <form method="post" action="@MVCHelper.GetAction("SmallQuest_Add",Request)" onsubmit="return CheckData();">
+        <table class="table table-striped table-bordered table-hover tab-content">
+            <tbody>
+                <tr>
+                    <td class="td_m">试题标题:</td>
+                    <td>
+                        <input type="text" id="p_title" name="p_title" class="form-control text_300" maxlength="50" value="@Model.p_title" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right"><span style="width:110px;display:inline-block;">题型：</span></td>
+                    <td>
+                        <label><input type="radio" name="qtype_rad" value="0" checked="checked" />单选题 </label>
+                        <label><input type="radio" name="qtype_rad" value="1" />多选题 </label>
+                        <label><input type="radio" name="qtype_rad" value="2" />填空题 </label>
+                        <label><input type="radio" name="qtype_rad" value="3" />解析题 </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">试题题干：</td>
+                    <td>
+                        @Html.TextAreaFor(m => m.p_Content, new { @style = "height:200px;width:95%;" })
+                        @MvcHtmlString.Create(Call.GetUEditor("p_Content", 2))
+                    </td>
+                </tr>
+            </tbody>
+            <tbody id="Options_body">
+                <tr>
+                    <td class="text-right">选项信息：</td>
+                    <td>
+                        @Html.DropDownListFor(m => m.p_ChoseNum, MVCHelper.ToSelectList("0,1,2,3,4,5".Split(','), "0,1,2,3,4,5".Split(','), "0"), new { @class = "form-control text_x", @onchange = "AddOption($(this).val());" })
+                        <div>
+                            <ul id="option_ul"></ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">正确答案：<p style="color:green;">(仅用于自动改卷)</p></td>
+                    <td>
+                        @Html.TextBoxFor(m => m.p_Answer, new { @class = "form-control text_300" })
+                        <span class="r_green_x">如有多个答案用|号分隔,用于支持自动批阅试卷,单选:A,多选:A|B,填空:值1|值2|值3</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">正确答案：<p style="color:green;">(教师与学生可见)</p></td>
+                    <td>
+                        @Html.TextAreaFor(m => m.p_shuming, new { @style = "height:200px;width:95%;" })
+                        @MvcHtmlString.Create(Call.GetUEditor("p_shuming", 2))
+                    </td>
+                </tr>
+            </tbody>
+            <tr>
+                <td colspan="2" class="text-center">
+                    <input type="hidden" id="Optioninfo_Hid" name="Optioninfo_Hid" value="@SafeSC.ReadFileStr(Model.GetOPDir())" />
+                    <button type="submit" class="btn btn-info">保存试题</button>
+                    <a href="javascript:;" onclick="parent.CloseComDiag();" class="btn btn-outline-info">返回试题</a>
+                </td>
+            </tr>
+        </table>
+        @Html.HiddenFor(m => m.p_Difficulty)
+        @Html.Hidden("TreeTlp_hid", Model.p_Class)
+        @Html.Hidden("tabinput", Model.Tagkey)
+        @Html.Hidden("IsShare", Model.IsShare == 1 ? "1" : "")
+        @Html.HiddenFor(m => m.p_defaultScores)
+        @Html.HiddenFor(m => m.Jiexi)
+        @Html.HiddenFor(m => m.Version)
+    </form>
+</div>
+}
+@section script{
+<style type="text/css">
+    #mymodal1 .modal-dialog { margin-top: 7%; }
+    #mymodal1 .modal-dialog iframe { height: 600px !important; }
+    #option_ul li { margin-top: 3px; }
+    .tabinput { border: none; padding-left: 5px; height: 30px; line-height: 30px; }
+    .radius { margin: 2px; margin-top: 20px; height: 24px; line-height: 24px; background: #eee; border: 1px solid #ddd; border-radius: 3px; padding: 3px; float: none !important; }
+    #errormes { z-index: 9999; }
+</style>
+<script src="/dist/js/bootstrap-switch.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ICMS/ZL_Exam_Paper.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/Plugs/angular.min.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/ICMS/ZL_Exam_Question.js"></script>
+<script>
+    $(function () {
+        ZL_Regex.B_Num(".int");
+        $("form").validate({
+            rules: {
+                p_title: { required: true },
+                p_defaultScores: { required: true, number: true },
+                p_Content: { required: true }
+            },
+            messages: {
+                p_title: { required: "试题标题不能为空" },
+                p_defaultScores: { required: "分数不能为空", number: "分数只能为数字" },
+                p_Content: { required: "题干不能为空" }
+            },
+        });
+    })
+    function CheckData() {
+        GetOptions();
+        return true;
+    }
+</script>
+}

@@ -1,0 +1,65 @@
+﻿@using System.Text
+@using System.Data;
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using System.Text.RegularExpressions
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@functions{
+    public string ListBoxHtml()
+    {
+        string Name = Model.fieldMod.FieldName;
+        StringBuilder builder = new StringBuilder();
+        int fieldType = Convert.ToInt32(Model.fieldMod.Content.Substring(0, 1));//checkbox,listbox,多填
+        string fieldValue = Model.GetValue();;//value是以,号切割的多值
+        string fieldContent = Model.fieldMod.Content.Split('=')[1].Split(',')[0];
+        string[] options = Regex.Split(fieldContent, Regex.Escape("||"));
+        string[] values = fieldValue.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        Dictionary<string, string> dic = new Dictionary<string, string>();
+        for (int i = 0; i < options.Length; i++)
+        {
+            string option = options[i];
+            if (string.IsNullOrEmpty(option)) { continue; }
+            if (option.Contains("$0")) { option = Regex.Split(option, Regex.Escape("$0"))[0]; }
+            string key = option.Split('|')[0];
+            string value = "";
+            if (option.Split('|').Length < 2) { value = key; }
+            else { value = option.Split('|')[1]; }
+            if (!dic.ContainsKey(key)) { dic.Add(key, value); }
+        }
+        switch (fieldType)
+        {
+            case 1:
+                {
+                    string tlp = "<label style='margin-right:5px;margin-bottom:3px;'><input type='checkbox' id='txt_" + Name + "_{2}' name='txt_" + Name + "' value='{0}' {3}><span  style='position:relative;top:3px;'>{1}</span></label>";
+                    int index = 0;
+                    foreach (var item in dic)
+                    {
+                        string chkd = (values.Length > 0 && values.Contains(item.Value)) ? " checked='checked' " : "";
+                        builder.Append(string.Format(tlp, item.Value, item.Key, index, chkd));
+                        index++;
+                    }
+                }
+                break;
+            case 2:
+                {
+                    builder.Append("<select size=\"4\" class=\"form-control m715-50\" name=\"txt_" + Name + "\"  style=\"width:300px;height:126px\" multiple>");
+                    string tlp = "<option value='{0}' {2}>{1}</option>";
+                    foreach (var item in dic)
+                    {
+                        string chkd = (values.Length > 0 && values.Contains(item.Value)) ? " selected=\"selected\" " : "";
+                        builder.Append(string.Format(tlp, item.Value, item.Key, chkd));
+                    }
+                    builder.Append("</select>");
+                }
+                break;
+            case 3:
+                {
+                    builder.Append("<input type='hidden' id='txt_" + Name + "' name='txt_" + Name + "' value='" + fieldValue + "'/>");
+                    builder.Append("<iframe frameborder='0' scrolling='auto' width='100%' height='200px' src='/common/MultiField.aspx?fieldname=" + Name + "&content=" + fieldContent + "&fieldcontent=" + fieldValue + "'></iframe>");
+                    break;
+                }
+        }
+        return builder.ToString();
+    }
+}
+@MvcHtmlString.Create(ListBoxHtml())

@@ -1,0 +1,40 @@
+﻿<div id="adminBtn_box">
+	<div class="adminBtn_pop_ctrl" style="background:url(/images/ZoomlaTong.gif) no-repeat;background-size:cover;"></div>
+	<ul id="adminBtn_ul">
+        <li class="mod_content" onclick="adminBtn.call('content_edit');"><div><i class="fa fa-pencil"></i></div><div>内容编辑</div></li>
+        <li class="mod_content" onclick="adminBtn.call('content_tlp');"><div><i class="fa fa-pencil-square-o"></i></div><div>编辑模板</div></li>
+        <li class="mod_content" onclick="adminBtn.call('content_node');"><div><i class="fa fa-flag"></i></div><div>内容节点</div></li>
+
+        <li class="mod_product" onclick="adminBtn.call('product_edit');"><div><i class="fa fa-pencil"></i></div><div>商品编辑</div></li>
+        <li class="mod_product" onclick="adminBtn.call('product_tlp');"><div><i class="fa fa-pencil-square-o"></i></div><div>编辑模板</div></li>
+        <li class="mod_product" onclick="adminBtn.call('product_node');"><div><i class="fa fa-flag"></i></div><div>商品节点</div></li>
+
+        
+        <li class="mod_node" onclick="adminBtn.call('node_edit');"><div><i class="fa fa-pencil"></i></div><div>节点编辑</div></li>
+        <li class="mod_node" onclick="adminBtn.call('node_tlp');"><div><i class="fa fa-pencil-square-o"></i></div><div>编辑模板</div></li>
+        <li class="mod_node" onclick="adminBtn.call('node_list');"><div><i class="fa fa-list"></i></div><div>节点列表</div></li>
+
+        <li class="mod_index" onclick="adminBtn.call('index_tlp');"><div><i class="fa fa-pencil-square-o"></i></div><div>首页模板</div></li>
+        <li class="mod_index" onclick="adminBtn.call('index_siteinfo');"><div><i class="fa fa-file-text"></i></div><div>站点信息</div></li>
+        <li class="mod_index" onclick="adminBtn.call('index_siteconfig');"><div><i class="fa fa-cog"></i></div><div>全局配置</div></li>
+
+		<!--<li onclick="adminBtn.func.editPage();"><div><i class="fa fa-pencil"></i></div><div>内容</div></li>
+		<li onclick="adminBtn.func.pageManage();"><div><i class="fa fa-files-o"></i></div><div>页面管理</div></li>
+		<li onclick="adminBtn.func.nodeManage();"><div><i class="fa fa-cog"></i></div><div>节点管理</div></li>-->
+		<li class="mod_common" onclick="adminBtn.call('ToAdmin');"><div><i class="fa fa-television"></i></div><div>进入后台</div></li>
+		<li class="mod_common" onclick="adminBtn.call('ToUser');"><div><i class="fa fa-user"></i></div><div>会员中心</div></li>
+		<li class="mod_common" onclick="adminBtn.call('ToOrder');"><div><i class="fa fa-shopping-cart"></i></div><div>订单管理</div></li>
+		<li class="mod_common" onclick="adminBtn.call('ToContent');"><div><i class="fa fa-server"></i></div><div>内容管理</div></li>
+		<li class="mod_common" onclick="adminBtn.call('ToProduct');"><div><i class="fa fa-search"></i></div><div>商品管理</div></li>
+		<li class="mod_common" onclick="adminBtn.call('exit');"><div><i class="fa fa-power-off"></i></div><div>关闭</div></li>
+	</ul>
+</div>
+<style type="text/css">
+#adminBtn_box{width: 480px;}
+#adminBtn_box .adminBtn_pop_ctrl{border-color:#46b8da;background-color:#5bc0de;color:#fff;padding:5px;border-radius:4px;width:50px;height:50px;
+                                 text-align:center;font-size:30px;padding-top:5px;}
+#adminBtn_box .adminBtn_pop_ctrl .fa-bars{color: #fff;}
+#adminBtn_box #adminBtn_ul{box-shadow:rgba(0, 0, 0, 0.0980392) 0px 2px 5px 0px, rgba(0, 0, 0, 0.0784314) 0px 2px 10px 0px;}
+#adminBtn_box #adminBtn_ul .fa{font-size: 40px;line-height: 70px;min-height:}
+#adminBtn_box #adminBtn_ul li{display:none;}
+</style>

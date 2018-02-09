@@ -1,0 +1,103 @@
+﻿@{ 
+    Layout = "/Views/Shared/_empty.cshtml";
+
+}
+@section head{
+<style type="text/css">
+.row>div{border:1px solid rgba(86,61,124,.2);background-color:rgba(86,61,124,.15);padding-top:0.75rem;padding-bottom:0.75rem;}
+.btn-light{border:1px solid #ddd;}
+</style>
+<title>BootStrap4布局</title>
+}
+@section content{
+<table class="table table-bordered table-striped">
+    <tr>
+        <td style="width:80px;">设备</td>
+        <td id="device_wrap">
+            <label class="btn btn-light active" data-value="col">自适应(col)</label>
+            <label class="btn btn-light" data-value="col-xs">手机设备(col-xs)</label>
+            <label class="btn btn-light" data-value="col-sm">平板PAD (col-sm)</label>
+            <label class="btn btn-light" data-value="col-md">窄屏设备(col-md)</label>
+            <label class="btn btn-light" data-value="col-lg">传统电脑(col-lg)</label>
+            <label class="btn btn-light" data-value="col-xl">高清屏幕(col-xl)</label>
+        </td>
+    </tr>
+    <tr>
+        <td>布局</td>
+        <td>
+            <div id="layout_wrap">
+                <input type="text" class="form-control" style="width:200px;display:inline-block;" value="0*0*0*0" id="layout_t" onblur="btStrap.viewFromConfig()"/>
+                <label class="btn btn-light active">0*0*0*0</label>
+                <label class="btn btn-light">4*4*4</label>
+                <label class="btn btn-light">3*3*6</label>
+                <label class="btn btn-light">2*0*2</label>
+                <label class="btn btn-light">6*6</label>
+                <label class="btn btn-light">2*10</label>
+                <label class="btn btn-light">10*2</label>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="container">
+                <div class="row" id="result_view"></div>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>HTML</td>
+        <td>
+            <textarea id="result_html" class="form-control" style="width:100%;" rows="8"></textarea>
+           <div style="margin-top:5px;">
+               <button type="button" class="btn btn-info" onclick="insertBootLayout();">保存入编辑器</button>
+               <button type="button" class="btn btn-info" onclick="btStrap.viewFromTArea();">预览文本框中HTML</button>
+           </div>
+        </td>
+    </tr>
+</table>
+        }
+@section script{
+<style type="text/css">
+    .btn-light:not(:disabled):not(.disabled).active{color:#fff;background-color:#0094ff;}
+</style>
+<script>
+    $(function () {
+        $("#device_wrap .btn").click(function () {
+            $("#device_wrap .btn").removeClass("active");
+            $(this).addClass("active");
+            btStrap.viewFromConfig();
+        });
+        $("#layout_wrap .btn").click(function () {
+            $("#layout_wrap .btn").removeClass("active");
+            $(this).addClass("active");
+            $("#layout_t").val($(this).text());
+            btStrap.viewFromConfig();
+        });
+    })
+    var btStrap = {};
+    btStrap.viewFromConfig = function () {
+        var device = $("#device_wrap .btn.active").data("value");
+        var cols = $("#layout_t").val().split("*");
+        var layoutHtml = "";
+        for (var i = 0; i < cols.length; i++) {
+            var col = parseInt(cols[i]);
+            var text = (i + 1) + " of " + cols.length;
+            if (col == 0) { layoutHtml += '<div class="' + device + '">' + text + '</div>'; }
+            else { layoutHtml += '<div class="' + device + '-' + col + '">' + text + '</div>'; }
+            layoutHtml += "\r\n";
+        }
+        $("#result_view").html(layoutHtml);
+        $("#result_html").text('<div class="rows">\r\n' + layoutHtml + '</div>');
+    }
+    btStrap.viewFromTArea = function () {
+        var html = $("#result_html").text();
+        $("#result_view").html();
+    }
+    function insertBootLayout()
+    {
+        var html = $("#result_html").text();
+        if (parent) { parent.insertBootLayout(html); }
+    }
+    btStrap.viewFromConfig();
+</script>    
+}

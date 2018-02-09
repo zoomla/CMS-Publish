@@ -1,0 +1,32 @@
+﻿<header class="navbar u_menu fixed-top" role="navigation"> 
+<button type="button" class="btn btn-default" id="mimenu_btn">
+	<span class="icon-bar"></span>
+	<span class="icon-bar"></span>
+	<span class="icon-bar"></span>
+</button>
+<div class="u_menu_left">
+<ul>
+	<li><a href="/" target="_blank">首页</a></li>
+	<li><a href="/Home" target="_blank">能力</a></li>
+	<li><a href="/Index" target="_blank">社区</a></li>
+	<li><a href="/Ask" target="_blank">问答</a></li>
+	<li><a href="/Guest" target="_blank">留言</a></li>
+	<li><a href="/Baike" target="_blank">百科</a></li>
+	<li><a href="/Office" target="_blank">办公</a></li>
+</ul>
+</div>
+</header>
+<script>
+$(function () {
+$("#mimenu_btn").click(function (e) {
+    if ($(".user_mimenu_left").width() > 0) {
+	$(".user_mimenu_left ul").fadeOut(100);
+	$(".user_mimenu_left").animate({ width: 0 }, 200);
+    }
+    else {
+	$(".user_mimenu_left").animate({ width: 150 }, 300);
+	$(".user_mimenu_left ul").fadeIn();
+    }
+});
+});
+</script>

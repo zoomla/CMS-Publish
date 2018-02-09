@@ -1,0 +1,33 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+    <title>送货员管理</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div>
+<div class="container">
+	<nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+        <li class="breadcrumb-item"><a href="ProductList">我的店铺</a></li>
+        <li class="breadcrumb-item">配送员管理<a href="AddDeliverMan">[添加配送员]</a></li>
+    </ol>
+	</nav>
+    @Html.Partial("UserShopTop")
+</div>
+<div class="container">
+    @Html.Partial("DeliveryMan_List", Model)
+    <div>
+        <button type="button" class="btn btn-outline-info" onclick='mvcpage.bat({url: "DeliveryMan_Del", confirm: "确定要删除选中项吗？"});'>批量删除</button>
+    </div>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}
+@section script{
+
+}

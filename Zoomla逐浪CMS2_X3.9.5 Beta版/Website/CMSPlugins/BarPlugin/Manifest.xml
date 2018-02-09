@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Bundle xmlns="urn:uiosp-bundle-manifest-2.0" Name="贴吧社区" SymbolicName="BarPlugin" Version="1.0.0.0" InitializedState="Active">
+  <Activator Type="BarPlugin.Activator" Policy="Immediate" />
+  <Runtime>
+    <Assembly Path="bin\BarPlugin.dll" Share="false" />
+  </Runtime>
+  <BundleInfo Author="Zoomla" Category="/Index" Description="提供贴吧社区功能"/>
+</Bundle>

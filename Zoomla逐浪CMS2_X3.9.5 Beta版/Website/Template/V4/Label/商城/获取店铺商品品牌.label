@@ -1,0 +1,28 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>313</LabelID>
+    <LabelName>获取店铺商品品牌</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>商城</LabelCate>
+    <LabelDesc />
+    <LabelParam>TradeID,1,1,品牌ID</LabelParam>
+    <LabelTable>ZL_Trademark</LabelTable>
+    <LabelField>Trname</LabelField>
+    <LabelWhere> ZL_Trademark.ID=@TradeID</LabelWhere>
+    <LabelOrder />
+    <LabelContent>{Field="Trname"/}</LabelContent>
+    <LabelCount />
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Trademark","tb_s":""}</DataSourceType>
+    <ConnectString />
+  </Table>
+</NewDataSet>

@@ -1,0 +1,121 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@using ZoomLa.Model
+@{
+    M_UserInfo mu = new ZoomLa.BLL.B_User().GetLogin();
+}
+<!DOCTYPE html>
+<html>
+<head>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="renderer" content="webkit">
+<link type="text/css" href="/dist/css/bootstrap4.min.css" rel="stylesheet" />
+<script src="/JS/jquery.min.js"></script>
+<script type="text/javascript" src="/dist/js/popper.min.js"></script>
+<script type="text/javascript" src="/dist/js/bootstrap4.min.js"></script>
+<link type="text/css" href="/dist/css/font-awesome.min.css" rel="stylesheet"/>
+<link type="text/css" href="/App_Themes/v4.css?id=v3.3" rel="stylesheet"/>
+@RenderSection("head")
+</head>
+<body>
+<div id="ask_top">
+<div class="container">
+<div class="row">
+<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+<div class="ask_top_l">
+<ul class="list-inline">
+<li><a href="javascript:;" id="dropdownMenu1" data-toggle="dropdown">官网频道 <span class="dropdown-toggle"></span></a>
+<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+@Call.MVCLabel("{ZL.Label id=\"输出根节点下一级栏目列表\" ShowNum=\"8\" /}")
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+<div class="ask_top_r">
+<ul class="list-inline">
+<li><i class="fa fa-graduation-cap"></i> <a href="/Baike" >百科</a></li>
+<li><i class="fa fa-envelope"></i> <a href="/Guest">留言</a></li>
+<li><i class="fa fa-question-circle"> </i> <a href="/Ask">问答</a></li>
+<li><i class="fa fa-paw"></i> <a href="/Index" >贴吧</a></li>
+@if (mu.IsNull)
+{
+  <li><a href="/User/Login?ReturnUrl=/Baike" target="_blank">登录</a> | <a href="/User/Register?ReturnUrl=/Baike" target="_blank">注册</a></li> 
+}
+else
+{
+<li>
+<div class="dropdown">
+<a id="dLabel" data-target="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@mu.UserName<span class="caret"></span></a>
+<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的空间</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/PostSearch?UserID=@mu.UserID" target="_blank">我的帖子</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/User/Content/MyFavori" target="_blank">我的喜欢</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的关注</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的投票</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/User/Info/UserBase" target="_blank">个人设置</a></li>
+<li role="presentation"><a role="menuitem" tabindex="-1" href="/User/Logout">安全退出</a></li>
+</ul>
+</div>
+</li>
+}
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+	
+<div class="container zhulang_bk-top">
+<div class="row">
+<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12"><a href="/Baike"><img class="bk_logo" src='@Call.LogoUrl' alt="百科_@Call.SiteName" /></a></div>
+<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+<input type="text" ID="search_t" class="bk_search" placeholder="想知道点什么？"  autocomplete="off" />
+</div>
+<div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-12">
+<input type="button" value="进入词条" onclick="searchWord()"  class="btn bg-info text-white"/> 
+<input type="button" value="搜索词条" onclick="searchWord();" class="btn bg-info text-white" />
+<a href="/User/Guest/BaikeContribution" class="btn bg-info text-white" target="_blank">我的词条</a>
+</div> 
+</div>
+</div>
+</div> 
+	
+<nav class="navbar navbar-expand-lg navbar-light bg-info zhulang_bk-nav">
+	<div class="container">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+ <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+<ul class="navbar-nav mr-auto mt-2 mt-lg-0" id="top_nav_ul">
+<li class="nav-item" title="百科首页"><a class="nav-link" href="/Baike">百科</a></li>
+<li class="nav-item" title="自然"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("自然")">自然</a></li>
+<li class="nav-item" title="文化"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("文化")">文化</a></li>
+<li class="nav-item" title="地理"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("地理")">地理</a></li>
+<li class="nav-item" title="历史"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("历史")">历史</a></li>
+<li class="nav-item" title="生活"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("生活")">生活</a></li>
+<li class="nav-item" title="社会"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("社会")">社会</a></li>
+<li class="nav-item" title="艺术"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("艺术")">艺术</a></li>
+<li class="nav-item" title="人物"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("人物")">人物</a></li>
+<li class="nav-item" title="经济"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("经济")">经济</a></li>
+<li class="nav-item" title="科技"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("科技")">科技</a></li>
+<li class="nav-item" title="体育"><a class="nav-link" href="/Baike/Search?btype=@Server.UrlEncode("体育")">体育</a></li>
+</div>
+	</div>	  
+</nav>
+<!--nav end	-->
+	
+@RenderSection("content")
+@RenderSection("script",false)
+<script>
+function searchWord() {
+    var skey = encodeURI($("#search_t").val());
+    location = "/Baike/Search?tittle=" + skey;
+}
+</script>
+</body>
+</html>

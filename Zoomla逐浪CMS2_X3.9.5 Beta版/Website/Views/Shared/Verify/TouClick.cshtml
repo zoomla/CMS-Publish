@@ -1,0 +1,23 @@
+﻿@using ZoomLa.AppCode.Verify
+@model ZoomLa.AppCode.Controls.C_Verify
+<script src="http://js.touclick.com/js.touclick?b=@VerifyHelper.tcVerify.PUBKEY"></script>
+<div id="@Model.Name"></div>
+<input type="hidden" id="@(Model.Name)_hid" name="@(Model.Name)_hid"/>
+<style type="text/css">
+.touclick-hod-logo {display:none;}
+.touclick-help{display:none !important;}
+</style>
+<script>
+    TouClick.ready(function () {
+        TouClick('@Model.Name', {
+            onSuccess: function (obj) {
+                //$("token").value = obj.token;
+                //$("checkAddress").value = obj.checkAddress;
+                //$("sid").value = obj.sid;
+                var model = { vtype: 1, token: obj.token, sid: obj.sid };
+                $("#@(Model.Name)_hid").val(JSON.stringify(model));
+            },
+            behaviorDom: 'user'
+        });
+    });
+</script>

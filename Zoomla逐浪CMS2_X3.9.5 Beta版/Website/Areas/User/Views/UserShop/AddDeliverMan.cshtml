@@ -1,0 +1,58 @@
+﻿@model ZoomLa.Model.Shop.M_Shop_DeliveryMan
+@{
+    
+}
+@section head{<title>添加送货人</title> }
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div>
+<nav aria-label="breadcrumb" role="navigation" class="container">
+  <ol class="breadcrumb">
+  	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="ProductList">我的店铺</a></li>
+	<li class="breadcrumb-item"><a href="DeliveryMan">送货人管理</a></li>
+	<li class="breadcrumb-item active" aria-current="page"><a href="ProductList">添加送货人</a></li>
+  </ol>
+</nav> 
+<div class="container">
+@Html.Partial("UserShopTop")
+<form method="post" action="@MVCHelper.GetAction("DeliveryMan_Add",Request)">
+	<table class="table table-bordered table-striped">
+		<tr>
+			<td class="text-right td_m">用户名/ID</td>
+			<td>
+				<input type="text" id="user" name="user" class="form-control text_300 required" value="@(Model.ID>0 ? Model.UserID.ToString() :"")" placeholder="请输入用户名或ID" />
+			</td>
+		</tr>
+		<tr>
+			<td class="text-right">权限</td>
+			<td>
+				<label>@Html.CheckBox("auth", Model.Auth.Contains("settle"), new { value = "settle" }) 结款</label>
+			</td>
+		</tr>
+		<tr><td class="text-right">结算比率</td><td>
+			@Html.TextBoxFor(p=>p.Bonus,new{Value=Model.Bonus.ToString("F2"),@class="form-control text_300"})
+			</td></tr>
+		<tr>
+			<td class="text-right">备注</td>
+			<td>
+				@Html.TextAreaFor(p=>p.Remind,new { @class="form-control m715-50",@style="height:80px;"})
+			</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>
+				<button type="submit" class="btn btn-info">保存信息</button>
+			</td>
+		</tr>
+	</table>
+</form>
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}
+@section script{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/dist/js/bootstrap-switch.js"></script>
+}

@@ -1,0 +1,25 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+ <title>百科收藏</title>
+}
+@section content{
+  <div id="pageflag" data-nav="index" data-ban="baike"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item active">百科收藏</li>
+	<div class="clearfix"></div>
+</ol>
+</nav>
+</div>
+@Html.Partial("BaikeFavorite_List",Model)
+}
+@section script{
+
+}
+
+

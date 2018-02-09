@@ -1,0 +1,83 @@
+﻿@model ZoomLa.Model.M_User_Bank
+@{
+    
+}
+@section head{
+    <title>编辑银行账号</title>
+}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="UserInfo"></div>
+	<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+		<li class="breadcrumb-item"><a title="账户管理" href="@Url.Action("Userinfo","info")">账户管理</a></li>
+		<li class="breadcrumb-item"><a title="银行账号管理" href="@Url.Action("UserBank")">银行账号管理</a></li>
+		<li class="breadcrumb-item active">编辑银行账号</li>
+	</ol>
+	</nav>
+	</div>
+    <div class="container">
+        <form method="post" action="@MVCHelper.GetAction("UserBank_Add",Request)">
+            <table class="table table-bordered table-hover table-striped">
+                <tr>
+                    <td>开户人：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.PeopleName, new { @class = "form-control  text_300" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>银行名称：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.BankName, new { @class = "form-control  text_300" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>开户银行：</td>
+                    <td>
+                        @Html.TextAreaFor(m => m.Remark, new { @class = "form-control text_300", @style = "height: 120px;resize:none;" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>银行卡号：</td>
+                    <td>
+                        @Html.TextBoxFor(m => m.CardNum, new { @class = "form-control text_300" })
+                    </td>
+                </tr>
+                <tr><td></td><td><input type="submit" class="btn btn-primary" value="保存" /></td></tr>
+            </table>
+        </form>
+    </div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>		
+}
+@section script{
+    <script src="/JS/ZL_Regex.js"></script>
+    <script>
+        $(function () {
+            if (window.ZL_Regex) {
+                $.validator.addMethod("account", function (value, element) {
+                    if (ZL_Regex.isEmpty(value)) { return true; }
+                    var account = /^(\d{16}|\d{19})$/;
+                    return this.optional(element) || (account.test(value));
+                }, "请输入16或19位银行卡号");
+            };
+            validate.zl_init($("form"), {
+                rules: {
+                    PeopleName: { required: true },
+                    BankName: { required: true },
+                    Remark: { required: true },
+                    CardNum: { required: true, account: true }
+                },
+                messages: {
+                    PeopleName: { required: "开户人不能为空" },
+                    BankName: { required: "银行名称不能为空" },
+                    Remark: { required: "开户银行不能为空" },
+                    CardNum: { required: "银行卡号不鞥你为空", account: "请输入16或19位银行卡号" }
+                },
+            });
+        })
+    </script>
+}
