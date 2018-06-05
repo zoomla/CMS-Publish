@@ -1,4 +1,4 @@
-###为移动和新互联网时代而生的Zoomla!逐浪CMS
+# 为移动和新互联网时代而生的Zoomla!逐浪CMS
 
 - 建网站,选逐浪。
 - 易上手,功能棒。
@@ -9,7 +9,7 @@
 [![](https://www.z01.com/Template/office/style//images/logo.svg)](http://www.z01.com)
 
 
-##特色功能
+# 特色功能
 这是我们的芳华，也是你们的芳华。
 
 
