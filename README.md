@@ -16,29 +16,22 @@
 
 ![](https://www.z01.com/UploadFiles/Image/20180109/6365113731841359629161856.jpg)
 > 当前版本： cms2 x3.9.5
-发布日期：2018-6-5
-离线包下载：[www.z01.com/pub](http://www.z01.com/pub "www.z01.com/pub")
+> 发布日期：2018-6-5
+> 离线包下载：[www.z01.com/pub](http://www.z01.com/pub "www.z01.com/pub")
 
 
 
 官方程序包信息：
 MD5: EBEEFB5B91D45819ACAADA597EBFD5F8
+
 SHA1: 6650DEA9C1F38864FA4DA16E82C6202D423C692C
+
 CRC32: 7445DF10
 
 
 
 ## 研发理念
 官方程序包信息：
-
-MD5: EBEEFB5B91D45819ACAADA597EBFD5F8
-
-SHA1: 6650DEA9C1F38864FA4DA16E82C6202D423C692C
-
-CRC32: 7445DF10
-
-
-
 
 时隔三个月，以技术创新为目标的Zoomla!逐浪CMS官方推全新的CMS版本：Zoomla!逐浪CMS2 x3.9.5。
 
