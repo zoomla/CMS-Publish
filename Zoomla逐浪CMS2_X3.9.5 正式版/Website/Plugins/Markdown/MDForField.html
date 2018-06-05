@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>MarkDown编辑器</title>
+<link rel="stylesheet" href="/Plugins/Markdown/css/editormd.min.css" />
+</head>
+<body>
+<div id="editormd">
+    <textarea style="display: none;" id="content_md" name="content_md"></textarea>
+</div>
+<script src="/JS/jquery.min.js"></script>
+<script src="/Plugins/Markdown/editormd.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script type="text/javascript">
+    var diag = new ZL_Dialog();
+    $(function () {
+        //获取parnet中用于保存数据的空件
+        var id = getParam("id");
+        var $source = $(parent.document).find("#" + id + "_src");
+        var $html = $(parent.document).find("#" + id);
+        //---------------
+        $("#content_md").val($source.val());
+        $("#editormd").height($(window).height());
+        var editor = editormd("editormd", {
+            path: "/Plugins/Markdown/lib/",
+            //autoHeight: true,
+            //width: 1920,
+            height: (parseInt($(window).height()) - 20),
+            htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
+            //toolbar  : false,             //关闭工具栏
+            //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+            saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+            searchReplace: true,
+            //watch : false,                // 关闭实时预览
+            emoji: true,
+            taskList: true,
+            flowChart: true,
+            sequenceDiagram: true,
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png"],
+            imageUploadURL:"/Plugins/MarkDown/API.aspx?action=upload",
+            onload: function () { },
+            onchange: function () {
+                $source.val(editor.getValue());
+                $html.val(editor.getHTML());
+            },
+            success: function () { }
+        });
+        
+    });
+    function AutoHeight() { diag.AutoHeight(); }
+</script>
+</body>
+</html>

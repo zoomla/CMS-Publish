@@ -1,0 +1,59 @@
+﻿@{
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section head{<title>黄页审核</title>}
+
+@section content{
+<div class="container-fluid" id="BreadDiv">
+<div class="row">
+<ol id="BreadNav" class="breadcrumb fixed-top w-100">
+    <li class="breadcrumb-item"><a href='@(CustomerPageAction.customPath2)Main.aspx'>工作台</a></li>
+    <li class="breadcrumb-item"><a href="ApplyAudit">企业黄页</a></li>
+    <li class="breadcrumb-item">黄页审核</li>
+    <div id="sel_box">
+        <div class="input-group">
+            <input type="text" id="skey" class="form-control" placeholder="请输入关键词" onkeypress="selbox.search();" />
+            <span class="input-group-append">
+                <input type="button" class="btn btn-outline-secondary" value="搜索" onclick="mvcpage.load();" />
+            </span>
+        </div>
+    </div>
+    <div id="help" class="pull-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="zi zi_search"></i></a></div>
+</ol>
+</div>
+</div>
+<div class="container-fluid">
+<div class="row sysRow list_choice">
+    <ul class="nav nav-tabs">
+        <li class="nav-item" data-status="-100"><a class="nav-link" href="#tab0" data-toggle="tab" onclick="ShowTabs(-100)">全部</a></li>
+        <li class="nav-item" data-status="99"><a class="nav-link" href="#tab1" data-toggle="tab" onclick="ShowTabs(99)">已审核</a></li>
+        <li class="nav-item" data-status="0"><a class="nav-link" href="#tab2" data-toggle="tab" onclick="ShowTabs(0)">待审核</a></li>
+    </ul>
+    @Html.Partial("ApplyAudit_List")
+<div class="">
+    <input type="button" class="btn btn-outline-info mb-1" value="批量审核" onclick="mvcpage.bat({url: 'page_audit' });" />
+    <input type="button" class="btn btn-outline-danger mb-1" value="取消审核" onclick="mvcpage.bat({url: 'page_unaudit' });" />
+    <input type="button" class="btn btn-outline-danger mb-1" value="批量删除" onclick="mvcpage.bat({url: 'page_del' });" />
+    <input type="button" class="btn btn-outline-info mb-1" value="批量推荐" onclick="mvcpage.bat({url: 'page_recom' });" />
+    <input type="button" class="btn btn-outline-danger mb-1" value="取消推荐" onclick="mvcpage.bat({url: 'page_unrecom' });" />
+</div>
+</div>
+</div>
+    }
+@section script{
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script >
+    $(function () {
+        var status = getParam("status");
+        if (status) {
+            $(".nav li[data-status='" + status + "']").find("a").addClass("active");
+        }
+        else { $(".nav li:first").find("a").addClass("active"); }
+        $("#chkAll").click(function () { selectAllByName(this, "idchk"); });
+    })
+    function ShowTabs(status) {
+        location.href = "ApplyAudit?status="+status;
+    }
+</script>
+}

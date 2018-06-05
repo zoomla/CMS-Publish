@@ -1,0 +1,66 @@
+﻿@model ZoomLa.Model.M_ExamPoint
+@{
+	Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    string title = Model.ID > 0 ? "修改考点" : "添加考点";
+}
+@section head{
+    <title>@title</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb navbar-fixed-top w-100">
+                <li class="breadcrumb-item"><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+                <li class="breadcrumb-item"><a href='Papers_System_Manage'>教育模块</a></li>
+                <li class="breadcrumb-item"><a href='QuestionList'>考试管理</a></li>
+                <li class="breadcrumb-item">@title</li>
+            </ol>
+        </div>
+    </div>
+    <form method="post" class="w-100" action="@MVCHelper.GetAction("ExamPoint_Add",Request)">
+	<div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover sys_table w-100">
+            <tbody>
+                <tr align="center">
+                    <td class="spacingtitle" colspan="2">@title</td>
+                </tr>
+                <tr>
+                    <th class="w12rem_lg">考点名称</th>
+                    <td class="bqright">
+                        @Html.TextBoxFor(m => m.TestPoint, new { @class = "form-control max20rem" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>排序</th>
+                    <td class="bqright">
+                        @Html.TextBoxFor(m => m.OrderBy, new { @class = "form-control max20rem" })
+                    </td>
+                </tr>
+            </tbody>
+            <tr class="tdbgbottom">
+                <td colspan="2">
+                    <button type="submit" class="btn btn-outline-info">保存</button>
+                    <a href="ExamPointManage" class="btn btn-outline-info">返回列表</a>
+                </td>
+            </tr>
+        </table>
+		</div>
+    </form>
+}
+@section script{
+    <script type="text/javascript" src="/JS/Dialog.js"></script>
+    <script type="text/javascript">
+            $(function () {
+                validate.zl_init($("form"), {
+                    rules: {
+                        TestPoint: { required: true },
+                        OrderBy: { digits: true }
+                    },
+                    messages: {
+                        TestPoint: { required: "考点名称不能为空" },
+                        OrderBy: { digits: "排序只能为整数" }
+                    },
+                }, { placement: 'right', style: 'green' });
+            });
+    </script>
+}

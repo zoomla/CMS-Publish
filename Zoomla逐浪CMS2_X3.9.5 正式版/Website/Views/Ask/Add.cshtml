@@ -1,0 +1,114 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@using ZoomLa.Components
+@using System.Data
+@functions{
+    M_UserInfo mu = new M_UserInfo();
+    string error = "";
+    public bool IsCanAsk(ref string error)
+    {
+        WDOption option = GuestConfig.GuestOption.WDOption;
+        string QuestGroup =DataConverter.CStr(option.QuestGroup).Trim(',');
+        if (option.IsLogin && mu.UserID < 1)
+        {
+            error = "登录后才可以提问";
+            return false;
+        }
+        if (!string.IsNullOrEmpty(QuestGroup))
+        {
+            error = "所在用户组没有提问权限";
+            return false;
+        }
+        return true;
+    }
+}
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    DataTable typeDt = (DataTable)ViewBag.typeDt;
+    mu = new B_User().GetLogin();
+    bool needLogin = GuestConfig.GuestOption.WDOption.IsLogin;
+}
+    @section head{
+<title>在线提问_@(Call.SiteName)问答</title>
+<script type="text/javascript" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+    @section content{
+<form method="post" action="@MVCHelper.GetAction("/Ask/Add_Submit",Request)">
+<div class="container">
+    <nav class="baike_miannav" aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb mybreadcrumb">
+            <li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+            <li class="breadcrumb-item"><a href="/Ask/">问答中心</a></li>
+            <li class="breadcrumb-item active" aria-current="page">我要提问</li>
+        </ol>
+    </nav>
+    <div class="input-group">
+        <select name="QueType" id="QueType" class="form-control" style="width:50%;">
+            @foreach (DataRow dr in typeDt.Rows)
+    {
+                <option value="@dr["GradeID"]">@dr["GradeName"]</option>
+            }
+        </select>
+        <span class="input-group-append"><span class="input-group-text">悬赏分</span></span>
+        <select ID="ddlScore" class="form-control">
+            <option value="0">0</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="60">60</option>
+            <option value="70">70</option>
+            <option value="80">80</option>
+            <option value="90">90</option>
+            <option value="100">100</option>
+        </select>
+        <span class="input-group-append">
+            <span class="input-group-text">
+                <label style="margin-bottom:0px;"><input type="checkbox" name="isAnony_chk" value="1" />匿名</label>
+            </span>
+        </span>
+        <span class="input-group-append">
+            <span class="input-group-text">
+                <label style="margin-bottom:0px;"><input type="checkbox" name="isSole_chk" value="1" />独占模式</label>
+            </span>
+        </span>
+    </div>	
+
+	<div role="form">
+
+        <div style="margin-top:10px;">
+            <input type="text" id="QTitle" name="QTitle" class="form-control required" placeholder="标题：写下你的问题" value="@ViewBag.title" maxlength="100"/>
+        </div>
+		<div style="margin-top:10px;margin-bottom:10px;">
+            <small>选填,详细说明您的问题,以便获得更好的答案</small>
+			<textarea id="QContent" name="QContent" style="height:200px;width:100%;"></textarea>
+			@MvcHtmlString.Create(Call.GetUEditor("QContent", 4))
+		</div>
+		
+        @if (IsCanAsk(ref error))
+        {
+            <div class="text-center">
+                <input type="submit" value="提交问题" class="btn bg-info text-white" />
+            </div>
+        }
+        else {<div class="alert alert-info">@error</div> }
+
+	</div>
+</div>
+</form>
+}
+@section script{
+    <script src="/JS/ZL_ValidateCode.js"></script>
+    <script>
+        $(function () {
+            $("#top_nav_ul li[title='在线提问']").addClass("active");
+            $("#VCode").ValidateCode();
+            $("form").validate({});
+        });
+    </script>
+}

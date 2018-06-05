@@ -1,0 +1,68 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_IServer isBll = new B_IServer();
+}
+@{ 
+    M_UserInfo mu = new B_User().GetLogin();
+    DataTable typeDT = isBll.GetSeachUserIdType(mu.UserID);
+    int tab = DataConverter.CLng(Request["num"],-100);
+}
+@section head{<title>有问必答</title>}
+@section content{
+    <div id="pageflag" data-nav="index" data-ban="cnt"></div>
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+            <li class="breadcrumb-item active"><a href="FIServer">有问必答</a></li>
+            <div class="input-group mt-1">
+                <input type="text" id="skey_t" class="form-control w_20rem  mvcparam" placeholder="请输入标题" />
+                <span class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" title="搜索" onclick="mvcpage.load();">搜索</button>
+                </span>
+            </div>
+        </ol>
+    </div>
+    <div class="container">
+        <div class="alert alert-info d-none">
+            <a href="FIserver?num=@tab" class="btn btn-default">全部</a>
+            @foreach (DataRow dr in typeDT.Rows)
+            {
+                <a class="btn btn-default" href="FIServer?num=@(tab)&type=@isBll.GetTypeIndex(DataConverter.CStr(dr["type"]))">@dr["type"]</a>
+            }
+        </div>
+		<ul class="nav nav-tabs">
+			<li  class="nav-item" data-tab="-100"><a class="nav-link" href="FiServer" role="tab">所有问题 @ViewBag.allnum</a></li>
+            <li  class="nav-item" data-tab="1"><a class="nav-link" href="FiServer?num=1">待解决 @ViewBag.nrslvnum</a></li>
+            <li  class="nav-item" data-tab="2"><a class="nav-link" href="FiServer?num=2">处理中 @ViewBag.treatnum</a></li>
+            <li  class="nav-item" data-tab="3"><a class="nav-link" href="FiServer?num=3" role="tab">已解决 @ViewBag.rslvnum</a></li>
+            <li  class="nav-item" data-tab="-1"><a class="nav-link" href="FiServer?num=-1" role="tab">已关闭 @ViewBag.socknum</a></li>
+            <a href="AddQuestion" class="btn btn-info" style="margin-left:10px;"><i class="zi zi_plus"></i> 提交新问题</a>
+		</ul>
+		
+        @Html.Partial("FiServer_List",Model)
+    </div>
+}
+@section script{
+    <script type="text/javascript">
+        $(function () {
+            var num = $("#typeList").find("a[name='type']").length;
+            if (parseInt(num) == 0) { $("#typeList").hide(); }
+            $(".nav li[data-tab=@tab]").find("a").addClass("active");
+               
+        });
+        function seach() {
+            location.href = 'SelectiServer?num=-1&menu=@Request.QueryString["menu"]&strTitle=' + $("#skey_t").val();
+        }
+        //function postAPI(action, id) {
+        //    if(!confirm("确定要执行该操作吗")){return false;}
+        //    $.post("IServer_API?action=" + action + "&id=" + id, {}, function () {
+        //        location = location;
+        //    })
+        //}
+    </script>
+}

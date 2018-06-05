@@ -1,0 +1,485 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using System.Data
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.AppCode.Controls
+@using ZoomLa.Components
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@model ZoomLaCMS.Models.Content.VM_Content
+@functions { 
+    B_Group gpBll = new B_Group();
+    public string GetFieldAlias(string field)
+    {
+        return B_Content.GetFieldAlias(field,Model.fieldDT);
+    }
+    public string getTaskTime(string name)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(Model.conMod.TaskInfo)) { return ""; }
+            else
+            {
+                JObject taskJson = JsonConvert.DeserializeObject<JObject>(Model.conMod.TaskInfo);
+                return taskJson[name + "_time"].ToString();
+            }
+        }
+        catch { return ""; }
+    }
+        }
+@{
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    B_Spec spbll = new B_Spec();
+        DataTable ddlDT = ViewBag.ddlDT as DataTable;
+        DataTable gpDT = gpBll.Sel();
+        string action = Model.conMod.GeneralID > 0 ? "修改" : "添加";
+        string basePath = CustomerPageAction.customPath2 + "Content/";
+    }
+    @section head{
+<title>@(action+Model.modelMod.ItemName)</title>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.js"></script> 
+     
+}
+    @section content{
+
+
+<div id="BreadDiv" class="container-fluid mysite">
+	<nav aria-label="breadcrumb">
+        <ol id="BreadNav" class="breadcrumb fixed-top">
+            <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+            <li class="breadcrumb-item"><a href="@(basePath)ContentManage.aspx">内容管理</a></li>
+            <li class="breadcrumb-item"><a href="@(basePath)ContentManage.aspx?NodeID=@Model.NodeID">@Model.nodeMod.NodeName</a></li>
+            <li  class="breadcrumb-item active">
+                [向本栏目添加@(Model.modelMod.ItemName)]
+                @if (!string.IsNullOrEmpty(Model.conMod.Template))
+                {
+                    <span style="color:red;">(该内容已启用个性模板)</span>
+                }
+            </li>
+		<div class="col text-right">
+		<a href="@(basePath)SchedTask.aspx" title="查看计划任务"><span class="zi zi_clock" style="color:#28b462;"></span></a>
+		<a href="/Class_@Model.NodeID/Default.aspx" target="_blank" title="前台浏览"><span class="zi zi_eye"></span></a>
+		<span onclick="ShowDiag('@(basePath)Node/EditNode.aspx?NodeID=@Model.NodeID','配置本节点');" class="zi  zi_cog" title="配置本节点" style="cursor:pointer;"></span>
+		</div>
+        </ol>		
+		</nav>
+</div>
+
+
+<form method="post" id="form1" class="w-100">
+<div class="container-fluid list_choice manage_content">
+    <div class="row sysRow">
+        <div class="tabbable w-100">
+            <ul class="nav nav-tabs w-100">
+                <li class="nav-item"><a class="nav-link active" id="#ConInfo" href="#ConInfo" data-toggle="tab">内容信息</a></li>
+                <li class="nav-item"><a class="nav-link" href="#InfoAttr" data-toggle="tab">信息属性</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Process" data-toggle="tab">流程控制</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Copyright" data-toggle="tab">版权管理</a></li>
+            </ul>
+            <div class="tab-content  col-12 table_box">
+                <div class="tab-pane fade show active table-responsive active" id="ConInfo" role="tabpanel" aria-labelledby="home-tab">
+                    <table id="mainTable" class="table table-bordered sys_table">
+                        <tr>
+						<th scope="row" class="w12rem_lg">@GetFieldAlias("Title")<span class="text-danger">*</span></th>
+
+                            <td>
+							<div class="input-group">
+                                <input type="text" id="txtTitle" name="txtTitle" Style="background: url(/Images/bg1.gif) repeat-x;@(Model.conMod.TitleStyle)" class="form-control m50rem_50 required" onkeyup="Getpy('txtTitle','PYtitle')" value="@Model.conMod.Title" />
+                               <div class="input-group-append">
+							   <button type="button" class="input-group-text" onclick="ShowTitle()">标题属性</button>
+                                <button type="button" class="input-group-text" onclick="ShowSys();"><i class="zi zi_eject zi_shieldalt" aria-hidden="true"></i></button>
+								</div></div>
+                                <input type="hidden" id="ThreadStyle" name="ThreadStyle" value="@Model.conMod.TitleStyle" />
+                                <div id="duptitle_div" class="alert alert-warning" style="position: absolute; margin-left: 315px; display: none;">
+                                    <ul id='duptitle_ul'></ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">内容功能</th>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <label class="btn btn-secondary btn-sm" style="margin-bottom:0px;"><input type="checkbox" name="verbak_chk" value="1"/> 存档备份</label>
+                                    <button type="button" class="btn btn-info btn-sm" @(Model.conMod.GeneralID < 1 ? "disabled=\"disabled\"" : "") onclick="conhelp.verbak.showDiag();"><i class="zi zi_database"></i> 版本浏览</button>
+                                    <button type="button" class="btn btn-info btn-sm" onclick="ShowContentList()"><i class="zi zi_link"></i> 关联内容</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tbody id="Sys_Fied" style="display:@(Model.nodeMod.Contribute==1?"none":"")">
+                            <tr>
+                                <th scope="row">拼音缩写</th>
+                                <td>
+                                    @Html.TextBox("PYtitle", Model.conMod.PYtitle, new { @class = "form-control m50rem_50" })
+                                </td>
+                            </tr>
+                            <tr id="spec_tr">
+                                <th scope="row">所属专题</th>
+                                <td>
+                                    <div class="specDiv">
+                                        @foreach (DataRow dr in Model.SpecialDT.Rows)
+    {
+                                            <div class='spec'><div class='specname'>@dr["SpecName"]</div> <a href='javascript:;' onclick='removeSpe(this,"@dr["SpecID"]")'><span class='zi zi_times'></span></a></div>
+                                        }
+                                    </div>
+                                    <span id="specbtn_span">
+                                        @if (spbll.GetFirstID() > 0)
+                                        {<button type='button' class='btn btn-info btn-sm' onclick='ShowSpecDiag()'>添加至专题</button> }
+                                        else
+                                        { <div style='margin:5px;' class='btn btn-default disabled'><span class='zi zi_exclamationCircle'></span> 尚未定义专题</div>}
+                                    </span>
+                                    @Html.Hidden("Spec_Hid", Model.conMod.SpecialID)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">@GetFieldAlias("TagKey")</th>
+                                <td>
+                                    <div id="OAkeyword"></div>
+                                    <input type="text" id="Keywords" name="Keywords" value="@Model.conMod.TagKey" class="form-control" />
+                                    <small class="text-muted">(空格或回车键分隔，长度不超过10字符或5汉字)</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">@GetFieldAlias("Subtitle")</th>
+                                <td>
+                                    @Html.TextBox("Subtitle", Model.conMod.Subtitle, new { @class = "form-control m50rem_50" })
+                                </td>
+                            </tr>
+                        </tbody>
+                        @Html.Partial("Fields/Index_Admin_AddContent", new VM_FieldModel(Model.ModelID, Model.NodeID, new ModelConfig() { Source = ModelConfig.SType.Admin }, Model.conMod.GeneralID,Model.ValueDR))
+                        <tr id="attPic">
+                            <th scope="row">主编辑器扩展图</th>
+                            <td style="min-height: 80px;">
+                                <ul id="ThumImg_ul" class="preview_img_ul"></ul>
+                                <div class="clearfix"></div>
+                                @Html.Hidden("ThumImg_Hid", Model.conMod.TopImg)
+                            </td>
+                        </tr>
+                        @if (Model.nodeMod.ListPageHtmlEx < 3)
+    {
+                            <tr>
+                                <td class="fd_td_l">生成@(Model.modelMod.ItemName)</td>
+                                <td>
+                                    <label>@(Html.CheckBox("quickmake", false))是否立即生成</label>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                    <div style="height: 50px;"></div>
+                </div>
+                <div class="tab-pane fade" id="InfoAttr" role="tabpanel" aria-labelledby="InfoAttr-tab">
+                    <table class="table table-bordered sys_table">
+                        <tr>
+                            <th scope="row" class="w12rem_lg">录入者</th>
+                            <td>
+                                @Html.TextBox("Inputer", Model.conMod.Inputer, new { @class = "form-control max20rem", disabled = "disabled" })
+                            </td>
+                        </tr>
+                        <tr>
+                             <th scope="row">添加时间</th>
+                            <td>
+                                @Html.TextBox("CreateTime", Model.conMod.CreateTime, new { @class = "form-control max20rem", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">@GetFieldAlias("UpDateTime")</th>
+                            <td>
+                                @Html.TextBox("UpDateTime", Model.conMod.UpDateTime, new { @class = "form-control max20rem", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">自动审核</th>
+                            <td>
+                                <input type="text" id="ExamineTime" name="ExamineTime" class="form-control max20rem" value="@getTaskTime("audit")" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss', minDate:'@DateTime.Now'})" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">自动过期</th>
+                            <td>
+                                <input type="text" id="ExpiredTime" name="ExpiredTime" class="form-control max20rem" value="@getTaskTime("expire")" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss', minDate: '#F{$dp.$D(\'ExamineTime\')}' })" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">@GetFieldAlias("Hits")</th>
+                            <td>
+                                @Html.TextBox("Hits", Model.conMod.Hits, new { @class = "form-control max20rem" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">访问权限</th>
+                            <td>
+                                @MVCHelper.H_Checks("UGroupAuth",gpDT,"GroupID","GroupName",Model.conMod.UGroupAuth)
+                                <span class="rd_green">
+                                    (不勾选则为不限制)
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">允许评论</th>
+                            <td>
+                                @MVCHelper.H_Radios("IsComm_Radio", "是,否".Split(','), "1,0".Split(','), Model.conMod.IsComm.ToString())
+                                <small class="text-muted">(该操作只在节点管理下配置了允许发表评论时生效!)</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">个性模板</th>
+                            <td>
+                                @MvcHtmlString.Create(PageCommon.GetTlpDP("TemplateUrl"))
+                                <input type="hidden" id="TemplateUrl_hid" name="TemplateUrl_hid" value="@Model.conMod.Template" />
+                            </td>
+                        </tr>
+                        @if (Model.conMod.GeneralID > 0)
+    {
+                            <tr>
+                                <td class="fd_td_l">PDF文件</td>
+                                <td>
+                                    <div class="input-group" style="width:508px;">
+                                        <input type="text" class="form-control text_300" id="content_pdf_t" value="@Model.conMod.PdfLink" placeholder="尚未生成" />
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-info" onclick="conhelp.pdf.create(this);"><i class="zi  zi_file"></i> 生成</button>
+                                            @*<button type="button" class="btn btn-info" onclick="conhelp.pdf.view();"><i class="zi zi_eye"></i> 预览</button>*@
+                                            <button type="button" class="btn btn-info" onclick="conhelp.pdf.down();"><i class="zi zi_download"></i> 下载</button>
+                                            <button type="button" class="btn btn-danger" onclick="conhelp.pdf.del();"><i class="zi zi_trashalt"></i> 删除</button>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr><td class="fd_td_l">Word文件</td><td>
+                                    <div class="input-group" style="width:508px;">
+                                        <input type="text" class="form-control text_300" id="content_word_t" value="@Model.conMod.Rtype" placeholder="尚未生成" />
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-info" onclick="conhelp.word.create(this); disBtn(this, 2000);"><i class="zi zi_file"></i> 生成</button>
+                                            @*<button type="button" class="btn btn-info" onclick="conhelp.pdf.view();"><i class="zi zi_eye"></i> 预览</button>*@
+                                            <button type="button" class="btn btn-info" onclick="conhelp.word.down();"><i class="zi zi_download"></i> 下载</button>
+                                            <button type="button" class="btn btn-danger" onclick="conhelp.word.del();"><i class="zi zi_trashalt"></i> 删除</button>
+                                        </span>
+                                    </div>
+                                </td></tr>
+                        }
+                    </table>
+                    @*<ZL:TlpListView ID="TlpView_Tlp" IsFirstSelect="False" TemplateTitle="name" runat="server" />*@
+                </div>
+                <div class="tab-pane fade" id="Process" role="tabpanel" aria-labelledby="Process-tab">
+                    <table class="table table-bordered table_box sys_table">
+                        <tr>
+                           <th scope="row" class="w12rem_lg">@GetFieldAlias("EliteLevel")</th>
+                            <td>
+                                @MVCHelper.H_Check("EliteLevel", "推荐", "1", Model.conMod.EliteLevel.ToString())
+                            </td>
+                        </tr>
+                        <tr>
+                             <th>是否置顶</th>
+                            <td>
+                                  <span>
+                                      @MVCHelper.H_Check("IsTop", "置顶到期时间", "1", Model.conMod.IsTop.ToString())
+                                  </span>
+                                  <input type="text" name="IsTopTime" class="form-control text_300" value="@Model.conMod.IsTopTime" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss', minDate:'@DateTime.Now'})" />
+                                <span class="rd_green">为空则不限制</span> 
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@GetFieldAlias("Status")</th>
+                            <td>
+                                @MVCHelper.H_Radios("ddlFlow", ddlDT, "PPassCode", "PName", Model.conMod.Status.ToString())
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="Copyright"  role="tabpanel" aria-labelledby="Copyright-tab">
+                    @if (Model.conMod.GeneralID < 1)
+    {
+                        <div class="alert alert-info">
+                            <strong>提示：</strong>
+                            未识别到文章ID,请保存后重编辑设定。
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-bordered table_box">
+                            <tr>
+                                <td id="middle_td" class="fd_td_l td_l">授权规则</td>
+                                <td>
+                                    <div class="form-group text_300">
+                                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">转载使用</div>
+                                            <input type="text" class="form-control text-right" id="RepPri_T" placeholder="0-99元的整数">
+                                            <div class="input-group-addon">.00</div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group text_300 bottom0">
+                                        <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-addon">素材使用</div>
+                                            <input type="text" class="form-control text-right" id="MatPri_T" placeholder="0-99元的整数">
+                                            <div class="input-group-addon">.00</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="worksid_tr" class="hide">
+                                <td class="fd_td_l">版权编号</td>
+                                <td>
+                                    <label id="cr_worksid_l"></label>
+                                </td>
+                            </tr>
+                            <tr id="workslink_tr" class="hide">
+                                <td class="fd_td_l">售卖网址</td>
+                                <td id="cr_worklink"></td>
+                            </tr>
+                            <tr>
+                                <td class="fd_td_l">授权操作</td>
+                                <td>
+                                    <a href="javascript:void(0);" onclick="crhelper.add()" id="cradd_a" class="btn btn-primary disabled"><i class="zi zi_plus"></i>添加授权</a>
+                                    <a href="javascript:void(0);" onclick="crhelper.del()" id="crdel_a" class="btn btn-danger disabled"><i class="zi zi_trashalt"></i>暂停授权</a>
+                                    <a href="javascript:void(0);" onclick="crhelper.readd()" id="crreadd_a" class="btn btn-info disabled"><i class="zi zi_syncalt"></i>重新授权</a>
+                                </td>
+                            </tr>
+                        </table>
+                        <div id="configcr" class="alert alert-info" style="display: none;">
+                            <span><strong>提示：</strong></span>未配置版权印接口，若要使用版权功能，请 <a class="btn btn-info" href="../Config/PlatInfoList.aspx">前往配置>></a>
+                        </div>
+                    }
+                </div>
+	</div>
+	</div>
+</div>
+<div class="fixed-bottom Conent_add_fix">
+	@Html.Hidden("RelatedIDS_Hid", Model.conMod.RelatedIDS)
+
+    @if (Model.conMod.GeneralID < 1)
+    {
+
+        <input type="button" value="@(action+ Model.modelMod.ItemName)" onclick="subform('@MVCHelper.GetAction("Content_Add",Request)');" class="btn btn-outline-info" />
+		<input type="button" value="存为草稿" onclick="subform('@MVCHelper.GetAction("Content_Draft",Request)');" class="btn btn-outline-info" />
+	}
+	else
+	{
+		<input type="button" value="@(action+ Model.modelMod.ItemName)" onclick="subform('@MVCHelper.GetAction("Content_Update",Request)');" class="btn btn-outline-info" />
+		<input type="button" value="添加为新@(Model.modelMod.ItemName)" onclick="subform('@MVCHelper.GetAction("Content_AddToNew",Request)');" class="btn btn-outline-info" />
+	}
+	<a href="@(basePath+"ContentManage.aspx?NodeID="+Model.NodeID)" class="btn btn-outline-info">返回列表</a>
+	<a href="javascript:;" id="toTop" onclick="Control.Scroll.ToTop();"> <i class="zi zi_upload"></i>Top</a>
+</div>
+<div id="pushcon_div" class="alert alert-info">
+	<div>保存时自动推送<a href="javascript:$('#pushcon_div').hide();;" title="隐藏"><span class="zi zi_times"></span></a></div>
+	<ul id="pushcon_ul" class="list-unstyled"></ul>
+	@Html.Hidden("pushcon_hid")
+</div>
+@Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex", ""))
+</div>
+</form>    
+}
+@section script{
+<script>
+    var zlconfig = {
+            adminPath:"@CustomerPageAction.customPath2",
+        updir: "@ZoomLa.Components.SiteConfig.SiteOption.UploadDir.ToLower()",
+        duptitlenum: "@ZoomLa.Components.SiteConfig.SiteOption.DupTitleNum",
+        modelid: "@Model.ModelID",
+        keys: "@Request["keys"]",
+        gid: "@Model.conMod.GeneralID"
+    };
+</script>
+<script src="/JS/OAKeyWord.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/chinese.js"></script>
+<script src="/JS/Common.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/Control.js"></script>
+<script src="/JS/ICMS/tags.json"></script>
+<script src="/JS/ZL_Content.js?v=@(ZoomLa.BLL.BLLCommon.Version_JS)"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+    $(function () {
+            Tlp_initTemp();
+            crhelper.init();
+            ZL_Regex.B_Num("#RepPri_T,#MatPri_T");
+            ZL_Regex.B_Value("#RepPri_T,#MatPri_T", { min: 0, max: 99, overmin: function () { }, overmax: function () { } });
+        $("form").validate();
+        @*if ("@Model.nodeMod.Contribute" == "1") { ShowSys(); }*@
+    });
+        function subform(url) {
+            var vaild = $("form").validate({ meta: "validate" });
+            if (!vaild.form()) { return false; }
+            else { mvcpage.help.submit({ "url": url }); }
+        }
+        //智能模板选择事件
+        function OnTemplateViewCheck(value) {
+        $("#TemplateUrl_hid").val(value);
+        }
+        function ShowContentList() {//关联内容
+            var url = $("#RelatedIDS_Hid").val() != "" ? "?ids=" + $("#RelatedIDS_Hid").val() : "";
+            ShowDiag("@(basePath)SelContentTitle.aspx" + url, "选择关联内容");
+        }
+        //版权印
+        var crhelper = { api: "/manage/Copyright/cr.ashx", gid:"@Model.conMod.GeneralID" };
+        crhelper.init = function () {
+            try {
+            $.post(this.api + "?action=get", { gid: crhelper.gid }, function (data) {
+                    var model = APIResult.getModel(data);
+                    if (APIResult.isok(model)) {
+                    $("#workslink_tr,#worksid_tr").removeClass("hide");
+                    $("#RepPri_T").val(model.result.RepPrice);
+                    $("#MatPri_T").val(model.result.MatPrice);
+                    $("#cr_worksid_l").text(model.result.WorksID);
+                        var link = "http://www.banquanyin.com/" + model.result.WorksID;
+                    $("#cr_worklink").text("").append($("<a href='" + link + "' target='_blank' >" + link + "</a>"));
+                    $("#cradd_a").addClass("disabled");
+                    $("#crdel_a").removeClass("disabled");
+                    $("#crreadd_a").removeClass("disabled");
+                    }
+                    else {
+                    $("#RepPri_T,#MatPri_T").val("");
+                    $("#workslink_tr,#worksid_tr").addClass("hide");
+                    $("#cradd_a").removeClass("disabled");
+                    $("#crdel_a").addClass("disabled");
+                    $("#crreadd_a").addClass("disabled");
+                        if (model.retmsg == "未配置版权印接口") {
+                        $("#cradd_a").addClass("disabled");
+                        $("#configcr").css("display", "block");
+                        }
+                    }
+                });
+            } catch (ex) { console.log("copyright:" + ex.message); }
+        }
+        crhelper.add = function(){
+            var repprice = $("#RepPri_T").val();
+            var matprice = $("#MatPri_T").val();
+        $.post(this.api+"?action=add",{ gid: crhelper.gid, repprice: repprice, matprice: matprice },function(data){
+                var model = APIResult.getModel(data);
+                if(APIResult.isok(model)){
+                    crhelper.init();
+                    alert("添加成功，版权编号为:"+model.result);
+                }else{ alert("操作失败:"+model.retmsg); }
+            });
+        }
+        crhelper.del = function(){
+            if(!confirm("确定要暂停授权吗")){return;}
+        $.post(this.api+"?action=del",{ gid: crhelper.gid },function(data){
+                var model = APIResult.getModel(data);
+                if(APIResult.isok(model)){
+                    crhelper.init();
+                    alert("操作成功!");
+                }else{ alert("操作失败:"+model.retmsg); }
+            });
+        }
+        crhelper.readd = function(){
+            var repprice = $("#RepPri_T").val();
+            var matprice = $("#MatPri_T").val();
+            var worksid = "";
+        $.post(this.api+"?action=readd",{ gid:crhelper.gid, repprice: repprice, matprice: matprice },function(data){
+                var model = APIResult.getModel(data);
+                if(APIResult.isok(model)){
+                    crhelper.init();
+                    alert("操作成功!新的版权编号为:"+model.result);
+                }else{ alert("操作失败:"+model.retmsg); }
+            });
+        }
+        function ShowSpecDiag() {
+            ShowDiag("/@SiteConfig.SiteOption.ManageDir/Content/SpecialList.aspx", "选择专题 [<a href='javascript:;' onclick='SelSpec()'>选好点此确认</a>]");
+        }
+</script>    
+}

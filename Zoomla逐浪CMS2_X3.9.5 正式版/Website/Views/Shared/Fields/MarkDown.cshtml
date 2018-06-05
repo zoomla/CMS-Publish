@@ -1,0 +1,23 @@
+﻿@using ZoomLa.BLL
+@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@functions{
+  
+}
+@{ 
+    string id = "txt_" + Model.fieldMod.FieldName;
+    string value = "", value_src = "";
+    if (Model.GeneralID > 0)
+    {
+        string tbname = DataConvert.CStr(DBCenter.ExecuteScala("ZL_Model", "TableName", "ModelID=" + Model.fieldMod.ModelID));
+        value = Model.GetValue();
+        value_src = DataConvert.CStr(DBCenter.ExecuteScala(tbname, Model.fieldMod.FieldName + "_src", "ID=" + Model.valueDR["ID"]));
+    }
+}
+
+<iframe src="/Plugins/Markdown/MDForField.html?v=1&id=@id" style="border:none;width:100%;height:600px;" scrolling="no"></iframe>
+@*Html和源码*@
+<input type="hidden" id="@(id+"_src")" name="@(id+"_src")" value="@value_src"/>
+<input type="hidden" id="@id" name="@id" value="@value" />

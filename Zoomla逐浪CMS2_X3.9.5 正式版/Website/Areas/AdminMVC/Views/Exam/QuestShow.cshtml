@@ -1,0 +1,141 @@
+﻿@using System.Data
+@using System.Text.RegularExpressions
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Common
+@model ZoomLa.Model.M_Exam_Sys_Questions
+@{
+	Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    B_Exam_Sys_Questions questionBll = new B_Exam_Sys_Questions();
+    B_Questions_Knowledge knowBll = new B_Questions_Knowledge();
+    string AngularJS = "";
+    DataTable questDt = (DataTable)ViewBag.questDt;
+}
+@functions{
+}
+@section head{
+<title>试题预览</title>
+
+<script src="/JS/Plugs/angular.min.js"></script>  
+}
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb navbar-fixed-top w-100">
+            <li class="breadcrumb-item"><a href='@CustomerPageAction.customPath2/I/Main.aspx'>工作台</a></li>
+            <li class="breadcrumb-item"><a href='Papers_System_Manage'>教育模块</a></li>
+            <li class="breadcrumb-item"><a href='QuestionManage'>试题管理</a></li>
+            <li class="breadcrumb-item">试题预览</li>
+        </ol>
+    </div>
+</div>
+<div class="container-fluid pr-0">
+<div class="row sysRow table-responsive table-responsive">
+    <table class="table table-striped table-bordered table-hover sys_table" ng-app="app">
+        <tr>
+            <th class="w12rem_lg">试题标题</th>
+            <td>@Model.p_title</td>
+        </tr>
+        <tr>
+            <th>所属年级</th>
+            <td>@B_GradeOption.GetGradeOption(Model.p_Views).GradeName</td>
+        </tr>
+        <tr>
+            <th>难度</th>
+            <td>@questionBll.GetDiffStr(Model.p_Difficulty)</td>
+        </tr>
+        <tr>
+            <th>题型:</th>
+            <td>@M_Exam_Sys_Questions.GetTypeStr(Model.p_Type)</td>
+        </tr>
+        <tr>
+            <th>知识点</th>
+            <td>@(string.IsNullOrEmpty(Model.Tagkey) ? "" : knowBll.GetNamesByIDS(Model.Tagkey))</td>
+        </tr>
+        <tr>
+            <th>试题内容</th>
+            <td>
+                @MvcHtmlString.Create(Model.LargeContent)
+            </td>
+        </tr>
+        <tr>
+            <th>分数</th>
+            <td>@Model.p_defaultScores</td>
+        </tr>
+        <tr>
+            <th>试题选项数</th>
+            <td>@Model.p_ChoseNum</td>
+        </tr>
+        <tr>
+            <th>选项预览</th>
+            <td id="options" ng-controller="appController">
+                <ul>
+                    @if (Model.p_Type != 10)
+                    {
+                        @MvcHtmlString.Create(questionBll.GetSubmit(Model.p_id, Model.p_Type, ref AngularJS))
+                    }
+                    else
+                    {
+                        foreach (DataRow dr in questDt.Rows)
+                        {
+                            <div class="content" style="margin-top:10px;">
+                                <span>@(questDt.Rows.IndexOf(dr)+1)．@dr["P_Title"]></span>@questionBll.GetContent(DataConverter.CLng(dr["p_id"]), DataConverter.CLng(dr["p_type"]),dr["p_Content"].ToString())
+                            </div>
+                            <div class="submit">
+                                <ul class="submitul">
+                                    @questionBll.GetSubmit(DataConverter.CLng(dr["p_id"]), DataConverter.CLng(dr["p_type"]), ref AngularJS)
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div>正确答案:@dr["p_Answer"]</div>
+                        }
+                    }
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>正确答案(仅用于自动改卷)</th>
+            <td>@Model.p_Answer</td>
+        </tr>
+        <tr>
+            <th>正确答案(教师与学生可见)</th>
+            <td>
+                @MvcHtmlString.Create(Model.p_shuming)
+        </td>
+    </tr>
+    <tr>
+        <th>试题解析</th>
+        <td>
+            @MvcHtmlString.Create(Model.Jiexi)
+    </td>
+</tr>
+</table>
+<div class="text-center">
+    <a href="AddEngLishQuestion?id=@Request.QueryString["id"]" class="btn btn-outline-info">重新修改</a>
+    <a href="@Url.Action("QuestList","Exam")" class="btn btn-outline-info">返回列表</a>
+</div>
+</div>
+</div>
+<input type="hidden" id="answer_hid" />
+}
+@section script{
+<script>
+        var page={scope:null,addModel:function(name,model){
+            page.scope.list[name]=model;
+        }};
+        var app=angular.module("app",[]).controller("appController",function($scope,$compile){
+            page.scope=$scope;
+            $scope.list={};
+            var idsArr=[];//仅用于显示答案
+            //<%=AngularJS%>
+
+            });
+        app.filter(
+             'to_trusted', ['$sce', function ($sce) {
+                 return function (text) {
+                     return $sce.trustAsHtml(text);
+                 }
+             }]
+         );
+</script> 
+}

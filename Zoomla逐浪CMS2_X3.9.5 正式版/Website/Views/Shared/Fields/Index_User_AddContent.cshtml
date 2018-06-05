@@ -1,0 +1,76 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.Model.Content
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@foreach (DataRow dr in Model.fieldDT.Rows)
+{
+if (DataConverter.CBool(dr["IsShow"].ToString()))
+{
+Model.fieldMod = new M_ModelField().GetModelFromReader(dr);
+<li class="fd_item" id="fd_item_@Model.fieldMod.FieldName">
+    <div class="fd_item_head">
+	<div class="fd_alias">@Model.fieldMod.FieldAlias</div>
+	@if (Model.fieldMod.IsNotNull)
+	{<span class="fd_item_req">*</span>}
+	<a href="javascript:;" class="pull-right opened" style="margin-right:10px;" onclick="field.toggle(this);">
+	    <i class="zi zi_circleRights" style="font-size:18px;" title="收缩"></i>
+	    <i class="zi zi_circleDowns" style="font-size:18px;" title="展开"></i>
+	</a>
+    </div>
+    <div class="fd_item_field">
+	@try
+	{
+	    if (Model.config.Mode == ModelConfig.SMode.PreView)
+	    {
+		switch (Model.fieldMod.FieldType)
+		{
+		    case "Images":
+		    case "MultiPicType":
+			@Html.Partial("Fields/View_Images", Model);
+			break;
+		    case "PicType":
+		    case "autothumb":
+		    case "CameraType":
+		    case "SwfFileUpload":
+			@Html.Partial("Fields/View_Default", Model);
+			break;
+		    default:
+			@Html.Partial("Fields/View_Default", Model);
+			break;
+		}
+	    }
+	    else
+	    {
+		switch (Model.fieldMod.FieldType)
+		{
+		    case "MultiPicType":
+			@Html.Partial("Fields/Images", Model)
+			break;
+		    default:
+			@Html.Partial("Fields/" + Model.fieldMod.FieldType, Model)
+			break;
+		}
+	    }
+	    <span>@Model.fieldMod.FieldTips</span>
+	    <div>@Model.fieldMod.Description</div>
+	}
+	catch (Exception ex)
+	{ <div class="text-danger">@ex.Message</div>;
+	}
+    </div>
+</li>
+}
+}
+<script>
+    var field = {};
+	//$(".fd_item_field").addClass("input-group").find(".btn-group").addClass("input-group-append").removeClass("btn btn-group");
+    field.toggle = function (btn) {
+        var $item = $(btn).closest(".fd_item");
+        var css = btn.className;
+        if (css.indexOf("opened") > -1) { btn.className = btn.className.replace("opened", "colled"); $item.find(".fd_item_field").slideUp("fast"); }
+        else { btn.className = btn.className.replace("colled", "opened"); $item.find(".fd_item_field").slideDown("fast"); }
+
+    }
+</script>

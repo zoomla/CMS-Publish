@@ -1,0 +1,37 @@
+﻿@using System.Data;
+@using ZoomLa.SQLDAL.SQL;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section head{<title>MarkDown管理</title>}
+@section content{
+<div id="BreadDiv" class="mysite" class="container-fluid mysite">
+	<nav aria-label="breadcrumb" class="row">
+        <ol id="BreadNav" class="breadcrumb fixed-top">
+            <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+            <li class="breadcrumb-item"><a href="">内容管理</a></li>
+            <li class="breadcrumb-item active">
+               MarkDown写作
+                [<a href="/Plugins/Markdown/Default.aspx" target="_blank">前往写作</a>]
+            </li>
+        </ol>		
+		</nav>
+</div>
+<div class="container-fluid pr-0 manage_content">
+    <div class="row sysRow">
+        <div class="tabbable list_choice" style="width:100%;"> 
+            <div>
+                @Html.Partial("Comment/Markdown_List", Model)
+            </div>
+
+            @*<div style="margin-top:5px;">
+                <input type="button" value="批量删除" class="btn btn-outline-info" onclick="mvcpage.bat({url: 'markdown_del', confirm: '确定要批量移除吗' });" />
+            </div>*@
+        </div>
+    </div>
+</div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+}

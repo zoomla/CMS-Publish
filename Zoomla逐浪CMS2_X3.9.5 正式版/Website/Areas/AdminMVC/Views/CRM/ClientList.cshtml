@@ -1,0 +1,59 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Client
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{
+    <title>客户列表</title>
+}
+@{
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    DataTable CTypeDT = attrBll.Sel("ctype");
+    ViewBag.CTypeDT = CTypeDT;
+}
+@section content{
+<div class="w-100">
+<ol id="navWrap" class="breadcrumb fixed-top">
+    <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+    <li class="breadcrumb-item">
+        <a href="@MvcHtmlString.Create(Request.RawUrl)">客户管理</a>
+        <a href="ClientAdd">[添加客户]</a>
+        <a href="javascript:;" onclick="ShowComDiag('ClientImport','导入客户');"> [导入客户]</a>
+    </li>
+    <div id="help" class="pull-right"><a onclick="help_show('47')" title="帮助"><i class="zi zi_questioncircle"></i></a></div>
+</ol>
+    <ul class="nav nav-tabs list_choice">
+        <li class="nav-item">
+            <a class="nav-link" data-value="" href="ClientList">全部客户</a>
+        </li>
+        @foreach (DataRow dr in CTypeDT.Rows)
+       {
+            <li class="nav-item">
+                <a class="nav-link" data-value="@dr["Value"]" href="ClientList?ctype=@(HttpUtility.UrlEncode(dr["Value"].ToString()))">@dr["Value"]</a>
+            </li>
+        }
+    </ul>  
+    @Html.Partial("ClientList_List", Model)
+<div>
+    <input type="button" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'client_del', confirm: '确定要批量移除吗' });" />
+    <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID();" class="btn btn-outline-info" />
+</div>
+<input type="hidden" id="ctype" value="@Request["ctype"]"/>
+</div>
+    }
+@section script{
+<script src="/JS/Label/ZLHelper.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script>
+    $(function () {
+        var ctype = "@HttpUtility.UrlDecode(Request["ctype"])";
+        if (ctype == "") { $(".nav-link:first").addClass("active"); }
+        else
+        {
+            $(".nav-link").each(function () {
+                if ($(this).data("value") == ctype) { $(this).addClass("active"); }
+            });
+        }
+       
+    })
+</script>
+}

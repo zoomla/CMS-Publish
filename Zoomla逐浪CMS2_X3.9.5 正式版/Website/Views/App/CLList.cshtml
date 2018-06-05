@@ -1,0 +1,69 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/App/_layout.cshtml";
+    B_QrCode codeBll = new B_QrCode();
+    Model.url = "CLList";
+    Model.cols = 6;
+}
+@section head{
+    <title>APP颁发</title>
+}
+@section content{
+<div class="container-fluid mysite" id="BreadDiv">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top w-100" id="BreadNav">
+            @MvcHtmlString.Create(ViewBag.navLabel)
+        </ol>
+    </div>
+</div>
+    <table id="EGV" class="table table-striped table-bordered table-hover">
+    @if (Model.itemCount > 0)
+    {
+        <tr><th class="td_s"></th><th>ID</th><th>应用名称</th><th>链接</th><th>创建时间</th><th>操作</th></tr>
+        foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr onclick="location='CL?ID=@dr["ID"]'">
+                <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td>@dr["ID"]</td>
+                <td><a href="CL?ID=@dr["ID"]">@dr["UserName"]</a></td>
+                <td><a href="@codeBll.GetUrl(DataConverter.CLng(dr["ID"]))" target="_blank">@codeBll.GetUrl(DataConverter.CLng(dr["ID"]))</a></td>
+                <td>@DataConverter.CDate(dr["CreateTime"]).ToString("yyyy年MM月dd日")</td>
+                <td>
+                    <a class="option_style" href="CL?id=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+                    <a class="option_style" onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'CL_Del', confirm: '确定要删除吗' });"><i class="zi zi_trashalt" title="删除"></i></a>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr><td colspan="6">尚无二维码颁发链接</td></tr>
+    }
+</table>
+
+
+<script>
+$(function(){
+$("#mimenu_btn").click(function (e) {
+
+	if ($(".u_menu_left").width() > 0) {
+		$(".u_menu_left ul").fadeOut(100);
+		$(".u_menu_left").animate({ width: 0 }, 200);
+	}
+	else {
+		$(".u_menu_left").animate({ width: 150 }, 300);
+		$(".u_menu_left ul").fadeIn();
+	}
+});
+$("#BreadNav li").addClass("breadcrumb-item");
+$(".u_menu ").hide();
+$(".user_mimenu_right").hide();
+})
+</script>
+}
+@section script{
+
+}

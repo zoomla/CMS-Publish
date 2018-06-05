@@ -1,0 +1,164 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@using ZoomLa.BLL
+@functions{
+    B_User buser = new B_User();
+    public string getstyle()
+    {
+        if (buser.CheckLogin())
+        {
+            return "display:inline-table";
+        }
+        else return "display:none";
+    }
+    public string getstyles()
+    {
+        if (buser.CheckLogin())
+        {
+            return "display:none";
+        }
+        else return "display:inline-table";
+    }
+    public string getusername()
+    {
+        return buser.GetLogin().UserName;
+    }
+}
+<!doctype html>
+<html>
+<head>
+    @Html.Partial("_layout_assets")
+    <link href="/App_Themes/v4.css?id=v3.9.3" rel="stylesheet" />
+    <style type="text/css">
+        .ask_bottom_links {text-align: center;}
+        .ask_bottom_links a{margin-right:15px;}
+        .ask_bottom_links a:hover{color:#ff6a00;}
+        .error{font-size:12px;color:#ff0000;}
+    </style>
+    @RenderSection("head", false)
+</head>
+<body>
+    <div id="ask_top">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8 col-xs-12">
+                    <div class="ask_top_l">
+                        <ul class="list-inline">
+                            <li>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle ask_btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        官网导航
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        @MvcHtmlString.Create(Call.GetLabel("{ZL.Label id=\"输出根节点下一级栏目列表\" ShowNum=\"5\" /}"))
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <div class="ask_top_r">
+                        <ul class="list-inline">
+                            <li><i class="zi zi_graduationcap" zico="学士帽"></i><a href="/Baike">百科</a></li>
+                            <li><i class="zi zi_envelopeBold" zico="黑信封"></i> <a href="/Guest">留言</a></li>
+                            <li><i class="zi zi_questioncircle" zico="问题圆标"></i> <a href="/Ask">问答</a></li>
+                            <li><i class="zi zi_paw" zico="宠物黑"></i> <a href="/Index">贴吧</a></li>
+                            <li style="@getstyle()">
+                                <div class="dropdown">
+                                    <a id="dLabel" data-target="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@getusername()<span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的空间</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的帖子</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/User/Content/MyFavori" target="_blank">我的喜欢</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的关注</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/User/" target="_blank">我的投票</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/User/Info/UserBase" target="_blank">个人设置</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/user/Logout">安全退出</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li style="@getstyles()"><a href="/User/Login?ReturnUrl=/ask">登录</a>  <a href="/User/Register?ReturnUrl=/ask">注册</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="qatop">
+        <div class="container">
+            <div class="ask_logo">
+                <div class="row">
+                    <div class="col-sm-5 col-12"><a href="/"><img src='@Call.GetLabel("{$LogoUrl/}")' class="qaCenter-top_logo" alt="@Call.GetLabel("{$SiteName/}")留言系统" /></a></div>
+                    <div class="col-sm-7 col-12 ask_logo_r">
+                        <div class="input-group">
+                            <input type="text" id="txtAsk" name="txtAsk" onmouseover="this.focus()" autocomplete="off" class="form-control" style="vertical-align:middle" tabindex="1" />
+                            <div class="input-group-btn">
+                                <button id="btnAsk" type="button" class="btn bg-info text-white">快速提问</button>
+                                <button id="btnSearch" type="button" class="btn bg-info	text-white">搜索</button>
+                                <button id="btnAnswer" type="button" class="btn bg-info text-white">我要回答</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 导航菜单 -->
+    <nav class="navbar navbar-expand-lg navbar-light ask_two-nav">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav" id="top_nav_ul">
+                    <li class="nav-item" title="问答首页">
+                        <a class="nav-link" href="/Ask">问答首页 <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item" title="问题库">
+                        <a class="nav-link" href="/Ask/List">问题库</a>
+                    </li>
+                    <li class="nav-item" title="分类大全">
+                        <a class="nav-link" href="/Ask/Classification">分类大全</a>
+                    </li>
+                    <li class="nav-item" title="在线提问">
+                        <a class="nav-link disabled" href="/Ask/Add">在线提问</a>
+                    </li>
+                    <li class="nav-item" title="问答专家">
+                        <a class="nav-link disabled" href="/Ask/Star">问答专家</a>
+                    </li>
+                    <li class="nav-item" title="我的提问">
+                        <a class="nav-link disabled" href="/Ask/MyAskList">我的提问</a>
+                    </li>
+                    <li class="nav-item" title="我的问答">
+                        <a class="nav-link disabled" href="/Ask/MyAnswerlist">我的问答</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    @RenderSection("content", false)
+    <div class="ask_bottom">
+        <div class="ask_bottom_links">
+            <a target="_blank" title="如何提问" href="http://help.z01.com/?index/help.html#如何提问"><i class="zi zi_question" zico="问题黑"></i> 如何提问</a>
+            <a target="_blank" title="如何回答" href="http://help.z01.com/?index/help.html#如何回答"><i class="zi zi_comment" zico="评论"></i> 如何回答</a>
+            <a target="_blank" title="如何获得积分" href="http://help.z01.com/?index/help.html#如何获得积分"><i class="zi zi_star" zico="黑星星"></i> 如何获得积分</a>
+            <a target="_blank" title="如何处理问题" href="http://help.z01.com/?index/help.html#如何处理问题"><i class="zi zi_flagBold" zico="旗子黑"></i>如何处理问题</a>
+        </div>
+        <div class="text-center">@Html.Raw(ZoomLa.Components.SiteConfig.SiteInfo.Copyright)</div>
+    </div>
+
+
+
+
+    <script>
+        $(function () {
+            $("#btnAsk").click(function () { location.href = "/Ask/Add?strWhere=" + $("#txtAsk").val(); });
+            $("#btnSearch").click(function () { location.href = "/Ask/SearchList?strWhere=" + $("#txtAsk").val(); });
+            $("#btnAnswer").click(function () { location.href = "/Ask/List?strWhere=" + $("#txtAsk").val(); });
+        })
+    </script>
+    @RenderSection("script", false)
+</body>
+</html>

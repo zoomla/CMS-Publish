@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section head{
+    <title>教师管理</title>
+}
+@section content{
+<div class="w-100">
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol id="BreadNav" class="breadcrumb fixed-top w-100">
+            <li class="breadcrumb-item"><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li class="breadcrumb-item"><a href='Papers_System_Manage'>教育模块</a></li>
+            <li class="breadcrumb-item"><a href='ExTeacherManage'>培训资源库</a></li>
+            <li class="breadcrumb-item">教师管理<a href='AddExTeacher'> [添加教师]</a></li>
+            @MvcHtmlString.Create(Call.GetHelp(83))
+        </ol>
+    </div>
+</div>
+</div>
+@Html.Partial("ExTeacherManage_List")
+<div class="sysBtline">
+    <button type="button" class="btn btn-outline-danger" onclick='mvcpage.bat({ url: "Teacher_Del", confirm: "不可恢复性删除数据,你确定要删除选中吗？" });'>批量删除</button>
+</div>
+}
+@section script{
+    
+}

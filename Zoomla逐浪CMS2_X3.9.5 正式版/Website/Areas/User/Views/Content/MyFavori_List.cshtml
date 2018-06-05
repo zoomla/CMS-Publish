@@ -1,0 +1,54 @@
+﻿@using System.Data;
+@using ZoomLa.BLL;
+@using ZoomLa.Common;
+@using ZoomLa.BLL.Helper;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetUrlByType(DataRow dr)
+    {
+        string url = DataConverter.CStr(dr["FavUrl"]);
+        if (!string.IsNullOrEmpty(url)) { return url; }
+        int infoID = DataConverter.CLng(dr["InfoID"]);
+        switch (DataConverter.CLng(dr["FavoriType"]))
+        {
+            case 2:
+                url = "/Shop/" + infoID + ".aspx";
+                break;
+            case 3:
+                url = "/Store/StoreIndex?id="+infoID;
+                break;
+            case 4:
+                url = "/Ask/Interactive?ID="+infoID;
+                break;
+            case 5:
+                url = "/Baike/Details?id="+infoID;
+                break;
+            default:
+                url = "/Item/"+infoID+".aspx";
+                break;
+        }
+        return url;
+    }
+}
+@{
+    Model.cols = 6;
+    Model.url = "Favour_Data";
+}
+<table class="table table-bordered table-striped" id="EGV">
+<tr><td></td><td>ID</td><td>标题</td><td>收藏类型</td><td>收藏时间</td><td>操作</td></tr>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+<tr>
+    <td><input type="checkbox" name="idchk" value="@dr["FavoriteID"]" /></td>
+    <td>@dr["FavoriteID"]</td>
+    <td><a href="@GetUrlByType(dr)" target="_blank">@StringHelper.SubStr(dr["Title"],30)</a></td>
+    <td>@B_Favorite.GetFavType(DataConverter.CLng(dr["FavoriType"]))</td>
+    <td>@DateHelper.ToDate(dr["FavoriteDate"])</td>
+    <td>
+        <a href="@GetUrlByType(dr)" target="_blank"><i class="zi zi_eye"></i></a>
+        <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["FavoriteID"]', url: 'favour_del', confirm: '确定要移除吗' });"><i class="zi zi_trashalt"></i></a>
+    </td>
+</tr>
+}
+@Html.Partial("_page", Model)
+</table>

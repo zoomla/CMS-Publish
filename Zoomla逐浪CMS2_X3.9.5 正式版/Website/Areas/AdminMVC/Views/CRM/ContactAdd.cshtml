@@ -1,0 +1,123 @@
+﻿@using ZoomLa.BLL.Client
+@using ZoomLa.Model.Client
+@using ZoomLa.Common
+@using System.Data
+@model ZoomLa.Model.Client.M_CRMS_Contact
+@functions{
+    int Cid { get { return DataConverter.CLng(Request.QueryString["Cid"]); } }
+}
+@{
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    DataTable clientDT = ViewBag.clientDT;
+    DataRow emptyDR = clientDT.NewRow();
+    emptyDR["ID"] = 0;
+    emptyDR["ClientName"] = "请选择公司";
+    clientDT.Rows.InsertAt(emptyDR,0) ;
+    B_CRMS_Client clientBll = new B_CRMS_Client();
+    M_CRMS_Client clientMod = null;
+    if (Model.ID > 0)
+    {
+        clientMod = clientBll.SelReturnModel(Model.ClientID);
+    }
+    else
+    {
+        clientMod = clientBll.SelReturnModel(Cid);
+    }
+    if (clientMod == null) { clientMod = new M_CRMS_Client(); }
+}
+@section head{<title>联系人</title>}
+@section content{
+    <div class="w-100">
+        <form method="post" action="@MVCHelper.GetAction("Contact_Add",Request)">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <td class="td_m">公司</td>
+                    <td colspan="3">
+                        @Html.DropDownListFor(m => Model.ClientID, @MVCHelper.ToSelectList(clientDT, "ClientName", "ID", clientMod.ID.ToString()), new { @class = "form-control text_300" })
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_m">姓名</td>
+                    <td>@Html.TextBoxFor(m => Model.Name, new { @class = "form-control text_300 required" })</td>
+                    <td>性别</td>
+                    <td>@MVCHelper.H_Radios("Sex", "未知|先生|女士".Split('|'), "未知|先生|女士".Split('|'), Model.Sex)</td>
+                </tr>
+                <tr>
+                    <td>部门</td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control text_200 w_textdp_text" name="DepName" value="@Model.DepName" />
+                            <select class="form-control w_textdp_dp text_100"
+                                    onchange='$(this).parent().find(".w_textdp_text").val(this.value)'>
+                                <option value="">请选择</option>
+                                <option>总经办</option>
+                                <option>销售部</option>
+                                <option>采购部</option>
+                                <option>行政部</option>
+                                <option>人力部</option>
+                                <option>后勤</option>
+                            </select>
+                        </div>
+                        @*@Html.TextBoxFor(m => Model.DepName, new { @class = "form-control text_300" })*@
+                    </td>
+                    <td>职务</td>
+                    <td>
+                        @*@Html.TextBoxFor(m => Model.Post, new { @class = "form-control text_300" })*@
+                        <div class="input-group">
+                            <input type="text" class="form-control text_200 w_textdp_text" name="Post" value="@Model.Post" />
+                            <select class="form-control w_textdp_dp text_100"
+                                    onchange='$(this).parent().find(".w_textdp_text").val(this.value)'>
+                                <option value="">请选择</option>
+                                <option>助理</option>
+                                <option>经理</option>
+                                <option>主管</option>
+                                <option>组长</option>
+                                <option>工程师</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>办公电话</td>
+                    <td>@Html.TextBoxFor(m => Model.Mobile_Office, new { @class = "form-control text_300 mobile" })</td>
+                    <td>家庭电话</td>
+                    <td>@Html.TextBoxFor(m => Model.Mobile_Home, new { @class = "form-control text_300 mobile" })</td>
+                </tr>
+                <tr>
+                    <td>手机1</td>
+                    <td>@Html.TextBoxFor(m => Model.Mobile1, new { @class = "form-control text_300 mobile" })</td>
+                    <td>手机2</td>
+                    <td>@Html.TextBoxFor(m => Model.Mobile2, new { @class = "form-control text_300 mobile" })</td>
+                </tr>
+                <tr>
+                    <td>QQ</td>
+                    <td>@Html.TextBoxFor(m => Model.QQ, new { @class = "form-control text_300" })</td>
+                    <td>微信</td>
+                    <td>@Html.TextBoxFor(m => Model.Wechat, new { @class = "form-control text_300" })</td>
+                </tr>
+                <tr>
+                    <td>微博</td>
+                    <td>@Html.TextBoxFor(m => Model.SinaBlog, new { @class = "form-control text_300" })</td>
+                    <td>邮件</td>
+                    <td>@Html.TextBoxFor(m => Model.Email, new { @class = "form-control text_300 email" })</td>
+                </tr>
+                <tr><td>住址</td><td colspan="3">@Html.TextBoxFor(m => Model.Address, new { @class = "form-control" })</td></tr>
+                <tr><td>备注</td><td colspan="3">@Html.TextBoxFor(m => Model.Remind, new { @class = "form-control" })</td></tr>
+                <tr>
+                    <td></td>
+                    <td colspan="3">
+                        <input type="submit" value="保存信息" class="btn btn-info" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+}
+@section script{
+    <style type="text/css">
+        #navHolder { display: none; }
+    </style>
+    <script>
+            $("form").validate();
+    </script>
+}

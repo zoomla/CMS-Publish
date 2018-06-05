@@ -1,0 +1,32 @@
+﻿@{ 
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section head{<title>客户导入</title>}
+@section content{
+<div class="d-flex flex-row">
+<form method="post"  action="Import_Client" enctype="multipart/form-data"  >
+<div class="input-group">
+    <input type="file" class="form-control m50rem_50" name="file_up" id="file_up"  accept=".xlsx"/>
+    <span class="input-group-append">
+        <input type="submit" class="btn btn-outline-info" value="上传文档" onclick="return checkSub();" />
+    </span>
+</div>
+</form>
+<form method="post"  action="Import_DownTlp" class="ml-1">
+<input type="submit" value="下载客户导入模板" class="btn btn-outline-info" />
+</form>
+</div>
+<div class="alert alert-info w-100 mt-2">
+    <div>1,下载模板,按照规范填写好数据</div>
+    <div>2,打开页面,上传填写好的文档</div>
+</div>
+    }
+@section script{
+<script>
+    function checkSub() {
+        var fname=$("#file_up").val();
+        if (fname == "") { alert("未选定文件"); return false; }
+        return true;
+    }
+</script>
+}

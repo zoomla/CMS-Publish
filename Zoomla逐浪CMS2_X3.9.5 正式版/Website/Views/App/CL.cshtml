@@ -1,0 +1,123 @@
+﻿@{
+    Layout = "~/Views/App/_layout.cshtml";
+    string code = ViewBag.code ?? "";
+}
+@section head{
+    <title>APP颁发</title>
+}
+@section content{
+<div class="container-fluid mysite" id="BreadDiv">
+    <div class="row">
+        <ol class="breadcrumb navbar-fixed-top w-100" id="BreadNav">
+            @MvcHtmlString.Create(ViewBag.navLabel)
+        </ol>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 col-md-7 col-lg-7" style="padding-left:0px;">
+	 <img src="AppTlp/news/view.png" />
+        <form method="post" action="@MVCHelper.GetAction("CreateLink",Request)" onsubmit="return CheckUrl();">
+            <table class="table table-bordered table-striped ml-2">
+                <tr><td colspan="2" class="text-center"><strong>智能设备识别</strong></td></tr>
+                <tr>
+                    <td>应用名称：</td>
+                    <td>
+                        <input type="text" id="alias_t" name="alias_t" value="@ViewBag.alias" class="form-control text_300" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="td_m">Android <span class="text-danger">*</span>：</td>
+                    <td>
+                        <input type="text" id="android_t" name="android_t" value="@ViewBag.android" class="form-control text_300 url_txt required" />
+                        <span class="r_red txtvalid"></span> <small class="text-muted">默认链接</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td>iPhone：</td>
+                    <td>
+                        <input type="text" id="iphone_t" name="iphone_t" value="@ViewBag.iphone" class="form-control text_300 url_txt" />
+                        <span class="r_red txtvalid"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>iPad：</td>
+                    <td>
+                        <input type="text" id="ipad_t" name="ipad_t" value="@ViewBag.ipad" class="form-control text_300 url_txt" />
+                        <span class="r_red txtvalid"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>WPhone：</td>
+                    <td>
+                        <input type="text" id="wphone_t" name="wphone_t" value="@ViewBag.wphone" class="form-control text_300 url_txt" />
+                        <span class="r_red txtvalid"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>PC：</td>
+                    <td>
+                        <input type="text" id="pc_t" name="pc_t" value="@ViewBag.pc" class="form-control text_300 url_txt" />
+                        <span class="r_red txtvalid"></span>
+                    </td>
+                </tr>
+                <tr><td>生成链接：</td><td><span>@ViewBag.link</span></td></tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="submit" value="生成二维码" class="btn btn-info" />
+                        <a href="CLList" class="btn btn-outline-info">返回列表</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div class="col-12 col-md-5 col-lg-5 text-center;">
+        <div class="codediv" id="codediv">
+            @if (!string.IsNullOrEmpty(code)) { @(MvcHtmlString.Create(code)) }
+            else { <div class="codefont">左侧输入链接<br />点击即可生成二维码</div> }
+        </div>
+    </div>
+</div>
+}
+@section script{
+<style type="text/css">
+    .codediv { border: 1px solid #bbb; border-radius: 3px; width: 320px; height: 320px; background-color: #fff; margin-top: 30px; padding: 20px; text-align: center; }
+    .codefont { margin-top: 120px; font-size: 20px; }
+    .codeimg { width: 280px; height: 280px; }
+    .user_mimenu{display:none;}
+</style>
+<script src="/JS/jquery.validate.min.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+    function CheckUrl() {
+        $(".url_txt").siblings('.txtvalid').text('');
+        var urls = $(".url_txt");
+        for (var i = 0; i < urls.length; i++) {
+            var url = StrHelper.UrlDeal(urls[i].value);
+            if (url != "" && !ZL_Regex.isUrl(url)) {
+                $(urls[i]).siblings(".txtvalid").text("格式不正确");
+                return false;
+            }
+        }
+        var vaild = $("form").validate({ meta: "validate" });
+        return (true && vaild.form());
+    }
+	$(function(){
+        $("#mimenu_btn").click(function (e) {
+			
+            if ($(".u_menu_left").width() > 0) {
+                $(".u_menu_left ul").fadeOut(100);
+                $(".u_menu_left").animate({ width: 0 }, 200);
+            }
+            else {
+                $(".u_menu_left").animate({ width: 150 }, 300);
+                $(".u_menu_left ul").fadeIn();
+            }
+        });
+		$("#BreadNav li").addClass("breadcrumb-item");
+		$(".u_menu ").hide();
+		$(".user_mimenu_right").hide();
+		})
+
+</script>
+}

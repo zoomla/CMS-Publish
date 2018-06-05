@@ -1,0 +1,159 @@
+﻿@{ 
+    Layout = "/Views/Shared/_empty.cshtml";
+
+}
+@section head{
+<style type="text/css">
+.row>div{border:1px solid rgba(86,61,124,.2);background-color:rgba(86,61,124,.15);padding-top:0.75rem;padding-bottom:0.75rem;}
+.btn-light{border:1px solid #ddd;}
+</style>
+<title>BootStrap4布局</title>
+}
+@section content{
+<table class="table table-bordered table-striped" style="margin:0px;" id="app">
+    <tr>
+        <td style="width:100px;">外部框架</td>
+        <td>
+            <label style="margin-right:3px;" class="btn btn-light" v-for="item in frames"><input type="radio" name="frame_rad" v-model="frame" :value="item.value"/>{{item.name}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>列数</td>
+        <td>
+            <label class="btn btn-light" style="margin-right:3px;" v-for="item in nums"><input type="radio" name="num_rad" v-model="num" :value="item"/>{{item}}</label>
+        </td>
+    </tr>
+    <tr>
+        <td>设备
+	</td>
+        <td>
+            <div class="input-group" v-for="item in devices" style="margin-bottom:3px;">
+                <span class="input-group-prepend"><span style="width:160px;" class="input-group-text"><label style="cursor:pointer;"><input type="checkbox" style="margin-right:3px;" :checked="item.checked" v-model="item.checked"/>{{item.name}}({{item.value}})</label></span></span>
+                <input type="text" class="form-control" v-model="item.col"/>
+                <span class="input-group-append">
+                    <button class="btn btn-light" v-for="col in cols" v-on:click="setCols(item,col);">{{col}}</button>
+                </span>
+            </div>
+	    <small class="text-muted">框内数字段落应与<u>列数</u>相符，如选择6列应填写为：2*2*2*2*2*2或：1*1*1*1*4*4(不超过栅格系统12总数即可)。</small>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="container" id="result_wrap">
+                <div class="row" v-html="getHtml()">
+                </div>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>HTML</td>
+        <td>
+            <textarea :value="htmlStr" class="form-control" id="hmlText" style="width:100%;" rows="8"></textarea>
+            <div style="margin-top:5px;">
+<!--
+                <button type="button" class="btn btn-outline-info" onclick="insertBootLayout();">保存入编辑器</button>
+                <button type="button" class="btn btn-outline-info" onclick="btStrap.viewFromTArea();">预览文本框中HTML</button>
+-->
+				<a href="javascript:;" id="copyHtml" class="btn btn-outline-info">复制代码</a>
+				<a href="//code.z01.com" class="btn btn-outline-info" target="_blank">线上工具</a>
+            </div>
+        </td>
+    </tr>
+</table>
+        }
+@section script{
+<style type="text/css">
+.btn-light:not(:disabled):not(.disabled).active{color:#fff;background-color:#0094ff;}
+</style>
+<script src="/dist/vue/vue.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            nums: [2, 3, 4, 5, 6, 7, 8],
+            cols:["4*4*4","0*0*0*0","3*3*6","6*6","2*10","10*2"],
+            frames: [{ name: ".container标准居中", value: "container" }, { name: ".container-fluid全屏100%", value: "container-fluid" }],
+            devices: [{ name: "自适应", value: "col", checked: true, col: "4*4*4" },
+               // { name: "手机设备", value: "col-xs", checked: false, col: "4*4*4" },
+                { name: "平板PAD", value: "col-sm", checked: false, col: "4*4*4" },
+                { name: "窄屏设备", value: "col-md", checked: false, col: "4*4*4" },
+                { name: "传统电脑", value: "col-lg", checked: false, col: "4*4*4" },
+                { name: "高清屏幕", value: "col-xl", checked: false, col: "4*4*4" }],
+            frame: "container",
+            num: 2,
+            htmlStr:"",
+        },
+        methods: {
+            setCols: function (item, col) {
+                item.col = col;
+            },
+            getHtml: function () {
+                var ref = this;
+                var result_html = "";
+                var chkDevices = [];
+                for (var i = 0; i < ref.devices.length; i++) {
+                    if (ref.devices[i].checked == true) { chkDevices.push(ref.devices[i]); }
+                }
+                //生成class
+                var css = new Array(ref.num);
+                for (var i = 0; i < css.length; i++) {
+                    css[i] = "";
+                }
+                chkDevices.forEach(function (device) {
+                    var cols = device.col.split('*');
+                    var value = device.value;
+                    for (var i = 0; i < cols.length && i < ref.num; i++) {
+                        if (Convert.ToInt(cols[i]) == 0) {
+                            css[i] += value + " ";
+                        }
+                        else {
+                            css[i] += value + "-" + cols[i] + " ";
+                        }
+                    }
+                });
+                var result_text = "";
+                for (var i = 0; i < css.length; i++) {
+                    result_html += '<div class="' + css[i].trim() + '">空间</div>';
+                    result_text += '<div class="' + css[i].trim() + '"></div>';
+                    result_text += "\r\n";
+                }
+                
+                //-------------
+                var wrapHtml = '<div class="' + ref.frame + '">\r\n';
+                wrapHtml += '<div class="row">\r\n';
+                wrapHtml += result_text;
+                wrapHtml += '</div>\r\n</div>';
+                ref.htmlStr = wrapHtml;
+                //-------------
+
+                return result_html;
+                //以第一个的为准
+                //$("#result_view").html(result_view);
+                //var wrapHtml = '<div class="' + $("input[name='frame_rad']:checked").val() + '">\r\n';
+                //wrapHtml += '<div class="row">\r\n';
+                //wrapHtml += result_html;
+                //wrapHtml += '</div>\r\n</div>';
+                //$("#result_html").text(wrapHtml);
+            },
+        },
+    });
+	
+	//拷贝代码
+	var clipboard = new ClipboardJS('#copyHtml', {
+        target: function() {
+            //return document.querySelector('div');
+			return document.querySelector('#hmlText');
+        }
+    });
+
+    clipboard.on('success', function(e) {
+        console.log(e);
+    });
+
+    clipboard.on('error', function(e) {
+        console.log(e);
+    });
+</script>    
+}

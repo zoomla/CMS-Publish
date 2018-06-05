@@ -1,0 +1,23 @@
+﻿@model System.Data.DataTable
+@section head{<title>客户类别</title>}
+@{
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section content{
+<div class="w-100">
+    <ol id="navWrap" class="breadcrumb fixed-top w-100">
+        <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+        <li class="breadcrumb-item">
+            <a href="@MvcHtmlString.Create(Request.RawUrl)">客户类别</a>
+            [<a href="CTypeAdd">添加类别</a>]
+        </li>
+    </ol>
+    @Html.Partial("CType_List", Model)
+    <div class="sysBtline">
+        <input type="button" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'client_del', confirm: '确定要批量移除吗' });" />
+    </div>
+</div>
+}
+@section script{
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+}

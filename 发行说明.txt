@@ -1,10 +1,10 @@
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ 逐浪网站管理系统 Zoomla! CMS    	                              ┃
-┃ 当前版本：x3.9.3  	                                              ┃
+┃ 当前版本：x3.9.5  	                                              ┃
 ┃ 版权所有: 逐浪软件(z01.com)                                        ┃
 ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-┃ Zoomla! CMS2  x3.9.3	                                              ┃
-┃ Copyright 2017 z01.com .All Rights Reserved.                       ┃
+┃ Zoomla! CMS2  x3.9.5	                                              ┃
+┃ Copyright 2018 z01.com .All Rights Reserved.                       ┃
 ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 ┃【版权声明】                                                        ┃
 ┃ 本软体为共享软体(shareware)提供个人网站免费使用。                  ┃
@@ -23,7 +23,7 @@ Jiangxi Joined Industries CO.,LTD
 
 ★联合出品★
 
-版本名称：Zoomla!CMS2 x3.9.3
+版本名称：Zoomla!CMS2 x3.9.5
 文件名称：快速安装说明
 文件格式：TXT
 版权所有：逐浪软件(Zoomla!CMS)
@@ -46,4 +46,4 @@ Copyright 1998-2018 z01.com - All Rights Reserved.
 
 
 逐浪软件项目组
-2018-1-9
+2018-6-5

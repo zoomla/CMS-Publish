@@ -1,0 +1,40 @@
+﻿@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Model.url = "UserRecei";}
+<div id="EGV" class="container">
+    <ul id="addul" class="list-unstyled mt-2 row">
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <li class="col-md-4 col-sm-6 col-12 mb-2">
+                <div class="card  text-left">
+                    <div class="card-header">
+                        <i class="zi zi_user"></i> <strong>@dr["ReceivName"]</strong> <i class="zi zi_mobilealt" style="font-size:16px;"></i> @dr["MobileNum"]
+                        <i class='zi zi_check pull-right' title='默认'></i>
+                    </div>
+                    <div class="card-body">
+                        <div><div class="add_left">所在地区：</div><span>@dr["Provinces"]</span></div>
+                        <div><div class="add_left">地址：</div>@dr["Street"]</div>
+                        <div><div class="add_left">邮编：</div>@dr["ZipCode"]</div>
+                    </div>
+                    <div class="card-footer">
+                        <span><a href="AddUserAddress?id=@dr["id"]" title="修改"><i class="zi zi_pencilalt"></i>修改</a></span>
+                        <a href="javascript:;" onclick="mvcpage.del({ id: '@dr["ID"]', url: 'Recei_Del', confirm: '你确定要删除吗?' });"><i class="zi zi_trashalt"></i>删除</a>
+                        @if (dr["isDefault"].ToString() != "1")
+                        {
+                            <a href="javascript:;" class="pull-right" onclick="mvcpage.del({ id: '@dr["ID"]', url: 'Recei_SetDef'});">设为默认</a>
+                        }
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+    <script>
+        $(function () {
+            var addli = '<li class="col-md-4 col-sm-6 col-12" title="添加新地址"><div class="panel panel-default text-center" style="height:180px;"><i class="zi zi_plusSquare"  onclick="location.href=\'AddUserAddress\';" style="font-size:150px;line-height:190px;color:#e3e3e3;cursor:pointer;"></i></div><li>';
+            $li = $("#addul li:last");
+            if ($li.length > 0) { $li.after(addli); }
+            else { $("#addul").append(addli); }
+        })
+    </script>
+</div>

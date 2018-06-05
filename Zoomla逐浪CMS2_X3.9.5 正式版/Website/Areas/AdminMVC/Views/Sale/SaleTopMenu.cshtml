@@ -1,0 +1,37 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Shop
+@model ZoomLa.BLL.Shop.F_Order_Sale
+@{ 
+    B_Store_Info storeBll = new B_Store_Info();
+    DataTable storeDT = storeBll.SelPage(1,int.MaxValue,new F_StoreInfo() { }).dt;
+    DataRow storeDR = storeDT.NewRow();
+    storeDR["Title"] = "全部店铺";
+    storeDR["GeneralID"] = "-100";
+    storeDT.Rows.InsertAt(storeDR,0);
+}
+<style type="text/css">
+#navHolder{display:none;}
+</style>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Label/ZLHelper.js"></script>
+<div id="sale_top" style="margin-bottom:5px;">
+    <form method="post" action="@Model.action">
+        <div class="alert alert-success" style="margin:3px;">
+            <a href="/AdminMVC/Sale/Index">总体销售统计</a> |
+            <a href="/AdminMVC/Sale/SaleByDay">按日销售排名</a> |
+            <a href="/AdminMVC/Sale/SaleByProduct">商品销售排名</a> |
+            <a href="/AdminMVC/Sale/SaleByClass">商品类别销售排名</a> |
+        </div>
+        <div class="input-group">
+            <span class="input-group-addon">起始时间</span>
+            <input type="text" class="form-control" name="stime" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });" value="@Model.stime" />
+            <span class="input-group-addon">结束时间</span>
+            <input type="text" class="form-control" name="etime" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });" value="@Model.etime" />
+            <span class="input-group-addon">店铺</span>
+            @Html.DropDownList("storeIDS", MVCHelper.ToSelectList(storeDT, "Title", "GeneralID", Model.storeIds),new {@class="form-control" })
+            <span class="input-group-btn">
+                <input type="submit" class="btn btn-info" value="搜索" />
+            </span>
+        </div>
+    </form>
+</div>

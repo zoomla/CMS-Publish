@@ -1,0 +1,134 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.Controls
+@using ZoomLa.BLL.AdSystem
+@using ZoomLa.BLL
+@model ZoomLa.Model.AdSystem.M_AdBuy
+@{
+    B_ADZone zoneBll = new B_ADZone();
+    string title = Model.ID > 0 ? "修改申请" : "广告申请";
+    DataTable zoneDT = zoneBll.Sel(new Com_Filter() { addon = "sale" });
+    DataRow zoneDR = zoneDT.NewRow();
+    zoneDR["ZoneID"] = 0;
+    zoneDR["ZoneName"] = "请选择广告版位";
+    zoneDT.Rows.InsertAt(zoneDR, 0);
+}
+@section head{<title>@title</title>}
+@section content{
+    <div id="pageflag" data-nav="group" data-ban="AdPlan"></div>
+	<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+		<li class="breadcrumb-item"><a href="AdPlan">广告计划</a></li>
+		<li class="breadcrumb-item active">广告申请</li>
+	</ol>
+	</nav>
+	</div>
+<div class="container">
+    <form method="post" action="@MVCHelper.GetAction("AdPlan_Add",Request)" enctype="multipart/form-data">
+        <table class="ad_info table table-striped table-bordered">
+            <tr>
+                <td colspan="2" class="text-center"><span>@title</span></td>
+            </tr>
+            <tr>
+                <td align="right">版位名称&nbsp;: </td>
+                <td>
+                    @Html.DropDownList("ADID", MVCHelper.ToSelectList(zoneDT, "ZoneName", "ZoneID"), new { @class = "form-control text_300" })
+                </td>
+            </tr>
+            <tr>
+                <td align="right">广告权重: </td>
+                <td>
+                     <select id="scale" name="scale" class="form-control text_300">
+                        <option Value="10">10</option>
+                        <option Value="9">9</option>
+                        <option Value="8">8</option>
+                        <option Value="7">7</option>
+                        <option Value="6">6</option>
+                        <option Value="5">5</option>
+                        <option Value="4">4</option>
+                        <option Value="3">3</option>
+                        <option Value="2">2</option>
+                        <option Value="1">1</option>
+                     </select>
+                    <span style="color:red;">*</span>如要购买完整广告请填10
+                </td>
+            </tr>
+            <tr>
+                <td align="right">购买天数&nbsp;: </td>
+                <td>
+                    <div class="input-group mg-3">
+                        @Html.TextBoxFor(m => m.ShowTime, new { @class = "form-control text_300 required" })
+                        <span class="input-group-append">
+                            <span class="input-group-text">天</span>
+                        </span>
+                    </div>
+                    <label for="ShowTime" class="error"></label>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">计划费用&nbsp;: </td>
+                <td class="style9">
+                    <div class="input-group mb-3">
+                       @Html.TextBoxFor(m=>m.Price,new {Value=Model.Price.ToString("F2"), @class="form-control text_300 required linprice"})
+                        <span class="input-group-append">
+                            <span class="input-group-text">元</span>
+                        </span>
+                    </div>
+                <label for="Price" class="error"></label>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">广告内容&nbsp;: </td>
+                <td>
+                    <textarea id="content" name="content" class="form-control text_405" style="height:100px;">@Model.Content</textarea><br />
+                    <span><span style="color:red;">*</span>可以填写您对于广告投放的其它要求。</span>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">广告附件&nbsp;: </td>
+                <td>
+                    @Html.Partial("C_SFileUP", new C_SFileUP { MaxHeight = 50, MaxWidth = 50, ID = "Files", Value = Model.Files })
+                    <span><span style="color:red;">*</span>推荐使用rar|zip|jpg|docx等格式上传您的广告详细附件</span>
+                </td>
+            </tr>
+            <tr>
+                <td align="right">投放时间&nbsp;: </td>
+                <td>
+                    <span id="Span2">
+                        @Html.TextBoxFor(m => m.Ptime, new { @class = "form-control text_300 rquired" })
+                        <span><span style="color:red;">*</span>选择计划广告投放的时间</span>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="提交申请" class="btn btn-outline-info" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+}
+@section script{
+<style>.sfile_img{display:none;}</style>
+<script type="text/javascript" src="/JS/DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+    $(function () {
+        var ADID = '@Model.ADID';
+        if (ADID && ADID != '') { $("#ADID").val(ADID); }
+        var scale = '@Model.Scale';
+        if (scale && scale != '0') { $("#scale").val(scale); }
+        $("form").validate({
+            rules: {
+                ShowTime: { required: true, range:[1,365] }
+            },
+            message: {
+                ShowTime: { required: "购买天数不能为空", range: "购买天数必须为1-365的正整数" }
+            }
+        });
+    })
+</script>
+}

@@ -1,0 +1,177 @@
+﻿@model ZoomLa.Model.M_Baike
+@{
+    int Mid = ViewBag.Mid;
+    int EditID = ViewBag.EditID;
+    Layout = "~/Views/FrontBaike/_BaikeLayout.cshtml";
+}
+@section head{
+<title>逐浪百科</title> 
+}
+@section content{
+<div class="container margin_t5" data-offset="280">
+<ol class="breadcrumb margin_top10" style="margin-bottom:0px;">
+    <li class="breadcrumb-item"><a href="/Baike">百科中心</a></li>
+    <li class="breadcrumb-item">词条详情</li>
+</ol>
+<div>
+<div class="tittle_div">
+    <span id="tittle_sp" class="bktitle">@Model.Tittle</span>
+    <span id="cate_sp" class="bktype">(@Model.Classification)</span>
+    <a id="edit_a" href="@(Mid >= 0 ? "BKEditor?ID=" + Mid : "BKEditor?EditID=" + EditID)" class="btn btn-default margin_l5"><i class="zi zi_pencilalt"></i> 编辑</a>
+    <div class="pull-right" style="margin-right:15px;" id="favAndLike_wrap">
+        <span id="addfav_btn" style="display:none;" class="bk_top_btn" title="收藏" onclick="B_Fav.add(@Mid);"><i class="zi zi_star"></i> 收藏</span>
+        <span id="delfav_btn" style="display:none;" class="bk_top_btn" title="取消收藏" onclick="B_Fav.del(@Mid);"><i class="zi zi_star" style="color:#F5BD5D"></i> 已收藏</span>
+        <span class="margin_l5">|</span>
+        <span id="addlike_btn" style="display:none;" class="bk_top_btn" title="点赞" onclick="B_Like.add(@Mid);"><i class="zi zi_digg"></i> <span class="like_count_sp r_gray"></span></span>
+        <span id="dellike_btn" style="display:none;" class="bk_top_btn" title="已点赞"><i class="zi zi_digg" style="color:#ccc;"></i> <span class="like_count_sp r_gray"></span></span>
+    </div>
+</div>
+<div class="brief_div">
+    @if (!string.IsNullOrEmpty(Model.BriefImg))
+    {
+        <div id="pic_div" style="float:left;padding-right:10px;padding-bottom:10px;">
+            <img id="pic_img" src="@Model.BriefImg" style="max-width:200px;" />
+        </div>
+    }
+    <span>@MvcHtmlString.Create(Model.Brief)</span>
+    <div class="clearfix"></div>
+</div>
+<div class="info_div">
+    <ul class="list-unstyled" id="info_tb"></ul>
+</div>
+<div style="position: relative;">
+        <div id="loading"></div>
+        <div class="index_div">
+            <div class="block-title col-lg-2 col-md-2 col-xs-2">目录</div>
+            <div class="catalog-list col-lg-10 col-md-10 col-xs-10" id="baike_list"></div>
+            <div class="clearfix"></div>
+        </div>
+        <div >
+            <div id="Contents_div">@MvcHtmlString.Create(Model.Contents)</div>
+        </div>
+    </div>
+<!--content end;-->
+<div class="bk_bottom">
+    <div class="bkheader"><span>参考资料</span></div>
+    <div id="ref_body" style="margin-bottom:20px;"></div>
+    <div class="bkheader"></div>
+    <div><strong>词条标签：</strong>
+    @foreach (string btype in Model.Btype.Split(','))
+    {
+        if(!string.IsNullOrEmpty(btype)){ <a href="/Baike/Search?btype=@HttpUtility.UrlEncode(btype)" class='btype_a' target='_blank'>@btype</a>}
+    }
+</div>
+</div>
+</div>
+<nav id="baike_div" class="bs-docs-sidebar affix-top">
+     <ul class="nav" id="baike_nav"></ul>
+     <div><button type="button" style="width: 50px;height: 50px;font-size:20px; border-radius:0;" onclick="toggleNav()" class="btn btn-default"><span class="zi zi_list"></span></button></div>
+    <div id="topcontrol" title="点击回到顶部！" style="cursor: pointer; opacity: 1;"></div>
+</nav>
+</div>
+<div class="hidden">
+    <input type="hidden" ID="info_hid" name="info_hid" value="@Model.Extend" />
+    <input type="hidden" ID="refence_hid" name="refence_hid" value="@Model.Reference" />
+</div>
+}
+@section script{
+<style type="text/css">
+
+</style>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/Plugs/Baike.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script>
+BaiKe.config.id = "Contents_div";
+BaiKe.config.dirid = "baike_list";
+BaiKe.config.navid = "baike_nav";
+BaiKe.Init();
+</script>
+<script>
+    $(function () {
+        $("#baike_div").hide();
+        $('body').scrollspy({ target: '#baike_div', offset: 100 });
+        $('body').on('activate.bs.scrollspy', function (e) {
+            $("#baike_nav .navTitle").each(function (i) {
+                if ($(this).parent()[0] == e.target) {
+                    if (i >= 1) { $("#baike_div").show(); return; } else { $("#baike_div").hide(); }
+                }
+            })
+        })
+        //---------------------------------------
+        var intertag = 0;
+        $("#topcontrol").click(function () {
+            intertag = setInterval(function () {
+                if ($(window).scrollTop() <= 0) { clearInterval(intertag); }
+                $(window).scrollTop($(window).scrollTop() - 50);
+            }, 10);
+        });
+        //---------------------------------------
+        {
+            var val = $("#info_hid").val();
+            if (!ZL_Regex.isEmpty(val)) { info.data = JSON.parse(val); info.dataToHtml(); }
+        }
+        //---------------------------------------
+        {
+            var val = $("#refence_hid").val();
+            if (!ZL_Regex.isEmpty(val)) { refence.data = JSON.parse(val); refence.dataToHtml(); }
+        }
+    });
+    function toggleNav() {
+        if ($('#baike_nav').css("visibility") == "visible")
+        { $('#baike_nav').css('visibility', 'hidden'); }
+        else
+        { $('#baike_nav').css('visibility', 'visible'); }
+    }
+    //---------修改h1标识的样式,根据选择开启
+    var $items = $("#Contents_div").find("h1");
+    //var flagTlp = '<h1 class="flag_h"><span class="flag_num">1</span><span class="flag_name">级别信息</span></h1>';
+    for (var i = 0; i < $items.length; i++) {
+        //替换标识
+        var $item = $($items[i]);
+        var name = $item.text(); $item.text("");
+        $item.addClass("flag_h");
+        $item.append('<span class="flag_num">' + (i + 1) + '</span><span class="flag_name">' + name + '</span>');
+    }
+</script>
+<script>
+var Mid = "@Mid";
+var B_Fav = {
+    add: function (id) {
+        $.post("/API/Mod/collect.ashx?action=add", { infoID: id, title: $("#tittle_sp").text(), favurl: "@Request.RawUrl", type: "5" }, function (data) { });
+        $("#addfav_btn").hide(); $("#delfav_btn").show();
+    }, del: function (id) {
+        $.post("/API/Mod/collect.ashx?action=del", { infoID: id, type: "5" }, function (data) { });
+        $("#addfav_btn").show(); $("#delfav_btn").hide();
+    }
+};
+var B_Like = {
+    add: function (id) {
+        $.post("/API/Mod/like.ashx?action=add", { infoID: id, source: "baike" }, function (data) { });
+        var num = ConverToInt($(".like_count_sp:first").text()) + 1;
+        $(".like_count_sp").text(num);
+        $("#addlike_btn").hide(); $("#dellike_btn").show();
+    },
+    getCount: function () {
+        $.post("/API/Mod/Like.ashx?action=count", { infoID: Mid, source: "baike" }, function (data) {
+            var model = APIResult.getModel(data);
+            $(".like_count_sp").text(ConverToInt(model.result));
+        })
+    }
+};
+$(function () {
+    B_Like.getCount();
+    $.post("/API/Mod/like.ashx?action=has", { infoID: Mid, source: "baike" }, function (data) {
+        var model = APIResult.getModel(data);
+        if (model.result == true) { $("#dellike_btn").show(); }
+        else { $("#addlike_btn").show(); }
+    });
+    $.post("/API/Mod/Collect.ashx?action=has", { infoID: "@Mid", type: "5" }, function (data) {
+            var model = APIResult.getModel(data);
+            if (model.result == true) { $("#delfav_btn").show(); } else { $("#addfav_btn").show(); }
+        });
+    })
+</script>
+}

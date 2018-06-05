@@ -1,0 +1,4 @@
+win8、8.1及win2012建议取消web.config文件中的这一行的注释：
+<!-- <mimeMap fileExtension=".woff2" mimeType="font/x-woff" /> -->
+
+win2016及win10环境勿动。

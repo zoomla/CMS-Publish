@@ -1,0 +1,35 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Shop
+@model ZoomLa.BLL.Shop.F_Order_Sale
+@{
+    DataTable saleDT = B_Shop_SaleReport.SelByClass(Model);
+}
+@section head{<title>销售记录</title>}
+@section content{
+@Html.Partial("SaleTopMenu", Model)
+<table class="table table-bordered table-striped" id="EGV">
+            <tr>
+                <td class="td_m">类别</td>
+                <td>销售额</td>
+                <td class="td_l">操作</td>
+            </tr>
+            @foreach (DataRow dr in saleDT.Rows)
+            {
+                <tr>
+                    <td>@dr["NodeName"]</td>
+                    <td>@DataConverter.CDouble(dr["AllMoney"]).ToString("F2")</td>
+                    <td><a href="SaleByProduct?NodeID=@dr["NodeID"]"><i class="zi zi_list"></i>查看详情</a></td>
+                </tr>
+            }
+            <tr>
+                <td colspan="4">
+                    销售总计：<label class="r_red_mid"></label>
+                    <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID()" class="btn btn-outline-info" />
+                </td>
+            </tr>
+        </table>
+}
+@section script{
+   
+}

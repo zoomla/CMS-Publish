@@ -1,0 +1,75 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SiteMaster2.master.cs" Inherits="ZoomLaCMS.Manage.Site.SiteMaster2" %>
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <script src="/JS/jquery.min.js"></script>
+    <script src="/dist/js/bootstrap4.min.js"></script>
+    <link rel="stylesheet" href="/dist/css/bootstrap4.min.css" />
+    <link type="text/css" rel="stylesheet" href="/App_Themes/V4.css" />
+    <asp:ContentPlaceHolder ID="head" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div id="n_site_top" class="n_site_top d-flex justify-content-between">
+            <div id="n_site_top_l" class="n_site_topl"><a href="/Site/Default">智能建站平台</a></div>
+            <div style="margin-top: 10px; margin-right: 10px; float: right;" id="headRDiv">
+                <span id="loginSpan" runat="server" visible="true">
+                    <a href="/User/Login?ReturnUrl=<%=Request.RawUrl %>" style="margin-right: 10px;">会员登录</a><a href="/User/Register" style="margin-right: 10px;">会员注册</a></span>
+                <span id="UserInfoSpan" runat="server" visible="false">
+                    <asp:Label runat="server" ID="nameL" />
+                    <a href="/User/Default" title="会员中心">会员中心</a>
+                    <a href="/Plugins/Domain/Domname.aspx?Page=7" title="订单管理">订单管理</a>
+                    <a href="/Plugins/Domain/Domname.aspx?Page=3" title="IDC管理">IDC管理</a>
+                    <a href="/User/User/Logout" title="安全退出">安全退出</a> </span>
+            </div>
+        </div>
+        <div>
+            <div id="n_site_naver">
+                <div id="site_nav" class="n_site_nav">
+                    
+					<nav class="navbar navbar-expand-lg navbar-dark">
+				  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+				  <div class="collapse navbar-collapse" id="navbarColor02">
+					<ul class="navbar-nav mr-auto">
+					  <li class="nav-item active"> <a class="nav-link" href="/Site/Domain">域名注册<span class="sr-only">(current)</span></a> </li>
+					  <li class="nav-item"> <a class="nav-link" href="/Site/Default">极速建站</a> </li>
+					  <li class="nav-item"> <a class="nav-link" href="/Plugins/Domain/DomName.aspx">主机购买</a> </li>
+					  <li class="nav-item"> <a class="nav-link" href="/Plugins/Domain/DomName.aspx">云端存储</a> </li>
+					  <li class="nav-item"> <a class="nav-link" href="/Plugins/Domain/DomName.aspx">智能模板</a> </li>
+					</ul>
+					
+				  </div>
+				</nav>
+					
+					
+                </div>
+            </div>
+            <asp:ContentPlaceHolder ID="Content" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+    </form>
+    <div style="clear: both;"></div>
+    <div id="n_site_bottom" class="fixed-bottom w-100">
+        <div id="site_bot">
+            <div id="site_bot_l">
+                <ul class="list-inline btn-group w-100">
+                    <li><a href="http://www.z01.com/help" target="_blank">新手指南</a></li>
+                    <li><a href="http://www.z01.com/mtv" target="_blank">学习资源</a></li>
+                    <li><a href="http://ad.z01.com" target="_blank">广告代码</a></li>
+                    <li><a href="http://help.z01.com/data/">数据字典</a></li>
+                    <li><a href="http://www.z01.com/templet/" target="_blank">模板中心</a></li>
+                    <li><a href="http://help.z01.com/" target="_blank">帮助文档</a></li>
+                    <li><a href="http://bbs.z01.com" target="_blank">开发社区</a></li>
+                    <li>Copyright &copy;<%:Call.SiteName%> All Rights Reserved
+                    </li>
+                </ul>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</body>
+</html>

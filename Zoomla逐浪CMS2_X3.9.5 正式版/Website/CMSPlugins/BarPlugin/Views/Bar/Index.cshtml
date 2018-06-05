@@ -1,0 +1,285 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Helper
+@functions{
+public string getNowWeek()
+{
+string week = "";
+switch (DateTime.Now.DayOfWeek)
+{
+	case DayOfWeek.Monday:
+		week = "周一";
+		break;
+	case DayOfWeek.Tuesday:
+		week = "周二";
+		break;
+	case DayOfWeek.Wednesday:
+		week = "周三";
+		break;
+	case DayOfWeek.Thursday:
+		week = "周四";
+		break;
+	case DayOfWeek.Friday:
+		week = "周五";
+		break;
+	case DayOfWeek.Saturday:
+		week = "周六";
+		break;
+	case DayOfWeek.Sunday:
+		week = "周日";
+		break;
+	default:
+		break;
+}
+return week;
+}
+}
+@{
+string tycount = ViewBag.tycount;
+DataTable cartdt = ViewBag.cartdt;
+Layout = "_PostBar.cshtml";
+}
+@section head{
+<title>社区_@Call.SiteName</title>
+<script src="/js/scrolltopcontrol.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+}
+@section content{
+<div class="container forum_main_l">
+<div class="row">
+<div class="col-sm-9 col-12">
+<div class="alert alert-secondary forum_main_hots" role="alert">
+<strong>社区热点</strong>
+<div class="float-right">
+	今日:@tycount.Split(':')[1]
+	昨日:@tycount.Split(':')[0]
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-5 col-12 pr-0">
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+	<ol class="carousel-indicators">
+	<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+	<li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+	<li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+	<li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+	</ol>
+	<div class="carousel-inner"> 
+		@foreach (DataRow dr in ((DataTable)ViewBag.rpt_top).Rows)
+		{
+		<div class="carousel-item @(dr["index"].ToString().Equals("0") ? "active" : "")">
+			<a href="/PItem?id=@dr["id"]">
+				<img src="@dr["topimg"]" alt="@dr["Title"]" width="100%">
+			</a>
+			<div class="carousel-caption">@dr["Title"]</div>
+		</div>
+		}
+	</div>
+	<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+	<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+	<span class="sr-only">Previous</span>
+	</a>
+	<a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+	<span class="carousel-control-next-icon" aria-hidden="true"></span>
+	<span class="sr-only">Next</span>
+	</a>
+</div>
+</div>
+
+<div class="col-sm-7 col-12 forum_recomm">
+<ul>
+@foreach (DataRow dr in ((DataTable)ViewBag.rpt_focus).Rows)
+{
+	<li><a href="/PClass?id=@dr["CateID"]" class="navname">[@dr["CateName"]]</a>
+		<a href="/PItem?id=@dr["ID"]">@StringHelper.SubStr(dr["Title"], 32)</a>
+	</li>
+}
+</ul>
+</div>
+</div>
+<div class="clearfix"></div>
+@{
+foreach (DataRow dr in ((DataTable)ViewBag.rpt_cart).Rows)
+{
+	cartdt.DefaultView.RowFilter = " ParentID=" + dr["CateID"].ToString();
+	DataTable childDT = cartdt.DefaultView.ToTable();
+	<div class="alert alert-secondary forum_lei_title"><a href="/PClass?id=@dr["cateid"]">> @dr["CateName"]</a></div>
+	<div class="container-fluid Community_box">
+	<div class="row">
+	<table class="table margin_bottom0 club_list">
+		@foreach (DataRow item in childDT.Rows)
+		{
+			<tr>
+				<td scope="col" class="club_div_img">
+					<a href="/PClass?id=@item["cateid"]" title="@item["CateName"]">
+						<img src="@item["barimage"]" onerror="shownopic(this);" />
+					</a>
+				</td>
+				<td scope="col" class="cateName">
+					<a href="/PClass?id=@item["cateid"]">@item["CateName"]</a>
+				</td>
+				<td scope="col">
+					<span class="card_menNum" title="主题">@item["ItemCount"]</span><span title="回贴">/@item["ReCount"]</span>
+				</td>
+				<td scope="col" class="club_bar_status">
+					<div>
+						最新帖子：<a href="/PItem?id=@item["id"]">@item["Title"]</a>
+					</div>
+					<div class="barDate">
+						回复时间：@ZoomLa.Common.function.GetBarDate(item["R_CDate"])
+					</div>
+				</td>
+			</tr>
+		}
+	</table>
+	</div>
+	</div>
+}
+}
+</div>
+<!--left end-->
+
+<div class="col-sm-3 col-12 forum_main_r">
+<div class="forum_main_rTop">
+<span class="pl-2">
+@DateTime.Now.ToString("MM月dd日") <span>@getNowWeek()</span>
+</span>
+<div class="float-right forum_main_rToptime">
+<a href="#">每日打卡</a>
+</div>
+</div>
+<div class="forum_r_week">本周热门:</div>
+<ul class="zhulang_sq-bz_list mt-3">
+@foreach (DataRow dr in ((DataTable)ViewBag.rpt_week).Rows)
+{
+	<li class="list-inline">
+		<div class="badge float-left mr-2 shuzi">@dr["IndexNum"]</div>
+		<p><a href="/PItem?id=@dr["id"]" class="hoturl">@dr["Title"]</a><span class="hotdate float-right">@ZoomLa.Common.function.GetBarDate(dr["CDate"])</span></p>
+	</li>
+}
+</ul>
+<div class="zhulang_sq-rqv_other">
+	<a href="#" class="thumbnail index_banner">
+		<img data-src="holder.js/100%x180" alt="预留广告位">
+	</a>
+
+	<div class="mt-3 bar_right">
+		<h4 class="bar_user_t">友情链接</h4>
+		<ul>
+			@Call.MVCLabel("{ZL.Label id=\"友情链接列表\" ShowNum=\"10\" NodeID=\"88\" /}")
+		</ul>
+	</div>
+</div>
+</div>
+<!--right end-->
+</div>
+</div>
+
+<div class="container">
+<div class="row">
+<div class="col-sm-9 col-12">
+<div class="forum_elite">
+<div class="forum_elite_t">社区推荐</div>
+<div class="row forum_elite_row">
+@Call.MVCLabel("{ZL.Label id=\"输出推荐贴吧列表\" ShowNum=\"2\" /}")
+</div>
+
+<div class="forum_elite_t">其他社区</div>
+<div class="bar_other">
+<ul class="row">
+@Call.MVCLabel("{ZL.Label id=\"输出非推荐贴吧列表\" ShowNum=\"8\" /}")
+</ul>
+</div>
+</div>
+
+<div class="forum_Hnews">
+<div class="forum_r_week"><span><a href="#">更多</a></span>社区动态</div>
+<div class="bar_dong_c">
+<ul class="list-unstyled" id="bar_dongul">
+@Call.MVCLabel("{ZL.Label id=\"输出贴吧动态_仅精华帖\" ShowNum=\"10\" /}")
+</ul>
+<div class="bar_dong_cmore text-center">
+<button type="button" onclick="GetMore();" class="btn btn-outline-info m-2"><span>加载更多</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- 左侧结束 -->
+
+
+<div class="col-sm-3 col-12 forum_elite">
+	@Call.MVCLabel("{ZL.Label id=\"贴吧获取当前用户信息\"/}")
+	<div class="bar_daren zhulang_sq-sqdr">
+		<div class="forum_elite_rTitle bar_user_t mb-2">社区达人</div>
+		<ul class="list-unstyled row">
+			@Call.MVCLabel("{ZL.Label id=\"输出贴吧达人\" ShowNum=\"9\" /}")
+			<div class="clearfix"></div>
+		</ul>
+	</div>
+
+	<div class="bar_hot">
+		<div class="forum_elite_rTitle mb-2">热帖推荐</div>
+		<ul class="list-unstyled homehotbas">
+			@Call.MVCLabel("{ZL.Label id=\"输出热帖推荐\" ShowNum=\"5\" TitleNum=\"40\" /}")
+			<div class="clearfix"></div>
+		</ul>
+		<div class="clearfix"></div>
+	</div>
+
+	<div class="forum_r_hotNews">
+		<h5 class="forum_elite_rTitle bar_user_t">热点新闻</h5>
+		<ul class="list-unstyled ">
+		  @Call.MVCLabel("{ZL.Label id=\"贴吧输出热点新闻\" NodeID=\"1\" TitleNum=\"20\" ShowNum=\"2\" SysNum=\"40\" /}")
+		</ul>
+	</div>
+
+</div>
+ <!-- 右侧侧结束-->
+
+</div>
+</div>
+<div class="modal fade" id="myModal" data-hasload="0" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+	<div class="modal-header">
+		<h4 class="modal-title" id="myModalLabel">友情提示</h4>
+		<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span> <span class="sr-only">Close</span></button>
+	</div>
+	<div class="modal-body">
+		暂无更多内容！！
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-info" data-dismiss="modal">返回</button>
+	</div>
+</div>
+</div>
+</div>
+}
+@section script{
+<script>
+
+var allnum = '@Call.MVCLabel("{ZL.Label id=\"输出贴吧贴子总数\"/}")';//帖子总数
+var num = 10;//一页默认10条
+function GetMore() {
+	if (num >= parseInt(allnum)) {//帖子不足 不加载
+		$('#myModal').modal('show');
+		$('#myModal').data("hasload", "1");
+	}
+	else {//执行加载
+		num += 10;
+		$("#bar_dongul").load("/Class_1/NodeHot.aspx?Num=" + num + "&v=" + Math.floor(Math.random() * 1000 + 1) + " start");
+	}
+}
+$(function () {
+	$(window).scroll(function () {
+		var _top = $(window).scrollTop();
+		if (_top >= $(document).height() - $(window).height()) {
+			if ($('#myModal').data("hasload") == "0"){
+				//GetMore();
+			}
+		}
+	})
+});
+</script>
+}

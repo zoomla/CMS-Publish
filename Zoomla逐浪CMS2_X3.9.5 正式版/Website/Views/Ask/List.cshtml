@@ -1,0 +1,46 @@
+﻿@using ZoomLa.Components
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    string type = (Request.QueryString["type"] ?? "");
+}
+@section head{
+<title>问题列表-@(Call.SiteName)问答</title>
+<style type="text/css">
+.soleFlag{border:1px solid #ddd;background-color:#ff6a00;text-align:center;padding:5px 8px;color:#fff;border-radius:3px;display:inline-block;font-size:12px;margin-left:20px;}
+</style>
+}
+@section content{
+<div class="container">
+    <nav aria-label="breadcrumb" role="navigation" class="qaCenter_breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+            <li class="breadcrumb-item"><a href="/Ask">问答中心</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><a href="List?strWhere=&QueType=">问题库</a></li>
+        </ol>
+    </nav>
+    @Html.Partial("comp/TopLinkBtns")
+    @Html.Partial("comp/CommonView")
+    <ul class="nav nav-tabs">
+        <li><a class="nav-item nav-link @(string.IsNullOrEmpty(type)?"active":"")" href="list?QueType=@Request.QueryString["QueType"]">全部问答</a></li>
+        <li><a class="nav-item nav-link @(type.Equals("1")?"active":"")" href="list?type=1&QueType=@Request.QueryString["QueType"]">待完善问题</a></li>
+    </ul>
+    <div class="asklist">
+        @Html.Partial("List_List", Model)
+    </div>
+</div>
+
+
+}
+@section script{
+
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	

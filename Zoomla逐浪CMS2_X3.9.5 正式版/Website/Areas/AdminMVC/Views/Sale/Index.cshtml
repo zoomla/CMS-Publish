@@ -1,0 +1,163 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@using Newtonsoft.Json
+@model ZoomLa.BLL.Shop.F_Order_Sale
+@{
+    DataTable paymentDT = B_Shop_SaleReport.SelPayment(Model);
+    DataTable dayDT = B_Shop_SaleReport.SumByDay(paymentDT, Model.stime, Model.etime);
+    DataTable classDT = B_Shop_SaleReport.SelByClass(Model);
+    double sumOrderMoney = DataConverter.CDouble(paymentDT.Compute("SUM(MoneyTrue)", ""));
+    int sumOrderNum = paymentDT.Rows.Count;
+    double sumOrderKDJ = 0;
+    if (sumOrderMoney > 0 && sumOrderNum > 0) { sumOrderKDJ = sumOrderMoney / sumOrderNum; }
+    //DataTable classDT = srpBll.GetSalesByClass(filter);
+}
+@section head{
+<title>销售记录</title>
+<style type="text/css">
+.table tr td {text-align: center;}
+</style>
+}
+@section content{		
+@Html.Partial("SaleTopMenu", Model)
+<div>           
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td colspan="3" class="text-center">
+                <strong>订单统计</strong>
+            </td>
+        </tr>
+        <tr>
+            <td width="33%">已付款订单金额</td>
+            <td width="33%">已付款订单数</td>
+            <td width="33%">客户平均订单金额</td>
+        </tr>
+        <tr>
+            <td>
+                @sumOrderMoney.ToString("F2")
+            </td>
+            <td>
+                @sumOrderNum
+            </td>
+            <td>
+                @sumOrderKDJ
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div id="pie_panel" style="height:300px;" class="chart_panel"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <div id="line_panel" style="height:300px;" class="chart_panel"></div>
+            </td>
+        </tr>
+    </table>
+</div>
+}
+
+@section script{
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/Plugins/ECharts/build/source/echarts.js"></script>
+<script>
+var dayJson=@(MvcHtmlString.Create(JsonConvert.SerializeObject(dayDT)));
+var classJson=@(MvcHtmlString.Create(JsonConvert.SerializeObject(classDT)));
+var day_xais=[],day_data=[];
+var pie_legend=[],pie_data=[];
+for (var i = 0; i < dayJson.length; i++) {
+    day_xais.push(dayJson[i].date);
+    day_data.push(dayJson[i].total);
+}
+for (var i = 0; i < classJson.length; i++) {
+    //value:"",name:""
+    pie_legend.push(classJson[i].NodeName);
+    pie_data.push({value:classJson[i].AllMoney,name:classJson[i].NodeName});
+}
+console.log(classJson);
+var line_option = {
+        title : {
+            text: '按日销售统计',
+            subtext: '',
+            x:'center'
+        },
+        color: ['#3398DB'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: day_xais,//'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
+                axisTick: {
+                    alignWithLabel: true
+                }
+                }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '销售数据',
+                type: 'bar',
+                barWidth: '60%',
+                data:day_data //[10, 52, 200, 334, 390, 330, 220]
+            }
+        ]
+    };
+var line_chart = echarts.init(document.getElementById('line_panel'));
+line_chart.setOption(line_option);
+//-----------------------------
+var pie_option= {
+    title : {
+            text: '按品类销售统计',
+            subtext: '纯属虚构',
+            x:'center'
+    },
+    tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: pie_legend//'直接访问','邮件营销','联盟广告','视频广告','搜索引擎'
+    },
+    series : [
+        {
+            name: '访问来源',
+            type: 'pie',
+            radius : '55%',
+            center: ['50%', '60%'],
+            data:pie_data,
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }
+    ]
+};
+var pie_chart = echarts.init(document.getElementById('pie_panel'));
+pie_chart.setOption(pie_option);
+function search()
+{
+    location="Index?sdate="+$("#sdate").val()+"&edate="+$("#edate").val();
+}
+ </script>
+}

@@ -1,0 +1,100 @@
+﻿{ZL.Source id="视频数据源标签"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="视频数据源标签" FD="Title" page="0"/}_{$SiteName/}</title>
+<meta name="Keywords" content="{SField sid="视频数据源标签" FD="Tagkey" page="0"/}" />
+{ZL:Boot4()/}
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+{ZL:GetCSS(1,0)/}
+<script src="/js/scrolltopcontrol.js"></script>
+<script src="/JS/Controls/B_User.js"></script>
+<script src="{$CssDir/}js/server.js"></script>
+<body>
+{ZL.Label id="全站头部"/} 
+<div class="myBanner">
+<div class="container">
+<h2>{SField sid="视频数据源标签" FD="Title" page="0"/}</h2>
+手机与电脑的无缝展示
+</div>
+</div>
+<!--内页通栏banner广告位 -->
+ 
+<div class="container mySites">
+<nav aria-label="breadcrumb" role="navigation"">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="/">首页</a></li>
+{ZL.Label id="输出多级节点导航_V4" NodeID="{SField sid="视频数据源标签" FD="NodeID" page="0"/}" ShowNum="30" /}
+<li class="breadcrumb-item active">正文 </li>
+</ol>
+</nav>
+</div>
+
+<div class="container myAnnoun">
+<div class="row">
+<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 ">
+<h1>{SField sid="视频数据源标签" FD="Title" page="0"/}</h1>
+<div class="videoCon">
+<video src="{ZL:GetPicUrl({SField sid="视频数据源标签" FD="url" page="0"/})/}"  controls="controls" poster="{$UploadDir/}{SField sid="视频数据源标签" FD="pic" page="0"/}">
+您的浏览器不支持 video 标签。
+</video>
+ 
+<strong>视频说明：</strong>
+{SField sid="视频数据源标签" FD="content" page="0"/}
+</div>
+<div class="edit"><span id="elit">责任编辑：{SField sid="视频数据源标签" FD="Edit" page="0"/}</span> <span id="pin"><a href="../../Comments/CommentFor?ID={SField sid="视频数据源标签" FD="GeneralID" page="0"/}" target="_blank">发表评论>></a></div>
+<div id="begin"><span id="asc">上一篇文章：{ZL.Label id="上一篇文章"/}</span> <span id="desc">下一篇文章：{ZL.Label id="下一篇文章"/}</span></div>
+<div id="about">
+<span>相关文章</span>
+<ul>
+{ZL.Label id="相关文章列表输出" ShowNum="10" TitleNum="35" KeyWord="{SField sid="视频数据源标签" FD="Tagkey" page="0"/}" /}
+</ul>
+</div> 
+</div> 
+
+<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 bg-light">
+ <div class="panel-group videoimg" id="accordion">
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+      <span class="badge"><a href="{ZL:GetNodeLinkUrl(96)/}">更多</a></span>
+        <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+        娱乐视频
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse in">
+      <div class="panel-body">
+          <ul class="media-list">
+ {ZL.Label id="输出视频列表_带简介" NodeID="96" TitieNum="30" ShowNum="10" Sym="70" /}
+</ul>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+          <span class="badge"><a href="{ZL:GetNodeLinkUrl(95)/}">更多</a></span>
+        <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+       科技视频
+        </a>
+      </h4>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse">
+      <div class="panel-body">
+ {ZL.Label id="输出视频列表_带简介" NodeID="95" TitieNum="30" ShowNum="10" Sym="70" /}
+      </div>
+    </div>
+  </div>
+   
+</div>
+
+</div>
+
+</div>
+</div></div></div></div>
+
+{ZL.Label id="全站底部"/}
+</body>
+</html>

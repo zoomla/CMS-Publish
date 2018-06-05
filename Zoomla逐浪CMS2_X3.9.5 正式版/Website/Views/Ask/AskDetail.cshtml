@@ -1,0 +1,167 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@model ZoomLa.Model.M_Ask
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    DataTable ansDT = (DataTable)ViewBag.ansDt;
+    M_UserInfo mu = new B_User().GetLogin();
+}
+@functions{
+    B_GuestAnswer ansBll = new B_GuestAnswer();
+    B_Ask askBll = new B_Ask();
+    B_User buser = new B_User();
+    protected string getstatus(string status)
+    {
+        switch (status)
+        {
+            case "2": return "推荐答案";
+            case "1": return "";
+            default: return "";
+        }
+    }
+    public DataTable GetDt(string Aid, string Mid)
+    {
+        M_Ask askMod = askBll.SelReturnModel(DataConverter.CLng(Mid));
+        SqlParameter[] sp1 = new SqlParameter[] { new SqlParameter("@id", Aid) };
+        return ansBll.Sel(" supplymentid=@id And Userid=" + askMod.UserId, "", sp1);
+    }
+    public DataTable GetDt2(string Aid, string Mid)
+    {
+        DataTable dt = askBll.Sel(" ID=" + Mid, "", null);
+        SqlParameter[] sp2 = new SqlParameter[] { new SqlParameter("@id", Aid) };
+        return ansBll.Sel(" supplymentid=@id And Userid=" + dt.Rows[0]["Userid"], "", sp2);
+    }
+    //未补充过,并且在24小时内
+    public bool IsShowSupply()
+    {
+        return (string.IsNullOrEmpty(Model.Supplyment) && (DateTime.Now - Model.AddTime).TotalHours < 24);
+    }
+
+}
+@section head{
+    <title>我的提问-@(Call.SiteName)问答</title>
+    <script type="text/javascript" src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+@section content{
+
+<nav class="container baike_miannav" aria-label="breadcrumb">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+		<li class="breadcrumb-item"><a href="/Ask">问答中心</a></li>
+		<li class="breadcrumb-item"><a href="MyAskList">我的提问</a></li>
+		<li class="breadcrumb-item active">问题详情</li>
+	</ol>
+</nav>
+
+    <div class="container">
+        <div class="ask_detial">
+            <div class="ask_detial_t"><span>提问问题</span><div class="clearfix"></div></div>
+
+            <div class="ask_detial_tc">
+                <ul class="list-unstyled" style="padding:10px;padding-left:0px; margin:0;">
+                    <li style="font-size:24px;font-weight:400;line-height:34px;"><i class="zi zi_questioncircle"></i>@Model.QTitle</li>
+                    <li style="margin-top:19px;">
+                        @Html.Raw(Model.Qcontent) 
+                        @Html.Raw(Model.Supplyment)
+                    </li>
+                    <li class="text-right" style="margin-top:19px;">
+                       @if (IsShowSupply())
+                       {  <button type="button" class="btn btn-success pull-left" onclick="toggleEditor();">补充问题 <i class="zi zi_pathDown"></i></button>}
+                        <a href="javascript:;" onclick="LikeQue();"><span class="zi zi_star"></span> 收藏</a> · 
+                        <span>@MvcHtmlString.Create(Model.IsNi == 1 ? "匿名" : Model.UserName) · </span>
+                        <span>@Model.AddTime.ToString("yyyy/MM/dd HH:mm")</span>
+                    </li>
+                </ul>
+            </div>
+           @if (IsShowSupply())
+           {
+              <div class="ask_detial_tc" style="display:none;" id="editor_wrap">
+                <form method="post" action="@MVCHelper.GetAction("/Ask/Supple", Request)">
+                    <div class="asl_detial_tb">
+                        <textarea id="Txtsupment" name="Txtsupment" data-type="normal" style="min-height:200px;width:100%;">@Model.Supplyment</textarea>
+                        <input type="submit" class="btn btn-info pull-right" value="提交补充" />
+                    </div>
+                    <div class="clearfix"></div>
+                </form>
+                @MvcHtmlString.Create(Call.GetUEditor("Txtsupment", 4))
+            </div>
+           }
+            <div class="ask_detial_t">
+                <span>用户回答</span>
+                <small class="text-muted"><i class="zi zi_exclamationCircle" aria-hidden="true"></i> 自己发表的问题不能答复</small>
+            </div>
+            <div class="ask_detial_th">
+                @if (ansDT.Rows.Count < 1)
+                {
+                    <div class="alert alert-info">还没有人回答问题</div>
+                }
+                else
+                {
+                    <div style="min-height:50px;">
+                        @foreach (DataRow dr in ansDT.Rows)
+                        {
+                            <div class="ask_detial_tl">
+                                <div class="ask_detial_tlt">
+                                    <span class="pull-right">@DataConverter.CDate(dr["AddTime"]).ToString("yyyy-MM-dd")</span>
+                                    @MvcHtmlString.Create(dr["IsNi"].ToString() == "1" ? "匿名" : "<a href='/ShowList?id=" + dr["UserID"] + "' target='_blank'>" + dr["UserName"] + "</a>")
+                                </div>
+                                <div class="ask_detial_tlc">
+                                    <div class="ask_detial_tlch">
+                                        <span class="ask_detial_hui">回答：</span>
+                                        @MvcHtmlString.Create(dr["Content"].ToString())
+                                    </div>
+                                    @foreach (DataRow row in GetDt(dr["ID"].ToString(), Request["ID"]).Rows)
+                                    {
+                                        <div>
+                                            <div><span class="ask_detial_zhui">追问：</span>@dr["Content"]</div>
+                                            @foreach (DataRow row2 in GetDt2(row["ID"].ToString(), Request["ID"]).Rows)
+                                            {
+                                                <div>@Html.Raw(row2["Content"])</div>
+                                            }
+                                        </div>
+                                    }
+                                    <div class="ask_detial_tui">
+                                        <div>@getstatus(dr["Status"].ToString())</div>
+                                        @if (Model.Status != 2)
+                                        {
+                                            <input type="button" class="btn btn-warning btn-sm" value="继续追问" onclick="supplyment(@dr["ID"]);" />
+                                            <a href="/Ask/Recomand?Aid=@dr["ID"]&ID=@Request["ID"]" id="recommand" class="btn btn-success btn-sm pull-right" onclick="return confirm('你确认推荐吗?');">推荐为满意答案</a>
+                                        }
+                                    </div><div class="clearfix"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+@section script{
+    <script src="/JS/Modal/APIResult.js"></script>
+    <script>
+        $(function () {
+            $("#top_nav_ul li[title='在线提问']").addClass("active");
+        })
+        //收藏问题
+        function LikeQue() {
+            $.post('/API/mod/collect.ashx', { action: "add", favurl: "@Request.RawUrl", infoid: "@Request["ID"]", type: 4, title: $("#question").text() }, function (data) {
+                var model = JSON.parse(data);
+                if (APIResult.isok(model)) {
+                    alert("收藏成功!");
+                } else {
+                    alert("收藏失败!原因:" + model.retmsg);
+                }
+            });
+        }
+        function toggleEditor() {
+            var $wrap = $("#editor_wrap");
+            if ($wrap.is(":hidden")) { $wrap.show(); }
+            else { $wrap.hide(); }
+        }
+    </script>
+}

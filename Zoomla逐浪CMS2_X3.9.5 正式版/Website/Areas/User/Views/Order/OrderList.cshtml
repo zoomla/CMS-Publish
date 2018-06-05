@@ -1,0 +1,57 @@
+﻿@using System.Data
+@model ZoomLaCMS.Areas.User.Models.OrderViewModel
+@{
+    DataTable dt = new DataTable();
+    
+}
+@section head{<title>我的订单</title>
+
+}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="shop"></div>
+    <div class="container ">
+	<nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb" style="margin-bottom:5px;">
+            <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+            <li class="active breadcrumb-item"><a href="OrderList">我的订单</a></li>
+        </ol>
+		</nav>
+        @Html.Partial("OrderTop")
+    </div>
+	
+    <div class="container orderlist">
+        <div class="order_navs">
+            <ul class="nav nav-tabs" id="OrderType_ul" role="tablist">
+                <li role="presentation" class="nav-item" data-flag="all"><a class="nav-link" href="?filter=&ordertype=@Model.OrderType">全部订单</a></li>
+                <li role="presentation" class="nav-item" data-flag="needpay"><a class="nav-link" href="?filter=needpay&ordertype=@Model.OrderType">待付款</a></li>
+                <li role="presentation" class="nav-item" data-flag="prepay"><a class="nav-link" href="?filter=prepay&ordertype=@Model.OrderType">预付款</a></li>
+                <li role="presentation" class="nav-item" data-flag="paid"><a class="nav-link" href="?filter=paid&ordertype=@Model.OrderType">已付款</a></li>
+                <li role="presentation" class="nav-item" data-flag="receive"><a class="nav-link" href="?filter=receive&ordertype=@Model.OrderType">待收货</a></li>
+                <li role="presentation" class="nav-item" data-flag="comment"><a class="nav-link" href="?filter=comment&ordertype=@Model.OrderType">待评价</a></li>
+                <li role="presentation" class="nav-item" data-flag="recycle"><a class="nav-link" href="?filter=recycle&ordertype=@Model.OrderType">回收站</a></li>
+            </ul>
+            <div class="input-group search_div w_20rem">
+                <input type="text" id="Skey_T" name="Skey_T" placeholder="商品名称/商品编号/订单号" class="form-control mvcparam" />
+                <span class="input-group-append">
+                    <button type="button" class="btn btn-default" id="Search_Btn" ><i class="zi zi_search"></i></button>
+                </span>
+            </div>
+        </div>
+         @Html.Partial("OrderList_List",Model)
+    </div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+	//订单导航选中状态处理
+	var key = "@Request.QueryString["filter"]";
+	if(key){
+	$(".order_navs ul li[data-flag="+key+"]").find("a").addClass("active");
+	}else{
+	$(".order_navs ul li").eq(0).find("a").addClass("active");
+	}
+	
+</script>		
+}
+@section script{
+    @Html.Partial("OrderList_Res")
+}

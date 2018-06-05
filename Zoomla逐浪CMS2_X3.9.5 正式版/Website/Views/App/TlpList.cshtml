@@ -1,0 +1,23 @@
+﻿@using System.Data
+@model System.Data.DataTable
+@{
+    Layout = "~/Views/App/_layout.cshtml";
+}
+@section head{
+    <title>模板选择</title>
+}
+@section content{
+<div style="height:60px;"></div>
+<div class="template tlplist">
+    <ul class="list-unstyled">
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <li></li>
+        }
+    </ul>
+</div>
+}
+@section script{
+<link href="/App_Themes/V4.css" rel="stylesheet" />
+
+}

@@ -1,0 +1,58 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model ZoomLa.AppCode.Controls.C_TlpDP
+@functions{
+    public string GetFileInfo(DataRow dr)
+    {
+        string html = "";
+        string icon = "";
+        int ftype = DataConverter.CLng(dr["type"]);
+        //图标
+        switch (ftype)
+        {
+            case 1:
+                icon = "<i class='zi zi_folders' zico='文件夹'></i>";
+                break;
+            case 2:
+            case 3:
+                icon = "<i class='zi zi_file'> </i>";
+                break;
+            case 4:
+                icon = "<i class='zi zi_exclamationTriangle'> </i>";
+                break;
+            case 5:
+                icon = "<i class='zi zi_laptop'> </i>";
+                break;
+            case 6:
+                icon = "<i class='zi zi_filePrt'> </i>";
+                break;
+        }
+        switch (ftype)
+        {
+            case 1://文件夹
+            case 5://可视设计目录
+                html += "<a href='javascript:;' onclick='Tlp_toggleChild(this," + dr["id"] + ")' >" + icon + dr["name"] + "</a>";
+                break;
+            case 2://子文件夹或文件
+            case 6://可视设计文件
+                html += "<a href='javascript:;' style='display:none;' data-pid='" + dr["pid"] + "' onclick=\"Tlp_SetVal(this,'" + dr["rname"] + "')\"><img src='/Images/TreeLineImages/t.gif' /> " + icon + dr["name"] + "</a>";
+                break;
+            case 3://根目录html文件
+            case 4://未选中提示
+                html += "<a href='javascript:;'  onclick=\"Tlp_SetVal(this,'" +dr["rname"] + "')\">" + icon + dr["name"] + "</a>";
+                break;
+        }
+        return html;
+    }
+}
+<div style="display:none;">
+    <ul id="templist_ul">
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            int ftype = DataConverter.CLng(dr["type"]);
+            <li>
+             @MvcHtmlString.Create(GetFileInfo(dr))
+            </li>
+        }
+    </ul>
+</div>

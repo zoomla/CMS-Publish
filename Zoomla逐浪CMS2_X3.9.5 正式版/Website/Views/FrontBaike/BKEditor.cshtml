@@ -1,0 +1,175 @@
+﻿@model ZoomLa.Model.M_Baike
+@{
+Layout = "~/Views/Shared/_empty.cshtml";
+}
+@section head{
+<title>百科编辑器</title>
+}
+@section content{
+<form id="bkform" method="post" action="@MVCHelper.GetAction("BKEditor_Add",Request)">
+<div id="content_wrapper">
+<div id="header" class="bk_header">
+<div class="pull-right mt-3 mr-3">
+<input type="button" ID="Save_Btn" class="btn btn-sm btn-info mr-2" value="保存" onclick="save();" />
+<a href="/Baike" onclick="return confirm('确定要退出吗?');" class="btn btn-sm btn-outline-info">返回</a>
+</div>
+</div>
+<div style="height:70px;"></div>
+<div class="bkdir">
+<div class="bkdir_head">
+	<i class="zi zi_list></i><strong>词条目录</strong>
+	<input type="button" value="生成目录" class="btn btn-xs btn-info" style="font-size:12px;" onclick="dirs.list();" />
+</div>
+<div class="bkdir_content">
+	<ul id="baike_nav" class="dirul"></ul>
+</div>
+</div>
+<div class="btype_div">
+<div class="bkdir_head">
+	<i class="zi zi_flagBold"></i><strong> 词条标签(以,号隔开)</strong>
+</div>
+<textarea ID="BType_T" name="BType_T" placeholder="请输入词条标签" MaxLength="255" class="form-control btype_txt">@Model.Btype</textarea>
+</div>
+<div class="bke_body container">
+<div class="bke_head">
+	<h1 id="bke_title" style="margin-bottom:0px;">@Model.Tittle</h1><span style="font-size:20px;color:#666;margin-left:10px;" id="class_sp">(@Model.Classification)</span>
+	<input type="button" value="修改分类" onclick="showSelClass();" class="btn btn-info"  />
+	<div id="card" class="card">
+		<div class="card_header pl-2">
+			<h2>概述</h2>
+			<input type="file" id="pic_up" accept="image/gif,image/jpeg,image/png,image/jpg,image/bmp"
+ style="display: none;" onchange="pic.upload();" />
+		</div>
+		<div class="card_content">
+			<div id="card_pic" style="display:none;" class="card_pic" onclick="pic.sel();" title="点击上传图片">
+				<img style="max-width:200px;" id="pic_img" src="@Model.BriefImg" />
+			</div>
+			<div id="card_nopic" style="display:none;" class="card_pic card_nopic" onclick="pic.sel();" title="点击上传图片">
+				<div><i class="zi zi_image" style="font-size: 5em;"></i></div>
+				<div>请上传概述图</div>
+			</div>
+			<div class="card_txt">
+				<textarea id="Brief_T" name="Brief_T" style="height:200px;">@Model.Brief</textarea>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		<div class="card_header"><h2>基本信息栏 <span style="color:#f31a1a;font-size:12px;">(名称或值为空,将会自动忽略)</span></h2></div>
+		<div class="info_body">
+			<table class="table table-bordered table-striped" id="info_tb"></table>
+			<a href="javascript:;" class="btn btn-info" onclick="info.addRow();"><i class="zi zi_plus"></i> 添加自定义项</a>
+		</div>
+	</div>
+</div>
+</div>
+<div class="bke_body container">
+<div class="bke_head" style="border-bottom:2px solid #ccc;padding-bottom:5px;"><strong class="font_1_2rem">正文</strong></div>
+<textarea ID="Contents_T" name="Contents_T" style="height: 600px;margin-top:10px;">@Model.Contents</textarea>
+<div style="display:none;" id="code"></div>
+</div>
+<div class="bke_body container">
+<div class="card_header">
+	<strong class="font_1_2rem">参考资料：</strong>
+	<a id="ref_add_btn" class="opbtn" onclick="refence.showAdd();"><i class="zi zi_link"></i> 添加新参考资料</a><!--弹窗显示-->
+</div>
+<div id="ref_body" class="ref_body"></div>
+</div>
+</div>
+<div class="hidden">
+<input type="hidden" ID="info_hid" name="info_hid" value="@Model.Extend" />
+<input type="hidden" ID="refence_hid" name="refence_hid" value="@Model.Reference"/>
+<input type="hidden" ID="pic_hid" name="pic_hid"/>
+<input type="hidden" ID="class_hid" name="class_hid" value="@Model.Classification"/>
+</div>
+</form>
+}
+@section script{
+<style type="text/css">
+body {background-color:#E8E9EB;}
+</style>
+<script src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="/Plugins/Ueditor/ueditor.all.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/Plugs/Baike.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+    var card_ue, main_ue;
+    $(function () {
+        card_ue = UE.getEditor("Brief_T", {@Html.Raw(ZoomLa.BLL.BLLCommon.ueditorMin)});
+        main_ue = UE.getEditor("Contents_T", {@Html.Raw(ZoomLa.BLL.BLLCommon.ueditorMid) });
+        BaiKe.config.id = "code";
+        //BaiKe.config.dirid = "baike_list";
+        BaiKe.config.navid = "baike_nav";
+        //main.addListener("afterPaste contentChange", function () {
+
+        //});
+        {
+            var val = $("#info_hid").val();
+            if (!ZL_Regex.isEmpty(val)) { info.data = JSON.parse(val); info.dataToEdit(); }
+            else { info.addRow(); info.addRow(); }//默认给两行选填
+        }
+        //---------------------------------------
+        var $pic = $("#pic_img");
+        if (ZL_Regex.isEmpty($pic.attr("src"))) { $("#card_nopic").show(); }
+        else { $("#card_pic").show(); }
+        //---------------------------------------
+        {
+            var val = $("#refence_hid").val();
+            if (!ZL_Regex.isEmpty(val)) { refence.data = JSON.parse(val);  refence.dataToEdit(); }
+        }
+        setTimeout(function () { dirs.init(); }, 1000);
+    })
+    /*-----------------------------------*/
+    var dirs = {};
+    dirs.list = function () {
+        //在左边栏列出
+        $("#code").html(main_ue.getContent());
+        var $first=$("#code").children().first();
+        if ($first.length > 0) { $first.before("<h2>概述</h2><h2>基本信息栏</h2>"); }
+        else { $("#code").append("<h2>概述</h2><h2>基本信息栏</h2>"); }
+        $("#code").append("<h2>参考资料</h2>");
+        BaiKe.CreateNavUI(BaiKe.GetList());
+    }
+    dirs.init = function () { dirs.list();  }
+    /*-----------------------------------*/
+    var pic = { id: "#pic_up" };
+    pic.sel = function () {
+        $(pic.id).val("");
+        $(pic.id).click();
+    }
+    pic.upload = function () {
+        var fname = $(pic.id).val();
+        if (!SFileUP.isWebImg(fname)) { alert("请选择图片文件"); return false; }
+        SFileUP.AjaxUpFile("pic_up", function (data) {
+            $("#pic_img").attr("src", data);
+            $("#card_pic").show();
+            $("#card_nopic").hide();
+        });
+    }
+    pic.preSave = function () {
+        var src = $("#pic_img").attr("src");
+        $("#pic_hid").val(src);
+    }
+    //------------------------------
+    function showSelClass() {
+        comdiag.width = "800px";
+        ShowComDiag("SelClass", "选择分类 <input type='button' value='确定' class='btn btn-info' onclick='setClass();'>");
+    }
+    function setClass() {
+        var $item = $(".modal_ifr:first").contents().find(".list-group-item.active");
+        if ($item.length < 1) { alert("请先选择分类"); return false; }
+        $("#class_hid").val($item.text());
+        $("#class_sp").text("(" + $item.text() + ")");
+        CloseComDiag();
+    }
+    //------------------------------
+    function save() {
+        info.preSave();
+        refence.preSave();
+        pic.preSave();
+        $("#bkform").submit();
+    }
+</script>
+}

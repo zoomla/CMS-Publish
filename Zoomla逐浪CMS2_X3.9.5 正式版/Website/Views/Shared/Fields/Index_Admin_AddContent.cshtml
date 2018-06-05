@@ -1,0 +1,60 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.Model.Content
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@foreach (DataRow dr in Model.fieldDT.Rows)
+{
+    //是否为用户端,是否设置了不前端显示
+    if (Model.config.Source != ModelConfig.SType.Admin && DataConverter.CBool(dr["IsShow"].ToString()) == false) { continue; }
+    Model.fieldMod = new M_ModelField().GetModelFromReader(dr);
+    <tr class="fd_tr fd_tr_texttype" id="fd_tr_@Model.fieldMod.FieldName">
+        <th scope="row">@(Model.fieldMod.FieldAlias)
+            @if (Model.fieldMod.IsNotNull)
+                {<span class="text-danger">*</span>}         
+
+        </th>
+        <td>
+            @try
+            {
+                if (Model.config.Mode == ModelConfig.SMode.PreView)
+                {
+                    switch (Model.fieldMod.FieldType)
+                    {
+                        case "Images":
+                        case "MultiPicType":
+                @Html.Partial("Fields/View_Images", Model);
+                            break;
+                        case "PicType":
+                        case "autothumb":
+                        case "CameraType":
+                        case "SwfFileUpload":
+                @Html.Partial("Fields/View_Default", Model);
+                            break;
+                        default:
+                @Html.Partial("Fields/View_Default", Model);
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (Model.fieldMod.FieldType)
+                    {
+                        case "MultiPicType":
+                @Html.Partial("Fields/Images", Model)
+                            break;
+                        default:
+                @Html.Partial("Fields/" + Model.fieldMod.FieldType, Model)
+                            break;
+                    }
+                }
+                <span>@Model.fieldMod.FieldTips</span>
+                <div>@Model.fieldMod.Description</div>
+            }
+            catch (Exception ex)
+            { <div style="color:red;">@ex.Message</div>;
+            }
+        </td>
+    </tr>
+}

@@ -1,0 +1,75 @@
+﻿@model ZoomLa.Model.M_Product
+@{
+	Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    string action = Request.QueryString["action"] ?? "";
+}
+@section head{
+<title>我的店铺</title>
+}
+@section content{
+<div class="w-100">
+<ol id="navWrap" class="breadcrumb fixed-top w-100">
+    <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)Main.aspx">工作台</a></li>
+    <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)Shop/ProductManage.aspx">商城管理</a></li>
+    <li class="breadcrumb-item"><a href="StockList">库存管理</a></li>
+    <li class="breadcrumb-item"><a href="@(Request.RawUrl)">添加入库出库记录</a></li>
+</ol>
+<form method="post" action="@MVCHelper.GetAction("Stock_Add",Request)">
+	<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice">
+        <table class="table table-striped table-bordered table-hover sys_table">
+            <tr>
+                <td colspan="2">出入库管理</td>
+            </tr>
+            <tr>
+                <th class="w12rem_lg">选择单据类型</th>
+                <td>
+                    <label><input type="radio" value="0" name="stocktype_rad" checked="checked" />入库</label>
+                    <label><input type="radio" value="1" name="stocktype_rad" />出库</label>
+                </td>
+            </tr>
+            <tr><th>现有库存</th><td>@Model.Stock</td></tr>
+            <tr>
+                <th scope="row">单据编号</th>
+                <td>
+                    @DateTime.Now.ToString("yyyyMMddHHmmss")
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">商品</th>
+                <td>
+                    @Model.Proname
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">商品数量<span class="text-danger">*</span></th>
+                <td>
+                    <input type="text" id="Pronum" name="Pronum" class="form-control max20rem required" value="0" maxlength="10"/>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">备  注</th>
+                <td>
+                    <textarea id="stockcontent" name="stockcontent" class="form-control m50rem_50" style="height:120px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td scope="row"></td>
+                <td>
+                    <input type="submit" value="保存信息" class="btn btn-outline-info" />
+                </td>
+            </tr>
+        </table>
+    </div>
+	</div>
+</form>
+</div>
+}
+@section script{
+<script type="text/javascript" src="/JS/DatePicker/WdatePicker.js"></script>
+<script>
+    $(function () {
+        $("form").validate();
+    })
+</script>
+}

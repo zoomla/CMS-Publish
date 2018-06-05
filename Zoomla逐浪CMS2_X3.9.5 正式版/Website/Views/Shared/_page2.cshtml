@@ -1,0 +1,22 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    if (Model.cols == 0) { Model.cols = 10; }
+    int i = 1;
+    int maxPage = Model.cpage / Model.cols > 0 ? Model.cols * (Model.cpage / Model.cols) + Model.cols : Model.cols;
+    if (maxPage > Model.cols) { i = (Model.pageCount / Model.cols) * Model.cols - Model.cols; }
+    if (maxPage < 10) { maxPage = 10; }
+    if (i < 1) { i = 1; }
+}
+<ul class="pagination mvcpage mt-2" data-for="@Model.target" data-cpage="@Model.cpage" data-psize="@Model.psize" data-url="@Model.url" data-pcount="@Model.pageCount" data-icount="@Model.itemCount" data-mvcparam="@Model.mvcparam">
+    <li class="@(Model.cpage <= 1 ? "disabled" : "") page-item"><a class="page-link" aria-label="Previous" href="javascript:;" title="首页" onclick="mvcpage.load({ target: '@Model.target', page: 'first' });">«</a></li>
+    @for (; i <= Model.pageCount && i < maxPage; i++)
+    {
+        <li class="@(Model.cpage==i?"active":"") page-item"><a class="page-link" href="javascript:;" onclick="mvcpage.load({ target: '@Model.target', page: @i });">@i<span class="sr-only">(current)</span></a></li>
+    }
+    @if (Model.pageCount >= maxPage)
+    {
+        <li class="page-item"><a class="page-link" href="javascript:;" onclick="mvcpage.load({ target: '@Model.target', page: @maxPage })">...<span class="sr-only">(current)</span></a></li>
+    }
+    <li class="@(Model.cpage >=Model.pageCount ? "disabled" : "") page-item"><a class="page-link" href="javascript:;" title="尾页" onclick="mvcpage.load({ target: '@Model.target', page: 'last' });">»</a></li>
+</ul>
+

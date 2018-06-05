@@ -1,0 +1,198 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Model.Client
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.BLL
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Client
+@using Newtonsoft.Json
+@model ZoomLa.Model.Client.M_CRMS_Client
+@{
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    B_Model modBll = new B_Model();
+    DataTable valueDT = ViewBag.valueDT;
+    DataTable fieldDT = ViewBag.fieldDT;
+    DataTable ctypeDT = attrBll.Sel("ctype");
+    PageSetting conSetting = ViewBag.conSetting;
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    string json = JsonConvert.SerializeObject(ViewBag.linkDT);
+    if (string.IsNullOrEmpty(json)||json=="null") { json = "[]"; }
+}
+@section head{
+    <title>客户管理</title>
+    <script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+    <script src="~/Plugins/Ueditor/ueditor.all.js"></script>
+}
+@section content{
+    <div class="w-100">
+        <ol id="navWrap" class="breadcrumb fixed-top w-100">
+            <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main.aspx">工作台</a></li>
+            <li class="breadcrumb-item"><a href="ClientList">客户列表</a></li>
+            <li class="breadcrumb-item">
+                <a href="@MvcHtmlString.Create(Request.RawUrl)">客户管理</a>
+            </li>
+            <div id="help" class="pull-right"><a onclick="help_show('47')" title="帮助"><i class="zi zi_questioncircle"></i></a></div>
+        </ol>
+        <form method="post" action="@MVCHelper.GetAction("Client_Add",Request)">
+            <ul class="nav nav-tabs list_choice">
+                <li class="nav-item"><a class="nav-link active" href="#client" data-toggle="tab">客户信息</a></li>
+                @*<li class="nav-item"><a  class="nav-link" href="#contact" data-toggle="tab">联系人</a></li>*@
+                <li class="nav-item"><a class="nav-link" href="#extend" data-toggle="tab">扩展信息</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active table-responsive" id="client">
+                    <table class="table table-bordered table-striped sys_table">
+                        <tr>
+                            <th class="td_m">客户类型</th>
+                            <td colspan="3">
+                                @MVCHelper.H_Checks("ClientType", ctypeDT, "value", "value", Model.ClientType)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="width:10%;">客户名称 <span class="text-danger">*</span></th>
+                            <td style="width:40%;">@Html.TextBoxFor(m => m.ClientName, new { @class = "form-control max20rem required" })</td>
+                            <th style="width:10%;">联系电话 <span class="text-danger">*</span></th>
+                            <td style="width:40%;">
+                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control max20rem required mobile" })
+                                <small class="text-muted">手机或座机号码,座机格式:010-1234567</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>省份</th>
+                            <td>
+                                <div class="input-group" style="width:400px;">
+                                    <select id="Province" name="Province" class="form-control"></select>
+                                    <select id="City" name="City" class="form-control"></select>
+                                    <select id="County" name="County" class="form-control"></select>
+                                </div>
+                            </td>
+                            <th>详细地址</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>客户级别</th>
+                            <td>
+                                @Html.DropDownListFor(m => m.ClientLevel,
+                       MVCHelper.ToSelectList("重点客户|普通客户|非优先客户".Split('|'), "重点客户|普通客户|非优先客户".Split('|'), Model.ClientLevel),
+                       new { @class = "form-control max20rem disabled" })
+                            </td>
+                            <th>行业</th>
+                            <td>@Html.TextBoxFor(m => m.ClientClass, new { @class = "form-control max20rem" })</td>
+                        </tr>
+                        <tr>
+                            <th>邮政编码</th>
+                            <td>@Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control max20rem digits", maxlength = 6 })</td>
+                            <th>传真</th>
+                            <td>@Html.TextBoxFor(m => m.Fax, new { @class = "form-control max20rem" })</td>
+                        </tr>
+                        <tr>
+                            <th>公司网址</th>
+                            <td>@Html.TextBoxFor(m => m.WebSiteUrl, new { @class = "form-control max20rem url" })</td>
+                            <th>微博</th>
+                            <td>@Html.TextBoxFor(m => m.MicroBlogUrl, new { @class = "form-control max20rem url" })</td>
+                        </tr>
+                        <tr><th>备注</th><td colspan="3">@Html.TextAreaFor(m => m.Remind, new { @class = "form-control" })</td></tr>
+                        <tr id="link_body">
+                            <th>
+                                <button type="button" class="btn btn-info" onclick="link_show();">关联客户</button>
+                            </th>
+                            <td colspan="3">
+                                <div v-if="list.length<1" class="alert alert-info">尚未关联客户</div>
+                                <div class="btn btn-outline-dark" style="width:240px;display:inline-block; margin-bottom:5px;margin-right:5px;text-align:left;" v-for="item in list">
+                                    <div>姓名：{{item.name}}</div>
+                                    <div>手机：{{item.phone}}</div>
+                                    <div class="text-right">
+                                        <a v-bind:href="'ClientView?id='+item.id" title="浏览详情" class="btn btn-info btn-sm"><i class="zi zi_eye"></i></a>
+                                        <button type="button" class="btn btn-danger btn-sm" v-on:click="del(item);"><i class="zi zi_trashalt"></i></button>
+                                    </div>
+                                </div>
+                               <input type="text" name="LinkIds" v-model="getIds()" style="display:none;"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane pt-2" id="contact">
+                    @if (conSetting != null && conSetting.dt.Rows.Count > 0)
+                    { @Html.Partial("Contact_List", conSetting);
+                    }
+                    else
+                    {<div class="alert alert-info">无联系人信息</div> }
+                    @if (Model.ID > 0)
+                    {
+                        <div>
+                            <input type="button" value="添加联系人" class="btn btn-outline-info" onclick="showAddContact();" />
+                            <input type="button" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'contact_del', confirm: '确定要批量移除吗' });" />
+                        </div>
+                    }
+                </div>
+                <div class="tab-pane" id="extend">
+                    <ul style="list-style: none;padding:0;">
+                        @Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(fieldDT, valueDT))
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center">
+                <input type="submit" value="保存信息" class="btn btn-info" />
+                <a href="ClientList" class="btn btn-outline-info">返回列表</a>
+            </div>
+        </form>
+    </div>
+}
+@section script{
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_Array.js?v=1"></script>
+<script src="/JS/Controls/ZL_PCC.js?v=1"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Content.js?v=20160514"></script>
+<script src="/dist/vue/vue.js"></script>
+<script>
+    $(function () {
+        $("form").validate();
+        var pcc = new ZL_PCC("Province", "City", "County");
+        if ("@Model.ID" != "0") {
+            pcc.SetDef("@Model.Province", "@Model.City", "@Model.County");
+        }
+        pcc.ProvinceInit();
+    });
+    function showAddContact(id) {
+        if (!id) { id = 0;}
+        ShowComDiag("ContactAdd?Cid=@(Model.ID)&ID="+id, "联系人管理");
+    }
+    function ContactAddSuccess() {
+        mvcpage.load({ url: "contact?cid=@Model.ID", target: "EGV" });
+        CloseComDiag();
+    }
+    function link_show() {
+        ShowComDiag("ClientListDiag?Cid=@Model.ID", "链接客户");
+    }
+    var linkApp = new Vue({
+        el: "#link_body",
+        data: {list:@MvcHtmlString.Create(json)},
+        methods: {
+            //回调方法
+            cb: function (list) {
+                CloseComDiag();
+                linkApp.list = ArrCOM.merge(linkApp.list,list);
+            },
+            del: function (item) {
+                var list=linkApp.list;
+                for (var i = 0; i < list.length; i++) {
+                    if(item==list[i]){list.splice(i,1);break;}
+                }
+            },
+            getIds: function () {
+                if (!linkApp) { return "@Model.LinkIds"; }
+                var ids = "";
+                var list = linkApp.list;
+                if (!list || list.length < 1) { return ids; }
+                for (var i = 0; i < list.length; i++) {
+                    ids += list[i].id + ",";
+                }
+                return ids.substr(0, ids.length - 1);
+            }
+        },
+    });
+</script>
+
+}

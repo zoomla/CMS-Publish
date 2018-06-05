@@ -1,0 +1,39 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{
+    <title>客户列表</title>
+}
+@{
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section content{
+    <div class="w-100">
+        @*<div class="input-group">
+            <span class="input-prepend"><span class="input-group-text">客户名</span></span>
+            <input type="text" class="form-control"/>
+            <span class="input-group-append">
+                <button type="button" value=""></button>
+            </span>
+        </div>*@
+        @Html.Partial("ClientListDiag_List", Model)
+        <div class="text-center">
+            <button type="button" class="btn btn-info" onclick="sureSel();">确定关联客户</button>
+        </div>
+    </div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+    <script>
+        function sureSel() {
+            var $chks = $("input[name='idchk']:checked");
+            if ($chks.length < 1) { alert("请选择要关联的客户"); return false; }
+            var list = [];
+            for (var i = 0; i < $chks.length; i++) {
+                list.push($chks.data("info"));
+            }
+            if (parent && parent.linkApp) {
+                parent.linkApp.cb(list);
+            }
+            return true;
+        }
+    </script>
+}

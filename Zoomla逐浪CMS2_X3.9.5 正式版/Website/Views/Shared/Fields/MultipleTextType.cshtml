@@ -1,0 +1,30 @@
+﻿@using ZoomLa.BLL
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq
+@using ZoomLa.Components
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+    string id = "txt_" + Model.fieldMod.FieldName;
+    FieldModel model = new FieldModel(Model.fieldMod.Content);
+    int width = model.GetValInt("width"), height = model.GetValInt("height");
+    if (width < 1 || width > 100) { width = 100; }
+    //每个必须支持两种模式:PreView和编辑模式 
+}
+<textarea name="@id" id="@id" class="form-control fd_textarea" style='height:@(height)px;width:@(width)%;max-width:100%;'>@Model.GetValue()</textarea>
+@if (model.GetValBool("SelUser"))
+{
+    <input type="button" onclick="ShowSelUser('@id');" class='btn btn-info' value='选择用户' />
+}
+@if (model.GetValBool("Down"))
+{
+    JObject obj = new JObject();
+    obj.Add(new JProperty("field", "down"));
+    obj.Add(new JProperty("nodeid", 0));
+    obj.Add(new JProperty("inputid", id));
+    obj.Add(new JProperty("uploaddir", (SiteConfig.SiteOption.UploadDir).TrimEnd('/') + "/"));
+    obj.Add(new JProperty("iswater", "0"));
+    string json = JsonConvert.SerializeObject(obj);
+
+    <input type="button" onclick="ShowAddDown('@id');" class='btn btn-info' value='自定义下载' />
+    <input type= "button" onclick ="UpFileDiag(@json);" class='btn btn-info' value='上传文件'/>
+}

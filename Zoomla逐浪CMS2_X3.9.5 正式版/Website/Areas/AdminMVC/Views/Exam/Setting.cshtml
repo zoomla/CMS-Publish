@@ -1,0 +1,40 @@
+﻿@{
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section head{ <title>配置中心</title> }
+@section content{
+<div id="BreadDiv" class="container-fluid mysite">
+    <div class="row">
+        <ol class="breadcrumb fixed-top w-100">
+            <li class="breadcrumb-item"><a href='@(CustomerPageAction.customPath2)I/Main.aspx'>工作台</a></li>
+            <li class="breadcrumb-item"><a href='Papers_System_Manage'>教育模块</a></li>
+            <li class="breadcrumb-item"><a href='QuestionManage'>考试管理</a></li>
+            <li class="breadcrumb-item">配置中心</li>
+        </ol>
+    </div>
+</div>
+<form method="post" action="Setting_Update" class="w-100">
+	<div class="container-fluid pr-0">
+	<div class="row sysRow list_choice table-responsive-md">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td class="w12rem_lg">难度更新</td>
+            <td>
+                <div class="input-group">
+                    <input type="text" id="stime" name="stime" value="@ViewBag.stime" class="form-control max20rem" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'etime\')}', dateFmt: 'yyyy-MM-dd HH:mm' });" />
+                    <input type="text" id="etime" name="etime" value="@ViewBag.etime" class="form-control max20rem" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'stime\')}', dateFmt: 'yyyy-MM-dd HH:mm' });" />
+                    <span class="input-group-append"><button type="submit" class="btn btn-outline-info">难度更新</button></span>
+                </div>
+				
+				
+			  
+            </td>
+        </tr>
+    </table>
+	</div>
+	</div>
+</form>
+}
+@section script{
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+}

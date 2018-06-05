@@ -1,0 +1,91 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="order.master.cs" Inherits="ZoomLaCMS.Cart.order" ClientIDMode="Static" %><!DOCTYPE html>
+<html>
+<head runat="server">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="renderer" content="webkit" />
+<link rel="stylesheet" href="/dist/css/bootstrap4.min.css" />
+<link href="/dist/css/zico.min.css" rel="stylesheet" />
+<link href="/App_Themes/v4User.css" rel="stylesheet" />
+<script src="/JS/jquery.min.js"></script>
+<script src="/dist/js/popper.min.js"></script> 
+<script src="/dist/js/bootstrap4.min.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<asp:ContentPlaceHolder ID="head" runat="server"></asp:ContentPlaceHolder>
+</head>
+<body>
+<form id="form1" runat="server">
+<nav class="navbar navbar-expand fixed-top cartTop"><a href="/" class="navbar-brand"><img src="<%=Call.LogoUrl %>" alt="<%=Call.SiteName %>"/><i class="zi zi_home"></i></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#cartNav" aria-controls="cartNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+  <div class="collapse navbar-collapse" id="cartNav">
+  	<div class="form-inline cart_seatch my-2 my-md-0 ml-auto">
+      <div class="input-group ml-auto skey_div">
+	  <div class="input-group-append">
+		<button class="btn my-2 my-sm-0 cart_seatchbtn" type="submit"  onclick="skey();"><i class="zi zi_search" ></i></button>
+	  </div>
+	  <input type="text" id="skey_t" class="form-control"   placeholder="全站检索" data-enter="0">
+	  <div class="input-group-append">
+		<span class="input-group-text"><i onClick="cartIsClose()" class="zi zi_times"></i></span>
+	  </div>
+	  </div>
+    </div>
+    <ul class="navbar-nav m-0" runat="server" id="logged_div" visible="false">
+	  <li class="nav-item"><a class="nav-link c_secrchzbtn" href="javascript:;" onclick="cartIsSearch();"><i class="zi zi_search"></i></a></li>
+      <li class="nav-item"><a href="/User/" class="nav-link" runat="server" id="logged_a" ></a></li>
+      <li class="nav-item"><a href="/User/Order/OrderList" target="_blank" class="nav-link">我的订单</a></li> 
+      <li class="nav-item"><a href="/User/User/Logout" class="nav-link"><i class="zi zi_signoutalt cartu_out" aria-hidden="true"></i> 退出</a></li>
+    </ul>
+	<ul class="navbar-nav m-0" runat="server" id="nologin_div" visible="false">
+	  <li class="nav-item"><a class="nav-link c_secrchzbtn" href="javascript:;" onclick="cartIsSearch();"><i class="zi zi_search"></i></a></li>
+      <li class="nav-item"><a href="/User/Login" runat="server" id="login_a" class="nav-link"></a></li>
+      <li class="nav-item"><a href="/User/Register?ReturnUrl=<%=Request.RawUrl %>" class="nav-link" target="_blank">注册</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="" id="cart_body">
+<asp:ContentPlaceHolder ID="Content" runat="server"></asp:ContentPlaceHolder>
+</div><asp:ContentPlaceHolder runat="server" ID="ScriptContent"></asp:ContentPlaceHolder>
+<div style="height: 30px;"></div>
+
+<div class="d-none d-md-block cart_site_bottom">
+<p>Powered by &copy; 
+	<script>
+		var year = "";
+		mydate = new Date();
+		myyear = mydate.getYear();
+		year = (myyear > 200) ? myyear : 1900 + myyear;
+		document.write(year);
+	</script>
+	<%:ZoomLa.Components.SiteConfig.SiteInfo.SiteName %> BY 
+	<%:ZoomLa.Components.SiteConfig.SiteInfo.Webmaster %>
+</p>
+</div>
+
+<footer class="fixed-bottom cord_footer">
+<ul class="d-flex justify-content-around">
+	<li><a  href="/"><i class="zi zi_home" aria-hidden="true"></i><span>首页</span></a></li>
+	<li><a  href="/Cart/Cart.aspx?ProClass=1"><i class="zi zi_shoppingcart" aria-hidden="true"></i><span>购物车</span></a></li>
+	<li><a  href="/User/Order/OrderList"><i class="zi zi_tag" aria-hidden="true"></i><span>订单</span></a></li>
+	<li><a  href="/user"><i class="zi zi_user" aria-hidden="true"></i><span>会员中心</span></a></li>
+</ul>
+</footer>
+
+</form>
+<script>
+/*显示搜索框*/
+function cartIsSearch(){
+    $(".skey_div").css("opacity","1").css("z-index","1").css("right","20%").css("top","0").css("width",window.innerWidth/3);
+//    $("#navbarsExample03 ul").fadeOut(200);
+    $(".skey_div .form-control").focus();
+}
+/*关闭搜索框*/
+function cartIsClose(){
+    $(".skey_div").css("opacity","0").css("z-index","-1").css("right","-1em");
+    $(".home_top_nav").fadeIn(1000);
+}
+</script>
+</body>
+</html>  
