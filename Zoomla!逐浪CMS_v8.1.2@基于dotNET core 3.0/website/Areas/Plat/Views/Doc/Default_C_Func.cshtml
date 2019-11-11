@@ -1,0 +1,62 @@
+﻿@{ 
+    //必备功能
+}
+<!--新建目录-->
+<div class="modal" id="folder_div" style="position:fixed;top:20%;" data-backdrop='static'>
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="modal-title"><i class="zi zi_folders"></i> 新建文件夹</span>
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        </div>
+        <div class="modal-body">
+                <div class="input-group">
+                    <span class="input-group-prepend"><span class="input-group-text">文件夹名</span></span>
+                    <input type="text" ID="DirName_T" name="DirName_T" class="form-control" />
+                </div>
+            <small>文件名不能包含下列字符：< > / \ | : " * ?</small>
+        </div>
+        <div class="modal-footer">
+            <input type="button" value="确认新建" class="btn btn-info" onclick="return FileManage.newFolder();"/>
+        </div>
+    </div>
+</div>
+</div>
+<!--预览+下载-->
+<div class="modal fade bd-example-modal-lg" id="preview_div" style="position:fixed;top:5%;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <span class="modal-title"></span>  @*<a href="#" title="全屏浏览">全屏</a>*@
+            </div>
+            <div class="modal-body">
+                <iframe id="preview_if" style="border:none;width:100%;height:650px;overflow-y:hidden;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<!--文件/目录重命名-->
+<div class="modal" id="rename_div" style="position:fixed;top:20%;" data-backdrop='static'>
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="modal-title"><i class="zi zi_folders"></i> 重命名</span>
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        </div>
+        <div class="modal-body">
+                 <div class="input-group">
+                    <span class="input-group-prepend"><span class="input-group-text">原名称</span></span>
+                    <input type="text" ID="rename_old" class="form-control" readonly="readonly"/>
+                </div>
+                <div class="input-group" style="margin-top:5px;">
+                    <span class="input-group-prepend"><span class="input-group-text">新名称</span></span>
+                    <input type="text" ID="rename_new" class="form-control" />
+                </div>
+        </div>
+        <div class="modal-footer">
+            <input type="button" value="确定重命名" class="btn btn-info" onclick="return FileManage.rename_submit();"/>
+        </div>
+    </div>
+</div>
+</div>

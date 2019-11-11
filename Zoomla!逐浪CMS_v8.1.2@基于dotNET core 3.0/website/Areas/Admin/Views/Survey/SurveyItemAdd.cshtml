@@ -1,0 +1,215 @@
+﻿@model ZoomLa.Model.Design.M_Design_Question
+@using ZoomLa.Model.Design
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@{
+    M_Design_Ask askMod = ViewBag.askMod;
+
+    JObject jobj = JsonConvert.DeserializeObject<JObject>(Model.QFlag);
+}
+@section head{
+    <title>问卷投票问题</title>
+    <script src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script src="/Plugins/Ueditor/ueditor.all.js"></script>
+    <script src="/JS/Plugs/angular.min.js"></script>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+                    new Bread("{admin}"),
+                    new Bread("SurveyManage","问卷投票"),
+                    new Bread("Survey?ID="+askMod.ID,askMod.Title),
+                    new Bread("SurveyItemList?SID="+askMod.ID,"问卷投票问题列表"),
+                    new Bread() {url=Context.Request.RawUrl(), text="问题信息",addon= "" }}
+                 );
+    <form method="post" action="@MVCHelper.GetAction("SurveyItemAdd_Submit",Context.Request)">
+        <div class="container-fluid pr-0">
+            <div class="row sysRow list_choice table-responsive-md">
+                <table class="table table-striped table-bordered sys_table">
+                    <tr>
+                        <th scope="col" class="w12rem_lg">标题 <span class="text-danger">*</span></th>
+                        <td scope="col">
+                            <input type="text" ID="QTitle" name="QTitle" value="@Model.QTitle" class="form-control m715-50" maxlength="80" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="col">类型</th>
+                        <td scope="col">
+                            @MVCHelper.H_Radios("QType", "单选|多选|问答".Split('|'), "radio|checkbox|blank".Split('|'), Model.QType)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="col">是否必填</th>
+                        <td scope="col">
+                            @MVCHelper.H_Radios("Required", "必填|选填".Split('|'), "True|False".Split('|'), Model.Required.ToString())
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>问题</th>
+                        <td>
+                            @Html.TextArea("QContent", Model.QContent, new { style = "height:200px;width:960px;" })
+                            @Html.Raw(Call.GetUEditor("QContent", 2))
+                        </td>
+                    </tr>
+                    <tbody class="quest_wrap radio checkbox">
+                        <tr>
+                            <th class="w12rem_lg">类型</th>
+                            <td>
+                                <label><input type="radio" name="select_type" value="radio" checked="checked" />单选</label>
+                                <label><input type="radio" name="select_type" value="select" />下拉</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>排列</th>
+                            <td>
+
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon1">每行显示</span>
+                                    </div>
+                                    <select name="select_num" class="form-control text_x">
+                                        <option value="1">1列</option>
+                                        <option value="2">2列</option>
+                                        <option value="3">3列</option>
+                                        <option value="4">4列</option>
+                                        <option value="5">5列</option>
+                                        <option value="6">6列</option>
+                                        <option value="7">7列</option>
+                                        <option value="8">8列</option>
+                                        <option value="9">9列</option>
+                                        <option value="10">10列</option>
+                                        <option value="11">11列</option>
+                                        <option value="12">12列</option>
+                                        <option value="15">15列</option>
+                                        <option value="20">20列</option>
+                                        <option value="30">30列</option>
+                                    </select>
+                                </div>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>选项</th>
+                            <td>
+                                <ul ng-app="app" ng-controller="ZLCtrl" class="sys_ul">
+                                    <li ng-repeat="item in list track by $index" class="input-group mb-2">
+                                        <input type="text" class="form-control max20rem" ng-model="item.text" />
+                                        <div class="input-group-append"><button type="button" class="btn btn-info" ng-if="$index==0" ng-click="add();"><i class="zi zi_plus"></i></button></div>
+                                        <div class="input-group-append"><button type="button" class="btn btn-info" ng-if="$index!=0" ng-click="del(item);"><i class="zi zi_minus"></i></button></div>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody class="quest_wrap blank">
+                        <tr>
+                            <th>类型</th>
+                            <td>
+                                <label><input type="radio" name="text_type" value="text" checked="checked" />单行</label>
+                                <label><input type="radio" name="text_type" value="textarea" />多行</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>规则</th>
+                            <td>
+                                <div class="input-group" style="max-width:500px;">
+                                    <select name="text_regex" class="form-control text_md">
+                                        <option value="" selected="selected">不限制</option>
+                                        <option value="date">日期</option>
+                                        <option value="mobile">手机</option>
+                                        <option value="email">Email</option>
+                                    </select>
+                                    <input type="text" class="form-control" placeholder="扩展规则" name="text_regex2" value="@ZoomLa.BLL.Helper.JsonHelper.GetVal(jobj,"regex2")"/>
+                                </div>
+                                <div><small>日期扩展规则示例:[yyyy/MM/dd HH:mm:ss] [HH:mm]</small></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tr>
+                        <th>操作</th>
+                        <td>
+                            <input type="button" value="保存信息" class="btn btn-info" onclick="save();" />
+                            <input type="submit" ID="EBtnSubmit" style="display:none;" />
+                            <a href="SurveyItemList?SID=@(Model.AskID)" class="btn btn-outline-info">返回列表</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <input type="hidden" ID="Option_Hid" name="Option_Hid" value="@Model.QOption" />
+    </form>
+}
+@section script{
+    <script src="/JS/SelectCheckBox.js"></script>
+    <style type="text/css">
+        .quest_wrap { display: none; }
+    </style>
+    @switch (Model.QType)
+    {
+        case "radio":
+        case "checkbox":
+            {
+
+                try
+                {
+                    <script>SetValue('select_type', "@jobj["type"].ToString()"); SetValue('select_num', "@jobj["num"].ToString()");</script>
+                }
+                catch { }
+            }
+            break;
+        case "blank":
+            {
+                try
+                {
+                    <script>
+                        SetValue('text_type', "@jobj["type"].ToString()");
+                        SetValue('text_regex', "@jobj["regex"].ToString()");
+                  </script>
+                }
+                catch { }
+            }
+            break;
+    }
+    <script>
+    var scope = null;
+    $(function () {
+        $("input[name='QType']").click(function () {
+            $(".quest_wrap").hide();
+            $(".quest_wrap." + this.value).show();
+        });
+        $("input[name='QType']:checked").click();
+    })
+    function save() {
+        scope.save();
+        $("#EBtnSubmit").click();
+    }
+    angular.module("app", []).controller("ZLCtrl", function ($scope) {
+        scope = $scope;
+        $scope.newOption = function (text) {
+            return { "text": text, value: parseInt(Math.random() * 10000), checked: false };
+        }
+        $scope.del = function (item) {
+            for (var i = 0; i < $scope.list.length; i++) {
+                if ($scope.list[i] == item) { $scope.list.splice(i, 1); return; }
+            }
+        }
+        $scope.add = function () { $scope.list.push($scope.newOption("新选项")); }
+        $scope.save = function () {
+            $("#Option_Hid").val(angular.toJson($scope.list));
+        }
+        $scope.init = function () {
+            var val = $("#Option_Hid").val();
+            if (val != "") {
+                $scope.list = JSON.parse(val);
+            }
+            else {
+                $scope.list.push($scope.newOption("选项1"));
+                $scope.list.push($scope.newOption("选项2"));
+                $scope.list.push($scope.newOption("选项3"));
+            }
+        }
+        //-------------------------------------
+        $scope.list = [];
+        $scope.init();
+    })
+    </script>
+}

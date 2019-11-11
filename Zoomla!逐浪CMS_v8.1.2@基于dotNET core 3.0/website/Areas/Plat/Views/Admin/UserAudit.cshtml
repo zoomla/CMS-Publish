@@ -1,0 +1,138 @@
+﻿@functions{
+    M_User_Plat upMod = new M_User_Plat();
+    B_Common_UserApply ualyBll = new B_Common_UserApply();
+    M_Common_UserApply ualyMod = null;
+    //public int ZStatus { get { return DataConvert.CLng(Request.QueryString["s"]); } }
+    //protected void Page_Load(object sender, EventArgs e)
+    //{
+    //    if (!IsPostBack)
+    //    {
+    //        MyBind();
+    //    }
+    //}
+    //public void MyBind()
+    //{
+    //    upMod = B_User_Plat.GetLogin();
+    //    EGV.DataSource = ualyBll.JoinComp_Sel(upMod.CompID.ToString(), ZStatus);
+    //    EGV.DataBind();
+    //    switch (ZStatus)
+    //    {
+    //        case (int)ZLEnum.ConStatus.UnAudit:
+    //            break;
+    //        //case (int)ZLEnum.ConStatus.Audited:
+    //        //    break;
+    //        //case (int)ZLEnum.ConStatus.Reject:
+    //        //    break;
+    //        default:
+    //            EGV.Columns[(EGV.Columns.Count - 1)].Visible = false;
+    //            BatReject_Btn.Visible = false;
+    //            BatAgree_Btn.Visible = false;
+    //            break;
+    //    }
+
+    //}
+    //protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+    //{
+    //    int id = DataConvert.CLng(e.CommandArgument);
+    //    ualyMod = ualyBll.SelReturnModel(id);
+    //    switch (e.CommandName)
+    //    {
+    //        case "agree":
+    //            {
+    //                upMod = B_User_Plat.GetLogin();
+    //                DBCenter.UpdateSQL("ZL_User_Plat", "CompID=" + upMod.CompID + ",Plat_Role=''", "UserID=" + ualyMod.UserID);
+    //                ualyBll.ChangeByIDS(id.ToString(), (int)ZLEnum.ConStatus.Audited);
+    //            }
+    //            break;
+    //        case "reject":
+    //            {
+    //                ualyBll.ChangeByIDS(id.ToString(), (int)ZLEnum.ConStatus.Reject);
+    //            }
+    //            break;
+    //    }
+    //    MyBind();
+    //}
+    //protected void EGV_RowDataBound(object sender, GridViewRowEventArgs e)
+    //{
+    //    //if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow)
+    //    //{
+    //    //    if (ZStatus != 0) 
+    //    //    {
+
+    //    //    }
+    //    //}
+    //}
+    //protected void BatAgree_Btn_Click(object sender, EventArgs e)
+    //{
+    //    string ids = Request.Form["idchk"];
+    //    upMod = B_User_Plat.GetLogin();
+    //    //修改选定的会员的公司信息
+    //    DataTable dt = ualyBll.JoinComp_Sel(upMod.CompID.ToString(), (int)ZLEnum.ConStatus.UnAudit, ids);
+    //    foreach (DataRow dr in dt.Rows)
+    //    {
+    //        DBCenter.UpdateSQL("ZL_User_Plat", "CompID=" + upMod.CompID + ",Plat_Role=''", "UserID=" + dr["UserID"]);
+    //    }
+    //    ualyBll.ChangeByIDS(ids, (int)ZLEnum.ConStatus.Audited);
+    //    function.WriteSuccessMsg("批量同意完成");
+    //}
+    //protected void BatReject_Btn_Click(object sender, EventArgs e)
+    //{
+    //    string ids = Request.Form["idchk"];
+    //    ualyBll.ChangeByIDS(ids, (int)ZLEnum.ConStatus.Reject);
+    //    function.WriteSuccessMsg("批量拒绝完成");
+    //}
+
+}
+@section head{<title>用户审核</title> }
+@section content{ 
+<div class="container platcontainer">
+<div class="child_head"><span class="child_head_span1"></span> <span class="child_head_span2">用户审核</span></div>
+    <ul id="menuul" class="nav nav-tabs">
+    <li class="nav-item" data-s="0"><a class="nav-link" href="UserAudit.aspx">未审核</a></li>
+    <li class="nav-item"  data-s="99"><a class="nav-link" href="UserAudit.aspx?s=99">已同意</a></li>
+    <li class="nav-item"  data-s="-1"><a class="nav-link" href="UserAudit.aspx?s=-1">已拒绝</a></li>
+</ul>
+<ZL:ExGridView runat="server" ID="EGV" AutoGenerateColumns="false" AllowPaging="true" PageSize="10" EnableTheming="False" IsHoldState="false"
+		class="table table-striped table-bordered table-hover table-responsive-md" EmptyDataText="当前没有信息!!" OnRowDataBound="EGV_RowDataBound"
+		OnPageIndexChanging="EGV_PageIndexChanging" OnRowCommand="EGV_RowCommand">
+  <Columns>
+  <asp:TemplateField ItemStyle-CssClass=""><ItemTemplate><input type="checkbox" name="idchk" value='<%# Eval("ID") %>' /></ItemTemplate></asp:TemplateField>
+  <asp:BoundField DataField="UserID" HeaderText="ID" SortExpression="UserID" ItemStyle-CssClass=""></asp:BoundField>
+    <asp:TemplateField HeaderText="头像">
+        <ItemTemplate>
+            <img class="img_s" src="<%#Eval("UserFace") %>" onerror="shownoface(this);" />
+        </ItemTemplate>
+    </asp:TemplateField>
+  <asp:TemplateField HeaderText="会员名"><ItemTemplate> <%#Eval("UserName","{0}") %> </ItemTemplate></asp:TemplateField>
+  <asp:BoundField HeaderText="手机" DataField="Mobile"/>
+    <asp:TemplateField HeaderText="IP定位"><ItemTemplate><%#ZoomLa.BLL.Helper.IPScaner.IPLocation(Eval("IP","")) %></ItemTemplate></asp:TemplateField>
+  <asp:TemplateField HeaderText="申请时间">
+	<ItemTemplate> <%#Eval("CDate","{0:yyyy年MM月dd日 HH:mm}") %> </ItemTemplate>
+  </asp:TemplateField>
+  <asp:TemplateField HeaderText="操作">
+	<ItemTemplate>
+        <asp:LinkButton runat="server" CommandArgument='<%#Eval("ID") %>' CommandName="agree" OnClientClick="return confirm('确定要同意其加入公司吗?');">同意</asp:LinkButton>
+        <asp:LinkButton runat="server" CommandArgument='<%#Eval("ID") %>' CommandName="reject" OnClientClick="return confirm('确定要拒绝申请吗?');">拒绝</asp:LinkButton>
+    </ItemTemplate>
+  </asp:TemplateField>
+  </Columns>
+</ZL:ExGridView>
+<asp:Button runat="server" ID="BatAgree_Btn"  Text="批量同意" OnClick="BatAgree_Btn_Click"  CssClass="btn btn-outline-info" OnClientClick="return subchk('确定要同意吗?');" />
+<asp:Button runat="server" ID="BatReject_Btn" Text="批量拒绝" OnClick="BatReject_Btn_Click" CssClass="btn btn-outline-danger" OnClientClick="return subchk('确定要拒绝吗?');" />
+</div>
+}
+@section script{ 
+<script>
+$(function () {
+    var s = "<%=ZStatus%>";
+var $li = $("#menuul li[data-s='" + s + "']");
+if ($li.length > 0) { $li.find("a").addClass("active"); }
+else { $("#menuul li:first").find("a").addClass("active"); }
+})
+function subchk(msg) {
+if ($("input[name='idchk']:checked").length < 1) { alert("请先选定要操作的数据"); return false; }
+if (!confirm(msg)) { return false; }
+return true;
+}
+</script>
+}

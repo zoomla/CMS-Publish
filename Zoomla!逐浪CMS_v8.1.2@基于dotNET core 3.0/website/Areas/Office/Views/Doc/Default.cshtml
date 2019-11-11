@@ -1,0 +1,58 @@
+﻿@functions{
+ 
+   
+        
+    //protected void EGV_RowDataBound(object sender, GridViewRowEventArgs e)
+    //{
+    //    if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow)
+    //    {
+    //        DataRowView rv = (DataRowView)e.Row.DataItem;
+    //        if (oaBll.IsApproving(Convert.ToInt32(rv["ID"])))
+    //        {
+    //            e.Row.FindControl("del").Visible = false;
+    //            e.Row.FindControl("edit").Visible = false;
+    //        }
+    //        if (rv["Status"].ToString() == "-80")
+    //        {
+    //            e.Row.FindControl("view").Visible = false;
+    //        }
+    //        if (rv["Status"].ToString() == "-99")
+    //        {
+    //            e.Row.FindControl("del").Visible = false;
+    //            e.Row.FindControl("view").Visible = false;
+    //        }
+    //    }
+    //}
+}
+@section  head{ 
+<title>公文处理</title>
+<script type="text/javascript">
+    function delCon() {
+        return confirm('确定该公文移入回收站吗!!!');
+    }
+</script>
+
+}
+@section content{ 
+    <div class="draftnav"><a href="/Office/Index/Main">行政公文</a>/<a href="Default">发文管理</a><a href="javascript:;" style="margin-left:5px;">提示：已开始审批的文件无法修改删除</a></div>
+    <div id="site_main" style="margin:5px;">
+        <div style="margin-bottom:5px;">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="Default">公文</a></li>
+                <li><a href="DocManage">文档</a></li>
+                <li><a href="DraftBox">草稿箱</a></li>
+                <li><a href="Garbagebox">回收站</a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="input-group" style=" width:400px;float:left;margin-bottom:5px;">
+            <asp:TextBox runat="server" ID="searchText" placeholder="请输入需要查询的信息" CssClass="form-control"/>
+            <span class="input-group-btn">
+                <asp:Button runat="server" CssClass="btn btn-primary" ID="searchBtn" Text="搜索" OnClick="searchBtn_Click"/>
+            </span>
+        </div>
+        <div class="tab3">
+            @Html.Partial("Default_List")
+        </div>
+    </div>
+}

@@ -1,0 +1,235 @@
+﻿@using ZoomLa.BLL.User
+@using ZoomLa.BLL.Chat
+@using ZoomLa.Model.Chat
+@using ZoomLa.BLL.Helper
+@functions{
+    private int UserID { get { return DataConverter.CLng(Context.Request.GetParam("uid")); } }
+    //从临时存储中获取
+    private string UserFlag { get { return Context.Request.GetParam("UserFlag"); } }
+    /// <summary>
+    /// visitor:登录行为,如未登录,默认游客(不弹窗)
+    /// admin:后台管理员,默认同步其绑定用户
+    /// </summary>
+    public string Login
+    {
+        get
+        {
+            string value = DataConverter.CStr(Context.Request.GetParam("Login")).ToLower();
+            if (string.IsNullOrEmpty(value)) { value = "visitor"; }
+            ViewBag.Login = value;
+            return value;
+        }
+    }
+    //仅用于和好友聊天
+
+    //private DataTable UserDT
+    //{
+    //    get
+    //    {
+    //        if (ViewState["UserDT"] == null)
+    //        {
+    //            ViewState["UserDT"] = buser.SelAll();
+    //        }
+    //        return (DataTable)ViewState["UserDT"];
+    //    }
+    //    set { ViewState["UserDT"] = value; }
+    //}
+    //protected void Page_PreRender(object sender, EventArgs e)
+    //{
+    //    UserDT = null;
+    //}
+
+}
+@{ 
+    B_ChatMsg chatBll = new B_ChatMsg();
+    M_OnlineUser user = chatBll.GetLogin(Context);
+    B_User_Friend friendBll = new B_User_Friend();
+    DataTable friendDT = new DataTable();
+    M_UserInfo mu = new B_User(Context).GetLogin();
+    if (!mu.IsNull)//用户如已登录,则加载好友表
+    {
+        friendDT = friendBll.SelMyFriend(mu.UserID);
+    }
+}
+@section head{<title>在线聊天</title>}
+@section content{
+<div class="container">
+<div class="chat_top">
+<span id="uinfo_name">请先选择用户</span>
+<span class="chat_top_r margin_l5" title="点击关闭聊天窗口"><a href="javascript:;" onclick="closechat();" ><i class="zi zi_times"></i></a></span>
+<span class="chat_top_r margin_r5" data-toggle="tooltip" data-placement="left" title="点击查看历史记录"><a href="javascript:;" onclick="ShowHistory();"><i class="zi zi_listalt"></i> 历史记录</a></span>
+</div>
+<div class="chat_main" style="display:flex;">
+<div class="col-3 chat_main_r" style="padding:0">
+<div class="chat_main_rt">
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+<li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">我的好友</a></li>
+</ul>
+</div>
+<!-- Tab panes -->
+<div class="tab-content">
+<div role="tabpanel" class="tab-pane active" id="home">
+<div class="chat_main_rc">
+<ul class="media-list">
+@foreach (DataRow dr in friendDT.Rows)
+{
+ <li onclick="ChangeTalker('@dr["UserID"]','@dr["UserName"]','@dr["Salt"]');" class="media" id="list_item_@dr["HoneyName"]">
+    <div class="media-left"><img src="@dr["Salt"]" class="media-object" onerror="shownoface(this);" /></div>
+    <div class="media-body media-middle">
+    <h4 class="media-heading">@dr["UserName"] <span class="isonline remindgray isonline_@dr["UserID"]">(检测中)</span></h4>
+    <span id="unread_@dr["HoneyName"]" class="badge"></span>
+    </div>
+</li>
+}
+
+
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="col-9 chat_main_l" style="padding:0">
+<div class="chat_container">
+<div id="chat_body_list"></div>
+<div id="mymsg">
+<textarea id="content" style="height: 135px;"></textarea>
+<div class="chat_send">
+<span class="remindgray">支持Ctrl+Enter快捷键发送信息</span>
+<button type="button" id="sendbtn" class="btn btn-info float-right" disabled="disabled" onclick="SendMsg();">发送</button>
+<div class="clearfix"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+@if (user != null)
+{
+    <div class="alert alert-info hidden-xs char_alert" role="alert">
+    欢迎[@user.UserName]，您可以通过UID来指定聊天对象，如：/Common/Chat/?uid=1[<a href="javascript:;" onclick="ShowModal();">退出系统</a>]
+    <input type="hidden" ID="UserID_Hid" value="@user.UserID"/>
+    </div>
+}
+
+</div>
+<div class="list_body" hidden>
+<div class="chat_header">
+<asp:TextBox CssClass="form-control" placeholder="搜索联系人" onkeyup="SearchUserList()" ID="UserSearch_T" runat="server"></asp:TextBox></div>
+<ul style="height: 426px; overflow-y: auto;">
+<ul>
+<li class="list_group" id="visitor_ul" visible="false" runat="server">
+<div class="list_group_title">
+<span class="zi zi_forRight remindgray"></span>
+<span>游客</span>
+<span class="remindgray" style="float: right; margin-right: 10px;">
+<asp:Label runat="server" ID="Unum_L"></asp:Label>
+</span>
+<div style="clear: both; height: 8px;"></div>
+</div>
+</li>
+<ul class="list_item_body" id="visitorlist">
+@*<asp:Repeater runat="server" ID="Y_RPT">
+<ItemTemplate>
+<li onclick="ChangeTalker(<%#"'"+Eval("UserID")+"','"+Eval("UserName")+"','"+Eval("UserFace")+"'" %>);" class="list_item" id="list_item_<%#Eval("UserID") %>">
+<img src="<%#Eval("UserFace") %>" class="member_face" onerror="shownoface(this);" />
+<p class="member_nick">
+<%#Eval("UserName") %><br />
+<span class="isonline remindgray isonline_<%#Eval("UserID") %>">(检测中)</span>
+<span id="unread_<%#Eval("UserID") %>" class="badge"></span>
+</p>
+<div style="clear: both;"></div>
+</li>
+</ItemTemplate>
+</asp:Repeater>*@
+</ul>
+</ul>
+<ul>
+<li class="list_group">
+<div class="list_group_title">
+<span class="zi zi_forRight remindgray"></span>
+<span>我的好友</span>
+<span class="remindgray" style="float: right; margin-right: 10px;">
+<label ID="Friend_Num">@friendDT.Rows.Count</label>
+</span>
+<div style="clear: both; height: 8px;"></div>
+</div>
+</li>
+</ul>
+<ul class="list_search" style="display: none;">
+</ul>
+</ul>
+</div>
+<div style="float: left; padding-left: 10px; display: none;">
+<input type="button" value="获取在线用户" onclick="GetOnlineList();" />
+<div>
+<audio src="/Plugins/Third/Chat/msg.mp3" id="msg_ad" />
+</div>
+<ul>
+<li>
+<img id="myfaceimg" style="width: 80px; height: 80px;" onerror="shownoface(this);" /></li>
+<li>名字:<input type="text" id="myname_t" /></li>
+<li>ID:<input type="text" id="myid_t" /></li>
+<li>在线用户：<textarea id="onlineids_text" style="height: 100px;"></textarea>
+</li>
+<li>与谁聊:<input type="text" id="ReceUser_Hid" />
+<input type="button" value="测试" onclick="testF();" />
+<input type="button" value="接收" onclick="GetMsg();" />
+</li>
+<li>获取在线用户:</li>
+</ul>
+<input type="text" id="test_fid" />
+<button type="button" onclick="AddFriend()">添加好友</button>
+</div>
+<div class="modal fade" id="modeldiv" data-backdrop="static" style="top: 20%; left: 20%;">
+<div class="modal-dialog" style="width: 300px;">
+<div class="modal-content">
+<ul class="nav nav-tabs">
+<li class="active"><a href="#tab0" data-toggle="tab">用户登录</a></li>
+<li><a href="#tab1" data-toggle="tab">游客登录</a></li>
+</ul>
+<div class="modal-body">
+<div class="tab-content">
+<div class="tab-pane active" id="tab0">
+<input type="text" id="uname_t" class="form-control" placeholder="用户名" onkeyup="GetEnterCode('focus','pwd_t');" />
+<input type="password" id="pwd_t" class="form-control" onkeyup="GetEnterCode('click','ulogin_btn');" />
+<input type="button" id="ulogin_btn" value="登录" class="btn btn-primary" onclick="AJAXLogin(); disBtn(this, 2000);" />
+<input type="button" value="注册" class="btn btn-default" onclick="GetToReg();" />
+</div>
+<div class="tab-pane" id="tab1">
+<input type="text" id="visname_t" class="form-control" value="游客" onkeyup="GetEnterCode('click','vlogin_btn');" />
+<input type="button" id="vlogin_btn" class="btn btn-primary" value="游客登录" onclick="VisitorLogin(); disBtn(this, 2000);" />
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+}
+@section script{
+    @if (!string.IsNullOrEmpty(Login))
+    {
+        <script>VisitorToLogin('用户@(DateTime.Now.ToString("yyyyMMddHHmmss"))','@(Context.Request.GetParam("idflag"))');</script>
+    }
+    else if (user == null)
+    {
+       <script>ShowModal();</script>
+    }   
+     @if (user != null)
+    {
+        <script>SetMyInfo('@user.UserID','@user.UserName','@user.UserFace');BeginInit();</script>
+    }
+    @if (!string.IsNullOrEmpty(UserFlag))//通过标识与游客交谈
+    {
+        M_OnlineUser mu = chatBll.GetModelByUid(Context,UserFlag);
+       <script>ChangeTalker('@mu.UserID','@mu.UserName','@mu.UserFace');</script>
+    }
+    else if (UserID > 0)//与指定用户交谈
+    {
+        M_UserInfo mu = new B_User().SelReturnModel(UserID);
+       <script>ChangeTalker('@mu.UserID','@mu.UserName','@mu.UserFace');</script>
+    }
+    @if (friendDT.Rows.Count > 0)
+    {
+        <script>InitUserList(@Html.Raw(JsonHelper.JsonSerialDataTable(friendDT)));</script>
+    }
+}

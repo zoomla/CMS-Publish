@@ -1,0 +1,28 @@
+﻿@section head{<title>@L.解锁-@L.当前后台已经被锁定!</title> }
+@section content{ 
+<div id="lock">
+    <div class="col-sm-5 col-md-4 col-12 ">
+        <div class="pass_div">
+            <i class="zi zi_lock"></i>
+            <input type="password" ID="TxtPassword" name="TxtPassword" placeholder="@L.系统保护与管理员安全锁定模式-@L.输入密码按回车解锁！" class="form-control" maxlength="30" tabindex="2" onkeydown="keydown()" />
+            <div id="lock_tip" style="color: red"></div>
+        </div>
+    </div>
+</div>
+}
+@section script{ 
+<script type="text/javascript">
+    function keydown() {
+        if (event.keyCode == 13) {
+            $.post("?action=check", { "TxtPassword": $("#TxtPassword").val() }, function (data) {
+                var model = APIResult.getModel(data);
+                if (APIResult.isok(model)) {
+                    parent.document.getElementById("tranDiv").style.display = "none";
+                    parent.document.getElementById("infoDiv").style.display = "none";
+                }
+                else { $("#lock_tip").text(model.retmsg); }
+            })
+        }
+    }
+</script>
+}

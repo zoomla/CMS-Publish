@@ -1,0 +1,37 @@
+﻿@using System.Data
+@using ZoomLa.BLL.User
+@model ZoomLa.Model.M_UserInfo
+@{
+    B_Group gpBll = new B_Group();
+    DataTable gpDT = gpBll.Sel();
+}
+@section head{<title>添加会员</title>}
+@section content{
+@{Html.BeginForm(FormMethod.Post, new { action = "UserAdd_Submit" });}
+    <table class="table table-bordered">
+        <tr><td>用户名</td><td>@Html.TextBoxFor(m => m.UserName, new { @class = "form-control text_300 required",maxlength=80 })</td></tr>
+        <tr><td>密码</td><td>@Html.PasswordFor(m => m.UserPwd, new { @class = "form-control text_300 required",maxlength=15 })</td></tr>
+        <tr><td>会员组</td>
+            <td>@Html.DropDownListFor(m => m.GroupID, MVCHelper.ToSelectList(gpDT, "GroupName", "GroupID"), new { @class = "form-control text_300" })</td>
+        </tr>
+        <tr><td>昵称</td><td>@Html.TextBoxFor(m => m.HoneyName, new { @class = "form-control text_300",maxlength=20 })</td></tr>
+        <tr><td>手机号</td><td>@Html.TextBoxFor(m => m.Remark, new { @class = "form-control text_300",maxlength=11 })</td></tr>
+        <tr><td>头像</td><td>@Html.Partial("C_SFileUP",new ZoomLaCMS.Control.C_SFileUP() {ID="UserFace",SaveType="admin" }) </td></tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" class="btn btn-info" value="添加会员"/>
+            </td>
+        </tr>
+    </table>
+@{Html.EndForm();}
+ 
+
+
+}
+@section script{
+    <script>
+        $("form").validate({});
+    </script>
+
+ }

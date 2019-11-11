@@ -1,0 +1,36 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{ 
+    public string ShowGN(object o)
+    {
+        return string.IsNullOrEmpty(o.ToString()) ? "未设置" : o.ToString();
+    }
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <td></td>
+        <td>用户名</td>
+        <td>姓名</td>
+        <td>手机号码</td>
+        <td>部门</td>
+        <td>二维码</td>
+        @*<td>操作</td>*@
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["UserID"]" /></td>
+        <td>@dr["UserName"]</td>
+        <td>@ShowGN(dr["TrueName"])</td>
+        <td>@dr["Mobile"]</td>
+        <td>@dr["GroupName"]</td>
+        <td>
+            <span class="zi zi_qrcode" style="font-size:1.3em;color:gray;cursor:pointer;" title="获取二维码" onclick="GetQrCode(@dr["UserID"]);"></span>
+            <div style="position:absolute;display:none;z-index:5;margin-left:-80px;" id="imgdiv_@dr["UserID"]" name="imgdiv"><img id="img_@dr["UserID"]" src="#" style="width:120px;height:120px;" /></div>
+        </td>
+        @*<td>
+            <a href="/Plat/Mail/MessageSend.aspx?uid=@dr["UserID"]" title="发送邮件">邮件</a> 
+        </td>*@
+    </tr>
+    }
+    @Html.Partial("_page")
+</table>

@@ -1,0 +1,27 @@
+﻿@{
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link href="/theme/css/v4_erp.css" rel="stylesheet" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<link href="/theme/css/common.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+
+@RenderSection("head", false)
+</head>
+ @**@
+<body class="app">
+    <div class="app-body" style="margin-top:5px;">
+        <main class="main">
+            @RenderSection("content", false)
+        </main>
+    </div>
+<script src="~/theme/erp/js/app.js"></script>
+@RenderSection("script", false)
+</body>
+</html>
+
+

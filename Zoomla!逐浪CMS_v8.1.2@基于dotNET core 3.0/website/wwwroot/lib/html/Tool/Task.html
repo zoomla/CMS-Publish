@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>网站任务工具_逐浪CMS团队作品</title>
+<style type="text/css">
+.codetext{width:700px;height:120px;}
+.rd_green{color:green;font-weight:normal;}
+</style>
+</head>
+<body>
+<script>location="//help.z01.com/tool/Task.html";</script>
+
+<header>
+    <a href="http://www.zoomla.cn/" target="_blank">Zoomla!逐浪CMS首页</a>
+    <a href="http://www.hx008.com/" target="_blank">主机域名</a> <a href="http://club.zoomla.cn/" target="_blank">技术社区</a>
+</header>
+<div class="ZTool"><h1>计划任务批处理工具<abbr/><a href="index.html">→IIS站点快速生成命令行工具</a></h1></div>
+    <table>
+        <tr><td>站点名称:</td><td><input type="text" id="sitename_t" onkeyup="Render(); Sync(this,'apppool_t');" /><span class="rd_green">你的IIS站点名称</span></td></tr>
+        <tr><td>进程池名:</td><td><input type="text" id="apppool_t" onkeyup="Render()" /></td></tr>
+        <tr><td>任务时间:</td><td><input type="text" id="executetime_t" onkeyup="Render()" /></td></tr>
+        <tr>
+            <td>执行次数:</td>
+            <td>
+                <label><input type="radio" name="times_rad" value="once" checked="checked" onclick="Render()" />仅一次</label>
+                <label><input type="radio" name="times_rad" value="daily" onclick="Render()" />每日</label>
+                <label><input type="radio" name="times_rad" value="onlogon" onclick="Render()" />每次登录</label>
+            </td>
+        </tr>
+        <tr>
+            <td>操作行为:</td>
+            <td>
+                <label><input type="radio" name="op_rad" value="stop" onclick="Render();" data-name="关闭" checked="checked" />关闭</label>
+                <label><input type="radio" name="op_rad" value="restart" onclick="Render();" data-name="重启" />重启</label>
+                <label><input type="radio" name="op_rad" value="start" onclick="Render();" data-name="启动" />启动</label>
+                <label><input type="radio" name="op_rad" value="delete" onclick="Render();" data-name="删除" />删除</label>
+            </td>
+        </tr>
+        <tr><td>任务名称:</td><td><input type="text" id="taskname_t" /></td></tr>
+        <tr><td>CMD名称:</td><td><input type="text" id="cmdname_t" /><input type="button" value="重新生成" onclick="ReCmdName();" /></td></tr>
+        <tr>
+            <td>站点操作代码:</td>
+            <td>
+                <textarea id="opcode_text" class="codetext"></textarea>
+                <br />
+                <input type="button" value="复制代码" onclick="CopyCode($('opcode_text'));" />
+                <input type="button" value="保存代码" onclick="SaveCode($('opcode_text'));"><span class="rd_green">*保存时,请将后缀名改为.cmd,并在保存后,将编码改为UTF-8</span>
+            </td>
+        </tr>
+        <tr>
+            <td>任务计划代码:</td>
+            <td>
+                <textarea id="schcode_text" class="codetext"></textarea>
+                <br />
+                <input type="button" value="复制代码" onclick="CopyCode($('schcode_text'));" />
+                <input type="button" value="保存代码" onclick="SaveCode($('schcode_text'));">
+            </td>
+        </tr>
+    </table>
+	<abbr>如果非当天，应该增加sd,如:<br/>
+	schtasks /create /tn 2015331_9624关闭站点 /tr D:\close\ljlzlgs.com创佳网络关闭_9624.cmd /sc once /sd 2016-03-05 /st 12:00 /ru "System"
+	</abbr/>
+    <input type="hidden" id="random_hid" />
+<script>
+    function $(id) {
+        return document.getElementById(id);
+    }
+    function GetRad(name) {
+        var arr = document.getElementsByName(name);
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].checked)
+            { return arr[i]; }
+        }
+    }
+    function GetData(obj, attname) {
+        return obj.attributes["data-" + attname].value
+    }
+    function Sync(obj, id) {
+        $(id).value = obj.value;
+    }
+    function CopyCode(obj) {
+        if (obj.value.replace(/ /g, "") == "") { return; }
+        obj.select();
+        js = obj.createTextRange();
+        js.execCommand("Copy");
+        alert("复制成功");
+    }
+    function SaveCode(obj) {
+        var fname = $("cmdname_t").value + ".txt";
+        var winname = window.open('', '_blank', 'top=10000');
+        winname.document.open('text/html', 'replace');
+        winname.document.write(obj.value);
+        winname.document.execCommand('saveas', true, "D:\\" + fname);
+        winname.close();
+    }
+</script>
+
+<script>
+    function Init() {
+        var now = new Date();
+        $("executetime_t").value = (now.getHours() + 1) + ":00";
+        var now = new Date();
+        $("random_hid").value = now.getSeconds() + "" + now.getMilliseconds();
+    }
+    Init();
+    var codeTlp = "%SystemRoot%\\system32\\inetsrv\\AppCmd.exe @opcode site \"@sitename\" ";
+    var appPoolTlp = "%SystemRoot%\\system32\\inetsrv\\AppCmd.exe @opcode AppPool \"@apppool\"";
+    var onlogonTlp = "schtasks /create /tn @taskname /tr D:\\@cmdname /sc onlogon /ru \"System\"";
+    //----------
+    var taskTlp = "schtasks /create /tn @taskname /tr D:\\@cmdname /sc @times /st @executetime /ru \"System\"";
+    function CreateCmdName() {
+        var op = GetData(GetRad("op_rad"), "name");
+        var sitename = $("sitename_t").value;
+        var name = sitename + op + "_" + $("random_hid").value + ".cmd";
+        return name;
+    }
+    function ReCmdName() {
+        var now = new Date();
+        $("random_hid").value = now.getSeconds() + "" + now.getMilliseconds();
+        var name = CreateCmdName();
+        $("cmdname_t").value = name;
+        Render();
+    }
+    function CreateTaskName() {
+        var now = new Date();
+        var op = GetData(GetRad("op_rad"), "name");
+        return now.getFullYear() + "" + (now.getMonth() + 1) + "" + now.getDate()+ "_" + $("random_hid").value + op + "站点";//+ now.getHours() + now.getMinutes()
+    }
+    function Render() {
+        $("cmdname_t").value = CreateCmdName();
+        $("taskname_t").value = CreateTaskName();
+        var model = { sitename: "", apppool: "", executetime: "", times: "", op: "", taskname: "", cmdname: "" };
+        model.sitename = $("sitename_t").value;
+        model.apppool = $("apppool_t").value;
+        model.executetime = $("executetime_t").value;
+        model.times = GetRad("times_rad").value;
+        model.op = GetRad("op_rad").value;
+        model.cmdname = $("cmdname_t").value;
+        model.taskname = $("taskname_t").value;
+        if (model.op == "restart") {
+            $("opcode_text").value = codeTlp.replace(/@opcode/g, "stop").replace(/@sitename/, model.sitename) + "\r\n";
+            $("opcode_text").value += codeTlp.replace(/@opcode/g, "start").replace(/@sitename/, model.sitename) + "\r\n";
+            $("opcode_text").value += appPoolTlp.replace(/@opcode/g, "stop").replace(/@apppool/, model.apppool) + "\r\n";
+            $("opcode_text").value += appPoolTlp.replace(/@opcode/g, "start").replace(/@apppool/, model.apppool) + "\r\n";
+        }
+        else {
+            $("opcode_text").value = codeTlp.replace(/@opcode/g, model.op).replace(/@sitename/, model.sitename) + "\r\n";
+            $("opcode_text").value += appPoolTlp.replace(/@opcode/g, model.op).replace(/@apppool/, model.apppool) + "\r\n";
+        }
+
+        if (model.times == "onlogon") {
+            $("schcode_text").value = onlogonTlp.replace(/@taskname/g, model.taskname).replace(/@cmdname/g, model.cmdname).replace(/@times/g, model.times).replace("@executetime", model.executetime);
+        }
+        else {
+            $("schcode_text").value = taskTlp.replace(/@taskname/g, model.taskname).replace(/@cmdname/g, model.cmdname).replace(/@times/g, model.times).replace("@executetime", model.executetime);
+        }
+
+    }
+</script>
+</body>
+</html>

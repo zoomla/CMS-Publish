@@ -1,0 +1,139 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<script src="/js/ICMS/FrameTab.js"></script>
+<link href="/theme/css/v4_erp.css" rel="stylesheet" />
+<style type="text/css">
+a{cursor:pointer;}
+ul{margin-left:0px;padding-left:0px;}
+ul li{list-style-type:none;}
+.FrameTabs_bg{margin-bottom:5px;}
+#Frame_UL > li { width: 120px; min-height: 44px;line-height:40px; padding: 0 20px; background: #fff; float: left; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; border-left: 1px solid #ddd; text-overflow: ellipsis; cursor: pointer; position: relative; }
+
+#Frame_UL > li:hover { background: #d2dff2; }
+
+#Frame_UL li:hover .closeTab { color: #ccc; opacity: 1; }
+
+#Frame_UL a { text-decoration: none; font-size: .92rem; }
+
+#Frame_UL .active { background: rgba(0, 118, 222, 0.6); }
+
+#Frame_UL .active a { color: #fff; }
+
+#Frame_UL .active .closeTab { display: inline-block; }
+
+#Frame_UL .addTab { width: 55px; }
+
+#Frame_UL .addTab:hover { background: rgba(0, 118, 222, 0.92); }
+
+#Frame_UL .addTab:hover a { color: white; }
+
+#Frame_UL li:first-child { border-bottom-left-radius: 4px; border-top-left-radius: 4px; }
+
+#Frame_UL li:last-child { border-right: 1px solid #ddd; border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+
+#Frame_UL .closeTab { position: absolute; right: 8px; color: #0072bc; }
+
+.tab-strip a { text-decoration: none; font-size: 0.92rem; }
+.tab-strip .current { background: #d2dff2; }
+.tab-strip .current a { color: #fff; }
+.tab-strip .current .closeTab { display: inline-block; }
+
+.closeTab { opacity: 0; border-radius: 2px; margin-left: 5px; }
+</style>
+<title>企业信息化工作台</title>
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+    @Html.Partial("_AppHeader")
+    <div class="app-body">
+        <div class="sidebar">
+            @Html.Partial("_SidebarNav")
+            <button class="sidebar-minimizer brand-minimizer" type="button"></button>
+        </div>
+        <main class="main">
+            <div class="FrameTabs_bg">
+                <div class="FrameTab_nav">
+                    <div id="FrameTabs" style="overflow: hidden; width: 100%;">
+                        <div class="tab-strip-wrap">
+                            <ul class="tab-strip" id="Frame_UL">
+                                <li class="FrameTab" id="FrameTab0" data-id="0" onclick="FrameTab.switchTab(this);"><a href="javascript:"><span class="FrameTabTitle">新选项卡</span></a><a class="closeTab" title="关闭" onclick="FrameTab.del(this);"><span class="zi zi_times"></span></a></li>
+                                <li class="addTab" id="newFrameTab" onclick="FrameTab.add(this);"><a title="新选项卡" href="javascript:"><i class="zi zi_plus"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="main_right_frame">
+                <iframe id="main_right" name="main_right" class="FrameIframe" data-id="0" onload="FrameTab.setTitle(this)" style="z-index: 2; background: #fff; visibility: inherit; overflow: auto; overflow-x: hidden; width: 100%;" frameborder="0"></iframe>
+                <div class="clearfix"></div>
+            </div>
+        </main>
+        @*<main class="main">@RenderSection("content", false)</main>*@
+        @Html.Partial("_AsideMenu")
+    </div>
+    <script src="/theme/erp/js/app.js"></script>
+    <script>
+        var myFrame = {};
+        myFrame.SwitchLeft = function (tid) {
+            //根据当前tid切换左边栏&&右边栏&&左边栏选中
+            if (!tid || tid == "") return;
+            //myFrame.UpdateLeft(tid);
+            //myFrame.UpdateSelected(tid);
+        };
+        myFrame.SetKeyword = function () { }
+      
+//显示左边栏与右窗口
+//function showleft(id, rightUrl) {
+//    $("#left_Hid").val("");
+//    $("#left_ul_div").show();
+//    $("#left_Div").hide();
+//    if (id && id != "") {
+//        $("#" + id).parent().find(".m_left_ulin").removeClass("open");//第二层
+//        $("#" + id).addClass("open");
+//        $("#" + id).parent().parent().find(".m_left_ul").removeClass("open");//第一层
+//        $("#" + id).parent().addClass("open");
+//        var pid = id.split('_')[0];
+//        $("#" + pid).removeClass("hidden");
+//        $("#" + pid).addClass("open");
+//        lastLeft = id;
+//    }
+//    if (rightUrl && rightUrl != "") { ShowMain('', rightUrl); }
+//}
+function ShowLeft(nav) {
+    //显示或加载对应模块的左边栏
+    if (nav.indexOf(".cshtml") > -1) { }
+    else {
+        var $nav = $("#" + nav + "_ul");
+        if ($nav.length < 1) { console.log("[" + nav + "]不存在"); return; }
+        //重复点击忽略
+        if ($nav.hasClass("active")) { return; }
+        $(".sidebar-nav .nav").removeClass("active");
+        $nav.addClass("active");
+    }
+}
+function ShowMain(leftUrl, rightUrl) {//优先加载右边iframe
+    if (rightUrl && rightUrl != "") {
+        var temp = FrameTab.getDomById(FrameTab.cache.activeId, "iframe");
+        temp.src = "/lib/html/wait.html";
+        $(temp).bind("load", function () { $(temp).unbind("load"); temp.src = rightUrl; })
+    }
+    //setTimeout(function () {
+    //    if (leftUrl && $("#left_Hid").val() !== leftUrl) {
+    //        $("#left_Hid").val(leftUrl);
+    //        lastLeft = leftUrl;
+    //    }
+    //}, 100);
+}
+        $(function () {
+            FrameTab.init({ startUrl: "/ERP/Index/Home" });
+            ShowMain("", "/ERP/Index/Home");
+        })
+    </script>
+</body>
+</html>
+
+

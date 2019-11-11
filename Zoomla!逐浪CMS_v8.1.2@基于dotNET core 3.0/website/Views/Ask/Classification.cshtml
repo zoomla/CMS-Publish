@@ -1,0 +1,105 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL.SQL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    string catename = ViewBag.catename;
+    string gradeid = ViewBag.gradeid;
+}
+@functions{
+    B_GradeOption opBll = new B_GradeOption();
+    B_Ask askBll = new B_Ask();
+    public string GradeID { get {return HttpUtility.HtmlEncode(Context.Request.GetParam("GradeID")); } }
+    public int ParentID { get { return DataConverter.CLng(Context.Request.GetParam("ParentID")); } }
+    public string GetType(DataRow row, string catename, string gradeid)
+    {
+        string result = "";
+        string url = "Classification?s=-100";
+        string cateid = ParentID.ToString();
+        if ("全部分类".Equals(catename))
+        {
+            DataTable dtChild = opBll.GetGradeList(2, DataConverter.CLng(row["GradeID"]));
+            string ids = "";
+            foreach (DataRow dr in dtChild.Rows)
+            {
+                ids += dr["GradeID"] + ",";
+            }
+            string count = askBll.GetCountByQueType(ids.Trim(',')).ToString();
+            result = "<a href='" + url + "&GradeID=" + row["GradeID"] + "'>" + row["GradeName"] +" (" + count + ")</a>";
+        }
+        else
+        {
+            string count = askBll.GetCountByQueType(row["GradeID"].ToString()).ToString();
+            if (row["GradeID"].ToString() == GradeID)
+            {
+                result = "<a style='color:black;' href='" + url + "&ParentID=" + cateid + "&GradeID=" + row["GradeID"] + "'>" + row["GradeName"] + " (" + count + ")"+ "</a>";
+            }
+            else
+            {
+                result = "<a href='" + url + "&ParentID=" + cateid + "&GradeID=" + row["GradeID"] + "'>" + row["GradeName"] + " (" + count + ")"+ "</a>";
+            }
+        }
+        return result;
+    }
+}
+@{ 
+    
+    //待处理,已解决,全部
+    string baseUrl = "Classification?ParentID="+ParentID+"&GradeID="+GradeID;
+    //分类
+    DataTable gradeDT = opBll.GetGradeList(2, ParentID);
+}
+@section head{
+<title>问答中心-@Call.SiteName</title>
+<style>
+    .ask_class_con i {font-size: 1.2em;color: #F00; }
+    .type_ul li{min-width:150px;border:1px solid #ddd;border-radius:5px;text-align:center;display:inline-block;padding:8px;margin-top:5px;cursor:pointer;}
+    .type_ul li:hover{background-color:#0094ff;color:#fff;}
+    .type_ul li:hover a{color:#fff;}
+</style>
+}
+@section content{
+
+
+<div class="container">
+@Html.Partial("/Views/Ask/comp/TopLinkBtns.cshtml")
+<div class="qa-cd_class">
+            <div class="qa-cd_class_c">
+                <ul class="list-unstyled type_ul">
+                    @foreach (DataRow dr in gradeDT.Rows)
+                    {
+                        <li><span>@MvcHtmlString.Create(GetType(dr, catename, GradeID))</span></li>
+                    }
+                </ul>
+            </div>
+        </div>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item"><a id="a_1" class="nav-link" href="@(baseUrl+"&s=1")">待处理</a></li>
+    <li class="nav-item"><a id="a_2" class="nav-link" href="@(baseUrl+"&s=2")">已解决</a></li>
+    <li class="nav-item"><a id="a_-100" class="nav-link"  href="@(baseUrl+"&s=-100")">全部</a></li>
+</ul>
+<script>
+    $("#a_@(DataConverter.CLng(Context.Request.GetParam("s"),1))").addClass("active");
+</script>
+<div class="ask_class_conc" id="EGV">
+    @Html.Partial("/Views/Ask/Classification_List.cshtml", Model)
+</div>
+ @Html.Partial("/Views/Ask/comp/CommonView.cshtml")
+</div>   
+ 
+}
+@section script{
+<script>
+    $(function () {
+        setNav("分类大全");
+        var type = '@Context.Request.GetParam2("type")';
+        if (type != "")
+        {
+            $(".ask_class_con ul li").removeClass("active");
+            $("#type" + type).parent().addClass("active");
+        }
+    })
+</script>
+}

@@ -1,0 +1,194 @@
+﻿@model ZoomLa.Model.M_OA_Document
+@functions{
+                //private B_OAFormUI OAFormUI
+                //{
+                //    get
+                //    {
+                //        var control = OAForm_Div.FindControl("ascx_" + ascx);
+                //        if (control == null)//加载默认
+                //        {
+                //            control = OAForm_Div.FindControl("ascx_def");
+                //            control.Visible = true;
+                //            return (B_OAFormUI)control;
+                //        }
+                //        else { control.Visible = true; return (B_OAFormUI)control; }
+                //    }
+                //}
+
+                //------------Tools
+
+                //public void ShowPage(M_MisProcedure proceMod)
+                //{
+                //    if (Mid > 0)
+                //    {
+                //        M_OA_Document oaMod = oaBll.SelReturnModel(Mid);
+                //        DataTable dtContent = conBll.GetContent(Convert.ToInt32(oaMod.Content));
+                //        if (dtContent == null || dtContent.Rows.Count < 1) { return; }
+                //        OAFormUI.dataRow = dtContent.Rows[0];
+                //        OAFormUI.MyBind();
+                //    }
+                //}
+
+                //private void SyncToPlat(M_OA_Document oaMod)
+                //{
+                //    //同步入能力中心
+                //    M_User_Plat upMod = B_User_Plat.GetLogin();
+                //    if (upMod != null)
+                //    {
+                //        B_Blog_Msg msgBll = new B_Blog_Msg();
+                //        M_Blog_Msg msgMod = new M_Blog_Msg();
+                //        msgMod.CompID = upMod.CompID;
+                //        msgMod.CUser = upMod.UserID;
+                //        msgMod.CUName = upMod.TrueName;
+                //        msgMod.MsgContent = "[" + upMod.TrueName + "]发布了一条公文,标题:<a href=\"/Office/FreeFlow/FlowAudit.aspx?AppID=" + oaMod.ID + "&action=view\" target=\"_blank\">" + oaMod.Title + "</a>";
+                //        msgMod.GroupIDS = "";
+                //        msgBll.Insert(msgMod);
+                //    }
+                //}
+                ////动态加载自定义表单
+                //private B_OAFormUI LoadControl(string ascxName)
+                //{
+                //    UserControl control = null;
+                //    control = (UserControl)Page.LoadControl(ascxName);
+                //    control.ID = "FormUI";
+                //    OAForm_Div.Controls.Add(control);
+                //    return (B_OAFormUI)control;
+                //}
+
+}
+@{ 
+    B_User buser = new B_User(Context);
+    M_MisProcedure proceMod = ViewBag.proceMod;
+    M_MisProLevel stepMod = ViewBag.stepMod;
+}
+@section head{<title>新建公文</title> }
+            @section content{ 
+    <ol id="BreadNav" class="breadcrumb fixed-top">
+        <li class="breadcrumb-item"><a href="/Office/Main.aspx">办公管理</a></li>
+        <li class="breadcrumb-item"><a href="FlowList.aspx">流程管理</a></li>
+        <li class="breadcrumb-item">
+            
+            [<a href="javascript:;" onclick="ShowImgDiag(@(Model.ProID))">查看流程图</a>]</li>
+    </ol>
+    <div class="list_choice container-fluid p-0">
+	<div class="pr-1 pl-1 table-responsive-md">
+    @*<asp:Panel runat="server" ID="OAForm_Div">
+        <oa:send runat="server" ID="ascx_send" Visible="false" />
+        <oa:rece runat="server" ID="ascx_rece" Visible="false" />
+        <oa:defTlp runat="server" ID="ascx_def" Visible="false" />
+    </asp:Panel>*@
+    @Html.Partial("/Areas/Office/Views/Comp/Tlp/"+proceMod.FlowTlp+".cshtml")
+    <table class="table table-bordered table_red1">
+        <tr><td class="text-right td_m">公文编辑器：</td><td><input type="button" onclick="ShowWord();" class="btn btn-outline-info" value="打开公文" /></td></tr>
+        <tr runat="server" id="attach_tr">
+            <td class="text-right td_md">附件：</td>
+            <td>
+                <input type="button" id="upfile_btn" class="btn btn-outline-info" value="添加文件" />
+                <div  id="uploader" class="uploader mt-2">
+                    <ul class="filelist"></ul>
+                </div>
+                <input type="hidden" ID="Attach_Hid" name="Attach_Hid" value="@Model.PublicAttach" />
+            </td>
+        </tr>
+        <tr runat="server" id="ReferUser_TR">
+            <td>
+                <input type="button" class="btn btn-info float-right" onclick="selrefer();" value="主办人" runat="server" id="ReferUser_Btn" /></td>
+            <td>
+                <label>@buser.GetUserNameByIDS(stepMod.ReferUser)</label>
+                <input type="hidden" ID="ReferUser_Hid" name="ReferUser_Hid" value="@stepMod.ReferUser" />
+            </td>
+        </tr>
+        <tr runat="server" id="CCUser_TR">
+            <td><input type="button" class="btn btn-primary float-right" onclick="selccuser();" value="协办人" runat="server" id="CCUser_Btn" /></td>
+            <td>
+                <label>@buser.GetUserNameByIDS(stepMod.CCUser)</label>
+                <input type="hidden" ID="CCUser_Hid" name="CCUser_Hid" value="@stepMod.CCUser" />
+            </td>
+        </tr>
+        <tr runat="server" id="HelpUser_TR">
+            <td><input type="button" class="btn btn-primary float-right" onclick="selhelpuser();" value="辅办人" runat="server" id="HelpUser_Btn" /></td>
+             <td>
+                <label>@buser.GetUserNameByIDS(stepMod.HelpUser)</label>
+                <input type="hidden" ID="HelpUser_Hid" name="HelpUser_Hid" value="@stepMod.HelpUser" />
+            </td>
+        </tr>
+        <tr>
+            <td class="text-right">操作：</td>
+            <td>
+                <input type="submit" ID="Save_Btn" onclick="return CheckData();" class="btn btn-info" value="保存发文">
+                <a href="FlowList" class="btn btn-outline-info">返回列表</a>
+            </td>
+        </tr>
+    </table>
+	</div>
+	</div>
+    <input type="hidden" ID="PrivateAttach_Hid" name="PrivateAttach_Hid" value="@Model.PrivateAttach" />
+}
+@section script{ 
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script>
+    var diag = new ZL_Dialog();//用于word文档
+   
+    $(function () {
+        ZL_Webup.config.json.ashx = "action=OAattach";
+        $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+        if (!ZL_Regex.isEmpty($("#Attach_Hid").val())) {
+            var files = $("#Attach_Hid").val().split('|');
+            $("#Attach_Hid").val("");
+            for (var i = 0; i < files.length; i++) {
+                AddAttach(files[i], { _raw: files[i] }, {});
+            }
+        }
+    })
+    function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+    function WordBack(fname) { $("#PrivateAttach_Hid").val(fname); }
+    function ShowDiag(url, title) {
+        //diag.reload = false;
+        diag.maxbtn = false;
+        diag.title = title;
+        diag.url = url;
+        diag.ShowModal();
+        console.log("here");
+    }
+    function ShowWord() {
+        var appid=parseInt("@Model.ID");
+        var url="/Plugins/Office/office?Action=add&ProID=@(Model.ProID)&fname=" + $("#PrivateAttach_Hid").val();
+        if (appid > 0) {
+            var url = "/Plugins/Office/office?ID=" + appid;
+        }
+        ShowDiag(url, "正文管理");
+    }
+    function ShowImgDiag(proID) {
+        ShowComDiag("ImgWorkFlow?proid=" + proID, "查看流程图");
+    }
+    function CheckData() {
+        if ($("#ReferUser_Hid").length > 0) {
+            var val = $("#ReferUser_Hid").val();
+            if (ZL_Regex.isEmpty(val)) {
+                alert("主办人不能为空"); return false;
+            }
+        }
+        if (ZL_Regex.isEmpty($("#Title_T").val())) {
+            alert("标题不能为空");
+            return false;
+        }
+        if (!confirm("确定要保存吗?")) { return false; }
+        return true;
+    }
+    //------
+    function selrefer() {
+        ShowComDiag("/Common/Dialog/SelStructure?Type=AllInfo#ReferUser", "选择成员");
+    }
+    function selccuser() {
+        ShowComDiag("/Common/Dialog/SelStructure?Type=AllInfo#CCUser", "选择成员");
+    }
+    function selhelpuser() { ShowComDiag("/Common/Dialog/SelStructure?Type=AllInfo#HelpUser", "选择成员"); }
+    function UserFunc(json, select) {
+        return user.deal_def(json, select);
+    }
+
+	
+</script>
+}

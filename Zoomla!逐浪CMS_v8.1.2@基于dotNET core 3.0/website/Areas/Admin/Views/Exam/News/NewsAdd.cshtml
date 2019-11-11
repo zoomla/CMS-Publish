@@ -1,0 +1,28 @@
+﻿@model ZoomLa.Model.Exam.M_Content_Publish
+@using ZoomLa.BLL.Exam
+@{
+    B_Publish_Node nodebll = new B_Publish_Node();
+    DataTable dt = nodebll.Sel();
+}
+@section head{ }
+@section content{ 
+    <form method="post" action="@MVCHelper.GetAction("NewsAdd_Submit",Context.Request)">
+<table class="table table-bordered">
+                <tr>
+                  <th class="td_m">报纸名</th>
+                  <td><input type="text" ID="NewsName_T" name="NewsName_T" class="form-control max20rem required" value="@Model.NewsName"/></td>
+                </tr>
+                <tr>
+                  <th>分类</th>
+                  <td>@Html.DropDownList("Node_DP",MVCHelper.ToSelectList(dt,"NodeName","ID","0"),new {@class="form-control max20rem" })</td>
+                </tr>
+                <tr>
+                  <th>操作</th>
+                  <td><input type="submit" ID="Add_Btn" value="保存信息" class="btn btn-outline-info" /></td>
+                </tr>
+              </table>
+</form>
+}
+@section script{ 
+    <script>$("form").validate({});</script>
+}

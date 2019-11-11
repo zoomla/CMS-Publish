@@ -1,0 +1,42 @@
+﻿@model ZoomLa.Model.M_GradeCate
+@{ 
+    Layout = "_empty";
+}
+@section head{<title></title> }
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("GCateAdd_Submit",Context.Request)">
+<table class="table table-striped table-bordered sys_table">
+	<tr>
+		<th class="w12rem_lg">分类名</th>
+        <td>
+            @Html.TextBoxFor(m => m.CateName, new { @class = "form-control max20rem" })
+        </td>
+	</tr>
+	<tr>
+		<th>备注</th>
+		<td>
+            @Html.TextBoxFor(m => m.Remark, new { @class = "form-control max20rem" })
+		</td>
+	</tr>
+	<tr>
+		<th>
+		分级选项别名
+		</th>
+		<td>
+            @Html.TextBoxFor(m=>m.GradeAlias,new {@class="form-control max20rem" })
+			@*<input type="text" ID="txtGradeField" TextMode="MultiLine" Rows="5" class="form-control max20rem"  data-enter="3" />
+            <small>一行一个名称,例如：省份 城市</small>*@
+		</td>
+	</tr>
+	<tr>
+        <td></td>
+		<td>
+			<input type="submit" ID="btnSave" value="保存" class="btn btn-outline-info" data-enter="4"/>
+		</td>
+	</tr>
+</table>
+</form>
+}
+@section script{ 
+
+}

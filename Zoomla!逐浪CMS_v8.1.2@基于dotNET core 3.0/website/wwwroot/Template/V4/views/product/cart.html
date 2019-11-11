@@ -1,0 +1,46 @@
+﻿<ion-view cache-view="false">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">购物车</div>
+</ion-header-bar>
+<ion-content style="background:#f0f2f5;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="cart_list">
+<ion-list>
+<ion-item ng-repeat="item in list track by $index">
+<div class="weui_cells weui_cells_checkbox">
+<label class="weui_cell weui_check_label" for="s{{item.ID}}">
+<div class="weui_cell_hd">
+<input type="checkbox"  class="weui_check" value="{{item.ID}}" ng-model="item.ischk" id="s{{item.ID}}" />
+<i class="weui_icon_checked"></i>
+</div>
+<div class="weui_cell_bd weui_cell_primary">
+<div class="weui_media_box weui_media_appmsg">
+<div class="weui_media_hd">
+<img class="weui_media_appmsg_thumb" ng-src="/UploadFiles/{{item.Thumbnails}}" alt="{{item.proname}}" onerror="javascript:this.src='/UploadFiles/nopic.gif';" />
+</div>
+<div class="weui_media_bd">
+<h4 class="weui_media_title">{{item.Proname}}</h4>
+<p class="weui_media_desc">
+<span>x{{item.Pronum}}</span>
+<span style="font-size:1.5em; color:#c00;">{{item.AllMoney | currency:'￥'}}</span>
+</p>
+</div>
+</div>
+</div>
+</label>
+</div>
+<ion-option-button ng-click="del(item);" class="button-assertive">删除</ion-option-button>
+</ion-item>
+</ion-list>
+</div>
+<div class="col-xs-12" style="margin-top:10px;">
+<div class="col-xs-6 padding5">
+<button class="btn btn-danger btn-block" ng-click="newOrder();">生成订单</button>
+</div>
+<div class="col-xs-6 padding5">
+<button class="btn btn-info btn-block" ng-click="clear();">清空购物车</button>
+</div>
+</div>
+</ion-content>
+</ion-view>

@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head>
+<body>
+    <!--如果有多个data-pswp-uid 它的值是不能重复的-->
+    <div class="ps-gallery" data-pswp-uid="1">
+        <figure>
+            <div class="img-dv"><a href="img/img1.jpg"><img src="img/img1.jpg"></a></div>
+            <figcaption style="display:none;">在这里可增加图片描述</figcaption>
+        </figure>
+        <figure>
+            <div class="img-dv"><a href="img/img2.jpg"><img src="img/img2.jpg"></a></div>
+            <figcaption style="display:none;">图片描述2</figcaption>
+        </figure>
+    </div>
+<div id="ps-view"></div>
+<script src="/JS/jquery.min.js"></script>
+<link href="/Plugins/PhotoSwipe/photoswipe.css" rel="stylesheet" />
+<link href="/Plugins/PhotoSwipe/default-skin/default-skin.css" rel="stylesheet" />
+<script src="/Plugins/PhotoSwipe/photoswipe.min.js"></script>
+<style type="text/css">
+    .ps-gallery figure{display:inline-block;width:100px;height:100px;}
+    .ps-gallery .img-dv{border:1px solid #ddd;padding:2px;margin-right:3px;margin-bottom:3px;line-height:90px;}
+    .ps-gallery .img-dv img{max-width:90px;max-height:90px;}
+</style>
+<script type="text/javascript">
+    /*
+    1.引入JS与CSS文件
+    2.按示例HTML修改图片模板
+    3.执行JS初始化方法
+    */
+$("#ps-view").load("/Plugins/PhotoSwipe/tlp_default.html");
+initPhotoSwipeFromDOM('.ps-gallery');
+</script>
+
+<!--
+<link href="/Plugins/PhotoSwipe/photoswipe.css" rel="stylesheet" />
+<link href="/Plugins/PhotoSwipe/default-skin/default-skin.css" rel="stylesheet" />
+<script src="/Plugins/PhotoSwipe/photoswipe.min.js"></script>
+<style type="text/css">
+    .ps-gallery figure{display:inline-block;width:100px;height:100px;}
+    .ps-gallery .img-dv{border:1px solid #ddd;padding:2px;margin-right:3px;margin-bottom:3px;line-height:90px;}
+    .ps-gallery .img-dv img{max-width:90px;max-height:90px;}
+</style>
+<div id="ps-view"></div>
+<script>
+    $("#ps-view").load("/Plugins/PhotoSwipe/tlp_default.html");
+    initPhotoSwipeFromDOM('.ps-gallery');
+</script>
+-->
+
+
+
+</body>
+</html>

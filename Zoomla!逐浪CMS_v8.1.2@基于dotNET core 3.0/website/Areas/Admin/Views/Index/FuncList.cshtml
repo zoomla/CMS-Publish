@@ -1,0 +1,273 @@
+﻿@using ZoomLaCMS.Resources
+@section head{
+<style>
+</style>
+<title>@L.功能清单</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+				new Bread("{admin}"),
+				new Bread() {url=Context.Request.RawUrl(), text=@L.功能清单,addon="" }}
+				)
+
+<div class="container-fulid list_choice">
+<div class="row" id="card_1" data-children="item">
+				
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.内容
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_1_1" aria-expanded="true" aria-controls="card_1_1">
+<i class="zi zi_externalLinksquarealt"></i></button>                         
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_1_1" class="">
+<a href="@Call.PA("Content/ContentManage")"><li class="list-group-item list-group-item-action">@L.按栏目管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Content/ContentManage?special=-1")"><li class="list-group-item list-group-item-action">@L.按专题管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Content/Addon/Comment")"><li class="list-group-item list-group-item-action">@L.评论管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Pub/PubManage")"><li class="list-group-item list-group-item-action">@L.互动模块<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Content/CreateHtmlContent")"><li class="list-group-item list-group-item-action">@L.生成发布<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.采集检索<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Product/ProductRecycle")"><li class="list-group-item list-group-item-action">@L.回收站<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.百科问答贴吧<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.内容参数<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.视频管理<i class="zi zi_caretRight"></i></li></a> 
+<!--<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.字体管理<i class="zi zi_caretRight"></i></li></a>-->
+</div>
+</ul>
+</div>
+</div>			
+			
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.商城
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_2_2" aria-expanded="true" aria-controls="card_2_2">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_2_2" class="">
+<a href="@Call.PA("Product/ProductManage")"><li class="list-group-item list-group-item-action">@L.商品管理 <i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Product/StockList")"><li class="list-group-item list-group-item-action">@L.库存管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Shop/OrderList")"><li class="list-group-item list-group-item-action">@L.订单管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Shop/Addon/SaleByProduct")"><li class="list-group-item list-group-item-action">@L.明细记录<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.销售统计<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.促销优惠<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.商场配置<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("User/Promo/WD")"><li class="list-group-item list-group-item-action">@L.推广中心<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Product/ProductRecycle")"><li class="list-group-item list-group-item-action">@L.商品回收站<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.IDC管理<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>	
+			
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.黄页
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_3_3" aria-expanded="true" aria-controls="card_3_3">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_3_3" class="">
+<a href="@Call.PA("Page/ApplyAudit")"><li class="list-group-item list-group-item-action">@L.黄页管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Page/PageStyle")"><li class="list-group-item list-group-item-action">@L.黄页样式<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Page/PageContent")"><li class="list-group-item list-group-item-action">@L.内容管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Content/Model/ModelManage?ModelType=10")"><li class="list-group-item list-group-item-action">@L.模型管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Page/PageTemplate?ID=-1")"><li class="list-group-item list-group-item-action">@L.公用栏目<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Page/PageConfig")"><li class="list-group-item list-group-item-action">@L.黄页配置<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Page/PageContent?status=-2")"><li class="list-group-item list-group-item-action">@L.黄页回收站<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+		
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.教育
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_4_4" aria-expanded="true" aria-controls="card_4_4">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_4_4" class="">
+<a href="@Call.PA("Exam/Papers_System_Manage")"><li class="list-group-item list-group-item-action">@L.试卷管理<i class="zi zi_caretRight "></i></li></a> 
+<a href="@Call.PA("Exam/QuestList")"><li class="list-group-item list-group-item-action">@L.试题管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Exam/Papers_System_Manage")"><li class="list-group-item list-group-item-action">@L.组卷配置<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Exam/ClassRoomManage")"><li class="list-group-item list-group-item-action">@L.班级管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Shop/OrderList")"><li class="list-group-item list-group-item-action">@L.财务管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Exam/News")"><li class="list-group-item list-group-item-action">@L.数字出版<i class="zi zi_caretRight"></i></li></a>
+<a href="https://v.ziti163.com"><li class="list-group-item list-group-item-action">@L.字体大师<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+	
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.用户
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_5_5" aria-expanded="true" aria-controls="card_5_5">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_5_5" class="">
+<a href="@Call.PA("User/UserManage")"><li class="list-group-item list-group-item-action">@L.会员管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("User/AdminManage")"><li class="list-group-item list-group-item-action">@L.管理员管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("User/Role/UserRole")"><li class="list-group-item list-group-item-action">@L.用户角色<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("User/Mail/MailList")"><li class="list-group-item list-group-item-action">@L.信息发送<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.订阅中心<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("User/Jobsconfig")"><li class="list-group-item list-group-item-action">@L.人才招聘<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.SNS社区<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("User/WSApi")"><li class="list-group-item list-group-item-action">@L.整合接口<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+	
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.扩展
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_6_6" aria-expanded="true" aria-controls="card_6_6">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_6_6" class="">
+<a href="@Call.PA("Extend/DBTool/Default")"><li class="list-group-item list-group-item-action">@L.开发中心<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Extend/AD/ZoneManage")"><li class="list-group-item list-group-item-action">@L.广告管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Develop/Counter")"><li class="list-group-item list-group-item-action">@L.访问统计<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Extend/Survey/SurveyManage")"><li class="list-group-item list-group-item-action">@L.问卷调查<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.文件管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Extend/Dict/DicCateList")"><li class="list-group-item list-group-item-action">@L.数据字典<i class="zi zi_caretRight"></i></li></a> 
+<!--<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.版权中心<i class="zi zi_caretRight float-right"></i></li></a>-->
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.插件管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Extend/Log/TxtLog?LogType=labelex")"><li class="list-group-item list-group-item-action">@L.日志管理<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+	
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.系统
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_7_7" aria-expanded="true" aria-controls="card_7_7">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_7_7" class="">
+<a href="@Call.PA("Config/SiteInfo")"><li class="list-group-item list-group-item-action">@L.网站配置<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Content/Model/ModelManage?ModelType=1")"><li class="list-group-item list-group-item-action">@L.模型管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Content/Node/NodeManage")"><li class="list-group-item list-group-item-action">@L.节点管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Content/Flow/FlowManager")"><li class="list-group-item list-group-item-action">@L.流程管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Content/Node/Special")"><li class="list-group-item list-group-item-action">@L.专题管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Template/TemplateSet")"><li class="list-group-item list-group-item-action">@L.模板风格<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Template/LabelManage")"><li class="list-group-item list-group-item-action">@L.标签管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Extend/MyCSS/Default")"><li class="list-group-item list-group-item-action">@L.百变微站<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.字体与图库<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Pay/PayPlat")"><li class="list-group-item list-group-item-action">@L.支付中心<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+	
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.办公
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_8_8" aria-expanded="true" aria-controls="card_8_8">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_8_8" class="">
+<a href="@Call.PA("Office/OA/Default")"><li class="list-group-item list-group-item-action">@L.OA办公<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("User/Struct/StructByTree")"><li class="list-group-item list-group-item-action">@L.组织结构<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Office/Plat/PlatInfoManage")"><li class="list-group-item list-group-item-action">@L.能力中心<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Office/Projects")"><li class="list-group-item list-group-item-action">@L.项目管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("CRM/ClientList")"><li class="list-group-item list-group-item-action">@L.CRM管理<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("iServer/BiServer?num=1")"><li class="list-group-item list-group-item-action">@L.有问必答<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Office/Chart/Index")"><li class="list-group-item list-group-item-action">@L.智慧图表<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Office/Sentiment")"><li class="list-group-item list-group-item-action">@L.舆情监测<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Office/ServiceSeat")"><li class="list-group-item list-group-item-action">@L.客服通<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Office/WorkCount")"><li class="list-group-item list-group-item-action">@L.工作统计<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+	
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.移动
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_9_9" aria-expanded="true" aria-controls="card_9_9">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_9_9" class="">
+<a href="@Call.PA("Mobile/SceneList")"><li class="list-group-item list-group-item-action">@L.H5创作<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Mobile/WeiXin")"><li class="list-group-item list-group-item-action">@L.移动应用<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Mobile/WeiXin/Index")"><li class="list-group-item list-group-item-action">@L.微信应用<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.头条管理<i class="zi zi_caretRight "></i></li></a> 
+<a href="@Call.PA("Mobile/MobileBrower")"><li class="list-group-item list-group-item-action">@L.移动浏览器<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.智能硬件<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Mobile/Push/APIList")"><li class="list-group-item list-group-item-action">@L.消息推送<i class="zi zi_caretRight"></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+
+<div class="col-sm-6 col-12 funcList">
+<div class="card">
+<ul class="list-group">
+<li class="list-group-item bg-light">@L.站群
+<div class="funcListIco">
+<button type="button" data-toggle="collapse" data-parent="#card_1" href="#card_10_10" aria-expanded="true" aria-controls="card_10_10">
+<i class="zi zi_externalLinksquarealt"></i></button>
+<button type="button" class="panel-maxible"><i class="zi zi_expand"></i></button></div></li>
+<div id="card_10_10" class="">
+<a href="@Call.PA("Site/SiteConfig")"><li class="list-group-item list-group-item-action">@L.全局配置<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.服务器集群<i class="zi zi_caretRight "></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.数据库管理<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Site/Default")"><li class="list-group-item list-group-item-action">@L.IIS站点<i class="zi zi_caretRight"></i></li></a>
+<a href="@Call.PA("Site/SitePool")"><li class="list-group-item list-group-item-action">@L.应用程序池<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Template/TemplateSetOfficial")"><li class="list-group-item list-group-item-action">@L.模板云台<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("Site/SiteCloudSetup")"><li class="list-group-item list-group-item-action">@L.快云安装<i class="zi zi_caretRight "></i></li></a> 
+<a href="@Call.PA("Site/SiteDataCenter")"><li class="list-group-item list-group-item-action">@L.智能采集<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.域名注册<i class="zi zi_caretRight"></i></li></a> 
+<a href="@Call.PA("")"><li class="list-group-item list-group-item-action">@L.动力设计<i class="zi zi_caretRight "></i></li></a>
+</div>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+}
+@section script{
+<script>
+		//$(function () { $("[data-toggle='tooltip']").tooltip(); });
+		//显示隐藏面板
+		//$('.card').on('click', '.panel-collapse', function () {
+		//var $card = $(this).closest('.card')
+		//$('.card-header .panel-collapse i', $panel).toggleClass('fa-caret-down').toggleClass('fa-caret-up')
+		//$('.panel-body', $panel).toggleClass('hidden')
+		//})
+
+		$(".card-body").addClass("collapse show")
+		//$("button .panel-collapse .collapsed").click(function(){
+		//$(this).parents("card-body").toggleClass('collapse show').toggleClass('collapse');
+		//$(this).find("i").toggleClass('zi zi_doubleArrowVertica').toggleClass('zi zi_caretdown');
+		//})
+
+		//放大恢复面板
+		$('.card').on('click', '.panel-maxible', function () {
+				var $card = $(this).closest('.card')
+				$('.card-header .panel-maxible i', $card).toggleClass('fa-compress').toggleClass('fa-expand')
+				$card.parent().toggleClass('col-12 col-md-12').toggleClass('col-6 col-sm-6')
+		})
+
+
+</script>
+
+}

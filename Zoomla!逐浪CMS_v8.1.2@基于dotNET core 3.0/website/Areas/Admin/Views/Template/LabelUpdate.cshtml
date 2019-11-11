@@ -1,0 +1,37 @@
+﻿@section head{<title>标签升级</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("LabelManage","标签管理"),
+        new Bread() {url=Context.Request.RawUrl(), text="标签升级",addon="" }},
+        Call.GetHelp(21)
+        )
+<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive-md">
+        <form method="post" id="form1">
+            <div class="card w-100">
+                <div class="card-header"><i class="zi zi_flag" zico="旗子"></i> 标签升级</div>
+                <div class="card-body">
+                    <div>升级标签：</div>
+                    <div>升级状态：<span style="color: Red">@ViewBag.msg</span></div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" ID="OldVerUP_Btn" class="btn btn-outline-info" onclick="return checkSubmit('LabelUpdate_Submit')" >标签数据库参数升级</button>
+                    <button type="submit" ID="GlobalUP_Btn" class="btn btn-outline-info" onclick="return checkSubmit('LabelUpdate_Submit2')">国际版标签升级</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+}
+@section script{
+
+    <script>
+        function checkSubmit(action) {
+            $("#form1").attr("action", action);
+            $("#form1").submit();
+            console.log($("#form1").attr("action"));
+        }
+        
+    </script>
+ }

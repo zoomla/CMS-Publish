@@ -1,0 +1,82 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}
+{ZL.Source id="店铺模型数据源标签"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="节点栏目信息数据源" FD="NodeName" page="0"/}_{SField sid="店铺模型数据源标签" FD="StoreName" page="0"/}_{$SiteName/}</title>
+{ZL:Boot4()/}
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<link href="{$CssDir/}fix.css" rel="stylesheet" type="text/css" />
+<meta name="Keywords" content="{SField sid="节点栏目信息数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="节点栏目信息数据源" FD="Meta_Description" page="0"/}" />
+<style>
+#home_nav { position: relative;}
+
+</style>
+</head>
+<body id="header" >
+<main role="main">
+
+<div id="home_all"> 
+{ZL.Label id="全站头部"/}
+ <div id="store_main">
+ <div id="store_l">
+ <div class="s_tit">店铺信息</div>
+ <div id="sto_logo">
+ <a href="/Store/StoreIndex?id={SField sid="店铺模型数据源标签" FD="GeneralID" page="0"/}"><img src="{ZL:GetPicUrl({SField sid="店铺模型数据源标签" FD="logo" page="0"/})/}"></a>
+ <br>
+ <a href="/Store/StoreIndex?id={SField sid="店铺模型数据源标签" FD="GeneralID" page="0"/}">{SField sid="店铺模型数据源标签" FD="StoreName" page="0"/}</a>
+ </div>
+ <div class="sto_info">
+ <ul> 
+<li>联系人：{SField sid="店铺模型数据源标签" FD="lxr" page="0"/}</li>
+<li>联系方式：{SField sid="店铺模型数据源标签" FD="tel" page="0"/}</li> 
+<li>所在城市：{SField sid="店铺模型数据源标签" FD="area" page="0"/}</li> 
+<li>店铺地址：{SField sid="店铺模型数据源标签" FD="addr" page="0"/}</li>
+</ul>
+</div>
+
+<div class="sto_info">
+<b>产品分类</b> 
+{ZL.Label id="输出两级子栏目列表" ParentID="3" ShowNum="10" nums="4" /} 
+</div>
+</div>
+<div id="sNews">
+<div class="s_tit"> {SField sid="节点栏目信息数据源" FD="NodeName" page="0"/} </div>
+ 
+{ZL.Label id="店铺信息列表带时间_分页" NodeID="{SField sid="节点栏目信息数据源" FD="NodeID" page="0"/}" TitleNum="70" ShowNum="10" Inputer="{SField sid="店铺模型数据源标签" FD="UserName" page="0"/}" /}
+ 
+</div>
+</div> 
+<div class="clearfix"></div>
+</div>
+</main>
+{ZL.Label id="全站底部"/}
+
+
+<script>
+$(window).scroll(function(){
+	if($(window).scrollTop()>0){
+		$("#home_nav").css("position","fixed").addClass("active")
+	}
+	else{
+		$("#home_nav").css("position","relative").removeClass("active");
+	}
+});
+/*显示搜索框*/
+function isSearch(){
+    $(".home_search").css("opacity","1").css("z-index","1").css("right","0").css("top","0.5rem");
+    $(".home_top_nav").fadeOut(200);
+    $(".home_search .form-control").focus();
+}
+/*关闭搜索框*/
+function isClose(){
+    $(".home_search").css("opacity","0").css("z-index","-1").css("right","-1em");
+    $(".home_top_nav").fadeIn(1000);
+}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetDownUrl(DataRow dr)
+    {
+        return "TemplateSetDown?proname=" + HttpUtility.UrlEncode(DataConverter.CStr(dr["Project"])) + "&dir=" + dr["TempDirName"];
+    }
+    public string GetImgUrl(DataRow dr)
+    {
+        return SiteConfig.SiteOption.ProjectServer + "/Template/" + dr["TempDirName"] + "/View.jpg";
+    }
+}
+@{ 
+
+}
+<div id="EGV">
+   
+    <ul class="list-unstyled">
+	@foreach(DataRow dr in Model.dt.Rows)
+{
+    <li class="Template_list_card">
+				<div class="Template_box">
+					<div class="tempthumil">
+						<a href="@GetDownUrl(dr)" title="点击下载模板">
+						<span style="background: url(@(GetImgUrl(dr))) no-repeat top;"></span>
+						</a>
+					</div>
+					<ul>
+					
+					<li class="temp_title">
+					<span class="float-right pr-2"><a href="@GetDownUrl(dr)" title="下载模板"><i class="zi zi_clouddownloadalt" zico="从云下载"></i></a></span>
+					<span class="float-left"><a> @dr["Project"]</a></span>
+					</li>
+					
+					<li class="temp_isuse"><i class="zi zi_yensign" zico="人民币与日元符"></i> @dr["Author"]</li>
+					<li class="temp_del"><i class="zi zi_yensign" zico="人民币与日元符"></i> 免费
+					<a class="mr-2 lightbox" href='@(GetImgUrl(dr))' title="大图预览"><i class="zi zi_searchplus" zico="搜索放大"></i> 预览</a></li>
+					</ul>
+				</div>
+        <div style="clear:both;"></div>
+	</li>
+}
+	
+</ul>
+<div style="clear:both;"></div>
+<div>@Html.Partial("_page2",Model)</div>
+</div>

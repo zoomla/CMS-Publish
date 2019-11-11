@@ -1,0 +1,65 @@
+﻿@model ZoomLa.Model.M_MisProLevel
+
+@section head{<title>修改用户</title> }
+@section content{
+<form method="post" action="@MVCHelper.GetAction("ChangeUser_Submit",Context.Request)">
+<div style="min-height:500px;">
+<table class="table table-bordered table-striped">
+    <tr><td><input runat="server" type="button" ID="CCUser_Alias"  value="协办人" class="btn btn-info" onclick="ShowSelUser('ccuser');"/></td><td>
+        <div id="ccuser_wrap" class="userwrap"></div>
+        <input type="hidden" ID="ccuser_hid" name="ccuser_hid" value="@Model.CCUser" /></td></tr>
+    <tr><td><input runat="server" type="button" ID="HelpUser_Alias" value="辅办人" class="btn btn-info" onclick="ShowSelUser('helpuser');"/></td><td>
+          <div id="helpuser_wrap" class="userwrap"></div>
+          <input type="hidden" ID="helpuser_hid" name="helpuser_hid" value="@Model.HelpUser" /></td></tr>
+    <tr><td></td><td>
+        <input type="submit" ID="Save_Btn" value="保存修改" class="btn btn-info" />
+    </td></tr>
+</table>
+</div>
+</form> 
+}
+@section script{ 
+<style type="text/css">
+.userwrap{width:500px;max-height:300px;overflow-y:auto;}
+</style>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script>
+$(function () {
+    $("#ccuser_wrap").load("/office/comp/UserByList.aspx", { ids: $("#ccuser_hid").val(), "del": "delCCUser" });
+    $("#helpuser_wrap").load("/office/comp/UserByList.aspx", { ids: $("#helpuser_hid").val(), "del": "delHelpUser" });
+})
+function delCCUser(td, uid) {
+    $(td).closest("tr").remove();
+    var ids = idshelp.del($("#ccuser_hid").val(), uid);
+    $("#ccuser_hid").val(ids);
+}
+function delHelpUser(td, uid) {
+    $(td).closest("tr").remove();
+    var ids = idshelp.del($("#helpuser_hid").val(), uid);
+    $("#helpuser_hid").val(ids);
+}
+function UserFunc(json, select) {
+    json = JSON.parse(JSON.stringify(json));
+    switch (select) {
+        case "ccuser":
+            var ids = json.GetIDS("UserID");
+            $("#ccuser_hid").val(idshelp.merge($("#ccuser_hid").val(), ids));
+            $("#ccuser_wrap").load("/office/comp/UserByList.aspx", { ids: $("#ccuser_hid").val(), "del": "delCCUser" });
+            break;
+        case "helpuser":
+            var ids = json.GetIDS("UserID");
+            $("#helpuser_hid").val(idshelp.merge($("#helpuser_hid").val(), ids));
+            $("#helpuser_wrap").load("/office/comp/UserByList.aspx", { ids: $("#helpuser_hid").val(), "del": "delHelpUser" });
+            break;
+    }
+    CloseComDiag();
+}
+function ShowSelUser(select) {
+    //$("#User_IFrame").attr("src", "/Common/Dialog/SelStructure.aspx?Type=AllInfo#" + select);
+    //$("#User_IFrame")[0].contentWindow.ClearChk();
+    //$("#select").show();
+    ShowComDiag("/Common/Dialog/SelStructure.aspx?Type=AllInfo#" + select,"");
+}
+function RefreshParent() { if (parent) { parent.location = parent.location; } }
+</script>
+}

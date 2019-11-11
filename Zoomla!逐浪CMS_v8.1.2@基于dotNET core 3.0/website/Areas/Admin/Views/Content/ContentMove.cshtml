@@ -1,0 +1,68 @@
+﻿@using ZoomLa.BLL.Content
+@{
+    B_Node nodeBll = new B_Node();
+    string type = Context.Request.GetParam("type");
+    DataTable dt = nodeBll.GetNodeListContainXML(0);
+    string listUrl = Call.PA("Content/ContentManage");
+    string listName = "内容管理";
+    if (type.Equals("product"))
+    {
+        listUrl = Call.PA("Product/ProductManage");
+        listName = "商品管理";
+        dt.DefaultView.RowFilter = "NodeListType IN (2)";
+        dt = dt.DefaultView.ToTable();
+    }
+}
+@section head{<title>批量转移</title> }
+@section content{
+<script src="/Plugins/Third/bootstrap-select/js/bootstrap-select.js"></script>
+<link href="/Plugins/Third/bootstrap-select/css/bootstrap-select.css" rel="stylesheet" />
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(listUrl,listName),
+        new Bread() {url=Context.Request.RawUrl(), text="批量转移",addon= "" }}
+        )
+    <div class="container-fluid pr-0">
+        <div class="row sysRow list_choice table-responsive-md">
+            <form method="post" action="@MVCHelper.GetAction("ContentMove_Submit",Context.Request)">
+                <table class="table table-striped table-bordered sys_table">
+                    <tr><th class="text-center" colspan="2">批量移动到指定节点</th></tr>
+                    <tr>
+                        <th scope="row" class="w12rem_lg">内容&商品</th>
+                        <td scope="col" class="bqright">
+                            <input type="text" ID="TxtContentID" name="TxtContentID" class="form-control text_300" value="@Context.Request.GetParam("id")" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">目标节点</th>
+                        <td>
+                            <select id="targetNode" name="targetNode" class="form-control text_300" onchange="UpdateNode()">
+                                <option value="0">请选择节点</option>
+                                @MvcHtmlString.Create(nodeBll.CreateDP(dt))
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" ID="BatMove_Btn" class="btn btn-outline-info" value="批量处理" />
+                            <a href="@listUrl" class="btn btn-outline-info">返回列表</a>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+}
+@section script{
+<script>
+     //$('#targetNode').selectpicker({
+     //           hideDisabled: true,
+     //           liveSearch: true,
+     //           maxOptions: 1,
+     //           noneSelectedText:"请选择",
+     //           noneResultsText:"无匹配的节点 {0}"
+     //       };);
+</script>
+
+}

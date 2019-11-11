@@ -1,0 +1,70 @@
+﻿@model ZoomLa.Model.M_User_Plat
+@{ 
+    Layout = "_empty";
+    B_User buser = new B_User();
+    M_UserInfo mu = buser.SelReturnModel(Model.UserID);
+}
+@section head{<title>用户信息</title> }
+@section content{ 
+<link href="/theme/css/V4.css" rel="stylesheet" />
+<style type="text/css">
+    .userinfo .urow{margin-bottom:0px;}
+</style>
+<div class="container platcontainer">
+    <div class="userinfo">
+        <div class="userinfo_tx">
+            <img id="uface_img" src="@Model.UserFace" onerror="shownoface(this);"  />
+        </div>
+        <div class="userinfo_zl">
+            <div class="urow userinfo_name">@Model.TrueName</div>
+            <div class="urow r_gray">@Model.Post</div>
+            <div class="urow r_gray">@Model.CompName</div>
+            <div class="urow">
+                <a title="发送站内信" href="javascript:;" onclick="openwin('mail');"><i class="zi zi_commentdots"></i></a>
+                <a title="查看工作流" href="javascript:;" onclick="openwin('blog');" class="mt-1"><i class="zi zi_thead"></i></a>
+            </div>
+        </div>
+        <hr/>
+        <div class="urow">
+            <span class="tdl">手机：</span>
+            <label>@Model.Mobile</label>
+        </div>
+        <div class="urow">
+            <span class="tdl">邮箱：</span>
+            <label>@mu.Email</label>
+        </div>
+        <div class="urow">
+            <span class="tdl">工号：</span>
+            <label>@(string.IsNullOrEmpty(mu.WorkNum)?"--":mu.WorkNum)</label>
+        </div>
+        <div class="urow">
+            <span class="tdl">工作地点：</span>
+            <label>--</label>
+        </div>
+        <div class="urow">
+            <span class="tdl">居住地址：</span>
+            <label>--</label>
+        </div>
+        <div class="urow">
+            <span class="tdl">生日：</span>
+            <label>--</label>
+        </div>
+    </div>
+</div>
+<input type="hidden" ID="uid_hid"  value="@Model.UserID" />
+}
+@section script{ 
+<script>
+function openwin(type) {
+    var uid = $("#uid_hid").val();
+    switch (type) {
+        case "mail":
+            window.open("/Plat/Mail/MessageSend.aspx?uid=" + uid);
+            break;
+        case "blog":
+            window.open("/Plat/Blog/?uids=" + uid);
+            break;
+    }
+}
+</script>
+}

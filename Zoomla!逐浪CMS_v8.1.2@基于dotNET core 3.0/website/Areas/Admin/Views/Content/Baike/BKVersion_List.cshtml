@@ -1,0 +1,46 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string apiUrl = "Version_API?action=";
+
+}
+    <div id="EGV">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>ID</td>
+                    <td>@L.流水号</td>
+                    <td>@L.版本号</td>
+                    <td>@L.标题</td>
+                    <td>@L.编辑人</td>
+                    <td>@L.状态</td>
+                    <td>@L.操作</td>
+                </tr>
+            </thead>
+            @foreach(DataRow dr in Model.dt.Rows)
+            {
+               <tr>
+                   <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                   <td>@dr["ID"]</td>
+                   <td>@dr["Flow"]</td>
+                   <td>@dr["VerStr"]</td>
+                   <td>@dr["Tittle"]</td>
+                   <td>@dr["UserName"]</td>
+                   <td></td>
+                   <td>
+                        <a href="/Baike/Details?EditID=@dr["ID"]" target="_blank" ><i class="zi zi_eye" title="预览"></i></a>
+                        <a href="/Baike/BKEditor?EditID=@dr["ID"]&mode=admin" target="_blank" ><i class="zi zi_pencilalt" title="修改"></i></a>
+                        <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗',ids:@dr["ID"]});" OnClientClick="return confirm('@L.确实要删除吗？');"><i class="zi zi_trashalt" title="@L.删除"></i></a>
+                        <a href="javascript:;" onclick="ShowBKList('@dr["Flow"]');"><i class="zi zi_list"></i>@L.版本管理</a>
+                   </td>
+               </tr>
+            }
+            @Html.Partial("_page")
+        </table>
+    </div>
+    <div style="margin-top:5px;">
+        <input type="button" class="btn btn-outline-info" ID="BatAudit_Btn" value="@L.审核并应用" onclick="mvcpage.bat({url:'@(apiUrl+"audit")',confirm:'@L.审核后,@L.将会使用该版本词条'});"/>
+        <input type="button" class="btn btn-outline-info" ID="BatUnAudit_Btn" value="@L.取消审核" onclick="mvcpage.bat({url:'@(apiUrl+"unaudit")'});"/>
+        <input type="button" class="btn btn-outline-info" ID="BatDel_Btn" value="@L.批量删除" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});" />
+        <input type="button" class="btn btn-outline-info" value="@L.批量拒绝" onclick="ShowReject();" />
+    </div>

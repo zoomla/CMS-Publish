@@ -1,0 +1,81 @@
+﻿@using ZoomLa.BLL.Helper
+@model ZoomLaCMS.Models.Exam.VM_ExamDetail
+@{ 
+
+
+}
+<style type="text/css">
+.margin_l5{margin-left:5px;}
+</style>
+<div class="panel-body" ng-controller="appController" style="max-width:1100px;margin:0 auto;border:1px solid #999;padding:15px;border-radius:5px;min-height:700px;">
+    @for (int i = 0; i < Model.typeDT.Rows.Count; i++)
+    {
+        DataRow typedr = Model.typeDT.Rows[i];
+        DataTable questDT = Model.GetByType(typedr);
+        <div class="margin_t5"> @(StrHelper.ConvertIntegral(i + 1))．@typedr["QName"]（有@(typedr["QNum"])小题,共@(typedr["TotalScore"])分) </div>
+        <div>@typedr["LargeContent"]</div>
+        for (int j = 0; j < questDT.Rows.Count; j++)
+        {
+            DataRow quest = questDT.Rows[j];
+        <div class="item" data-id="@quest["p_id"]" id="item_@quest["p_id"]">
+            <div class="content"><span>@(j + 1)．@(quest["P_Title"])</span>@Model.GetContent(quest)</div>
+            <div class="submit">
+                <ul class="submitul">@Model.GetSubmit(quest)</ul>
+                <div class="clearfix"></div>
+            </div>
+            @if (Model.Action.Equals("view"))//学生_显示答案
+            {
+                <div class="remark_div margin_t5">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><i class="zi zi_filealt"></i><span class="margin_l5">试题批阅</span></div>
+                        <div class="panel-body">
+                            <div>@Model.GetIsRight(quest)</div>
+                            @if (!string.IsNullOrEmpty(DataConverter.CStr(quest["Remark"])))
+                            {
+                                <div><div class='answerdiv remark'>@quest["Remark"]</div></div>
+                            }
+                        </div>
+                    </div>
+                </div><!--remark_div end-->
+                <div class="panel panel-info">
+                    <div class="panel-heading"><i class="zi zi_filealt"></i><span class="margin_l5">答案&试题解析</span></div>
+                    <div class="panel-body">
+                        <p style="white-space: normal;"><span class="rightanswer">【正确答案】</span></p>
+                        @MvcHtmlString.Create(DataConverter.CStr(quest["p_shuming"]))
+                        @MvcHtmlString.Create(DataConverter.CStr(quest["Jiexi"]))
+                    </div>
+                </div>
+            }
+            else if (Model.Action.Equals("view_teach"))
+            {
+                DataRow row = quest;
+                <div class="item" data-id="@row["p_id"]" id="item_@row["p_id"]">
+                    <div class="content"><span>@(j + 1)．@row["P_Title"]</span>@Model.GetContent(row)</div>
+                    <div class="submit">
+                        <ul class="submitul">@Model.GetSubmit(row)</ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="remark_div margin_t5">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <i class="zi zi_filealt"></i><span class="margin_l5">教师批阅</span>
+                                <a href="QuestView?ID=@row["Qid"]" target="_blank" class="margin_l5">查看解析</a>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <label><input type="radio" value="1" @(row["IsRight"].ToString().Equals("1") ? "checked=checked" : "") name="isright_@row["ID"]" />正确</label>
+                                    <label><input type="radio" value="2" @(row["IsRight"].ToString().Equals("2") ? "checked=checked" : "") name="isright_@row["ID"]" />错误</label>
+                                    @*<div>@Model.GetScoreHtml(row)</div>*@
+                                </div>
+                                <div>
+                                    <div id="remark_@row["ID"]" contenteditable='true' class='answerdiv remark'>@MvcHtmlString.Create(row["Remark"].ToString())</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        }
+    }
+</div>

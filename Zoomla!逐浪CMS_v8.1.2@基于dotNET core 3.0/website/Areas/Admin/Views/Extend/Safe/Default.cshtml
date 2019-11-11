@@ -1,0 +1,29 @@
+﻿@{ 
+    string pageName = "安全中心";
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),"安全中心")
+    })
+<form method="post" action="@MVCHelper.GetAction("_Submit",Context.Request)">
+    <div class="list_choice">
+        <div class="rowItem">
+            <div>图表1表盘分析</div>
+            <div>提示信息,过久未文件检测等</div>
+            <div>信息概览</div>
+        </div>
+        <div class="rowItem">
+            <div>信息统计</div>
+        </div>
+        <div class="rowItem">
+            <div>图表1文件上传数量</div>
+            <div>图表2(安全运营天数)</div>
+        </div>
+    </div>
+</form>
+}
+@section script{ 
+<script src="~/lib/ECharts/echarts.js"></script>
+}

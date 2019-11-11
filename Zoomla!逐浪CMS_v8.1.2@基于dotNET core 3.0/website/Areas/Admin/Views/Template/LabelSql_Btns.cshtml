@@ -1,0 +1,11 @@
+﻿@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+
+<input type="button" class="btn btn-info" value="上一步" v-on:click="pre();" v-if="step>0"/>
+<input type="button" value="下一步" class="btn btn-info" v-on:click="next();" v-if="step<3"/>
+<input type="button" value="保存标签" class="btn btn-info" v-on:click="save();" />
+@if (Model.labelMod.LabelID > 0)
+{
+    <a href="LabelCallTab?labelName=@(HttpUtility.UrlEncode(Model.labelMod.LabelName))" class="btn btn-link"><i class="zi zi_quoteleft"></i> 引用标签</a>
+}
+<a href="javascript:;" class="btn btn-link labelhtml_no" v-on:click="showSql()"><i class="zi zi_database"></i> 查看SQL语句</a>
+<a href="javascript:;" class="btn btn-link" v-on:click="cancel()"><i class="zi zi_closedcaptioning"></i> 取消</a>

@@ -1,0 +1,56 @@
+﻿@using Microsoft.Extensions.DependencyModel
+@using ZoomLaCMS.Resources
+@functions{
+    public string ServerName()
+    {
+        var psi = new System.Diagnostics.ProcessStartInfo("hostname");
+        psi.RedirectStandardOutput = true;
+        using (var process = System.Diagnostics.Process.Start(psi))
+        {
+            var computerName = process.StandardOutput.ReadToEnd();
+            return computerName;
+        }
+    }
+    public string NetCoveVersion()
+    {
+        //.NETCoreApp,Version=v2.0
+        string verStr= DependencyContext.Default.Target.Framework;
+        if (verStr.Contains("=")) { return verStr.Split('=')[1].ToUpper(); }
+        else { return verStr; }
+    }
+
+}
+@{
+    //launchSettings.json
+    // var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+
+}
+<table id="mainTB" class="table table-striped table-bordered table-hover"> 
+    <tr><td class="text-right" style="width:120px;">@L.浏览器版本：</td><td id="browser_sp"></td></tr>
+    <tr><td class="text-right">@L.服务器名：</td><td>@System.Environment.MachineName</td></tr>
+    <tr><td class="text-right">@L.服务器系统：</td><td>@System.Environment.OSVersion.VersionString</td></tr>
+    <tr><td class="text-right">@L.服务器IP：</td><td>@Context.Connection.LocalIpAddress</td></tr>
+    @*<tr><td class="text-right">@L.目录：</td><td>@System.Environment.CurrentDirectory</td></tr>*@
+    <tr><td class="text-right">@L.客户端地址：</td><td>@Context.Connection.RemoteIpAddress.ToString()</td></tr>
+    <tr><td class="text-right">.NET @L.版本：</td><td>@NetCoveVersion()</td></tr> 
+</table>
+<style type="text/css">
+.info_url a {color:#1370b5;text-decoration:none;}
+.info_url a:hover {color:#ff6600;}
+#mainTB tr td {height:26px;line-height:26px;padding:1px;padding-left:8px;font-size:12px;font-family:'Microsoft YaHei';}
+</style>
+<script>
+    function getBrowserInfo() {
+        var Sys = {};
+        var ua = navigator.userAgent.toLowerCase();
+        var s;
+        if (ua.match(/msie ([\d.]+)/)) { return "IE"; }
+        if (ua.match(/firefox\/([\d.]+)/)) { return "FireFox"; }
+        if (ua.match(/chrome\/([\d.]+)/)) { return "Chrome"; }
+        if (ua.match(/opera.([\d.]+)/)) { return "OPera"; }
+        if (ua.match(/version\/([\d.]+).*safari/)) { return "safari"; }
+        return navigator.userAgent;
+    }
+    $("#browser_sp").text(getBrowserInfo());
+</script>

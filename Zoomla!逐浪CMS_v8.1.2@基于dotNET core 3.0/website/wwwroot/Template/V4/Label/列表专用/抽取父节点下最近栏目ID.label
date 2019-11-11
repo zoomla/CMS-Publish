@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>330</LabelID>
+    <LabelName>抽取父节点下最近栏目ID</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>列表专用</LabelCate>
+    <LabelDesc />
+    <LabelParam>ParentID,0,1,父节点ID|Order,asc$desc,3,排序方法|ShowNum,10,1,调用信息数</LabelParam>
+    <LabelTable>ZL_Node</LabelTable>
+    <LabelField>NodeID</LabelField>
+    <LabelWhere>ParentID=@ParentID</LabelWhere>
+    <LabelOrder>OrderID @Order</LabelOrder>
+    <LabelContent>{Repeate}{Field="NodeID"/}{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo />
+    <addroot>循环</addroot>
+    <setroot />
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <EmptyContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Node","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

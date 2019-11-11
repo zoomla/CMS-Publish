@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+
+<table class="table table-bordered table-striped">
+<thead><tr>
+    <th></th>
+    <th>ID</th>
+    <th>订单号</th>
+    <th>采购金额</th>
+    <th>下单日期</th>
+    <th>审核日期</th>
+    <th>操作</th>
+    </tr></thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+        <td>@dr["ID"]</td>
+        <td>@dr["OrderNo"]</td>
+        <td>@DataConverter.CDouble(dr["OrderTotal"]).ToString("F2")</td>
+        <td>@dr["CDate"]</td>
+        <td></td>
+        <td>
+            <a href="CGOrderAdd?ID=@dr["ID"]" class="btn btn-info btn-sm"><i class="zi zi_pencilalt"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({url:'CGOrder_API?action=del',ids:'@dr["ID"]',confirm:'确定要删除吗'});" class="btn btn-info btn-sm"><i class="zi zi_trash"></i></a>
+        </td>
+    </tr>
+}
+@Html.Partial("_page")
+</table>

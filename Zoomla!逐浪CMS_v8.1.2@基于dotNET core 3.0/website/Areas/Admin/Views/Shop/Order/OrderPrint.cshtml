@@ -1,0 +1,100 @@
+﻿@model ZoomLa.Model.M_OrderList
+@{
+    B_Payment payBll = new B_Payment();
+    B_CartPro cartProBll = new B_CartPro();
+
+    DataTable dt = cartProBll.SelByOrderID(Model.id);
+    double money = Model.Ordersamount, point = 0, arrive = 0;
+
+    //----------订单对应单支付单的状况
+    M_Payment payMod = payBll.SelModelByPayNo(Model.PaymentNo);
+    if (payMod != null)
+    {
+        arrive = payMod.ArriveMoney;
+        point = payMod.UsePoint;
+        money = payMod.MoneyTrue;
+    }
+
+}
+@section head{<title>订单打印</title>}
+@section content{
+<div class="plogo">
+<div class="container">
+    <h1><img src="@Call.LogoUrl" /><span>@(Call.SiteName)订单管理系统</span><div class="clearfix"></div></h1>
+</div>
+</div>
+<div class="container">
+    <div class="poinfo">
+        <div class="float-left">订单编号：@Model.OrderNo</div>
+        <div class="float-right">订购时间：@Model.AddTime.ToString("yyyy-MM-dd HH:mm:ss")</div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="inforow">客户姓名：@Model.Receiver</div>
+    <div class="inforow">联系方式：@Model.Mobile</div>
+    <div class="inforow">客户地址：@Model.AddRess</div>
+    <hr />
+    <div class="prolist">
+        <table class="table table-bordered table-striped">
+            <tr><td class="td_l">商品编号</td><td>商品名称</td><td>数量</td><td>商品金额</td><td>商品单价</td></tr>
+            @foreach (DataRow dr in dt.Rows)
+            {
+                <tr>
+                    <td>@dr["ProID"]</td>
+                    <td>
+                        @dr["ProName"]
+                        @*<%#ZoomLa.BLL.Helper.PageHelper.Aspx_GetHtml("/cart/comp/cart_present",GetDataItem()) %>*@
+                    </td>
+                    <td>@dr["ProNum"]</td>
+                    <td>@DataConverter.CDouble(dr["AllMoney"]).ToString("F2")</td>
+                    <td>@DataConverter.CDouble(dr["Shijia"]).ToString("F2")</td>
+                </tr>
+            }
+        </table>
+        <div class="remind_div float-left">
+            @Model.Ordermessage
+        </div>
+        <div class="price_div">
+            <div><span class="sp_l">商品总金额：</span>
+                 <span class="sp_r">@Model.Balance_price.ToString("f2")</span>
+            </div>
+            <div><span class="sp_l">优惠券：</span><span class="sp_r">@arrive.ToString("F2")</span></div>
+            <div><span class="sp_l">使用积分：</span><span class="sp_r">@point.ToString("F2")</span></div>
+            <div><span class="sp_l">运费：</span>
+                 <span class="sp_r">@Model.Freight.ToString("f2")</span>
+            </div>
+            <div>
+                <span class="sp_l">实付：</span>
+                <span class="sp_r"><strong><i class="zi zi_yensign"></i>@money.ToString("F2")</strong></span>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="text-right margin_t5 opbtns noprint">
+            <a href="javascript:;" class="btn btn-lg btn-primary" onclick="window.print();"><i class="zi zi_print"></i> 打印</a>
+        </div>
+    </div>
+</div>
+<div class="copy text-center">
+@Html.Raw(SiteConfig.SiteInfo.Copyright)
+</div>
+}
+@section script{
+<style media="print" type="text/css">
+    .noprint {display:none;}
+</style>
+<style type="text/css">
+hr {margin-top:5px;margin-bottom:5px;height:1px;background-color:#ddd;}
+.plogo { padding-top:10px; padding-bottom:10px; border-bottom:1px solid #ccc; }
+.plogo h1 { font-size:1em;}
+.plogo h1 img { float:left; height:4em; width:17.25em;}
+.plogo span { display:block; float:left; margin-left:10px; font-size:2.7em;}
+.poinfo {border-bottom:1px solid #ddd;padding-top:10px;padding-bottom:10px;}
+.inforow {height:30px;line-height:30px;}
+.price_div {width:300px;float:right;}
+.sp_l {display:inline-block;text-align:right;width:120px;height:25px;line-height:25px;}
+.sp_r {display:inline-block;text-align:right;width:170px;height:25px;line-height:25px;}
+.opbtns {border-top:1px solid #ddd; padding:5px 0;}
+.remind_div{width:60%;padding:5px;}
+.copy { border-top:1px solid #ccc;}
+</style>
+
+}

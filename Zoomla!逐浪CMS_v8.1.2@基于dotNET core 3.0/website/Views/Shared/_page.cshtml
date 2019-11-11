@@ -1,0 +1,80 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLaCMS.Resources;
+@{
+    if (string.IsNullOrEmpty(Model.page_wrap_start))
+    {
+        Model.page_wrap_start = "<tr><td colspan='99'>";
+    }
+    if (string.IsNullOrEmpty(Model.page_wrap_end))
+    {
+        Model.page_wrap_end = "</td></tr>";
+    }
+    if (!ZoomLa.Components.SiteConfig.SiteOption.Language.ToLower().Equals("zh-cn"))
+    {
+        Model.unit = "records";
+    }
+}
+@{
+    @MvcHtmlString.Create(Model.page_wrap_start)
+    <div onselect="return false;" class="text-center mvcpage" data-for="@Model.target" data-cpage="@Model.cpage" data-psize="@Model.psize" data-url="@Model.url" data-pcount="@Model.pageCount" data-icount="@Model.itemCount" data-mvcparam="@Model.mvcparam">
+        @if (Model.Check)
+        {
+            <label class="allchk_l float-left">
+                <input type="checkbox" id="AllID_Chk" onclick="$('input:checkbox[name=idchk]:enabled').each(function () {this.checked = $('#AllID_Chk')[0].checked;});">
+                <span class="allchk_sp">@L.全选</span>
+            </label>
+        }
+        @L.共&nbsp;<span id="LblRowsCount" style="font-weight:bold;">@Model.itemCount</span>&nbsp;@Model.unit&nbsp;&nbsp;
+        @if (Model.cpage <= 1)
+        {
+            <a style="color:gray;margin-right:5px;">@L.首页</a>
+            <a style="color:gray;margin-right:5px;">@L.上一页</a>
+        }
+        else
+        {
+            <a href="javascript:;" style="margin-right:5px;" onclick="mvcpage.load({target:'@Model.target',page:'first'})">@L.首页</a>
+            <a href="javascript:;" style="margin-right:5px;" onclick="mvcpage.load({target:'@Model.target',page:'prev'})">@L.上一页</a>
+        }
+        @if (Model.cpage >= Model.pageCount)
+        {
+            <a style="color:gray;margin-right:5px;">@L.下一页</a>
+            <a style="color:gray;margin-right:5px;">@L.尾页</a>
+        }
+        else
+        {
+            <a href="javascript:;" style="margin-right:5px;" onclick="mvcpage.load({target:'@Model.target',page:'next'})">@L.下一页</a>
+            <a href="javascript:;" style="margin-right:5px;" onclick="mvcpage.load({target:'@Model.target',page:'last'})">@L.尾页</a>
+        }@L.页次：
+        <span style="color:Red;font-weight:bold;">@Model.cpage</span>/
+        <span style="font-weight:bold;">@Model.pageCount</span>@L.页&nbsp;&nbsp;
+        @if (Model.page_mode == "dp")
+        {
+            <select style="width:50px;text-align:center;" onchange="mvcpage.load({target:'@Model.target',page:1,psize:this.value});">
+                @foreach (int num in new int[] { 10, 20, 50, 100, 200, 500, 1000, 2000 })
+                { 
+                    if (num == Model.psize) {  <option value="@num" selected="selected"> @num</option> }
+                    else {  <option value="@num"> @num</option> }
+                  
+                }
+            </select>
+        }
+        else
+        {
+            <input type="text" value="@Model.psize" maxlength="4" style="width:50px;text-align:center;" onchange="mvcpage.load({target:'@Model.target',page:1,psize:this.value})">
+        }
+        @(Model.unit + "/"+ @L.页)
+        &nbsp;&nbsp;
+        @L.转到第<select onchange="mvcpage.load({target:'@Model.target',page:this.value})">
+            @for (int i = 1; i <= Model.pageCount; i++)
+            {
+                if (Model.cpage == i)
+                {
+                    <option value="@i" selected="selected">@i</option> }
+                else
+                {
+                    <option value="@i">@i</option>}
+            }
+        </select>@L.页
+    </div>
+    @MvcHtmlString.Create(Model.page_wrap_end)
+}

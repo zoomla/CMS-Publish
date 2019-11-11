@@ -1,0 +1,37 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model System.Data.DataTable
+@functions{
+    public string GetExt(DataRow dr)
+    {
+        switch (DataConverter.CStr(dr["FileType"]))
+        {
+            case "2":
+                return "filefolder";
+            default:
+                return DataConverter.CStr(dr["FileName"]);
+        }
+    }
+}
+@if (Model.Rows.Count > 0)
+{
+    <ul class="listul">
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <li title="点击预览" onclick="leftnav.preview('@dr["Guid"]');">
+                <div>
+                    @*<span class="icon">@GroupPic.GetExtNameMini(GetExt(dr))</span>*@
+                    <span class="icon_txt">@dr["FileName"]</span>
+                </div>
+                <div class="r_gray">[@dr["HoneyName"]] <i class="zi zi_calendar"></i> @dr["CDate"]</div>
+            </li>
+        }
+    </ul>
+
+}
+else
+{
+<div class="r_gray"  id="empty_div">
+    尚没有文件
+</div>
+}

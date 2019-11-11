@@ -1,0 +1,51 @@
+﻿@using ZoomLa.BLL.Project
+@using ZoomLa.SQLDAL.SQL
+@functions{
+
+}
+@{
+
+}
+@section head{
+    <title>项目列表</title>
+    <link rel="stylesheet" type="text/css" href="/plat/note/note.css" />
+}
+@section content{
+<div class="container platcontainer">
+    <div class="child_head"><span class="child_head_span1"></span> <span class="child_head_span2">我的项目 <a href="note" class="margin_l5 btn btn-info btn-sm" target="_blank" title="创建项目"><i class="zi zi_plus"></i></a></span></div>
+
+    <div class="margin-top note_pro_list">
+        @Html.Partial("ProList_List", (ViewBag.setting as PageSetting))
+    </div>
+    <div class="clearfix"></div>
+    <div class="child_head"><span class="child_head_span1"></span> <span class="child_head_span2">参与项目</span></div>
+
+    <div class="margin-top note_pro_list">
+        <ul class="list-unstyled prolist_ul">
+            @Html.Partial("ProList_List", (ViewBag.setting2 as PageSetting))
+        </ul>
+    </div>
+
+</div>
+}
+@section script{
+    <script>
+        $(function () {
+            var listflag = 0;
+            $(".note_pro_list .pro_item").click(function () {
+                //window.open("view?id=" + $(this).data('id'), "_blank");
+            });
+            $(".note_pro_list .pre_li").hover(function () {
+                var obj = this;
+                $(obj).find(".pro_tools").css('top', '0');
+                $(obj).popover({ content: $(obj).find('.pro_detail').html(), placement: "bottom", html: true });
+                $(obj).popover('show');
+            }, function () {
+                $(this).popover('hide');
+                $(this).find(".pro_tools").css('top', '-30px');
+                clearTimeout(listflag);
+            });
+        });
+        setactive("项目");
+    </script>
+}

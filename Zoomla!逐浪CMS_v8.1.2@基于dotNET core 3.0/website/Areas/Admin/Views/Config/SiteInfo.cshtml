@@ -1,0 +1,290 @@
+﻿@using ZoomLa.Components
+@using ZoomLa.Common
+@model ZoomLa.Components.SiteInfo
+@{
+
+}
+@section head{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<title>站点信息</title>
+<style type="text/css">
+.sfile_upbtn{display:none !important;}
+</style>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("SiteInfo","网站配置"),
+new Bread() {url=Context.Request.RawUrl(), text="基本配置",addon= "" }}
+                      )
+   
+        <div class="container-fluid pr-0">
+            <div class="row sysRow">
+                <ul class="nav nav-tabs list_choice" role="tablist">
+                    <li class="nav-item"><a href="#tabs0" class="nav-link active show" id="home-tab1" data-toggle="tab" role="tab" aria-controls="home" aria-selected="true">网站设置</a></li>
+                    <li class="nav-item"><a href="#tabs1" class="nav-link" id="profile-tab" data-toggle="tab" role="tab" aria-controls="profile" aria-selected="false">PWA移动参数</a></li>
+                </ul>
+                <div class="tab-content col-12 table_box">
+                    <div class="tab-pane active" id="tabs0">
+                         <form method="post" action="SiteInfo_Submit">
+                        <table class="table table-bordered table-hover sys_table">
+                            <tr>
+                                <th scope="row" class="w12rem_lg">网站名称</th>
+                                <td><input type="text" name="SiteName_T" ID="SiteName_T" class=" form-control max20rem" value="@Model.SiteName" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">网站标题</th>
+                                <td><input type="text" name="SiteTitle_T" ID="SiteTitle_T" class="form-control max20rem" value="@Model.SiteTitle" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">网站地址</th>
+                                <td>
+                                    <input type="text" name="SiteUrl_T" ID="SiteUrl_T" class="form-control max20rem required" value="@Model.SiteUrl" />
+                                </td>
+                            </tr>
+                            <tr>
+                                    <th scope="row">后台路径</th>
+                                    <td>
+                                        <input type="text" name="ManageDir" ID="ManageDir"  maxlength="10" class="form-control max20rem" onkeyup="value=value.replace(/[^\w\/]/ig,'')" autocomplete="off" value="@ZoomLa.Components.SiteConfig.SiteOption.ManageDir" />
+                                        <small>3-10位英文字符,修改后重启Web服务生效</small>
+                                    </td>
+                                </tr>
+                            <tr>
+                                <th scope="row">LOGO地址</th>
+                                <td><input type="text" name="LogoUrl_T" ID="LogoUrl_T" class="form-control max20rem" value="@Model.LogoUrl" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">后台标志</th>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="LogoAdmin_T" ID="LogoAdmin_T" placeholder="初始值" class="form-control max20rem" value="@Model.LogoAdmin"/>
+                                        <div class="input-group-append">
+                                            <span style="cursor:pointer;" class="input-group-text" onclick="ShowComDiag('/lib/html/icon2.html', '选择图标');">选择图标 <i id="LogoAdmin_T_icon"></i></span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">选取图标(如选用图片则规格是54px*48px大小)</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">后台名称</th>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="LogoPlatName_T" ID="LogoPlatName_T" placeholder="初始值" class="form-control max20rem" value="@Model.LogoPlatName" />
+                                        <div class="input-group-append">
+                                            <span  style="cursor:pointer;" class="input-group-text" onclick="setPlatName();">推荐格式</span>
+                                        </div>
+                                    </div>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="w12rem_lg">网站版本</th>
+                                <td>
+                                    <div class="input-group">
+                                        @Html.TextBox("SiteVersion_T", SiteConfig.SiteInfo.SiteVersion, new { @class = "form-control max20rem" })
+                                        <span class="input-group-append"><button type="button" class="input-group-text" onclick="$('#SiteVersion_T').val('@("V"+DateTime.Now.ToString("yyyyMMdd"))');">按日期生成版本号</button></span>
+                                    </div>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">官方二维码</th>
+                                <td><input type="text" name="QRCode_T" ID="QRCode_T" class="form-control max20rem" value="@Model.BannerUrl" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">公司名称</th>
+                                <td><input type="text" name="ComName_T" ID="ComName_T" class="form-control max20rem" value="@Model.CompanyName" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">站长姓名</th>
+                                <td><input type="text" name="Webmaster_T" ID="Webmaster_T" class="form-control max20rem" value="@Model.Webmaster" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">站长手机</th>
+                                <td>
+                                    <input type="text" name="MasterPhone_T" ID="MasterPhone_T" class="form-control max20rem" value="@Model.MasterPhone" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">站长信箱</th>
+                                <td>
+                                    <input type="text" name="WebmasterEmail_T" ID="WebmasterEmail_T" class="form-control max20rem" value="@Model.WebmasterEmail" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">网站META关键词</th>
+                                <td><textarea type="text" name="MetaKeywords_T" ID="MetaKeywords_T" class="form-control m50rem_50">@Model.MetaKeywords</textarea></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">网站META网页描述</th>
+                                <td><textarea type="text" name="MetaDescription_T" ID="MetaDescription_T" class="form-control m50rem_50">@Model.MetaDescription</textarea></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">版权信息</th>
+                                <td><textarea type="text" name="Copyright_T" ID="Copyright_T" class="form-control h6rem">@Model.Copyright</textarea></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">站长统计脚本</th>
+                                <td><textarea type="text" name="allSiteJS" ID="allSiteJS" class="form-control h6rem">@Model.AllSiteJS</textarea></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <input type="submit" ID="Button1" value="保存网站设置" class="btn btn-outline-info" onclick="disBtn(this,2000);" />
+                                </td>
+                            </tr>
+                        </table>
+                             </form>
+                    </div>
+                    <div class="tab-pane" id="tabs1">
+                        <form method="post" action="PWA_Submit" enctype="multipart/form-data">
+                        <table class="table table-bordered table-hover sys_table">
+                            <tr>
+                                <th scope="row" class="w12rem_lg">应用名称</th>
+                                <td><input type="text" id="ShortName_T" name="ShortName_T" class="form-control max20rem" maxlength="6" value="@(SiteConfig.SiteOption.PWA_ShortName)"/></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">应用全名</th>
+                                <td><input type="text" id="Name_T" name="Name_T" class="form-control max20rem" maxlength="15" value="@(SiteConfig.SiteOption.PWA_Name)"/></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">启动页面</th>
+                                <td><input type="text" ID="StartUrl_T" name="StartUrl_T"  class="form-control max20rem" placeholder="/Default" value="@(SiteConfig.SiteOption.PWA_StartUrl)"/></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">启动背景色</th>
+                                <td>
+                                    <div id="pwacolor" class="input-group colorpicker-component" title="Using format option">
+                                        <input type="text" ID="BKColor_T" name="BKColor_T" class="form-control input-lg max20rem" value="@(SiteConfig.SiteOption.PWA_BKColor)" />
+                                        @*<div class="input-group-append">
+                                            <span class="btn btn-info input-group-addon"><i class="zi zi_couch"></i></span>
+                                        </div>*@
+                                    </div>
+                                    <small class="text-muted">支持三种颜色制式：#ffffff|rgb(0, 0, 255)|transparent</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">APP图标</th>
+                                <td>
+                                    @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "pwa_icon", SaveType = "admin", Value = SiteConfig.SiteOption.PWA_Icon })
+                                    <small id="pwaiconfile" class="text-muted">图片将会自动压缩：192*192,建议使用宽高1:1的图片</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">内容引用</th>
+                                <td><textarea type="text" ID="PWA_Content" name="PWA_Content" class="form-control" rows="10">@SiteConfig.SiteOption.PWA_Content</textarea></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">效果呈现</th>
+                                <td>
+                                    <div class="pwa_view_wrap">
+                                        <div class="item">
+                                            <img src="/lib/pwa/pwa_assets/desktop.jpg" alt="desktop" />
+                                            <div class="pwa_view_item1">
+                                                <img src="@SiteConfig.SiteOption.PWA_Icon" onerror="shownopic(this);" alt="desktop_ico" />
+                                                <span>@(SiteConfig.SiteOption.PWA_ShortName)</span>
+                                            </div>
+                                        </div>
+                                        <div class="item">
+                                            <img src="/lib/pwa/pwa_assets/splash.jpg?v=1" />
+                                            <div class="pwa_view_item2">
+                                                <img src="@SiteConfig.SiteOption.PWA_Icon" onerror="shownopic(this);" alt="splash_ico" />
+                                                <div class="pwa_view_item2_name">@SiteConfig.SiteOption.PWA_ShortName</div>
+                                            </div>
+                                        </div>
+                                        <div class="item">
+                                            <img src="/lib/pwa/pwa_assets/setup.jpg?v=3" />
+                                            <div class="pwa_view_item3">
+                                                <strong>@SiteConfig.SiteOption.PWA_ShortName</strong>
+                                                <div class="pwa_view_item3_bar d-flex flex-row">
+                                                    <img src="@SiteConfig.SiteOption.PWA_Icon" onerror="shownopic(this);" alt="shortico" />
+                                                    <p>
+                                                        <span>@SiteConfig.SiteOption.PWA_Name</span>
+                                                        @SiteConfig.SiteInfo.SiteUrl
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <input type="submit" ID="Save_Btn" class="btn btn-outline-info" value="保存PWA移动配置"  />
+                                    <a href="#" class="btn btn-link" id="copy_btn">引用{$PWAMainfirst/}标签</a>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <strong>关于PWA移动：</strong>Progressive Web Apps,面向未来的移动WEB开发，支持缓存和高级开发接口，此处为设置全局PWA-你也可生成JSON配置文件后后拷到相应目录引用开发多个PWA超级应用，详情敬阅<a href="http://help.z01.com/pwa" target="_blank">开发文档</a>。
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+}
+@section script{
+<link href="~/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-colorpicker.min.js"></script>
+<script>
+    $(".sfile_up").attr("name", "pwa_icon_up")
+    $(function () {
+        //if ("<%:Request["action"]%>" == "top") { top.location = siteconf.path + "Default"; }
+    });
+    //更新配置前检测
+    function CheckInfo() {
+        //var a = document.getElementById("<%=CustomPath.ClientID%>").value;
+        //if (a.length < 3) {
+        //    alert("个性化路径最少三位");
+        //    document.getElementById("<%=CustomPath.ClientID%>").focus();
+        //    return false;
+        //}
+        //else if (a.toLowerCase() == "user") {
+        //    alert("不允许使用已有目录名user");
+        //    document.getElementById("<%=CustomPath.ClientID%>").focus();
+        //    return false;
+        //}
+        disBtn("Button1", 3000);
+        return true;
+    }
+    function setPlatName() {
+        var tlp = "国际互联<span>智能门户管理系统</span>";
+        $("#LogoPlatName_T").val(tlp);
+    }
+    var zlicon = { text: "" };
+    zlicon.back = function (icon) {
+        if (!icon) { return; }
+        $(zlicon.text).val(icon);
+        $(zlicon.text + "_icon").attr("class", icon);
+        CloseComDiag();
+    }
+    zlicon.init = function (text) {
+        zlicon.text = text;
+        zlicon.back($(text).val());
+    }
+    zlicon.init("#LogoAdmin_T");
+
+    //标签复制
+    var clipboard = new ClipboardJS('#copy_btn', {
+        text: function() {
+            return '{$PWAMainfirst/}';
+        }
+
+    });
+    clipboard.on('success', function(e) {
+        //console.log(e);
+        alert("复制完成-使用Ctrl+V粘贴在模板head区即可！");
+    });
+
+    //PWA选色器
+    $(function () {
+        $('#pwacolor').colorpicker({
+            format: "rgba"
+        });
+    });
+    </script>
+
+
+}

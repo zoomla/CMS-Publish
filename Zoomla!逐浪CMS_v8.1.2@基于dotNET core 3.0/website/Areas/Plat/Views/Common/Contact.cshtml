@@ -1,0 +1,34 @@
+﻿@model  ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>通讯录</title> }
+@section content{ 
+<div class="container platcontainer">
+    <div class="child_head"><span class="child_head_span1"></span> <span class="child_head_span2">通讯录</span></div>
+    <div class="input-group">
+        <input runat="server" id="skey_t" class="form-control max20rem" placeholder="请输入搜索内容" type="text" />
+        <span class="input-group-append">
+            <input type="button" ID="Skey_Btn" value="搜索" OnClick="Skey_Btn_Click" class="btn btn-info" />
+        </span>
+    </div>
+  <div class="mt-1 table-responsive-md">
+    @Html.Partial("Contact_List")
+    <div class="clearfix"></div>
+    @*<div>
+        <asp:Button ID="BtnSetTopPosation" runat="server" class="btn btn-outline-info" OnClick="BtnSetTopPosation_Click" Text="批量发邮件"  />
+          <asp:HiddenField ID="HdnCateID" runat="server" />
+    </div>*@
+  </div>
+</div>
+
+}
+@section script{ 
+<script src="/JS/JQueryAjax.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+    //生成图片,返回图片链接,显示链接,
+    function GetQrCode(uid)
+    {
+        $("div[name=imgdiv]").hide();
+       // PostToCS2("/User/Common/Left", "GetQrCode", uid, function (data) { $("#img_" + uid).attr("src", data); $("#imgdiv_" + uid).show(); console.log(data); });
+    }
+</script>
+}

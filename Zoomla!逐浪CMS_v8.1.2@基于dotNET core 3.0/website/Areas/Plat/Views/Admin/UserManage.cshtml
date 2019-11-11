@@ -1,0 +1,140 @@
+﻿@functions{
+    M_User_Plat upMod {get{ return ViewBag.upMod; } }
+
+
+    //批量发送邮件
+    //protected void BatEmail_Btn_Click(object sender, EventArgs e)
+    //{
+    //    BatEmail_T.Text = BatEmail_T.Text.Replace(" ", "");
+    //    if (!string.IsNullOrEmpty(BatEmail_T.Text))
+    //    {
+    //        string result = "", url = GetULink();
+    //        foreach (string email in BatEmail_T.Text.Split(','))
+    //        {
+    //            if (string.IsNullOrEmpty(email)) continue;
+    //            result += SendEMail(email, url) + "<br />";
+    //        }
+    //        SendResult_Lit.Text = result;
+    //        result_div.Visible = true;
+    //    }
+    //}
+    //private string SendEMail(string email, string url)
+    //{
+    //    string result = "";
+    //    string emailTlp = SiteConfig.UserConfig.EmailPlatReg;
+    //    MailInfo mailInfo = new MailInfo();
+    //    MailAddress adMod = new MailAddress(email);
+    //    mailInfo.ToAddress = adMod;
+    //    mailInfo.IsBodyHtml = true;
+    //    mailInfo.FromName = SiteConfig.SiteInfo.SiteName;
+    //    mailInfo.Subject = SiteConfig.SiteInfo.SiteName + "注册邮件";
+    //    mailInfo.MailBody = emailTlp.Replace("{Url}", url).Replace("{Email}", email);
+    //    if (buser.IsExistMail(email)) { result = email + "发送失败,原因：该帐号已存在!"; }
+    //    else if (SendMail.Send(mailInfo) == SendMail.MailState.Ok)//发送成功,生成用户
+    //    {
+    //        M_UserInfo mu = new M_UserInfo();
+    //        mu.Email = email;
+    //        mu.UserName = email;
+    //        mu.UserPwd = function.GetRandomString(6);
+    //        mu.Question = "尚未定义问题";
+    //        mu.Answer = function.GetRandomString(6);
+    //        mu.RegTime = DateTime.Now;
+    //        mu.Status = 0;
+    //        mu.Remark = B_Plat_Common.GetTimeStamp(email);
+    //        buser.Add(mu);
+    //        result = email + "发送成功";
+    //    }
+    //    else
+    //    {
+    //        result = email + "发送失败,原因：Email发送失败!";
+    //    }
+    //    return result;
+    //}
+    //产生邀请链接
+    public string GetULink()
+    {
+        string code = B_Plat_Common.GetTimeStamp(upMod.CompID.ToString());
+        string ulink = SiteConfig.SiteInfo.SiteUrl + "/User/RegPlat?Invite=" + code;
+        return ulink;
+    }
+
+    }
+@section head{<title>用户管理</title> }
+@section content{ 
+
+<div class="container platcontainer">
+<div class="child_head"> <span class="child_head_span1" style="margin-bottom:-3px;"></span> <span class="child_head_span2">邀请注册</span> </div>
+<div class="row" style="padding-top:10px;">
+
+<div class="col-12 col-lg-7"> <span>使用邮箱地址邀请用,号隔开：</span>
+    <form method="post" action="UserManage_SendEmail">
+  <div>
+	<textarea ID="BatEmail_T" name="BatEmail_T" class="form-control"  placeholder="请输入Email地址用,号分隔"  style="height:150px;margin-bottom:5px;"></textarea>
+	<br />
+	<input type="submit" ID="BatEmail_Btn" name="BatEmail_Btn" value="邀请注册" OnClick="BatEmail_Btn_Click" class="btn btn-outline-info" onclick="return confirm('确定发送出邮件');" />
+  </div>
+        </form>
+</div>
+
+<div id="result_div"style="position:absolute;left:10%;width:500px;padding:20px;padding-top:2px; background-color:#f0f0f0;z-index:10;border-radius:5px;display:none;">
+  <button type="button" class="close" style="color:black;" title="关闭" onclick="$('#result_div').hide();"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <div ID="SendResult_Lit" ></div>
+</div>
+
+<div class="col-12 col-lg-5">
+  <div>更多注册方式：</div>
+  <div class="right_regdiv" title="文本导入">
+	<div style="color:#0088cc;padding-bottom:5px;">文本导入</div>
+
+    <div style="color:#ddd;">支持TXT,CSV,Excel</div>
+  </div>
+  <div class="right_regdiv" title="邀请链接" data-toggle="modal" data-target="#ulink_div">
+	<div style="color:#0088cc;padding-bottom:5px;">获取邀请链接</div>
+
+    <div style="color:#ddd;">您可以直接复制到公司全员邮件或QQ群等，实现快速邀请</div>
+  </div>
+  <div style="clear:both;"></div>
+</div>
+<div style="clear: both;"></div>
+</div>
+
+<div>
+<div class="child_head"> <span class="child_head_span1" style="margin-bottom:-3px;"></span> <span class="child_head_span2">用户列表</span> </div>
+  <div class="input-group mb-3 nav_searchDiv">
+  <input type="text" id="skey" name="skey" class="form-control mvcparam" placeholder="请输入需要搜索的内容" />
+  <div class="input-group-append">
+    <button type="button" class="btn btn-info" onclick="mvcpage.load();"><span class="zi zi_search"></span></button>
+  </div>
+</div>
+ @Html.Partial("UserManage_List") 
+<div>
+    <button type="button" class="btn btn-outline-info" onclick="mvcpage.bat({ url: 'UserManage_API?action=audit'});">批量审核</button>
+    <button type="button" class="btn btn-outline-danger" onclick="mvcpage.bat({ url: 'UserManage_API?action=unaudit'});">批量禁止</button>
+    <button type="button" class="btn btn-outline-danger" onclick="mvcpage.bat({ url: 'UserManage_API?action=del', confirm:'确定要移除吗' });">批量移除</button>
+</div>
+
+</div>
+<div class="modal fade" id="ulink_div">
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+	<div class="modal-header">
+	  <span class="modal-title">邀请链接</span> 
+	  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	  </div>
+	<div class="modal-body">
+	  <textarea style="width:98%;max-width:100%;height:100px;" class="form-control">@(GetULink())</textarea>
+	</div>
+	<div class="modal-footer">
+	  <button type="button" class="btn btn-outline-info" data-dismiss="modal">关闭</button>
+	</div>
+  </div>
+</div>
+</div>
+</div>
+}
+@section script{ 
+<style type="text/css">
+#emails_ul li { margin-bottom: 5px; list-style-type: none; }
+
+</style>
+}

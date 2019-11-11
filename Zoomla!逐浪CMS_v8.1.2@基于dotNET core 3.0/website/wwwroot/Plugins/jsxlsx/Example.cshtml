@@ -1,0 +1,229 @@
+﻿@{ 
+    Layout = "_empty";
+}
+@section head{<title>导入导出示例</title> }
+@section content{ 
+<div class="container">
+    <div>
+        <h3>Excel导入</h3>
+        <div>
+            <input type="file" onchange="importf(this)" />
+            <div id="demo"></div>
+            <script>
+                /*
+                   FileReader共有4种读取方法：
+                   1.readAsArrayBuffer(file)：将文件读取为ArrayBuffer。
+                   2.readAsBinaryString(file)：将文件读取为二进制字符串
+                   3.readAsDataURL(file)：将文件读取为Data URL
+                   4.readAsText(file, [encoding])：将文件读取为文本，encoding缺省值为'UTF-8'
+                 */
+                var wb;//读取完成的数据
+                var rABS = false; //是否将文件读取为二进制字符串
+                function importf(obj) {//导入
+                    if (!obj.files) {
+                        return;
+                    }
+                    var f = obj.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var data = e.target.result;
+                        if (rABS) {
+                            wb = XLSX.read(btoa(fixdata(data)), {//手动转化
+                                type: 'base64'
+                            });
+                        } else {
+                            wb = XLSX.read(data, {
+                                type: 'binary'
+                            });
+                        }
+                        //wb.SheetNames[0]是获取Sheets中第一个Sheet的名字
+                        //wb.Sheets[Sheet名]获取第一个Sheet的数据
+                        document.getElementById("demo").innerHTML = JSON.stringify(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]));
+                    };
+                    if (rABS) {
+                        reader.readAsArrayBuffer(f);
+                    } else {
+                        reader.readAsBinaryString(f);
+                    }
+                }
+
+                function fixdata(data) { //文件流转BinaryString
+                    var o = "",
+                        l = 0,
+                        w = 10240;
+                    for (; l < data.byteLength / w; ++l) o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
+                    o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w)));
+                    return o;
+                }
+            </script>
+        </div>
+    </div>
+    <div>
+        <h3>Excel导出</h3>
+        <button type="button" onclick="downloadExl(jsono)">导出</button>
+        <a href="" download="这里是下载的文件名.xlsx" id="hf"></a>
+        <script>
+        var jsono = [{ //测试数据
+            "商品标题": "沪鱼",
+            "价格": "200.00",
+        }, {
+            "商品标题": "棒球帽",
+            "价格": "1.5",
+        }];
+        var tmpDown; //导出的二进制对象
+        function downloadExl(json, type) {
+            var tmpdata = json[0];
+            json.unshift({});
+            var keyMap = []; //获取keys
+            //keyMap =Object.keys(json[0]);
+            for (var k in tmpdata) {
+                keyMap.push(k);
+                json[0][k] = k;
+            }
+          
+            var tmpdata = [];//用来保存转换好的json 
+            //map() 方法返回一个新数组，数组中的元素为原始数组元素调用函数处理后的值。
+            //reduce() 方法接收一个函数作为累加器（accumulator），数组中的每个值（从左到右）开始合并，最终为一个值。
+            //=>是es6语法中的arrow function,chrome支持但IE不支持ES6
+            //(x) => x + 6==function(x){return x + 6;};
+            //json.map((v, i) => keyMap.map((k, j) => Object.assign({}, {
+            //        v: v[k],
+            //        position: (j > 25 ? getCharCol(j) : String.fromCharCode(65 + j)) + (i + 1)
+            //    }))).reduce((prev, next) => prev.concat(next)).forEach((v, i) => tmpdata[v.position] = {
+            //        v: v.v
+            //    });
+
+            json.map(function (v, i) {
+               return keyMap.map(function (k, j) {
+                    return deepAssign({}, {
+                        v: v[k],
+                        position: (j > 25 ? getCharCol(j) : String.fromCharCode(65 + j)) + (i + 1)
+                    })
+                })
+            }).reduce(function (prev, next) { return prev.concat(next); }).forEach(function (v, i) {
+                tmpdata[v.position] = {
+                    v: v.v
+                }
+            });
+                var outputPos = Object.keys(tmpdata); //设置区域,比如表格从A1到D10
+                var tmpWB = {
+                    SheetNames: ['mySheet'], //保存的表标题
+                    Sheets: {
+                        'mySheet': deepAssign({},
+                            tmpdata, //内容
+                            {
+                                '!ref': outputPos[0] + ':' + outputPos[outputPos.length - 1] //设置填充区域
+                            })
+                    }
+                };
+                tmpDown = new Blob([s2ab(XLSX.write(tmpWB, 
+                    {bookType: (type == undefined ? 'xlsx':type),bookSST: false, type: 'binary'}//这里的数据是用来定义导出的格式类型
+                    ))], {
+                    type: ""
+                    }); //创建二进制对象写入转换好的字节流
+             
+            var href = URL.createObjectURL(tmpDown); //创建对象超链接
+            document.getElementById("hf").href = href; //绑定a标签
+            document.getElementById("hf").click(); //模拟点击实现下载
+            setTimeout(function() { //延时释放
+                URL.revokeObjectURL(tmpDown); //用URL.revokeObjectURL()来释放这个object URL
+            }, 100);
+        }
+
+        function s2ab(s) { //字符串转字符流
+            var buf = new ArrayBuffer(s.length);
+            var view = new Uint8Array(buf);
+            for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+            return buf;
+        }
+         // 将指定的自然数转换为26进制表示。映射关系：[0-25] -> [A-Z]。
+        function getCharCol(n) {
+            let temCol = '',
+            s = '',
+            m = 0
+            while (n > 0) {
+                m = n % 26 + 1
+                s = String.fromCharCode(m + 64) + s
+                n = (n - m) / 26
+            }
+            return s
+        }
+            //-----IE Extend
+        function isObj(x) {
+            var type = typeof x;
+            return x !== null && (type === 'object' || type === 'function');
+        }
+
+        var hasOwnProperty = Object.prototype.hasOwnProperty;
+        var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+        function toObject(val) {
+            if (val === null || val === undefined) {
+                throw new TypeError('Cannot convert undefined or null to object');
+            }
+
+            return Object(val);
+        }
+
+        function assignKey(to, from, key) {
+            var val = from[key];
+
+            if (val === undefined || val === null) {
+                return;
+            }
+
+            if (hasOwnProperty.call(to, key)) {
+                if (to[key] === undefined || to[key] === null) {
+                    throw new TypeError('Cannot convert undefined or null to object (' + key + ')');
+                }
+            }
+
+            if (!hasOwnProperty.call(to, key) || !isObj(val)) {
+                to[key] = val;
+            } else {
+                to[key] = assign(Object(to[key]), from[key]);
+            }
+        }
+
+        function assign(to, from) {
+            if (to === from) {
+                return to;
+            }
+
+            from = Object(from);
+
+            for (var key in from) {
+                if (hasOwnProperty.call(from, key)) {
+                    assignKey(to, from, key);
+                }
+            }
+
+            if (Object.getOwnPropertySymbols) {
+                var symbols = Object.getOwnPropertySymbols(from);
+
+                for (var i = 0; i < symbols.length; i++) {
+                    if (propIsEnumerable.call(from, symbols[i])) {
+                        assignKey(to, from, symbols[i]);
+                    }
+                }
+            }
+
+            return to;
+        }
+
+        function deepAssign(target) {
+            target = toObject(target);
+
+            for (var s = 1; s < arguments.length; s++) {
+                assign(target, arguments[s]);
+            }
+
+            return target;
+        };
+    </script>
+    </div>
+</div>
+}
+@section script{ 
+<script src="~/Plugins/jsxlsx/xlsx.full.min.js"></script>
+}

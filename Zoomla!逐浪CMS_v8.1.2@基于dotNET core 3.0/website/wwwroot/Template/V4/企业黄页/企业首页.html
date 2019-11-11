@@ -1,0 +1,44 @@
+﻿{ZL.Source id="标准黄页申请信息数据源"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="标准黄页申请信息数据源" FD="CompanyName" page="0"/}</title> 
+<link href="{$CssDir/}global.css" rel="stylesheet" type="text/css" />
+<link href="{$CssDir/}fix.css" rel="stylesheet" type="text/css" />
+<style>
+.main_body{margin:25px auto;font-size:16px;}
+.main_body h1{text-align:center;}
+.main_body .con_body{width:60%;margin:15px auto;}
+.main_body table{width:100%;}
+.main_body table tr td{border:0;width:150px;}
+.main_body table tr{display:block;margin-bottom:15px;padding:2px 15px;border-bottom:1px solid #ccc;}
+</style>
+</head> 
+<body>  
+    <div class="main_body">
+        <h1>{SField sid="标准黄页申请信息数据源" FD="PageTitle" page="0"/}</h1>
+        <div class="con_body">
+            <table>
+                <tr>
+                    <td>创建人</td>
+                    <td>{SField sid="标准黄页申请信息数据源" FD="UserName" page="0"/}</td>
+                </tr>
+                <tr>
+                    <td>黄企业OGO</td>
+                    <td><img src='{SField sid="标准黄页申请信息数据源" FD="LOGO" page="0"/}' style="height:100px;" /></td>
+                </tr>
+                <tr>
+                    <td>企业说明</td>
+                    <td>{SField sid="标准黄页申请信息数据源" FD="PageInfo" page="0"/}</td>
+                </tr>
+                <tr>
+                    <td>创建时间</td>
+                    <td>{SField sid="标准黄页申请信息数据源" FD="CreationTime" page="0"/}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+<SCRIPT src="/js/openType.js" type="text/javascript"></SCRIPT> 
+</body>
+</html>

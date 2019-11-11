@@ -1,0 +1,34 @@
+﻿@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    int status = DataConverter.CLng(Context.Request.GetParam("status"), -1);
+}
+@section head{
+    <title>班级成员</title>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("ClassRoomManage",@L.班级管理),
+new Bread(Context.Request.RawUrl(),@L.班级成员)
+})
+<div class="list_choice">
+    @Html.Partial("StudentList_List")
+</div>
+<div id="Option_Div">
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({url: "Student_Audit"});'>@L.批量审核</button>
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({url: "Student_UnAudit"});'>@L.批量拒绝</button>
+    <button type="button" class="btn btn-primary" onclick='mvcpage.bat({url: "Student_Del", confirm: "@L.确定要删除选中记录吗"});'>@L.批量删除</button>
+</div>
+}
+@section script{
+<script>
+    $(function () {
+        InitTab(@status);
+    });
+    function InitTab(id) {
+        $("[data-tabid]").removeClass("active");
+        $("[data-tabid='" + id + "']").addClass("active");
+    }
+</script>
+}

@@ -1,0 +1,64 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_Arrive avBll = new B_Arrive();
+    public IHtmlContent GetState(DataRow dr) { return MvcHtmlString.Create(avBll.GetStateStr(Convert.ToInt32(dr["state"]))); }
+    public string GetStoreName(DataRow dr)
+    {
+        int sid = DataConverter.CLng(dr["StoreID"]);
+        if (sid < 1) { return "商城通用"; }
+        else
+        {
+            return DataConverter.CStr(ZoomLa.SQLDAL.DBCenter.ExecuteScala("ZL_CommonModel", "Title", "GeneralID=" + sid));
+        }
+    }
+    public string GetSource(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["CUser"]) > 0) { return "用户投放"; }
+        else { return "平台发放"; }
+    }
+}
+@{ 
+    string apiUrl = "Arrive_API?action=";
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td></td>
+            <td>ID</td>
+            <td>@L.来源</td>
+            <td>@L.卡别名</td>
+            <td>@L.适用店铺</td>
+            <td>@L.编号</td>
+            <td>@L.金额</td>
+            <td>@L.所属用户</td>
+            <td>@L.生效时间</td>
+            <td>@L.到期时间</td>
+            <td>@L.状态</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td>@GetSource(dr)</td>
+            <td>@dr["ArriveName"]</td>
+            <td>@GetStoreName(dr)</td>
+            <td>@dr["ArriveNO"]</td>
+            <td>@DataConverter.CDouble(dr["Amount"]).ToString("F2")</td>
+            <td>@dr["UserName"]</td>
+            <td>@dr["AgainTime"]</td>
+            <td>@dr["EndTime"]</td>
+            <td>@GetState(dr)</td>
+            <td>
+                <a href="ArriveAdd?id=@dr["id"]" class="option_style"><i class="zi zi_pencilalt" title="修改"></i>@L.修改</a>
+                <a href="javascript:;" class="option_style" onclick="mvcpage.del({ url: '@(apiUrl+"del")',confirm:'@L.确定要删除吗' });"><i class="zi zi_trashalt" title="删除"></i>@L.删除</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

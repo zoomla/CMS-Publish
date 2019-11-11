@@ -1,0 +1,483 @@
+﻿@using ZoomLa.BLL.Shop
+@{ 
+    B_User buser = new B_User(Context);
+    B_Product proBll = new B_Product();
+    DataTable userDT = buser.SelPage(1, 5, new F_User() { }).dt;
+    DataTable proDT = proBll.SelPage(1, 6, new Filter_Product() { }).dt;
+}
+@section head{<title>企业信息化工作台</title> }
+@section content{
+<div class="container-fluid" style="padding-left:0px;">
+    <div class="animated fadeIn">
+    <div class="row">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body pb-0">
+                    <div class="btn-group float-right">
+                        <button type="button" class="btn btn-transparent dropdown-toggle p-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="zi zi_cog"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#">商品管理</a>
+                            <a class="dropdown-item" href="#">采购订单</a>
+                            <a class="dropdown-item" href="#">采购员管理</a>
+                        </div>
+                    </div>
+                    <h4 class="mb-0">9.823</h4>
+                    <p>进销存</p>
+                </div>
+                <div class="chart-wrapper px-3" style="height:70px;">
+                    <canvas id="card-chart1" class="chart" height="70"></canvas>
+                </div>
+            </div>
+        </div>
+        <!--/.col-->
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card text-white bg-info">
+                <div class="card-body pb-0">
+                    <div class="btn-group float-right">
+                        <button type="button" class="btn btn-transparent dropdown-toggle p-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                             <i class="zi zi_cog"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#">库存管理</a>
+                            <a class="dropdown-item" href="#">库存管理</a>
+                            <a class="dropdown-item" href="#">库存管理</a>
+                        </div>
+                    </div>
+                    <h4 class="mb-0">9.823</h4>
+                    <p>会员管理</p>
+                </div>
+                <div class="chart-wrapper px-3" style="height:70px;">
+                    <canvas id="card-chart2" class="chart" height="70"></canvas>
+                </div>
+            </div>
+        </div>
+        <!--/.col-->
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body pb-0">
+                    <div class="btn-group float-right">
+                        <button type="button" class="btn btn-transparent dropdown-toggle p-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                           <i class="zi zi_cog"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#">库存管理</a>
+                            <a class="dropdown-item" href="#">库存管理</a>
+                            <a class="dropdown-item" href="#">库存管理</a>
+                        </div>
+                    </div>
+                    <h4 class="mb-0">9.823</h4>
+                    <p>库存管理</p>
+                </div>
+                <div class="chart-wrapper" style="height:70px;">
+                    <canvas id="card-chart3" class="chart" height="70"></canvas>
+                </div>
+            </div>
+        </div>
+        <!--/.col-->
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body pb-0">
+                    <div class="btn-group float-right">
+                        <button type="button" class="btn btn-transparent dropdown-toggle p-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                             <i class="zi zi_cog"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#">库存管理</a>
+                            <a class="dropdown-item" href="#">库存管理</a>
+                            <a class="dropdown-item" href="#">库存管理</a>
+                        </div>
+                    </div>
+                    <h4 class="mb-0">9.823</h4>
+                    <p>报表统计</p>
+                </div>
+                <div class="chart-wrapper px-3" style="height:70px;">
+                    <canvas id="card-chart4" class="chart" height="70"></canvas>
+                </div>
+            </div>
+        </div>
+        <!--/.col-->
+    </div>
+    <!--/.row-->
+
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                   进销统计
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-4">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="callout callout-info">
+                                        <small class="text-muted">员工数</small>
+                                        <br>
+                                        <strong class="h4">9,123</strong>
+                                        <div class="chart-wrapper">
+                                            <canvas id="sparkline-chart-1" width="100" height="30"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/.col-->
+                                <div class="col-sm-6">
+                                    <div class="callout callout-danger">
+                                        <small class="text-muted">待审核订单</small>
+                                        <br>
+                                        <strong class="h4">22,643</strong>
+                                        <div class="chart-wrapper">
+                                            <canvas id="sparkline-chart-2" width="100" height="30"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/.col-->
+                            </div>
+                            <!--/.row-->
+                            <hr class="mt-0">
+                            <ul class="horizontal-bars">
+                                <li>
+                                    <div class="title">周一</div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 34%" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 78%" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="title">周二</div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 56%" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 94%" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="title">
+                                        周三
+                                    </div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 12%" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 67%" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="title">
+                                        周四
+                                    </div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 43%" aria-valuenow="43" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 91%" aria-valuenow="91" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="title">
+                                        周五
+                                    </div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 22%" aria-valuenow="22" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 73%" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="title">
+                                        周六
+                                    </div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 53%" aria-valuenow="53" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 82%" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="title">
+                                        周日 
+                                    </div>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-info" role="progressbar" style="width: 9%" aria-valuenow="9" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 69%" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="legend">
+                                    <span class="badge badge-pill badge-info"></span>
+                                    <small>采购金额</small> &nbsp;
+                                    <span class="badge badge-pill badge-danger"></span>
+                                    <small>销售金额</small>
+                                </li>
+                            </ul>
+                        </div>
+                        <!--/.col-->
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="callout callout-warning">
+                                        <small class="text-muted">待入库订单</small>
+                                        <br>
+                                        <strong class="h4">78,623</strong>
+                                        <div class="chart-wrapper">
+                                            <canvas id="sparkline-chart-3" width="100" height="30"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/.col-->
+                                <div class="col-sm-6">
+                                    <div class="callout callout-success">
+                                        <small class="text-muted">本周销售统计</small>
+                                        <br>
+                                        <strong class="h4">49,123</strong>
+                                        <div class="chart-wrapper">
+                                            <canvas id="sparkline-chart-4" width="100" height="30"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/.col-->
+                            </div>
+                            <!--/.row-->
+                            <hr class="mt-0">
+                            <ul class="horizontal-bars type-2">
+                                <li>
+                                    <i class="icon-user"></i>
+                                    <span class="title">进</span>
+                                    <span class="value">43%</span>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 43%" aria-valuenow="43" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="icon-user-female"></i>
+                                    <span class="title">销</span>
+                                    <span class="value">37%</span>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 37%" aria-valuenow="37" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <i class="icon-globe"></i>
+                                    <span class="title">日用百货</span>
+                                    <span class="value">
+                                        191,235
+                                        <span class="text-muted small">(56%)</span>
+                                    </span>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 56%" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="icon-social-facebook"></i>
+                                    <span class="title">食品</span>
+                                    <span class="value">
+                                        51,223
+                                        <span class="text-muted small">(15%)</span>
+                                    </span>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="icon-social-twitter"></i>
+                                    <span class="title">家电配件</span>
+                                    <span class="value">
+                                        37,564
+                                        <span class="text-muted small">(11%)</span>
+                                    </span>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 11%" aria-valuenow="11" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i class="icon-social-linkedin"></i>
+                                    <span class="title">家居产品</span>
+                                    <span class="value">
+                                        27,319
+                                        <span class="text-muted small">(8%)</span>
+                                    </span>
+                                    <div class="bars">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 8%" aria-valuenow="8" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="divider text-center">
+                                    <button type="button" class="btn btn-sm btn-link text-muted" data-toggle="tooltip" data-placement="top" title="" data-original-title="show more"><i class="icon-options"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                        <!--/.col-->
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="callout">
+                                        <small class="text-muted">毛利率</small>
+                                        <br>
+                                        <strong class="h4">23%</strong>
+                                        <div class="chart-wrapper">
+                                            <canvas id="sparkline-chart-5" width="100" height="30"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/.col-->
+                                <div class="col-sm-6">
+                                    <div class="callout callout-primary">
+                                        <small class="text-muted">销售库存比率</small>
+                                        <br>
+                                        <strong class="h4">5%</strong>
+                                        <div class="chart-wrapper">
+                                            <canvas id="sparkline-chart-6" width="100" height="30"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/.col-->
+                            </div>
+                            <!--/.row-->
+                            <hr class="mt-0">
+                            <ul class="icons-list">
+                                @foreach (DataRow dr in proDT.Rows)
+                                {
+                                    <li>
+                                        <img src="@function.GetImgUrl(dr["Thumbnails"])" onerror="shonopic(this);" />
+                                        <div class="desc">
+                                            <div class="title">@dr["ShortProName"]</div>
+                                            <small>@dr["ProName"]</small>
+                                        </div>
+                                        <div class="value">
+                                            <div class="small text-muted">本周销售</div>
+                                            <strong>@DataConverter.CDouble(dr["LinPrice"]).ToString("F2")</strong>
+                                        </div>
+                                        <div class="actions">
+                                            <button type="button" class="btn btn-link text-muted"><i class="icon-settings"></i></button>
+                                        </div>
+                                    </li>
+                                }
+                                <li class="divider text-center">
+                                    <button type="button" class="btn btn-sm btn-link text-muted" data-toggle="tooltip" data-placement="top" title="show more"><i class="icon-options"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                        <!--/.col-->
+                    </div>
+                    <!--/.row-->
+                    <br />
+
+                </div>
+            </div>
+        </div>
+        <!--/.col-->
+    </div>
+    <!--/.row-->
+	
+	<div class="row">
+	<div class="col-md-12">
+	<div class="card">
+	
+	                    <table class="table table-responsive-sm table-hover mb-0 itable">
+                        <thead>
+                            <tr>
+                                <th class="text-center"><i class="icon-people"></i></th>
+                                <th>用户</th>
+                                <th class="text-center">行为</th>
+                                <th>使用率</th>
+                                <th class="text-center">部门</th>
+                                <th>职责</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow dr in userDT.Rows)
+                            {
+                                <tr>
+                                <td class="text-center">
+                                    <div class="avatar">
+                                        <img src="@dr["salt"]" onerror="shownopic(this);" class="img-avatar" alt="admin@bootstrapmaster.com">
+                                        <span class="avatar-status badge-success"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>@dr["UserName"]</div>
+                                    <div class="small text-muted">
+                                        <span>@dr["HoneyName"]</span> |@dr["Email"]
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    出入库
+                                </td>
+                                <td>
+                                    <div class="clearfix">
+                                        <div class="float-left">
+                                            <strong>50%</strong>
+                                        </div>
+                                        <div class="float-right">
+                                            <small class="text-muted">2019-11-02</small>
+                                        </div>
+                                    </div>
+                                    <div class="progress progress-xs">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    采购部
+                                </td>
+                                <td>
+                                    @*<div class="small text-muted">Last login</div>
+                                    <strong>10 sec ago</strong>*@
+                                </td>
+                            </tr>
+                            }
+                            
+                        </tbody>
+                    </table>
+	
+	</div>
+	
+	</div>
+	
+	
+	</div>
+</div>
+</div>
+
+}
+@section script{
+<script type="text/javascript" src="~/theme/erp/js/views/main.js"></script>
+
+}

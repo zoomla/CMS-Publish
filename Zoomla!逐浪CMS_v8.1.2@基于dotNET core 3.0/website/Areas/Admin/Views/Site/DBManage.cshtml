@@ -1,0 +1,244 @@
+﻿@model System.Data.DataTable
+@functions{
+/*
+
+
+        private void SiteDPBind()
+        {
+            bindSiteDP.DataSource = iisHelper.GetWebSiteList();
+            bindSiteDP.DataValueField = "SiteID";
+            bindSiteDP.DataTextField = "SiteName";
+            bindSiteDP.DataBind();
+            bindSiteDP.Items.Insert(0, new ListItem("请选择站点", "-1"));
+        }
+        //处理页码
+        public void txtPageFunc(string size)
+        {
+            int pageSize;
+            if (!int.TryParse(size, out pageSize))
+            {
+                pageSize = EGV.PageSize;
+            }
+            else if (pageSize < 1)
+            {
+                pageSize = EGV.PageSize;
+            }
+            EGV.PageSize = pageSize;
+            EGV.PageIndex = 0;
+            size = pageSize.ToString();
+            DataBind();
+        }
+        protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            switch (e.CommandName.ToLower())
+            {
+                case "del2":
+                    //删除记录，同时删除目标数据库
+                    string id = e.CommandArgument.ToString();
+                    dbMod = dbBll.SelReturnModel(id);
+                    if (string.IsNullOrEmpty(dbMod.DBName)) { dbBll.DelByID(id); DataBind(); }
+                    else if (dbHelper.DelDB(dbMod.DBName)) { dbHelper.DelUserByName(dbMod.DBUser); dbBll.DelByID(id); DataBind(); }
+                    else { Page.ClientScript.RegisterStartupScript(this.GetType(), "", "alert('移除失败,请检查数据库权限!!!');", true); }
+                    break;
+            }
+        }
+        protected void searchBtn_Click(object sender, EventArgs e)
+        {
+            DataBind(searchText.Text.Trim());
+        }
+
+        protected void addBtn_Click(object sender, EventArgs e)
+        {
+            dbListDiv.Visible = false;
+            addDiv.Visible = true;
+        }
+        protected void saveBtn_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(Request.QueryString["ID"]))
+            {
+                dbMod = dbBll.SelReturnModel(Request.QueryString["ID"]);
+            }
+            dbUserT.Text = dbUserT.Text.Trim();
+            dbPwdT.Text = dbPwdT.Text.Trim();
+            dbNameT.Text = dbNameT.Text.Trim();
+            dbMod.DBName = dbNameT.Text;
+            dbMod.DBUser = dbUserT.Text;
+            dbMod.DBInitPwd = dbPwdT.Text;
+            dbMod.Remind = bindDomT.Text.Trim();
+            dbMod.Status = 1;
+            if (bindSiteDP.SelectedIndex > 0)
+            {
+                dbMod.SiteID = DataConverter.CLng(bindSiteDP.SelectedValue);
+                dbMod.SiteName = bindSiteDP.SelectedItem.Text;
+            }
+            else
+            {
+                dbMod.SiteID = 0;
+                dbMod.SiteName = "尚未绑定";
+            }
+            if (!string.IsNullOrEmpty(bindUserD.Value))
+            {
+                dbMod.UserID = DataConverter.CLng(bindUserD.Value);
+                dbMod.UserName = buser.GetUserByUserID(dbMod.UserID).UserName;
+            }
+            dbMod.CreateTime = DateTime.Now;
+            if (string.IsNullOrEmpty(Request.QueryString["ID"]))//添加
+            {
+                try
+                {
+                    dbHelper.CreateDatabase(dbNameT.Text);
+                    dbHelper.CreateDatabaseUser(dbUserT.Text, dbPwdT.Text);
+                    dbHelper.CreateUserMap(dbNameT.Text, dbUserT.Text);
+                    dbBll.Insert(dbMod);
+                    Page.ClientScript.RegisterStartupScript(this.GetType(), "", "alert('添加成功');location=location;", true);
+                }
+                catch (Exception ex)
+                {
+                    remindSpan.Visible = true;
+                    remindSpan.InnerText = "提示:" + ex.Message;
+                }
+            }
+            else
+            {
+                dbBll.UpdateModel(dbMod);
+                Page.ClientScript.RegisterStartupScript(this.GetType(), "", "alert('修改成功');location=location;", true);
+            }
+        }
+        protected void cPwdBtn_Click(object sender, EventArgs e)
+        {
+            dbPwdT.Text = function.GeneratePasswd();
+        }
+
+*/
+
+}
+
+@section head{<title>数据库管理</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+	new Bread("{admin}"),
+	new Bread("Default","站群中心"),
+	new Bread() {url=Context.Request.RawUrl(), text="数据库管理(仅用于智能建站生成的数据库)",addon="" }}
+	)
+    <div id="dbListDiv" class="list_choice" runat="server">
+        <div class="input-group" style="width: 400px; float: left; margin-bottom: 10px;">
+            <input type="text" ID="searchText" placeholder="请输入需要查询的信息" class="form-control mvcparam" />
+            <span class="input-group-prepend">
+                <input type="button" class="btn btn-info" ID="searchBtn" value="搜索" onclick="mvcpage.load();"/>
+                @*<asp:Button runat="server" class="btn btn-info" ID="addBtn" Text="添加" OnClick="addBtn_Click" />*@
+            </span>
+        </div>
+        <div class="tab3">
+            <table class="table table-bordered table-striped">
+                <thead><tr>
+                    <th>ID</th>
+                    <th>数据库名</th>
+                    <th>站点名</th>
+                    <th>用户名</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                    </tr></thead>
+                @foreach (DataRow dr in Model.Rows)
+                {
+                    <tr>
+                        <td>@dr["ID"]</td>
+                        <td>@dr["DBName"]</td>
+                        <td>@dr["SiteName"]</td>
+                        <td>@dr["UserName"]</td>
+                        <td>@dr["CreateTime"]</td>
+                        <td>
+                              @*<a href="javascript:;" onclick=""><i class="zi zi_pencilalt"></i></a>
+                              <a href="javascript:;" onclick="" ><i class="zi zi_trash"></i></a>*@
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    @*<div id="addDiv" runat="server" class="list_choice" visible="false">
+        <table class="table table-bordered table-hover sys_table" style="width: 550px;">
+            <tr>
+                <th class="w12rem_lg">数据库名</th>
+                <td><asp:TextBox runat="server" ID="dbNameT" class="form-control max20rem" /></td>
+            </tr>
+            <tr>
+                <th>帐户</th>
+                <td>
+                    <asp:TextBox runat="server" ID="dbUserT" class="form-control max20rem" /></td>
+            </tr>
+            <tr>
+                <th>密码</th>
+                <td>
+                    <asp:TextBox runat="server" ID="dbPwdT" class="form-control float-left max20rem" />
+                    <asp:Button runat="server" ID="cPwdBtn" class="btn btn-info ml-2" Text="重新生成" OnClick="cPwdBtn_Click"  Visible="false"/>
+
+                </td>
+            </tr>
+            <tr>
+                <th colspan="2" class="text-center">绑定信息(可稍后设置)</th>
+            </tr>
+            <tr>
+                <th>绑定站点</th>
+                <td>
+                    <asp:DropDownList runat="server" ID="bindSiteDP" Height="35px"></asp:DropDownList></td>
+            </tr>
+            <tr>
+                <th>绑定会员</th>
+                <td>
+                    <asp:TextBox runat="server" ID="bindUserT" class="form-control float-left max20rem" />
+                    <asp:HiddenField runat="server" ID="bindUserD" />
+<%--                    <input type="button" class="btn btn-info" value="选择会员" onclick="showdiv('div_share', 'bindUser');" style="margin-left: 10px;" />--%>
+                </td>
+            </tr>
+            <tr>
+                <th>绑定域名</th>
+                <td>
+                    <asp:TextBox runat="server" ID="bindDomT" class="form-control max20rem" /></td>
+            </tr>
+            <tr>
+                <th>操作</th>
+                <td>
+                    <asp:Button runat="server" ID="saveBtn" Text="保存" OnClick="saveBtn_Click" class="btn btn-info" />
+                    <input type="button" id="rtnBtn" value="返回" class="btn btn-outline-info" /><br />
+                    <span class="alert alert-danger p-2" runat="server" visible="false" id="remindSpan"></span></td>
+            </tr>
+        </table>
+    </div>
+    <div id="div_share" class="panel panel-primary" style="display:none; position:absolute;z-index:3;">
+        <div class="panel-heading"><h3 class="panel-title">选择会员</h3></div>
+        <div class="panel-body">
+            <iframe id="main_right" style="z-index: 2; visibility: inherit; overflow: auto; overflow-x: hidden;width: 100%;height:500px;" name="main_right" src="/Office/Mail/SelUser.aspx" frameborder="0"></iframe>
+        </div>
+    </div>*@
+    <asp:HiddenField runat="server" ID="dataField" />
+    
+ }
+@section script{ 
+<script type="text/javascript">
+        function showdiv(div_id, f) {
+            $("#dataField").val(f);
+            var div_obj = $("#" + div_id);
+            var h = (document.documentElement.offsetHeight) / 2;
+            var w = (document.documentElement.offsetWidth - 400) / 2;
+            div_obj.animate({ opacity: "show", left: w, top: h, width: div_obj.width, height: div_obj.height }, 300);
+            div_obj.focus();
+        }
+        function hideDiv() {
+            $("#div_share").hide();
+        }
+
+        function seluser(groupJson, userJson) {
+            //var names = "";
+            //var ids = "";
+            //for (var i = 0; i < userJson.length; i++) {
+            //    names += userJson[i].Uname + ",";
+            //    ids += userJson[i].Uid + ",";
+            //}
+            var flag = $("#dataField").val();
+            $("#" + flag + "T").val(userJson[0].Uname);
+            $("#" + flag + "D").val(userJson[0].Uid);
+            hideDiv();
+        }
+    </script>
+
+}

@@ -1,0 +1,36 @@
+﻿@using System.Data
+@model ZoomLaCMS.Models.Cart.VM_Cart
+@{ 
+    DataRow dr = Model.dr;
+}
+<tr data-id="@dr["ID"]" class="cart_item">
+    <td>
+        <input type="checkbox" name="prochk" data-store="@dr["StoreID"]" checked="checked" value="@dr["ID"]" />
+    </td>
+    <td>
+        <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品">
+            <img src="@Model.GetImgUrl(dr["Thumbnails"])" onerror="shownopic(this);" class="preimg_l cart_Ting" />
+        </a>
+    </td>
+    <td class="coatShop_title" colspan="2">
+        <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品" style="font-size: 12px;">@dr["ProName"]</a>
+        <div class="tdline Price_box">@Model.GetMyPrice(dr)</div>
+        @Html.Partial("Comp/Cart_Present",dr)
+    </td>
+    <td class="pronum_td tdline">
+        <div class="input-group pronum_text" style="display:flex;">
+            <div class="input-group-prepend" onclick="cart.setnum('@dr["ID"]','+');">
+                <span class="input-group-text"><i class="zi zi_minus"></i></span>
+            </div>
+            <input type="text" class="form-control" id="pronum_@dr["ID"]" value="@dr["Pronum"]" autocomplete="off" onblur="cart.suit.setnum('@dr["ID"]',this.value);">
+            <div class="input-group-append" onclick="cart.setnum('@dr["ID"]','-');">
+                <span class="input-group-text"><i class="zi zi_plus"></i></span>
+            </div>
+        </div>
+    </td>
+    <td class="tdline move_d_none">@Model.GetStockStatus(dr)</td>
+    <td class="tdline xj_Price move_d_none"><span id="trprice_@dr["ID"]" class="trprice">@Model.GetPrice(dr)</span></td>
+    <td class="tdline">
+        <a href="javascript:;" class="remove_cart btn btn-danger btn-sm" style="color:#fff;" onclick="cart.del('@dr["ID"]');"><i class="zi zi_trash"></i></a>
+    </td>
+</tr>

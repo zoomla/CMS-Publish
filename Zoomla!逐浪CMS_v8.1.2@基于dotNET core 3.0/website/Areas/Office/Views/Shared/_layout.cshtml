@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link href="/theme/css/V4.css" rel="stylesheet" />
+<script src="/js/ICMS/OAMain.js"></script>
+<style type="text/css">
+ .breadcrumb {display:none;}
+.container { max-width:100% !important;}
+</style>
+@RenderSection("head")
+</head>
+<body>
+<div style="padding:10px;">
+    @RenderSection("content",false)
+</div>
+<div>
+    @RenderSection("content2",false)
+</div>
+@RenderSection("script",false)
+</body>
+</html>

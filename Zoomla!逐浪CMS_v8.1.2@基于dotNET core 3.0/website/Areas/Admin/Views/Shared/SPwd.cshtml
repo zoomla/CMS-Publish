@@ -1,0 +1,35 @@
+﻿<link rel="stylesheet" href="/dist/css/animate.min.css">
+<div>
+<div class="pop_box card"  id="spwd_div">
+    <div class="card-body SPwd_box animated bounceInUp">
+        <input type="password" autocomplete="off"  ID="SPwd_T" name="SPwd_T" placeholder="@L.二级密码验证" class="form-control" onkeydown="spwd_enter();" />
+        <i class="zi zi_lock" aria-hidden="true"></i>
+    </div>
+</div>
+</div>
+@*<div class="pop_box card" style="width: 350px;margin:auto;" runat="server" id="nospwd_div" visible="false">
+ <div class="card-header">二级密码验证</div>
+    <div class="card-body" style="text-align:center;">
+        请输入二级验证码(相关帮助可检索官方文档）<br />
+        <a href="http://www.z01.com/search/SearchList?keyword=%E4%BA%8C%E7%BA%A7%E9%AA%8C%E8%AF%81%E7%A0%81&ButtonSo=%E6%90%9C++%E7%B4%A2" class="btn btn-primary" title="点击前往" target="_blank">点击前往</a>
+    </div>
+</div>*@
+<script>
+    function spwd_enter(e) {
+        var keyCode = 0;
+        if (event) { keyCode = event.keyCode; }
+        else { keyCode = e.keyCode; }
+        if (keyCode == 13) {
+            var value = $("#SPwd_T").val();
+            if (ZL_Regex.isEmpty(value)) { alert("@Html.Raw(L.二级密码不可为空)"); return false; }
+            $.post("@Call.PathAdmin("Com/SPwdCheck")", { "value": value }, function (data) {
+                var model = APIResult.getModel(data);
+                if (APIResult.isok(model)) { location = location; }
+                else { alert(model.retmsg); }
+            });
+            return false;
+        }
+        return true;
+    }
+
+</script>

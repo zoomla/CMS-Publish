@@ -1,0 +1,59 @@
+﻿@using System.Web
+@using System.Data
+@using ZoomLa.BLL.SYS
+@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+@{
+    DataTable cateDT = ViewBag.cateDT;
+}
+<div v-show="step==0">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow table-responsive-md">
+            <table class="table table-striped table-bordered sys_table">
+                <tr><td class="spacingtitle text-center" colspan="2">第一步：基本信息</td></tr>
+                <tr>
+                    <th style="width:150px;">标签名称</th>
+                    <td class="text-left">
+                        <input type="text" ID="LabelName_T" name="LabelName_T" class="form-control max20rem required" value="@Model.labelMod.LabelName" onblur="checkLabelName()" autocomplete="off"/>
+                        <div style="color:red;display:none;" id="LabelName_Tip"><i class="zi zi_lightbulb"></i>标签名已存在,建议更换标签名称</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>标签分类</th>
+                    <td class="text-left">
+                        <div class="input-group mb-3">
+                            <input type="text" ID="LabelCate_T" name="LabelCate_T" class="form-control max20rem required" value="@Model.labelMod.LabelCate"/>
+                            <div class="input-group-append">
+                                @Html.DropDownList("LabelCate_DP", MVCHelper.ToSelectList(cateDT, "name", "name", Model.labelMod.LabelCate), new { @class = "form-control max20rem", onchange = "changecate(this);" })
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="labelhtml_no">
+                    <th>标签类型</th>
+                    <td>
+                        @MVCHelper.H_Radios("LabelType_Rad", "动态标签|分页标签|数据源标签".Split('|'), "2|4|3".Split('|'), Model.labelMod.LabelType.ToString())
+                    </td>
+                </tr>
+                <tr>
+                    <th>标签说明</th>
+                    <td><textarea type="text" id="Desc_T" name="Desc_T" class="form-control max20rem" rows="5">@Model.labelMod.Desc</textarea></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="text-center">
+                        @Html.DropDownList("Step_DP", MVCHelper.ToSelectList(Model.stepDT, "name", "id", "0"), new { @class = "form-control w12rem_lg labelhtml_no", onchange = "app.changeStep(this.value);" })
+                        @Html.Partial("LabelSql_Btns")
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="labelhtml_no">
+        <strong>辅助说明:</strong>本操作用于定义标签基本信息,标签建好后可以在前台任意位置调用输出动态数据：
+        <ul class="disc">
+            <li>动态标签可以在任何页面引用,分页列表支持分页显示,数据源标签可节省查询效率,需要在模板中引用数据输出。</li>
+            <li>动态标签的调用格式为<code>{ZL.Label id=&quot;标签名&quot; NodeID=&quot;0&quot; /}</code>，其中 NodeID="0" 为变量参数，可于第二步编辑中定义或增减变量。</li>
+            <li>标签支持在任意动态页面输出，如<code>@@Call.Label(Context,"{ZL.Label id=\"标签名称\" NodeID=\"91\" /}")</code>方法则能在非模板引擎页输出动态标签。</li>
+            <li>系统采用智能多库算法，数据库名请不要采用数字开头并夹带小数点等特殊符号，如[2009data.1]格式则是非法数据库名格式，不符合数据库联查标准。</li>
+        </ul>
+    </div>
+</div>

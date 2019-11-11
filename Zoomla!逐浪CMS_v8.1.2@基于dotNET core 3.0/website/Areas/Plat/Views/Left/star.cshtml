@@ -1,0 +1,29 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model System.Data.DataTable
+@functions{
+    public string GetContent(DataRow dr)
+    {
+        string msg = StringHelper.StripHtml(DataConverter.CStr(dr["MsgContent"]));
+        return StringHelper.SubStr(msg, 28);
+    }
+}
+@if (Model.Rows.Count > 0)
+{
+    <ul class="listul">
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <li data-id="@dr["ID"]" title="点击浏览详情" onclick="leftnav.showmsg('@dr["ID"]');">
+                <div>@GetContent(dr)</div>
+                <div class="r_gray margin_t5">[@dr["CUName"]] <i class="zi zi_calendar"></i> @dr["CDate"]</div>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <div class="r_gray" id="empty_div">
+        你没有收藏任何信息
+    </div>
+}
+

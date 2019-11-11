@@ -1,0 +1,114 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.SQLDAL
+
+@{
+    int ValidateCount = ViewBag.ValidateCount;
+    @if (SiteConfig.SiteOption.RegManager == 1)
+    {
+        if (DataConvert.CLng(Context.Request.GetParam("hasAccount")) == 0) { Context.Response.Redirect(Call.PA("Index/AccountForm")); }
+    }
+}
+@section head{<title>@L.管理登录</title>}
+@section content{
+ <div class="container">
+     <div class="sys_loginBox">
+         <div class="text-center mb-4">
+             <img class="sys_loginLogo" src="@Call.LogoUrl" alt="@(Call.SiteName)">
+         </div>
+         <div class="form-label-group">
+             <i class="zi zi_user"></i>
+             <input type="text" ID="AdminN_T" TabIndex="1" data-enter="1" size="20" class="form-control" autocomplete="off" placeholder="@L.帐户" autofocus="autofocus" />
+         </div>
+         <div class="form-label-group">
+             <i class="zi zi_lock"></i>
+             <input type="password" ID="AdminP_T" class="form-control" TabIndex="2" data-enter="2" maxlength="18" AllowEmpty="false" autocomplete="off" placeholder="@L.密码" required autofocus />
+         </div>
+         @if (ValidateCount >= 3)
+         {
+             <div class="form-label-group" id="CodeLi">
+                 <i class="zi zi_key" zico="钥匙"></i>
+                 <input type="text" id="VCode" TabIndex="3" data-enter="4" class="form-control" maxlength="@(SiteConfig.SiteOption.VerifyLen)" autocomplete="off" placeholder="@L.验证码" />
+                 <img id="VCode_img" title="@L.点击刷新验证码" class="VCode_img" style="" />
+             </div>
+             <input type="hidden" id="VCode_hid" name="VCode_hid" />
+             <script src="/js/ZL_ValidateCode.js?v=106"></script>
+             <script>$(function () { $("#VCode").ValidateCode(); })</script>
+         }
+         <input type="button" id="IbtnEnter" data-enter="5" class="btn btn-info btn-block" value="@L.登录" onclick="return ajaxlogin();" />
+         @if (SiteConfig.SiteOption.RegManager==1)
+         {
+             <a href="@(Call.PA("Index/AccountForm"))" class="btn btn-outline-info btn-block">@L.申请测试帐号</a>
+         }
+         <div class="sys_loginLink">
+             <a href="/" target="_blank" title="@L.首页"><i class="zi zi_home"></i></a>
+             <a href="/Help.html" target="_blank" title="@L.帮助"><i class="zi zi_globe"></i></a>
+             <a href="//help.z01.com/Database/" target="_blank" title="@L.数据字典"><i class="zi zi_book"></i></a>
+         </div>
+     </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="sys_login_wave_box">
+        <div class="sys_login_wave_embed"></div>
+    </div>
+ }
+@section script{ 
+<style type="text/css">
+.popover{width:300px; text-align:center;}
+.sys_login_wave_box { background: url(/images/Admin/sys_login_bg.png) repeat-x 0 0 ;}
+html, body { height: 100%; }
+</style>
+<script src="~/js/jquery.easing.js"></script>
+<script src="~/js/Controls/Control.js"></script>
+<script src="~/js/Plugs/jsencrypt.js?v=1"></script>
+<script>
+$(function () {
+	if (self != top) { top.location = self.location; }
+    Control.EnableEnter();
+    $("body").addClass("sys_login");
+    //    //code.z01.com/web/Images/9.jpg
+    $("body").attr("style", style = "background:url(@(Call.GetRandomImg()));background-position: center; background-repeat:no-repeat;background-size:cover;")
+   
+})
+var loginflag = false;
+function ajaxlogin() {
+	if (!loginflag) {
+		$("#IbtnEnter").attr('disabled', 'disabled');
+		$("#IbtnEnter").val('@Html.Raw(L.登录中)..');
+		var param = {
+			action: 'login', user: $("#AdminN_T").val(),
+			pwd: RSAEncrypt.encrypt($("#AdminP_T").val()),
+			VCode_hid: $("#VCode_hid").val(),
+			vcode: $("#VCode").val(),
+			zncode: $("#ZnCode_T").val(),
+			admincode: $("#AdminCode_T").val()
+		};
+		function success(data) {
+			$("#IbtnEnter").removeAttr('disabled');
+			if (data != "True") {
+				$("#IbtnEnter").val('@Html.Raw(L.登录)');
+				$("#IbtnEnter").popover({
+					animation: true,
+					placement: 'bottom',
+                    content: '<span style="color:red;"><i class="zi zi_exclamationCircle"></i> ' + data + '!</span> <span style="color:#999">(@Html.Raw(L.双击隐藏))</span>',
+					html: true,
+					trigger: 'manual',
+					delay: { show: 10000, hide: 100 }
+				});
+				$("#IbtnEnter").popover('show');
+				$(".popover").dblclick(function () {
+				    $("#IbtnEnter").popover('dispose');
+					event.preventDefault();
+                });
+				//setTimeout(function () { $("#IbtnEnter").popover('destroy'); }, 2000);
+			} else {
+				loginflag = true;
+				location ="@Call.PathAdmin("Default?startUrl="+Context.Request.GetParam("ReturnUrl"))";
+			}
+		}
+		$.post("@Call.PathAdmin("Index/login_ajax")", param, success);
+	}
+}
+</script>
+
+}

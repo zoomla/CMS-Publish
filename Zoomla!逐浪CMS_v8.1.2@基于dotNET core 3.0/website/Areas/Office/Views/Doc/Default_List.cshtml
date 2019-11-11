@@ -1,0 +1,90 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetType(string type)
+    {
+        string result = "公文";
+        if (type.Equals("1"))
+        {
+            result = "事务";
+        }
+        return result;
+    }
+    public string GetSecret(string Secret)
+    {
+        //return OAConfig.StrToDic(OAConfig.Secret)[Secret];
+        return "";
+    }
+    public string GetImport(string importance)
+    {
+        //return OAConfig.StrToDic(OAConfig.Importance)[importance];
+        return "";
+    }
+    public string GetUrgency(string Urgency)
+    {
+        //return OAConfig.StrToDic(OAConfig.Urgency)[Urgency];
+        return "";
+    }
+    public IHtmlContent GetStatus(string Status)
+    {
+        string flag = "";
+        switch (Status)
+        {
+            case "-1":
+                flag = "<span style='color:red;'>不同意</span>";
+                break;
+            case "2":
+                flag = "<span style='color:green;'>进行中</span>";
+                break;
+            case "98":
+                flag = "<span style='color:blue;'>进行中</span>";
+                break;
+            case "99":
+                flag = "<span style='color:blue;'>已完成</span>";
+                break;
+            case "0":
+                flag = "<span style='color:green;'>进行中</span>";
+                break;
+            default:
+                flag = "<span style='color:blue;'>进行中</span>";
+                break;
+        }
+        return MvcHtmlString.Create(flag);
+    }
+
+}
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>发文类型</td>
+            <td>拟稿部门</td>
+            <td>标题</td>
+            <td>密级</td>
+            <td>紧急程度</td>
+            <td>重要程度</td>
+            <td>状态</td>
+            <td>创建时间</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+    <tr>
+        <td>@dr["ID"]</td>
+        <td>@GetType(DataConvert.CStr(dr["DocType"]))</td>
+        <td>@dr["Branch"]</td>
+        <td>@dr["Title"]</td>
+        <td>@GetSecret(DataConvert.CStr(dr["Secret"])) </td>
+        <td>@GetUrgency(DataConvert.CStr(dr["Urgency"])) </td>
+        <td>@GetImport(DataConvert.CStr(dr["Importance"]))</td>
+        <td>@GetStatus(DataConvert.CStr(dr["Status"])) </td>
+        <td>@dr["CreateTime"]</td>
+        <td>
+            <a ID="view" href="ReadOffice?APPID=@dr["ID"]">查看审批详情</a>
+            <a href="Drafting?APPID=@dr["ID"]">修改</a>
+            <a ID="del" href="mvcpage.del({url:'Default_API?action=del',ids:'@dr["ID"]',confirm:'确定要删除吗'})">删除</a>
+        </td>
+    </tr>
+    }
+    @Html.Partial("_page")
+</table>

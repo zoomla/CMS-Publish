@@ -1,0 +1,50 @@
+﻿@model System.Data.DataTable
+@section head{<title>用户权限</title> }
+@section content{ 
+<div class="container platcontainer pb-1">
+    
+    <div class="child_head"> <span class="child_head_span1" style="margin-bottom:-3px;"></span> <span class="child_head_span2">角色管理</span><a href="AddUserRole" style="float:right;"><i class="zi zi_plus" zico="加号黑"></i>添加角色</a></div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td></td>
+                <td>ID</td>
+                <td>角色名称</td>
+                <td>创建时间</td>
+                <td>备注</td>
+                <td>操作</td>
+            </tr>
+        </thead>
+        @foreach (DataRow dr in Model.Rows)
+        {
+        <tr>
+            <td><input type="checkbox" name="idChk" title="选择" value='@dr["ID"]' /></td>
+            <td>@dr["ID"]</td>
+            <td><a href="RoleAuth?ID=@dr["ID"]" target="_blank">@dr["RoleName"]</a></td>
+            <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["CreateTime"])</td>
+            <td>@dr["RoleDesc"]</td>
+            <td>
+                <a href="AddUserRole?ID=@dr["ID"]"><span class="zi zi_pencilalt" style="color:#7D98A1;"></span></a>
+                <a href="javascript:;" onclick="mvcpage.del({url:'UserRole_API?action=del',ids:'@dr["ID"]',confirm:'确定要删除吗',after:function(){location=location;}});"><i class="zi zi_trash"></i></a>
+            </td>
+        </tr>
+        }
+    </table>
+  @*<asp:Button runat="server" Text="批量删除" OnClientClick="return confirm('你确定要删除选中项吗!');" ToolTip="批量删除" CssClass="btn btn-outline-danger" ID="BatDel_Btn" OnClick="BatDel_Btn_Click"/>*@
+</div>
+}
+@section script{ 
+<style>
+#EGV { margin-top: 10px; }
+</style>
+<script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#top_nav_ul li[title='管理']").addClass("active");
+        $("#EGV tr>th:eq(0)").html("<input type=checkbox id='chkAll'/>");
+        $("#chkAll").click(function () {
+            selectAllByName(this, "idChk");
+        });
+    });
+</script>
+}

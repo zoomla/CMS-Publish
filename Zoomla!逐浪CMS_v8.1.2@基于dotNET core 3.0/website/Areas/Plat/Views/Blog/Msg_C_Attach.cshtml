@@ -1,0 +1,33 @@
+﻿@model C_Model
+@using ZoomLa.Safe
+@functions{
+
+
+    string attachTlp = "<div class='imgview' onclick='PreView(\"{0}\");'><div class='ext {1}'></div><div class='fname'>{2}</div></div>";
+    string imgTlp = "<img src='{1}' class='thumbnail_img'/>";
+    public string GetAttach(string attach)
+    {
+        if (string.IsNullOrEmpty(attach)) { return ""; }
+        string imgresult = "", attachresult = "";
+        int max = 3;
+        foreach (string file in attach.Split('|'))
+        {
+            if (string.IsNullOrEmpty(file)) continue;
+            if (SafeC.IsImage(file) && max > 0)//jpg,png,gif图片显示预览,只显示前三张
+            {
+                imgresult += string.Format(imgTlp, Model.id, file); max--;
+            }
+            else
+            {
+                string fname = System.IO.Path.GetFileName(file); fname = fname.Length > 6 ? fname.Substring(0, 6) + ".." : fname;
+                attachresult += string.Format(attachTlp, file, System.IO.Path.GetExtension(file).ToLower().Replace(".", ""), fname);
+            }
+        }
+        imgresult = string.IsNullOrEmpty(imgresult) ? "" : "<div class='thumbnail_div'>" + imgresult + "</div>";
+        return imgresult + attachresult + "<div class='clearfix'></div>";
+    }
+}
+@{ 
+
+}
+@GetAttach(Model.value)

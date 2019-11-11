@@ -1,0 +1,14 @@
+﻿@using System.Data
+@model System.Data.DataTable
+@{ 
+}
+<ul class="listul">
+    @for (int i = 0; i < Model.Rows.Count; i++)
+    {
+        DataRow dr = Model.Rows[i];
+        <li onclick="window.open('@dr["fileUrl"]');">
+            <div class="icon bk@(i%10)" style="color: #fff;padding-top:4px;text-decoration:none;"><i class="@dr["ico"] zi_2x"></i></div>
+            <span class="icon_txt">@dr["name"]</span>
+        </li>
+    }
+</ul>

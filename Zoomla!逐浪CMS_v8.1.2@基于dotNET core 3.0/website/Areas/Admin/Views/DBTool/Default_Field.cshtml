@@ -1,0 +1,42 @@
+﻿@model System.Data.DataTable
+@functions{
+    public IHtmlContent IsPK(DataRow dr)
+    {
+        string html = string.IsNullOrEmpty(DataConverter.CStr(dr["主键"])) ? "" : "<i class='zi zi_key' style='color:#c2a710;' title='主键'></i>";
+        return MvcHtmlString.Create(html);
+    }
+
+}
+@{ 
+
+}
+<table class="table table-bordered table-striped">
+    <tr>
+        <td class="td_s">序号</td>
+        <td>字段名</td>
+        <td>类型</td>
+        <td>长度</td>
+        <td>允许空</td>
+        <td>默认值</td>
+        <td>操作</td>
+    </tr>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <tr>
+            <td>@dr["字段序号"]</td>
+            <td>
+                @dr["字段名"]
+                @IsPK(dr)
+            </td>
+            <td>
+                <input type="text" value="@dr["类型"]" data-init="@dr["类型"]" class="form-control text_md" id="field_type_@dr["字段名"]"/>
+            </td>
+            <td><input type="text" value="@dr["长度"]" data-init="@dr["长度"]" class="form-control text_s" id="field_len_@dr["字段名"]"/></td>
+            <td>@dr["允许空"]</td>
+            <td>@dr["默认值"]</td>
+            <td>
+                <button type="button" class="btn btn-info" onclick="dbtool.field.update('@dr["字段名"]');">更新</button>
+            </td>
+        </tr>
+    }
+</table>

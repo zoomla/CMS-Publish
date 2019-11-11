@@ -1,0 +1,21 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered table-striped" id="EGV">
+<thead><tr>
+    <td class="td_m">@L.流水号</td>
+    <td>@L.用户名</td>
+    <td>@L.金额</td>
+    <td>@L.操作时间</td>
+    <td>@L.详细</td>
+    </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td>@dr["ExpHisID"]</td>
+            <td class="td_m"><a href="javascript:;" onclick="user.showuinfo('@dr["UserID"]');">@dr["UserName"]</a></td>
+            <td class="td_m">@DataConverter.CDouble(dr["Score"]).ToString("F2")</td>
+            <td class="td_l">@dr["HisTime"]</td>
+            <td>@dr["Detail"]</td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

@@ -1,0 +1,68 @@
+﻿@using ZoomLa.BLL.Helper
+@using ZoomLa.SQLDAL
+@using ZoomLa.BLL.Client
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    public string ShowName(string ids,string type)
+    {
+        if (string.IsNullOrEmpty(ids)) { return ""; }
+        SafeSC.CheckIDSEx(ids);
+        string result = "";
+        switch (type)
+        {
+            case "crm":
+                {
+                    DataTable dt = attrBll.Sel("ctype");
+                    dt.DefaultView.RowFilter = "id IN(" + ids + ")";
+                    result = StrHelper.GetIDSFromDT(dt, "value");
+                }
+                break;
+            case "group":
+                {
+                    DataTable dt = DBCenter.SelWithField("ZL_Group","GroupName","GroupID IN("+ids+")");
+                    result = StrHelper.GetIDSFromDT(dt,"GroupName");
+                }
+                break;
+            case "user":
+                {
+                    DataTable dt = DBCenter.SelWithField("ZL_User", "UserName", "UserID IN(" + ids + ")");
+                    result = StrHelper.GetIDSFromDT(dt, "UserName");
+                }
+                break;
+            default:
+                {
+                    result = ids;
+                }
+                break;
+        }
+        return StringHelper.SubStr(result);
+    }
+
+}
+<table class="table table-bordered">
+    <thead><tr>
+        <th></th>
+        <th>ID</th>
+        <th>@L.内容</th>
+        <th>CRM @L.客户类别</th>
+        <th>@L.用户组</th>
+        <th>@L.手机号</th>
+        <th>@L.用户</th>
+        <th>@L.创建时间</th>
+        </tr></thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value="<%#Eval("ID") %>" /></td>
+        <td>@dr["ID"]</td>
+        <td>@dr["MsgContent"]</td>
+        <td>@dr["Rece_CRM"]</td>
+        <td>@ShowName(DataConvert.CStr(dr["Rece_Group"]),"group")</td>
+        <td>@dr["Rece_Mobile"]</td>
+        <td>@ShowName(DataConvert.CStr(dr["Rece_User"]),"user")</td>
+        <td>@dr["CDate"]</td>
+    </tr>
+}
+@Html.Partial("_page")
+</table>

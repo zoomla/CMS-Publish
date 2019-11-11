@@ -1,0 +1,40 @@
+﻿@using System.Data
+@using System.Data.SqlClient
+@using ZoomLa.SQLDAL
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Model.cols = 10;
+    Model.url = "MyAnswerlist";
+}
+@functions {
+
+}
+<div id="EGV">
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <div class="item">
+            <div class="like">
+                <div>0</div>
+                <div><i class="zi zi_dianzan"></i></div>
+            </div>
+            <div class="body">
+                <div class="askTitle"><a href="AskDetail?ID=@dr["QueID"]">@dr["QTitle"]</a></div>
+                <div class="ansText">@StringHelper.StripHtml(DataConvert.CStr(dr["Content"])).</div>
+                <div class="ansDate"><i class="zi zi_clock"></i> @dr["AddTime"]</div>
+            </div>
+        </div>
+    }
+    <div class="text-center" style="margin-top:5px;">
+        @Html.Partial("_page2", Model)
+</div>
+</div>
+<style type="text/css">
+    .item{border-bottom:1px dashed #ddd;padding-top:5px;padding-bottom:5px;display:flex;}
+    .item .like{border:1px solid #ddd;text-align:center;width:50px;height:50px;}
+    .item .body{margin-left:0.5rem;width:100%;}
+    .item .askTitle{font-size:1.2rem;width:100%;text-overflow:ellipsis;word-break:normal;}
+    .item .ansText{color:#999;}
+    .item .ansDate{text-align:right;font-size:0.9rem;color:#999;}
+    .pagination {display:inline-block;}
+</style>

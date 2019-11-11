@@ -1,0 +1,34 @@
+﻿@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Components
+@using ZoomLa.BLL.Content
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@functions{
+
+}
+@{
+    string value = Model.GetValue();
+    if (string.IsNullOrEmpty(value)) { value = "#ffffff"; }
+    string Name = Model.fieldMod.FieldName;
+    FieldModel model = new FieldModel(Model.fieldMod.Content);
+}
+@if (!Model.ResDic.ContainsKey(Model.fieldMod.FieldType))
+{
+    Model.ResDic.Add(Model.fieldMod.FieldType, 1);
+    <link href="~/js/Plugs/color/bootstrap.colorpickersliders.min.css" rel="stylesheet" />
+    <script src="~/js/Plugs/color/tinycolor-min.js"></script>
+    <script src="~/js/Plugs/color/bootstrap.colorpickersliders.min.js"></script>
+
+}
+
+<input type="text" class="form-control color_text" id="txt_@Name" name="txt_@Name" value="@value">
+<script>
+    $(function () {
+        $("#txt_@Name").ColorPickerSliders({
+            hsvpanel: true,sliders: true,placement: 'auto',color: $(this).val(),previewformat: "rgb",
+            onchange: function (container, color) {}
+        });
+    })
+</script>

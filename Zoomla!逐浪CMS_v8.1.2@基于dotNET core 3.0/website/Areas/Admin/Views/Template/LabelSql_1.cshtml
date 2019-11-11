@@ -1,0 +1,143 @@
+﻿@using System.Web
+@using System.Data
+@using ZoomLa.BLL.SYS
+@using ZoomLa.BLL.Content
+@using ZoomLa.SQLDAL.SQL
+@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+@{
+    B_DataSource dsBll = new B_DataSource();
+    DataTable dsList = dsBll.Sel();
+}
+<div v-show="step==1">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow table-responsive-md">
+            <table class="table table-striped table-bordered sys_table">
+                <tr>
+                    <td class="spacingtitle text-center" colspan="2">第二步：数据查询</td>
+                </tr>
+                <tr>
+                    <td style="padding:0px;">
+                        <table class="table">
+                            <tr>
+                                <th class="w12rem_lg">请选择数据库</th>
+                                <td class="w12rem_lg">
+                                    <select id="DBList_DP" name="DBList_DP" class="form-control max20rem" @@change="updateTable('main');" v-model="model.DataSourceType.ds_m">
+                                        <option value="main">系统主数据库</option>
+                                        @foreach (DataRow dr in dsList.Rows)
+                                        {
+                                            <option value="@dr["ID"]">[外]@(dr["DSName"])</option>
+                                        }
+                                        @*<option value="new">+添加新数据库</option>*@
+                                    </select>
+                                </td>
+                                <th class="w12rem_lg">请选择数据库</th>
+                                <td>
+                                    <select ID="DBList2_DP" name="DBList2_DP" class="form-control max20rem " @@change="updateTable('second');" v-model="model.DataSourceType.ds_s">
+                                        <option value="main">系统主数据库</option>
+                                        @foreach (DataRow dr in dsList.Rows)
+                                        {
+                                            <option value="@dr["ID"]">[外]@(dr["DSName"])</option>
+                                        }
+                                        @*<option value="new">+添加新数据库</option>*@
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>主表</th>
+                                <td>
+                                    <select ID="TableList_DP" name="TableList_DP" class="form-control max20rem" @@change="updateField" v-model="model.DataSourceType.tb_m">
+                                        <option value="">选择一个数据表</option>
+                                        <option v-for="item in tables1" :value="item.name">{{ item.name }}</option>
+                                        @*@foreach (DataRow dr in tableDT.Rows)
+                                        {
+                                            <option value="@dr["name"]">@dr["name"]</option>
+                                        }*@
+                                    </select>
+
+                                </td>
+                                <th class="w12rem_lg">从表</th>
+                                <td class="m50rem_50">
+                                    <select ID="TableList2_DP" name="TableList2_DP" class="form-control max20rem" @@change="updateField('second')" v-model="model.DataSourceType.tb_s">
+                                        <option value="">选择一个数据表</option>
+                                        <option v-for="item in tables2" :value="item.name">{{ item.name }}</option>
+                                        @*@foreach (DataRow dr in table2DT.Rows)
+                                        {
+                                            <option value="@dr["name"]">@dr["name"]</option>
+                                        }*@
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>输出字段</th>
+                                <td>
+                                    <select ID="FieldList_DP" name="FieldList_DP" multiple="multiple" class="form-control max20rem h14rem ">
+                                        <option v-for="item in fields1" :value="item.Name">{{ item.Name }}</option>
+                                    </select>
+                                </td>
+                                <th class="text-right">输出字段</th>
+                                <td>
+                                    <select ID="FieldList2_DP" name="FieldList2_DP" multiple="multiple" class="form-control max20rem h14rem">
+                                        <option v-for="item in fields2" :value="item.Name">{{ item.Name }}</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr v-if="fields2.length>0">
+                    <td>
+                        <div class="opname">约束字段：</div>
+                        <div class="input-group m50rem_50" style="margin-left:110px;">
+                            <select ID="SqlJoin_DP" name="SqlJoin_DP" class="form-control text_md" v-model="sqlJoin" @@change="updateTableSql">
+                                <option v-for="item in joins" :value="item.value">{{ item.name }}</option>
+                            </select>
+                            <select id="OnField_DP" name="OnField_DP" class="form-control w12rem_lg" @@change="updateTableSql" v-model="onField1">
+                                <option v-for="item in fields1" :value="item.Name">{{ item.Name }}</option>
+                            </select>
+                            <span class="input-group-prepend"><span class="input-group-text">=</span></span>
+                            <select id="OnField2_DP" name="OnField2_DP" class="form-control w12rem_lg" @@change="updateTableSql" v-model="onField2">
+                                <option v-for="item in fields2" :value="item.Name">{{ item.Name }}</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="opname">查询表：</span>
+                        <div style="margin-left: 110px;">
+                            <textarea ID="SqlTable_T" name="SqlTable_T" class="form-control m50rem_50 required" Rows="5">@Model.labelMod.LabelTable</textarea>
+                            <div class="text-muted"><small>从选择数据中选择主表，若选择了从表，请在约束字段中设定表连接条</small></div>
+                        </div>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        <span class="opname">查询字段：</span>
+                        <div style="margin-left: 110px;">
+                            <div>
+                                <textarea ID="SqlField_T" name="SqlField_T" class="form-control m50rem_50" rows="5">@Model.labelMod.LabelField</textarea>
+                            </div>
+                            <input type="button" ID="SqlField_Btn" class="btn btn-info btn-sm" value="查询字段" style="margin-top:5px;" v-on:click="updateFieldSql();" />
+                            <small>从输出字段中选择查询的字段，未选字段点击为全选操作</small>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        @Html.DropDownList("Step_DP", MVCHelper.ToSelectList(Model.stepDT, "name", "id", "1"), new { @class = "form-control w12rem_lg", @style = "display:inline-block;", onchange = "app.changeStep(this.value);" })
+                        @Html.Partial("LabelSql_Btns")
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div>
+        <strong>辅助说明:</strong>数据库一般查询主数据库[仅高级版本支持从数据库]：
+        <ul class="disc">
+            <li>多表查询应采用ID关联,比如文章模型则采用ZL_CommonModel left join ZL_C_Article on ZL_CommonModel.ItemID=ZL_C_Article.ID方法关联查询。</li>
+            <li>为保持查询效率，每次查询请撷取所需字段，从而提升效率。</li>
+            <li>建立标签时应注意多表间的逻辑，点此<a href="javascript:void(0);" onclick="">下载数据字典</a>以提升开发效率。</li>
+        </ul>
+    </div>
+</div>

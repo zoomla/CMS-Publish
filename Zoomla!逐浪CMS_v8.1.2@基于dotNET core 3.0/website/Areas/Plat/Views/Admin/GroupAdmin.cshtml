@@ -1,0 +1,81 @@
+﻿@model System.Data.DataTable
+@functions{
+    B_User buser = new B_User();
+
+    public IHtmlContent ShowName(DataRow dr)
+    {
+        int depath = DataConverter.CLng(dr["depth"]);
+        int id = Convert.ToInt32(dr["ID"]);
+        string name = DataConverter.CStr(dr["GroupName"]);
+        string result = "";
+        for (int i = 0; i <= depath; i++)
+        {
+            result += "<img src='/Images/TreeLineImages/tree_line4.gif' border='0' width='19' height='20' title='' />";
+        }
+        result += "<img src='/Images/TreeLineImages/t.gif' border='0' />";
+        result = result + "<a href='AddGroup?ID=" + id + "'><i class='zi zi_folderOpen'></i> " + name + "</a>";
+        return MvcHtmlString.Create(result);
+    }
+    //获取管理员昵称
+    protected string GetManageName(string ids)
+    {
+        string result = "";
+        DataTable dt = buser.SelectUserByIds(ids);
+        if (dt == null) { return ""; }
+        foreach (DataRow row in dt.Rows)
+        {
+            result += row["HoneyName"].ToString() + ",";
+        }
+        return result.Trim(',');
+    }
+
+}
+@section head{ <title>部门管理</title>}
+@section content{ 
+<div class="container platcontainer">
+  <div class="child_head d-flex"><span class="child_head_span1"></span> <span class="child_head_span2 ml-1">部门列表</span> <a href="AddGroup" class="child_head_a ml-auto">+创建新部门</a> </div>
+  <div class="table-responsive-md">
+<table class="table table-bordered table-striped sys_table">
+    <tr><th class="td_s">ID</th><th>名称</th><th>成员数</th><th>管理员</th><th>操作</th></tr>
+    @*<tr><td></td><td><i class="zi zi_folderOpen"></i><asp:Label runat="server" ID="CompName_L"></asp:Label></td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="AddGroup" class="option_style"><i class="zi zi_plus"></i>添加</a>
+            <a href="javascript:;" onclick="showsort('0');"><i class="zi zi_sortamountdown"></i>排序</a>
+        </td>
+    </tr>*@
+            @foreach (DataRow dr in Model.Rows)
+            {
+                <tr id="tr_@dr["id"]" ondblclick="location.href='AddGroup?ID=@dr["ID"]'">
+                <td>@dr["ID"]</td>
+                <td>@ShowName(dr)</td>
+                <td>@(DataConverter.CStr(dr["MemberIDS"]).Split(new char[]{','},StringSplitOptions.RemoveEmptyEntries).Length)</td>
+                <td>@GetManageName(DataConverter.CStr(dr["ManageIDS"]))</td>
+                <td>
+                    <a href="AddGroup?ID=@dr["ID"]" class="option_style"><i class="zi zi_pencilalt"></i>修改</a>
+                    <a href="AddGroup?Pid=@dr["ID"]" class="option_style"><i class="zi zi_plus"></i>添加</a>
+                    <a href="javascript:;" onclick="showsort('@dr["ID"]');"><i class="zi zi_sortamountdown"></i>排序</a>
+                    <a href="javascript:;" class="option_style" onclick="del('@dr["id"]');"><i class="zi zi_trashalt"></i>删除</a>
+                </td>
+            </tr>
+            }
+            
+</table>
+</div>
+</div>
+}
+@section script{ 
+<script>
+    function del(id) {
+        if (!confirm("确定要移除该部门吗")) { return false; }
+        $("#tr_" + id).remove();
+        $.post("GroupAdmin_API?action=del", { "id": id }, function (data) {
+            console.log(data);
+        });
+    }
+    function showsort() {
+        ShowComDiag("GroupSort","部门排序");
+    }
+</script>
+}

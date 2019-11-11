@@ -1,0 +1,34 @@
+﻿@model ZoomLa.Model.M_GuestBook
+@{
+    B_User buser = new B_User();
+    M_UserInfo mu = buser.SelReturnModel(Model.UserID);
+    M_GuestBookCate cateMod = new B_GuestBookCate().SelReturnModel(Model.CateID);
+}
+@section head{    <title>留言内容</title>
+    <script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script> }
+@section content{
+@Call.SetBread(new Bread[] {
+            new Bread("{admin}"),
+            new Bread("CateList","留言分类"),
+            new Bread("MsgList?CateID="+Model.CateID,cateMod.CateName),
+            new Bread() {url=Context.Request.RawUrl(), text="留言内容 ",addon="" }})
+<div class="list_choice">
+<form method="post" action="@MVCHelper.GetAction("MsgShow_Submit",Context.Request)">
+<table class="table table-bordered table-striped">
+<tr><td>ID</td><td>@Model.GID</td></tr>
+<tr><td>留言人</td><td><a href="javascript:;" onclick="user.showuinfo('@mu.UserID');">@mu.UserName</a></td></tr>
+<tr><td>标题</td><td>@Html.TextBoxFor(m=>m.Title,new {@class="form-control max20rem" })</td></tr>
+<tr><td>内容</td><td>@Html.TextAreaFor(m=>m.TContent,new {style="width:1024px;height:300px;" })
+    @MvcHtmlString.Create(Call.GetUEditor("TContent",3))
+    </td></tr>
+<tr><td>时间</td><td>@Model.GDate.ToString()</td></tr>
+<tr><td></td><td><input type="submit" value="保存信息" class="btn btn-info"/></td></tr>
+</table>
+</form>
+</div>
+}
+@section script{
+
+
+}

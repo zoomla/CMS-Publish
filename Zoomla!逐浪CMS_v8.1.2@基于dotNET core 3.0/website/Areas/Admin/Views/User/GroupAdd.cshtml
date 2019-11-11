@@ -1,0 +1,47 @@
+﻿@model ZoomLa.Model.M_Group
+@{ 
+    DataTable dt = ViewBag.dt;
+    {
+        DataRow dr = dt.NewRow();
+        dr["GroupID"] = 0;
+        dr["GroupName"] = "无父会员组";
+        dt.Rows.Add(dr);
+        //移除当前会员组
+        if (Model.GroupID > 0)
+        {
+            dt.DefaultView.RowFilter = "GroupID NOT IN ("+Model.GroupID+")";
+            dt = dt.DefaultView.ToTable();
+        }
+    }
+}
+@section head{<title>会员组信息</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread() {url="GroupManage", text="会员组",addon= "" },
+		new Bread(Context.Request.RawUrl(),"会员组信息")
+		})
+<form method="post" action="@MVCHelper.GetAction("GroupAdd_Submit",Context.Request)">
+<div class="list_choice">
+<table class="table table-bordered table-striped">
+<tr><td class="td_m">父会员组</td><td>
+     @Html.DropDownListFor(m=>m.ParentGroupID,MVCHelper.ToSelectList(dt,"GroupName","GroupID",Model.ParentGroupID.ToString()),new {@class="form-control text_300" })
+     </td></tr>
+<tr><td>会员组名</td><td>@Html.TextBoxFor(m=>m.GroupName,new{@class="form-control text_300 required"})</td></tr>
+<tr><td>是否注册可选</td><td>@MVCHelper.H_Check("RegSelect",Model.RegSelect,new{@class="switchChk" })</td></tr>
+<tr><td>是否为VIP用户组</td><td>@MVCHelper.H_Check("VIPGroup",(Model.VIPGroup==1),new{@class="switchChk" })</td></tr>
+<tr><td>是否为企业用户组</td><td>@MVCHelper.H_Check("CompanyGroup",(Model.CompanyGroup==1),new{@class="switchChk" })</td></tr>
+<tr><td>会员组说明</td><td>@Html.TextAreaFor(m=>m.Description,new{@class="form-control",rows="3" })</td></tr>
+<tr><td></td><td>
+    <input type="submit" value="保存信息" class="btn btn-info"/>
+    </td></tr>
+</table>
+</div>
+</form>
+ }
+@section script{
+<link href="~/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-switch.js"></script>
+
+
+}

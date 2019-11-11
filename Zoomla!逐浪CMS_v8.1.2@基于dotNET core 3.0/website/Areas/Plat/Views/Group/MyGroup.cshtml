@@ -1,0 +1,33 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>我的部门</title> }
+@section content{ 
+    <ol class="breadcrumb">
+        <li><a title="首页" href="/">首页</a></li>
+        <li><a title="会员中心" href="/Plat/Blog/">能力中心</a></li>
+        <li class="active">部门管理</li>
+    </ol>
+    <div class="child_head">
+        <span class="child_head_span1"></span>
+        <span class="child_head_span2">部门列表</span>
+    </div>
+    <select ID="Group_DP" class="mvcparam" style="margin:10px 0 10px 0">
+        <option value="1">所有部门</option>
+        <option value="2">我加入的</option>
+        <option value="3">我创建的</option>
+        <option value="4">我管理的</option>
+    </select>
+    <div>
+        @Html.Partial("MyGroup_List")
+    </div>
+}
+@section script{ 
+<style type="text/css">
+    .child_head {margin-top:20px;border-bottom:1px solid #7fB2E5;padding-bottom:5px;}
+    .child_head_span1 {display:inline-block;background-color:#0066cc;width:3px;height:20px;margin-left:5px;}
+    .child_head_span2 {font-size:18px;}
+    .child_head_a {float:right;}
+</style>
+<script type="text/javascript">
+    $("#top_nav_ul li[title='公司']").addClass("active");
+</script>
+}

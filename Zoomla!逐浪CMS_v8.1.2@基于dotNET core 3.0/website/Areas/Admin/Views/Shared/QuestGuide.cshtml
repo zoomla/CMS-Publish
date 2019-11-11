@@ -1,0 +1,32 @@
+﻿@using ZoomLa.BLL.Content
+@using ZoomLaCMS.Resources;
+@functions{
+    
+
+}
+@{
+    B_Exam_Class examBll = new B_Exam_Class();
+    string url = Call.PA("Exam/QuestList?NodeID={0}");
+    string hasChild = "<a href='javascript:;' onclick=\"ShowMain('','" + url + "');\" id='a{0}' class='list1'><span class='list_span'>{1}</span><i class='zi zi_forDown' title='浏览父节点'></i></a>";
+    string noChild = "<a href='javascript:;'  onclick=\"ShowMain('','" + url + "');NodeTree.activeSelf(this);\" style='padding-left:0.5em;'>{1}</a>";
+    DataTable dt = examBll.Select_All();
+    dt.Columns["C_ID"].ColumnName = "ID";
+    dt.Columns["C_ClassName"].ColumnName = "Name";
+    dt.Columns["C_ClassID"].ColumnName = "ParentID";
+
+}
+
+
+<div class="menu_tit pl-2"><i class="zi zi_circleDownLong"></i> @L.试卷管理</div>
+<div id="nodeNav" class="input-group">
+<input type="text" id="keyWord" class="form-control ascx_key" onkeydown="return ASCX.OnEnterSearch('/Admin/exam/papers_system_manage?skey=',this);" placeholder="试卷名称或ID">
+<div class="input-group-append">
+    <button class="input-group-text" type="button" onclick="ASCX.Search('/Admin/exam/papers_system_manage?keyWord=','keyWord');"><i class="zi zi_search"></i></button>
+</div>
+</div>
+<div class="tvNavDiv">
+<div class="NodeTree_left_ul">
+    <ul class='list-unstyled'><li><a class='list1' id='a0' href='javascript:;' onclick="ShowMain('','@(string.Format(url,"0"))')"><span class='list_span'>@L.全部内容</span><span class='zi zi_list'></span></a>@MvcHtmlString.Create(B_Node.GetLI(dt, hasChild, noChild))</li></ul>
+</div>
+
+</div>

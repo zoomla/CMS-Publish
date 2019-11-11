@@ -1,0 +1,63 @@
+﻿@model ZoomLa.Model.MIS.M_OA_Borrow
+@functions{
+
+}
+@section head{ 
+<title>借阅登记</title>
+<link href="/JS/DatePicker/datepicker.css" rel="stylesheet" />
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+}
+@section  content{
+    <ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+        <li><a href="/Office/Index/Main">办公管理</a></li>
+        <li><a href="FiledList">归档公文</a></li>
+        <li class="active">文档借阅</li>
+    </ol>
+    <div style="height: 40px;"></div>
+<form method="post" action="@MVCHelper.GetAction("AddBorrow_Submit",Context.Request)">
+    <table class="table table-bordered">
+        <tr>
+            <td class="td_m">借阅文件：</td>
+            <td>
+                <textarea type="text"  class="form-control m715-50" ID="ids_T" style="height: 60px;">@Model.DocTitles</textarea>
+                <input type="hidden"  ID="ids_Hid" name="ids_Hid" value="@Model.DocIDS" />
+            </td>
+        </tr>
+        <tr>
+            <td>借阅人：</td>
+            <td>
+                <textarea ID="UserIDS_T" name="UserIDS_T" class="form-control m715-50" style="height: 60px;">@Model.UNames</textarea>
+                <input type="hidden" ID="UserIDS_Hid" name="UserIDS_Hid" value="@Model.Uids" />
+                <input type="button" class="btn btn-info" value="选择用户" onclick="ShowUser();" />
+            </td>
+        </tr>
+        <tr>
+            <td>到期时间：</td>
+            <td>
+                <input type="text" ID="EDate_T" name="@Model.EDate.ToString()" class="form-control m715-50" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })"/></td>
+        </tr>
+        <tr>
+            <td>备注：</td>
+            <td><textarea ID="Remind_T" class="form-control m715-50" Style="height: 60px;" >@Model.Remind</textarea></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID="SaveBtn" class="btn btn-primary"  value="保存信息" />
+            </td>
+        </tr>
+    </table>
+</form>
+ }
+@section script{ 
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script>
+    function ShowUser() {
+        ShowComDiag("/Common/Dialog/SelStructure?Type=AllInfo#UserIDS", "选择用户");
+    }
+    function UserFunc(list,select) {
+        user.deal_def(list,select);
+    }
+</script>
+}

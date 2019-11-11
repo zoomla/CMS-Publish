@@ -1,0 +1,108 @@
+﻿@using ZoomLa.Components
+@functions{
+    private string[] WordEx = new string[] { "doc", "docx", "rtf" };
+    private string[] ExcelEx = new string[] { "xls", "xlsx" };
+    private string[] ImgEx = new string[] { "csv", "jpg", "bmp", "png", "gif", "swf" };
+    private string[] VideoEx = new string[] { "mp3", "mp4", "flv" };
+    public string VPathToUrl(string vpath)
+    {
+        string url = SiteConfig.SiteInfo.SiteUrl + vpath;
+        return url;
+    }
+}
+@{
+    Layout = "_empty";
+    string exName = ViewBag.exName;
+    string filePath = ViewBag.filePath;
+    string fileVPath = ViewBag.fileVPath;
+    //用于预览的链接
+    string viewMode = "none";
+    string viewUrl = "";
+    if (WordEx.Contains(exName))//Office类预览
+    {
+        viewMode = "word";
+    }
+    else if (ExcelEx.Contains(exName))
+    {
+        viewMode = "excel";
+    }
+    else if (exName.Equals("png") || exName.Equals("jpg") || exName.Equals("jpeg") || exName.Equals("bmp"))
+    {
+        viewMode = "image";
+        viewUrl = fileVPath;
+    }
+    else if (exName.Equals("pdf"))
+    {
+        viewMode = "pdf";
+        viewUrl = VPathToUrl(fileVPath);
+    }
+    else if (exName.Equals("html") || exName.Equals("htm") || exName.Equals("txt"))
+    {
+        viewMode = "txt";
+    }
+}
+@section head{<title>预览</title> }
+@section content{
+    <div>
+        @if (viewMode == "none")
+        {
+            <div class="alert alert-info">暂不支持<span style='color:#0066cc;'>[@(exName)]</span>格式文件预览</div>
+        }
+        else if (viewMode.Equals("image"))
+        {
+            <div class="text-center">
+                <img src="@viewUrl" />
+            </div>
+        }
+        else if (viewMode == "pdf")
+        {
+           <div id="pdfDiv">
+               <iframe src="/Plugins/PDFView/web/viewer.html?pdf=@(viewUrl)" style="width:100%;border:none;min-height:600px;" id="pdf_ifr"></iframe>
+           </div>
+        <script>$("#pdf_ifr").height($(window).height());</script>
+        }
+        else if (viewMode == "excel"||viewMode=="word")
+        {
+              <div class="alert alert-info"><a href="@fileVPath">点击下载文件至本地</a></div>
+        }
+        else if (viewMode == "html" || viewMode == "txt")
+        {
+            <textarea class="form-control" style="width:100%;min-height:500px;">@SafeSC.ReadFileStr(fileVPath)</textarea>
+        }
+    </div>
+
+}
+@section script{
+
+
+}
+
+@*<style>
+        .precenter{margin:0 auto; display:block;border:1px solid #ccc;}
+    </style>
+    <script src="/JS/jquery.media.js"></script>
+    <script src="/User/Cloud/Jwplayer/jwplayer.js"></script>
+    <script>
+        $(function(){
+            if($(window).height()>600)
+            {
+                $("#pdf_ifr").css("height",$(window).height());
+            }
+        })
+        $('.media').media({
+            width: <%=viewWidth%>,
+            height: <%=viewHeight%>,
+            autoplay: true,
+            //src: 'myBetterMovie.mov',
+            //attrs: { attr1: 'attrValue1', attr2: 'attrValue2' }, // object/embed attrs
+            //params: { param1: 'paramValue1', param2: 'paramValue2' }, // object params/embed attrs
+            //caption: false // supress caption text
+        });
+        function PlayVideo() {
+            jwplayer("mediaplayer").setup({
+                flashplayer: "/User/Cloud/Jwplayer/Player.swf",
+                file: "<%:Request.QueryString["vpath"]%>",
+                        autostart: true
+                    });
+                }
+    </script>*@

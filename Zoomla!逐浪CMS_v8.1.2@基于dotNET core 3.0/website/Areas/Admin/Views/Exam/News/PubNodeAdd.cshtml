@@ -1,0 +1,29 @@
+﻿@using ZoomLa.BLL.Exam
+@model ZoomLa.Model.Exam.M_Publish_Node
+@{ 
+     B_Publish_Node nodebll = new B_Publish_Node();
+     DataTable dt = nodebll.Sel();
+}
+@section head{<title>分类管理</title> }
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("PubNodeAdd_Submit",Context.Request)">
+    <table class="table table-bordered sys_table">
+    <tr>
+        <th class="w12rem_lg">所属分类</th>
+        <td>
+            @Html.DropDownList("Node_DP",MVCHelper.ToSelectList(dt,"NodeName","ID",Model.Pid.ToString()),new {@class="form-control max20rem" })
+        </td>
+    </tr>
+    <tr>
+        <th>分类名</th>
+        <td><input type="text" ID="NodeName_T" name="NodeName_T" class="form-control max20rem" value="@Model.NodeName"/></td>
+    </tr>
+    <tr>
+        <th>操作</th>
+        <td><input type="submit" value="保存信息" class="btn btn-info" /></td>
+    </tr>
+</table>
+</form>
+}
+@section script{ 
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>125</LabelID>
+    <LabelName>企业信息数据源标签</LabelName>
+    <LabelType>3</LabelType>
+    <LabelCate>数据源标签</LabelCate>
+    <LabelDesc>企业信息数据源标签</LabelDesc>
+    <LabelParam>InfoID,0,2,内容ID</LabelParam>
+    <LabelTable>ZL_CommonModel LEFT JOIN ZL_Page_mypage ON ZL_CommonModel.ItemID=ZL_Page_mypage.ID</LabelTable>
+    <LabelField>ZL_CommonModel.*,ZL_Page_mypage.*</LabelField>
+    <LabelWhere>ZL_CommonModel.GeneralID=@InfoID</LabelWhere>
+    <LabelOrder />
+    <LabelContent />
+    <LabelCount>0</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_Page_mypage"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

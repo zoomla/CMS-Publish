@@ -1,0 +1,76 @@
+﻿@model ZoomLa.Model.M_User_Plat
+@{ 
+
+    Layout = "_empty";
+}
+@section head{<title>个人信息</title>}
+
+@section content{
+    <div style="height: 40px; line-height: 40px; background-color: #f7f7f7;">
+            <div style="width:50%;float:left;padding-left:10px;"><span class="zi zi_times" title="关闭" onclick="CloseSelf();"></span></div>
+            <div style="width:50%;float:left;padding-right:10px;text-align:right;">
+            @*<%--    <span class="zi zi_envelopeOpen" style="margin-right:5px;" title="站内邮件"></span>
+                <span class="zi zi_commentalt" title="站内短信"></span>--%>*@
+            </div>
+        </div>
+    <div id="content">
+        <div id="head">
+            <div id="head_img" style="margin-left:10px;">
+                <img class="imgface" ID="pre_img" src="@Model.UserFace" style="width: 100px; height: 100px;" />
+            </div>
+            <div id="head_name">
+                <fieldset disabled="disabled">
+                    <div class="form-group">
+                        <label>@Model.UserName</label>
+                    </div>
+                    @*<div class="form-group">
+                        <label>状<span style="margin-right:13px;"></span>态：</label>
+                        <input type="text" readonly="readonly" id="status_T"  runat="server" class="form-control"  value="正常" />
+                    </div>*@
+                </fieldset>
+            </div>
+        </div>
+        <div id="body">
+            <table  id="body_table" class="table table-striped">
+                <tr>
+                    <td class="td_name"> <label>真实姓名：</label></td>
+                    <td>@Model.TrueName</td>
+                </tr>
+                <tr>
+                    <td class="td_name"><label>公司职务：</label></td>
+                    <td>@Model.Post</td>
+                </tr>
+                <tr>
+                    <td class="td_name"><label>联系电话：</label></td>
+                    <td>@Model.Mobile</td>
+                </tr>
+                <tr>
+                    <td class="td_name"><label>所属部门：</label></td>
+                    <td>@Model.GroupName</td>
+                </tr>
+                <tr><td></td><td style="padding-left:50px;">
+                    <a href="/Plat/Blog/Default?Uids=@Model.UserID" class="btn btn-primary" target="_parent">他的工作流</a>
+                    </td></tr>
+            </table>
+        </div>
+        <div id="foot"></div>
+    </div>
+}
+@section script{
+<style type="text/css">
+    #content{width:600px; height:800px; margin:0px; margin-top:10px;}
+    #head{ height:100px;}
+    #head_img{float:left;}
+    #head_name{float:left; margin-left:10px;}
+    #body{ margin:10px;}
+    .td_name{ width:30%; text-align:center;}
+</style>
+<script type="text/javascript">
+    function CloseSelf()
+    {
+        $(parent.document).find("#ShowUser_Div").hide();
+        $(parent.document).find("#ShowUser_if").attr("src","");
+    }
+</script>    
+    
+}

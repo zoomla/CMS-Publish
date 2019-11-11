@@ -1,0 +1,69 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string apiUrl = "DicItem_API?action=";
+    M_DicCategory cateMod = B_DataDicCategory.GetDicCate(DataConverter.CLng(Context.Request.GetParam("CateID")));
+}
+@section head{ <title>数据字典项目列表</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+         new Bread("{admin}"),
+         new Bread("DictionaryManage","数据字典"),
+         new Bread() {url="", text=cateMod.CategoryName,addon="" }}
+         )
+    <div class="list_choice">
+        @Html.Partial("DicItem_List")
+    </div>
+  <div style="float:left;">
+        <div class="input-group">
+        <div class="input-group-prepend"><span class="input-group-text">字典项目名</span></div>
+        <input type="text" ID="DicName" class="form-control max20rem" data-enter="1" />
+        <span class="input-group-append">
+            <input type="button" ID="btnSave" value="保存" onclick="save();" class="btn btn-outline-info" data-enter="2" />
+        </span>
+    </div>
+  </div>
+   
+    <div style="float:right;margin-right:10px;">
+        <input type="button" value="批量删除" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'确定要删除吗'});" class="btn btn-outline-danger" />
+        @*<asp:Button ID="btnSetUsed" value="批量启用" onclick="btnSetUsed_Click" class="btn btn-outline-info" />
+            <asp:Button ID="btnSetUnUsed" value="批量停用" onclick="btnSetUnUsed_Click" class="btn btn-outline-danger" />
+            <asp:Button ID="btnSetAllUsed" value="全部启用" onclick="btnSetAllUsed_Click" class="btn btn-outline-info" />*@
+        <input type="button" value="导入字典" class="btn btn-outline-info" onclick="showImport();" />
+    </div>
+ <input type="hidden" id="DicID" />
+}
+@section script{
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script src="/JS/Controls/Control.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+function IsSelectedId() {
+    var checkArr = $("input[type=checkbox][name=idchk]:checked");
+    if (checkArr.length > 0)
+        return true
+    else
+        return false;
+}
+function showImport() {
+    ShowComDiag("@Call.PathAdmin("Com/Import?mode=Ex_DicData")", "数据导入");
+}
+Control.EnableEnter();
+    </script>
+<script>
+    function save()
+    {
+        var name = $("#DicName").val();
+        if (ZL_Regex.isEmpty(name)) { alert("名称不能为空"); return false; }
+        $.post("@(apiUrl+"save")&id="+$("#DicID").val(), { cateid: "@Context.Request.GetParam("CateID")", "name": name }, function (data) {
+            if (data == "1") { mvcpage.load(); }
+            $("#DicName").val("");
+            $("#DicID").val("");
+        })
+    }
+    function showAdd(id)
+    {
+        $("#DicID").val(id);
+        $("#DicName").val($("#item_" + id).text());
+    }
+</script>
+}

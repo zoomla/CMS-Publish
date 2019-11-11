@@ -1,0 +1,211 @@
+﻿@model System.Data.DataTable
+@functions{
+    //    protected void Page_Load(object sender, EventArgs e)
+    //    {
+    //        IdentityAnalogue ia = new IdentityAnalogue();
+    //        ia.CheckEnableSA();
+    //        siteName = Server.UrlDecode(Request.Params["siteName"]);
+    //        //ia.UndoImpersonation();
+    //        if (function.isAjax(Request))
+    //        {
+    //            string action = Request.Form["action"];
+    //            Response.End();
+    //        }
+    //        if (!IsPostBack)
+    //        {
+    //            int poolCount = iis.ApplicationPools.Count;
+    //            int classicCount = iisHelper.GetPoolCountByMNS("Mode", ManagedPipelineMode.Classic.ToString());
+    //            int integerCount = iisHelper.GetPoolCountByMNS("Mode", ManagedPipelineMode.Integrated.ToString());
+    //            titleSpan.InnerText = string.Format(titleSpan.InnerText, poolCount, classicCount, integerCount);
+    //        }
+    //        Call.HideBread(Master);
+    //    }
+    //    //--------EGV4
+    //    protected void EGV4_RowCommand(object sender, GridViewCommandEventArgs e)//ApplicationPool
+    //    {
+    //        switch (e.CommandName)
+    //        {
+    //            case "Edit2":
+    //                EGV4.EditIndex = Convert.ToInt32(e.CommandArgument as string);
+    //                break;
+    //            case "Save":
+    //                string[] s = e.CommandArgument.ToString().Split(':');
+    //                EGV4_Update(DataConvert.CLng(s[0]), s[1]);
+    //                EGV4.EditIndex = -1;
+    //                break;
+    //            case "start":
+    //                iisHelper.StartAppPool(e.CommandArgument as string);
+    //                DataBind();
+    //                break;
+    //            case "stop":
+    //                iisHelper.StopAppPool(e.CommandArgument as string);
+    //                DataBind();
+    //                break;
+    //            case "Cancel":
+    //                EGV4.EditIndex = -1;
+    //                break;
+    //            default: break;
+    //        }
+    //    }
+
+    //    protected void EGV4_Update(int rowNum, string appName)
+    //    {
+    //        GridViewRow gr = EGV4.Rows[rowNum];
+    //        string mode = ((DropDownList)gr.FindControl("EditMode")).SelectedValue;
+    //        string version = ((DropDownList)gr.FindControl("EditNetVersion")).SelectedValue;
+
+    //        iisHelper.ChangeMode(appName, mode);
+    //        iisHelper.ChangeNetVersion(appName, version);
+    //        DataBind();
+    //    }
+
+    //    protected void EGV4_RowDataBound(object sender, GridViewRowEventArgs e)
+    //    {
+    //        if (e.Row.RowType == DataControlRowType.DataRow)
+    //        {
+    //            if (e.Row.RowState == DataControlRowState.Edit || e.Row.RowState == (DataControlRowState.Alternate | DataControlRowState.Edit))
+    //            {
+    //                DropDownList list = (DropDownList)e.Row.FindControl("EditNetVersion");
+    //                DropDownList list2 = (DropDownList)e.Row.FindControl("EditMode");
+    //                list.SelectedValue = ((System.Web.UI.HtmlControls.HtmlInputHidden)e.Row.FindControl("NetVersion")).Value;
+    //                list2.SelectedValue = ((System.Web.UI.HtmlControls.HtmlInputHidden)e.Row.FindControl("Mode")).Value;
+    //                list.DataBind(); list2.DataBind();
+    //            }
+    //        }
+
+    //    }
+
+}
+@section head{<title>应用程序池</title> }
+@section content{
+    @*<div class="container-fluid mysite">
+        <div class="row">
+            <ul class="breadcrumb w-100">
+                <li class="breadcrumb-item"><a href="<%= CustomerPageAction.customPath2 %>/Main.aspx">工作台</a></li>
+                <li class="breadcrumb-item"><a href="Default.aspx">站群中心</a></li>
+                <li class="breadcrumb-item"><a href="SitePool.aspx">应用程序池</a></li>
+                <li class="breadcrumb-item"><span runat="server" id="titleSpan" class="text-success ml-2">汇总信息：当前共有{0}个程序池:{1}个经典模式,{2}个集成模式
+                </span></li>
+            </ul>
+        </div>
+    </div>*@
+@Call.SetBread(new Bread[] { 
+  new Bread("{admin}"),
+  new Bread("Default","站群中心"),
+  new Bread(Context.Request.RawUrl(),"应用程序池")
+})
+<div class="list_choice">
+ 
+    <table class="table table-bordered">
+        <thead><tr>
+            <th></th>
+            <th>ID</th>
+            <th>程序池名称</th>
+            <th>状态</th>
+            <th>Net版本</th>
+            <th>网站数量</th>
+            <th>操作</th>
+            </tr></thead>
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="chk4" value="@dr["Index"]"  /></td>
+                <td>@dr["Index"]</td>
+                <td>
+                     <a href="javascript:;" title="运行状态" style="position:relative; bottom:-2px; right:5px;">
+                       <%#(Eval("State") as string) == "Started" ? "<i class='zi zi_play'></i>" 
+                       : "<i class='zi zi_pause'></i>" %>                       
+                                    </a>
+                                    <%# Eval("AppPoolName") %>
+                </td>
+                <td>@Html.Raw(DataConverter.CStr(dr["State"]) == "Started" ? "<span class='text-success'>运行中</span>" : "<span class='text-danger'>已停止</span>")</td>
+                <td>@dr["NetVersion"]</td>
+                <td>@dr["AppNum"]</td>
+                <td>
+                    @*<asp:LinkButton ID="LinkButton2" runat="server" CommandName="Edit2" CommandArgument='<%# Container.DisplayIndex %>'><i class="zi zi_pencilalt" title="修改"></i></asp:LinkButton>
+                    <%--  <a href="javascript:if(confirm('你确定要删除吗!')){ postToCS('del','<%#Eval(" AppPoolName") %>')}">删除</a>
+                    <a href="javascript:if(confirm('你确定要删除吗!')){ postToCS('del','<%#Eval(" AppPoolName") %>')}">停止</a>
+                    <a href="javascript:if(confirm('你确定要删除吗!')){ postToCS('del','<%#Eval(" AppPoolName") %>')}">启动</a>--%>
+                    <asp:LinkButton runat="server" CommandName="stop" CommandArgument='<%#Eval("AppPoolName") %>' Visible='<%#(Eval("State","").Equals("Started"))%>'><i class="zi zi_pause" title="停止"></i>停止</asp:LinkButton>
+                    <asp:LinkButton runat="server" CommandName="start" CommandArgument='<%#Eval("AppPoolName") %>' Visible='<%#!(Eval("State","").Equals("Started"))%>'><i class="zi zi_play" title="启动"></i>启动</asp:LinkButton>*@
+                </td>
+            </tr>
+        }
+    </table>
+     
+</div>    
+ }
+@section script{ 
+<script type="text/javascript">
+        $(function () {
+            $("#btn1,#rBtn1").click(function () {
+                //$("#CSWSDiv").toggle();
+                //$("#BCWSDiv").hide();
+                open("CreateSite.aspx");
+            });//btn1 end;
+
+            $("#btn2,#rBtn2").click(function () {
+                $("#BCWSDiv").toggle();
+                $("#CSWSDiv").hide();
+            });//btn2 end;
+
+            //$("#EGV  tr>th:eq(0)").html("<input type=checkbox id='chkAll' style='float:left;'/>ID");
+            //$("#EGV2 tr>th:eq(0)").html("<input type=checkbox id='chkAll2' style='float:left;'/>ID");
+            //$("#EGV3 tr>th:eq(0)").html("<input type=checkbox id='chkAll3' style='float:left;'/>ID");
+            $("#<%=EGV4.ClientID%> tr>th:eq(0)").html("<input type=checkbox id='chkAll4' style='margin-right:10px;'/>ID");
+
+                //$("#chkAll").click(function () {//EGV 全选
+                //    selectAll(this,"chk");
+                //});
+                //$("#chkAll2").click(function () {//EGV2 全选
+                //    selectAll(this, "chk2");
+                //});
+                //$("#chkAll3").click(function () {
+                //    selectAll(this, "chk3");
+                //});
+                $("#chkAll4").click(function () {
+                    selectAll(this, "chk4");
+                });
+
+                //bindInfo("例:www.baidu.com", "BindDomain");
+                //bindInfo('例:/test/test', 'VPath');
+                //bindInfo('例:C:\\test\\', 'PPath')
+
+                $("table tr").mousemove(function () { this.className = 'tdbgmouseover'; }).mouseout(function () { this.className = 'tdbg'; });
+            });//ready End;
+
+            function bindInfo(s, id) {
+                $("#" + id).val(s).css('color', '#666')
+                     .focus(function () { if (this.value == s) { this.value = ''; this.style.color = 'black'; } })
+                     .blur(function () { if (this.value == '') { this.value = s; this.style.color = '#666'; } });
+            }
+            function postToCS(a, name) {
+                $.ajax({
+                    type: "Post",
+                    url: "Default.aspx",
+                    data: { action: a, siteName: name },
+                    success: function (data) { if (a != "del3") { location = location; } else { alert(data); }; },
+                    error: function (data) { alert(data); }
+                });
+            }
+
+            function selectAll(obj, name) {
+                var allInput = document.getElementsByName(name);
+                var loopTime = allInput.length;
+                for (i = 0; i < loopTime; i++) {
+                    if (allInput[i].type == "checkbox") {
+                        allInput[i].checked = obj.checked;
+                    }
+                }
+            }
+            function openSite(domain, port) {
+                if (domain == "") domain = "localhost";
+                open("http://" + domain + ":" + port);
+            }
+            function ShowTabs(obj, id) {//Div切换
+                $(obj).addClass("titlemouseover").siblings().removeClass("titlemouseover").addClass("tabtitle");
+                $("#tab" + id).show("fast").siblings().hide();
+            }
+    </script>
+
+}

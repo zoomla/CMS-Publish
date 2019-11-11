@@ -1,0 +1,63 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string path = (ViewBag.viewDir + "WXUser_List.cshtml");
+}
+@section head{<title>粉丝管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("WXAPPManage","微信管理"),
+new Bread(Context.Request.RawUrl(),"粉丝管理")
+},"{search}")
+<div class="list_choice">
+@Html.Partial(path)
+</div>
+    @*<div class="margin_t5">
+        <input type="button" ID="SetManager_Btn" Text="设为管理员" OnClick="SetManager_Btn_Click" CommandArgument="1" class="btn btn-info" />
+        <asp:Button runat="server" ID="CancelManager_Btn" Text="取消管理员" OnClick="SetManager_Btn_Click" CommandArgument="0" class="btn btn-info" />
+    </div>*@
+}
+@section script{
+<script>
+        @*$().ready(function () {
+            $(".wxoption").click(function () {
+                UpdateUser($(this).data('oid'));
+            });
+        });
+        function UpdateUser(openid) {
+            $(".wxoption[data-oid='" + openid + "'] span").addClass("fa-spin");
+            var $tr = $(".wxoption[data-oid='" + openid + "']").closest('tr');
+            $.ajax({
+                type: 'POST',
+                data: { action: 'update', openid: openid, appid: '@Context.Request.GetParam("AppId")' },
+                success: function (data) {
+                    if (data == '-1') {
+                        $tr.remove();
+                        return;
+                    }
+                    var obj = JSON.parse(data);
+                    $tr.find('.imgurl').attr('src', obj.HeadImgUrl);
+                    $tr.find('.name').text(obj.Name);
+                    $tr.find('.sex').attr('class', obj.Sex == 1 ? 'zi zi_male' : 'zi zi_female');
+                    $tr.find('.groupid').text(GetGroupName(obj.Groupid));
+                    $(".wxoption[data-oid='" + openid + "'] span").removeClass("fa-spin");
+                }
+            });
+        }*@
+        //用户组名(暂时静态处理)
+        function GetGroupName(groupid) {
+            switch (groupid) {
+                case 0:
+                    return "未分组";
+                case 1:
+                    return "黑名单";
+                case 2:
+                    return "星标组";
+                default:
+                    return "";
+            }
+        }
+    </script>
+
+
+ }

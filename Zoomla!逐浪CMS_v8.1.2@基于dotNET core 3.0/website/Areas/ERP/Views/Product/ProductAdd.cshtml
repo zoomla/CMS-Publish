@@ -1,0 +1,42 @@
+﻿@using ZoomLa.BLL.Content
+@model ZoomLa.Model.Shop.M_Product
+@{ 
+    B_Node nodeBll = new B_Node();
+    DataTable nodeDT = nodeBll.GetAllShopNode(0);
+}
+@section head{<title>商品信息</title> }
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("ProductAdd_Submit",Context.Request)">
+    @ERPHelper.SetBread(new Bread[] {
+new Bread("Default","商品管理"),
+new Bread(Context.Request.RawUrl(),"商品信息")
+})
+    <form method="post" action="@MVCHelper.GetAction("Product_Add",Context.Request)">
+    <div class="container-fluid">
+        <table class="table table-bordered">
+        <tr><td style="width:150px;">所属节点</td><td>
+            <select class="form-control text_300" name="Nodeid" id="Nodeid_DP">
+                @MvcHtmlString.Create(nodeBll.CreateDP(nodeDT))
+            </select>
+             <script>$("#NodeID_DP").val('@Model.Nodeid');</script>
+             </td></tr>
+        <tr><td>商品图片</td><td>
+            @Html.Partial("C_SFileUP", new C_SFileUP { FileType = "img", ID = "Clearimg", Value=function.GetImgUrl(Model.Clearimg) })
+            </td></tr>
+        <tr><td>商品名称</td><td>@Html.TextBoxFor(m=>m.Proname,new {@class="form-control text_300 required" })</td></tr>
+        <tr><td>商品进价</td><td>@Html.TextBoxFor(m=>m.LinPrice,new {@class="form-control text_300 required" })</td></tr>
+        <tr><td>备注</td><td>@Html.TextAreaFor(m=>m.Proinfo,new {@style="width:960px;"})</td></tr>
+        <tr><td></td><td><input type="submit" value="保存信息" class="btn btn-info"/></td></tr>
+    </table>
+    </div>
+    </form>
+</form>
+}
+@section script{ 
+<script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="~/Plugins/Ueditor/ueditor.all.min.js"></script>
+@MvcHtmlString.Create(Call.GetUEditor("Proinfo"))
+<script>
+    $("form").validate({});
+</script>
+}

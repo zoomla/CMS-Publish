@@ -1,0 +1,19 @@
+﻿@{ 
+    string pageName = "敏感过滤";
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),"安全中心"),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+<form method="post" action="@MVCHelper.GetAction("_Submit",Context.Request)">
+    <div class="list_choice">
+
+    </div>
+</form>
+}
+@section script{ 
+
+}

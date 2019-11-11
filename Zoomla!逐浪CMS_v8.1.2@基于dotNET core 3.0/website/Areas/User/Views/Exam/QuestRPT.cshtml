@@ -1,0 +1,187 @@
+﻿@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.User
+@using System.Data.SqlClient
+@using Newtonsoft.Json
+@using ZoomLa.SQLDAL
+@functions{
+    B_Exam_Sys_Questions questBll = new B_Exam_Sys_Questions();
+    B_Exam_Class bqc = new B_Exam_Class();
+    B_ExamPoint bep = new B_ExamPoint();
+    B_Temp tempBll = new B_Temp();
+    B_User buser = new B_User();
+    B_Questions_Knowledge knowBll = new B_Questions_Knowledge();
+    //学科IDS
+    private string NodeID { get { return Context.Request.GetParam("NodeID"); } }
+    //教材版本
+    private int Version { get { return DataConverter.CLng(Context.Request.GetParam("Version")); } }
+    private string Diffcult { get { return Context.Request.GetParam("Diffcult"); } }
+    private int p_Type { get { return DataConverter.CLng(Context.Request.GetParam("type")); } }
+    //年级
+    private int Grade { get { return DataConverter.CLng(Context.Request.GetParam("grade")); } }
+    //知识点|关键词
+    private string KeyWord { get { return (Context.Request.GetParam("KeyWord")).Trim(','); } }
+    public int CPage { get { return ViewBag.CPage; } }
+    public int PSize { get { return ViewBag.PSize; } }
+    public string CartQids = "";
+    //True未登录
+    public bool IsNotLogin = true;
+    public DataTable KnowsDT = new DataTable();
+    public void BindKonwsDT(DataTable dt)
+    {
+        string knowsids = "";
+        foreach (DataRow dr in dt.Rows)
+        {
+            knowsids += dr["TagKey"].ToString() + ",";
+        }
+        KnowsDT = knowBll.SelByIDS(ZoomLa.BLL.Helper.StrHelper.PureIDSForDB(knowsids));
+    }
+    public string GetTagKey(DataRow dr)
+    {
+        if (KnowsDT != null && KnowsDT.Rows.Count > 0 && !string.IsNullOrEmpty(DataConvert.CStr(dr["Tagkey"])))
+        {
+            string knownames = "";
+            DataRow[] drs = KnowsDT.Select("k_id IN (" +DataConvert.CStr(dr["Tagkey"]).Trim(',') + ")");
+            foreach (DataRow item in drs)
+            {
+                knownames += item["k_name"].ToString() + ",";
+            }
+            string names = knownames.Trim(',');
+            return names;
+        }
+        return "";
+    }
+    private DataTable SelPage(out int count)
+    {
+        string where = "1=1 ";
+        if (!string.IsNullOrEmpty(NodeID) && !NodeID.Equals("0"))
+        {
+            SafeSC.CheckIDSEx(NodeID);
+            where += " AND p_class IN(" + NodeID + ")";
+        }
+        if (Diffcult.Contains("-"))
+        {
+            //基础(0.91-1.00)容易(0.81-0.90)中等(0.51-0.80)偏难(0.31-0.50)极难(0.01-0.30)
+            double sdiff = DataConverter.CDouble(Diffcult.Split('-')[0]);
+            double ediff = DataConverter.CDouble(Diffcult.Split('-')[1]);
+            //if (sdiff < 0) { sdiff = 0; }
+            //if (ediff <= 0) { ediff = 1; }
+            where += " AND (p_Difficulty>=" + sdiff + " AND p_Difficulty<=" + ediff + ")";
+        }
+        if (Grade > 0)
+        {
+            where += " AND p_Views=" + Grade;
+        }
+        if (p_Type > 0)//除非选择了大题,才允许输出大题
+        {
+            where += " AND p_Type=" + p_Type;
+        }
+        else { where += " AND p_type!=10"; }
+        List<SqlParameter> splist = new List<SqlParameter>();
+        if (!string.IsNullOrEmpty(KeyWord))
+        {
+            string[] keys = KeyWord.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string keyWhere = "";
+            for (int i = 0; i < keys.Length; i++)
+            {
+                keyWhere += " OR ','+TagKey+',' LIKE @key" + i;
+                splist.Add(new SqlParameter("key" + i, "%," + keys[i] + ",%"));
+            }
+            if (!string.IsNullOrEmpty(keyWhere))
+            {
+                where += " AND (" + keyWhere.Substring(3, keyWhere.Length - 3) + ") ";
+            }
+        }
+        if (Version > 0)
+        {
+            where += " AND Version=" + Version;
+        }
+        //return PageHelper.SelPage(psize, PageCommon.GetCPage(), out count, "p_id", "*", "ZL_Exam_Sys_Questions", where, "ORDER BY p_id DESC", sp);
+        PageSetting config = new PageSetting()
+        {
+            psize = PSize,
+            cpage = CPage,
+            pk = "p_id",
+            fields = "A.*,B.C_ClassName",
+            t1 = "ZL_Exam_Sys_Questions",
+            t2 = "ZL_Exam_Class",
+            on = "A.p_class=B.c_id",
+            where = where,
+            order = "p_id DESC",
+            sp = splist.ToArray()
+        };
+        DataTable dt = DBCenter.SelPage(config);
+        count = config.itemCount;
+        return dt;
+    }
+    public bool GetIsContain(DataRow dr)
+    {
+        return CartQids.Contains("," +dr["p_id"] + ",");
+    }
+    public string GetContent(DataRow dr)
+    {
+        if (Convert.ToInt32(dr["p_type"]) == (int)M_Exam_Sys_Questions.QType.Big)
+        {
+            string result = DataConverter.CStr(dr["LargeContent"]);
+            string json = DataConverter.CStr(dr["QInfo"]);
+            if (string.IsNullOrEmpty(json)) { return "未选择小题"; }
+            DataTable dt = JsonConvert.DeserializeObject<DataTable>(json);
+            foreach (DataRow item in dt.Rows)
+            {
+                result += item["p_Content"].ToString() + "<br />";
+                string tempstr = "";
+                result += questBll.GetSubmit(DataConverter.CLng(item["p_id"]), DataConverter.CLng(item["p_type"]), ref tempstr);
+            }
+            return result;
+        }
+        else { return DataConverter.CStr(dr["p_content"]); }
+    }
+
+
+}
+@{ 
+
+    M_UserInfo mu = ViewBag.mu;
+    IsNotLogin = mu.UserID < 1;
+    M_Temp tempMod = tempBll.SelModelByUid(mu.UserID, 10);
+    CartQids = tempMod == null ? "" : tempMod.Str1;
+    int count = 0;
+    DataTable dt = SelPage(out count);
+    string hrefTlp = "<a class='page-link' href='javascript:;' onclick='LoadByAjax(\"@query\",@cpage);' title=''>@text</a>";
+    BindKonwsDT(dt);
+}
+
+<start>
+    <div style="border:1px solid #ddd;padding:5px;margin-bottom:3px;">总计：<span class="r_red" id="count_sp">@count</span>道相关试题</div>
+    @if (IsNotLogin)
+    {
+        <div class="alert alert-danger">你当前是[<span style="color:red;">游客</span>]身份,登录后可以启用更多功能!<a href="/User/Login?ReturnUrl=/User/Exam/QuestionManage">点击登录</a></div>
+    }
+    @foreach (DataRow dr in dt.Rows)
+    {
+        <div class="panel panel-default" style="margin-bottom: 10px;">
+                <div class="panel-body">
+                   @MvcHtmlString.Create(GetContent(dr))
+                </div>
+                <div class="panel-footer">
+                    <a href="QuestView?ID=@dr["p_id"]" target="_blank"><i class="zi zi_checkcircle"></i>查看解析</a>
+                    @*<%--   <a href="#" class="disabled"><i class="zi zi_clouddownloadalt"></i>下载</a>--%>*@
+                    <a href="javascript:;" @MvcHtmlString.Create(GetIsContain(dr)?"style='display:none;'":"") class="cart_op addQid" data-type="@dr["p_type"]" data-qid="@dr["p_id"]"><i class="zi zi_pluscircle"></i>试题篮</a>
+                    <a href="javascript:;" @MvcHtmlString.Create(GetIsContain(dr)?"":"style='display:none;'") class="cart_op removeQid" data-type="@dr["p_type"]" data-qid="@dr["p_id"]"><i class="zi zi_minuscircle">试题篮(已加入试题篮)</i></a>
+                    <div style="float: right;">
+                        <span>科目:<span class="r_green">@dr["C_ClassName"]</span></span>
+                        <span>知识点:<span class="r_green">@GetTagKey(dr)</span></span>
+                    </div>
+                </div>
+            </div>
+    }
+
+            
+    @MvcHtmlString.Create(PageCommon.CreatePageHtml(Context,ZoomLa.BLL.Helper.PageHelper.GetPageCount(count, PSize),CPage, 10, hrefTlp))
+    @if (dt.Rows.Count < 1)
+    {
+        <div runat="server" id="empty_div" style="width:100%;text-align:center;">
+            对不起,当前条件下没有试题,@(Call.SiteName)正在加速上载试题,敬请期待！
+        </div>
+    }
+
+</start>

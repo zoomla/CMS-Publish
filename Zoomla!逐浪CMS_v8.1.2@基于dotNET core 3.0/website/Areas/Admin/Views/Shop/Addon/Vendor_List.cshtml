@@ -1,0 +1,30 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+
+}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>厂商名</td>
+            <td>地址</td>
+            <td>备注</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td>@dr["ID"]</td>
+            <td>@dr["Name"]</td>
+            <td>@dr["Address"]</td>
+            <td>@dr["Info"]</td>
+            <td>
+                <a href="VendorAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i> 修改</a>
+                <a href="javascript:;" onclick="mvcpage.del({ url: 'Vendor_API?action=del',confirm:'确定要删除吗',ids:'@dr["ID"]'});"><i class="zi zi_trash"></i> 删除</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>  

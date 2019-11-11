@@ -1,0 +1,57 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    //正常, 未审核,离职
+    public string GetStatus(DataRow dr)
+    {
+        int status = DataConverter.CLng(dr["Status"]);
+        string result = "";
+        switch (status)
+        {
+            case 0:
+                result = "正常";
+                break;
+            case 1:
+                result = "禁用";
+                break;
+            default:
+                result = status + "状态码未知";
+                break;
+        }
+        return result;
+    }
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td class="td_s"></td>
+            <td class="td_s">ID</td>
+            <td>头像</td>
+            <td>会员名</td>
+            <td>真名</td>
+            <td>职务</td>
+            <td>手机</td>
+            <td>状态</td>
+            <td>加入时间</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+    <tr>
+        <td><input type="checkbox" name="idchk" value='@dr["UserID"]' /></td>
+        <td>@dr["UserID"]</td>
+        <td><img class="img_s" src="@dr["UserFace"]" onerror="shownoface(this);" /></td>
+        <td>@dr["UserName"]</td>
+        <td>@dr["TrueName"]</td>
+        <td>@dr["Post"]</td>
+        <td>@dr["Mobile"]</td>
+        <td>@GetStatus(dr)</td>
+        <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["CreateTime"])</td>
+        <td>
+            <a href="/Plat/Blog/?Uids=@dr["UserID"]" target="_blank" title="查看他的工作流"><span class="zi zi_eye"></span></a>
+            <a href="/Plat/UPCenter?uid=@dr["UserID"]" title="修改" style="margin-left:5px;"><span class="zi zi_pencilalt" zico="笔黑"></span></a>
+        </td>
+    </tr>
+    }
+@Html.Partial("_page")
+</table>

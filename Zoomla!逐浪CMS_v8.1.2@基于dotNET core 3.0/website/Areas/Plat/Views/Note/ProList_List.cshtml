@@ -1,0 +1,81 @@
+﻿@using ZoomLa.BLL.Helper
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{ 
+    public string GetStatus(int status)
+    {
+        switch (status)
+        {
+            case 0:
+                return "进行中";
+            case -1:
+                return "暂停";
+            case 99:
+                return "已完结";
+            default:
+                return "进行中";
+        }
+    }
+    public string GetLevel(DataRow dr)
+    {
+        string level = DataConverter.CStr(dr["ZLevel"]);
+        if (string.IsNullOrEmpty(level)) { return "C"; }
+        return level;
+    }
+    public string GetProType(DataRow dr)
+    {
+        string typestr = DataConverter.CStr(dr["ZType"]);
+        switch (typestr)
+        {
+            case "web":
+                return "网站";
+            case "app":
+                return "APP";
+            case "desktop":
+                return "桌面应用";
+            default:
+                return "网站";
+        }
+    }
+    public string GetNoteUrl(int id = 0)
+    {
+        if (DeviceHelper.IsMobile)
+        {
+            return "mobilenote?id=" + id;
+        }
+        return "note?id=" + id;
+    }
+    public string GetViewUrl(DataRow dr)
+    {
+        if (DeviceHelper.IsMobile)
+        {
+            return "mobileview?id=" + dr["ID"];
+        }
+        return "view?id=" +dr["ID"];
+    }
+}
+@{ 
+    M_UserInfo mu = new B_User(Context).GetLogin();
+
+}
+<ul class="list-unstyled prolist_ul">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <li class="pre_li col-lg-3 col-md-3 col-sm-6 col-xs-12">
+			<div class="pro_item" onclick="window.open('@(GetViewUrl(dr))')" title="查看项目" data-id="@dr["ID"]">
+				<img src="@dr["topimg"]" onerror="shownopic(this);" />
+				<div class="pro_tips">名称：@dr["Title"]</div>
+				<div class="pro_tips">时间：@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["CDate"])</div>
+				<div class="pro_tips">创建人：@dr["CUName"]></div>
+			</div>
+            <div class="pro_tools">
+                <a href="@GetViewUrl(dr)" target="_blank"><i class="zi zi_eye"></i> 查看</a>
+                @if (DataConverter.CLng(dr["CUser"]) == mu.UserID)
+                {
+                    <a href="@GetNoteUrl(Convert.ToInt32(dr["ID"]))" target="_blank" title="编辑项目"><i class="zi zi_magic"></i> 编辑</a>
+                    <a href="javascript:;" onclick="mvcpage.del({ids:'@dr["ID"]',confirm:'确定要删除吗'});"><i class="zi zi_trashalt"></i> 删除</a>
+                }
+            </div>
+		</li>
+}
+</ul>
+ <div style="text-align:center;">@Html.Partial("_page2")</div>

@@ -1,0 +1,38 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Helper
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+ 
+}
+@section head{<title>版本浏览</title>}
+@section content{
+   <table class="table table-bordered table-striped">
+       <tr><td>标题</td><td class="td_l">版本号</td><td>作者</td><td class="td_l">创建时间</td><td class="td_l">操作</td></tr>
+       @foreach (DataRow dr in Model.dt.Rows)
+       {
+        <tr>
+            <td>@dr["Title"]</td>
+            <td>@dr["Flow"]</td>
+            <td>@dr["Inputer"]</td>
+            <td>@DateHelper.ToDate(dr["CDate"])</td>
+            <td>
+                <a class="btn btn-info btn-sm" onclick="recover('@dr["ID"]');"><i class="zi zi_recycle"></i>恢复</a>
+                <a class="btn btn-danger btn-sm" onclick="mvcpage.post({ url: 'verbak_del', data: {ids:'@dr["ID"]'},callback:'delback',confirm:'确定要删除吗'});"><i class="zi zi_trashalt"></i>删除</a>
+            </td>
+        </tr>
+       }
+    </table>
+    }
+@section script{
+<style type="text/css">
+    #navHolder{display:none;}
+</style>
+<script>
+    //  mvcpage.del({ ids: '', url: 'addon_verbak_del', confirm: '确定要删除吗',after:'delback' });
+    function delback() { location = location; }
+    function recover(id) {
+        @*parent.location = "EditContent?GeneralID=@gid&ver="+id;*@
+        parent.location = "@Call.PA("Content/EditContent?GeneralID="+ViewBag.Mid)&ver=" + id;
+    }
+</script>
+}

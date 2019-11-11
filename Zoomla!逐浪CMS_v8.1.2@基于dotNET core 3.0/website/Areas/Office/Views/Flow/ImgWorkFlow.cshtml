@@ -1,0 +1,23 @@
+﻿@{ 
+    Layout = "_empty";
+}
+@section  head{
+<title>查看流程图</title> 
+<style>
+#myDiagram{height:400px;}
+</style>
+}
+@section content{ 
+<div id="myDiagram"></div>
+<textarea style="display:none;" id="ImgData_Hid" name="ImgData_Hid">@ViewBag.value</textarea>
+<script src="/Plugins/Third/go/go.js" type="text/javascript"></script>
+<script src="/js/plugs/ZL_Diagram.js" type="text/javascript"></script>
+<script>
+    $().ready(function () {
+        var datas = JSON.parse($("#ImgData_Hid").val());//流程数据源
+        var proname = datas[0] ? datas[0].ProcedureName : "请为该流程添加步骤!";
+        console.log(datas, proname);
+        ZL_Diagram.InitDiagram("myDiagram", proname, datas);
+    });
+</script>
+}

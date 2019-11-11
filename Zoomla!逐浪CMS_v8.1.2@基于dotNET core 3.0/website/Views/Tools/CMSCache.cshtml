@@ -1,0 +1,24 @@
+﻿@{ 
+
+}
+@section  head{ <title>缓存查看</title>}
+@section content{
+<div>SessionId:@Context.Session.Id</div>
+<table class="table table-bordered table-striped">
+<thead><tr><td>Key</td><td>Name</td></tr></thead>
+@foreach (var item in ZoomLa.BLL.SYS.ZLCache.AdminSession)
+{
+   <tr><td>@item.Key</td><td>@(item.Value.UserID)</td></tr>
+}
+</table>
+
+<table class="table table-bordered table-striped">
+<thead><tr><td>Key</td><td>Name</td></tr></thead>
+@foreach (var item in ZoomLa.BLL.SYS.ZLCache.UserSession)
+{
+   <tr><td>@item.Key</td><td>@(item.Value.UserID)</td></tr>
+}
+</table>
+
+ }
+@section script{ }

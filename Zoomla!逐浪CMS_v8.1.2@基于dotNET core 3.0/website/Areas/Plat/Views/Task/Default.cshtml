@@ -1,0 +1,29 @@
+﻿@functions{
+
+}
+@section head{<title>任务中心</title> }
+@section content{ 
+    <a href="javascript:;" data-toggle="modal" data-target="#myModal" id="modal1" style="display: none;"></a>
+    <div class="platcontainer container">
+        <div class="child_head"><span class="child_head_span1"></span> <span class="child_head_span2">任务管理</span></div>
+        <div class="input-group nav_searchDiv mt-2">
+            <input type="text" ID="searchText" class="mvcparam form-control max20rem" placeholder="请输入需要搜索的内容" />
+            <select class="mvcparam form-control text_md">
+                <option Value="1">全部任务</option>
+                <option Value="2">我负责的任务</option>
+                <option Value="3">我参与的任务</option>
+            </select>
+            <span class="input-group-append">
+                <button type="button" class="btn btn-info" onclick="mvcpage.load();"><i class="zi zi_search"></i> 搜索</button>
+                <a href="AddTask" class="btn btn-info"><i class="zi zi_plus"></i> 创建新任务</a>
+            </span>
+        </div>
+        <div class="mt-2">
+            @Html.Partial("Default_List")
+            @*<button OnClientClick="return confirm('你确定要删除吗!');" OnClick="DelBtn_Click" class="btn btn-outline-danger" Text="批量删除" />*@
+        </div>
+    </div>
+}
+@section  script{ 
+
+}

@@ -1,0 +1,16 @@
+.box{background:#fff;margin:auto;margin-top:3.55%;overflow:hidden;width:100%!important;height:43px;border:1px solid #d3d6db;border-radius:2px 2px 0 0;box-shadow:0 2px 3px rgba(0,0,0,.2)}
+.slide-wrap .nav-item.active .title{background-color:#0094ff;color:#fff;}
+.slide-wrap{position:relative;background:#f7f7f7;width:100%}
+.slide-wrap .border{position:relative;top:50%;transform:translateY(-50%);height:100%;}
+.slide-wrap .slide-active-r{left:-30px}
+.slide-wrap .slide-active-l{left:30px}
+.slide-wrap .shift{position:absolute;z-index:1;background-color:#ddd;cursor:pointer; margin-top:-1px;height:100%;width:40px;opacity:1;box-shadow:rgba(0, 0, 0, 0.0980392) 0px 2px}
+.slide-wrap .shift:hover {background-color:#0072bc;color:#fff;}
+.slide-wrap .left{left:-33px;margin-left:25px}
+.slide-wrap .right{right:-33px;margin-right:25px;}
+.slide-wrap .slide ul{position:relative;white-space:nowrap;font-size:0;transition:transform .3s ease-out}
+.slide-wrap .slide li{display:inline-block;background-color:#fafcfe;border:1px solid #ccc;border-width:0 1px 0 0;margin:0}
+.slide-wrap .title{cursor: pointer;text-align:center;position:absolute;font-weight:500;line-height:40px;color:#0072bc;font-size:0.92rem;text-overflow:ellipsis;overflow:hidden}
+.slide-wrap .title:hover{background-color:rgba(0,0,0,.06)}
+.slide-wrap .title:active{font-weight:900}
+.slide-wrap .zi_forLeft,.zi_forRight{padding-top:9px;color:#666}

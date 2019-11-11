@@ -1,0 +1,29 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+    }
+}
+@{ 
+       Layout = "_empty";
+}
+@section head{ }
+@section content{ 
+
+
+}
+@section script{ 
+
+<script src="/Plugins/D3/d3.js"></script>
+
+
+
+
+}

@@ -1,0 +1,34 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent ShowImgs(DataRow dr)
+    {
+        string html = "";
+        string attach = DataConverter.CStr(dr["attach"]);
+        if (string.IsNullOrEmpty(attach)) { return MvcHtmlString.Create(html); }
+        foreach (string img in attach.Split('|'))
+        {
+            if (string.IsNullOrEmpty(img)) { continue; }
+            html += "<a class='img_wrap' href='" + img + "' target='_blank' title='点击查看大图'><img src='" + img + "' /></a>";
+        }
+        return MvcHtmlString.Create(html);
+    }
+
+}
+@{ 
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <tr><td class="td_s">流水号</td><td>操作时间</td><td class="td_m">数额</td><td>凭证</td><td>备注</td></tr>
+    <tbody>
+        @foreach(DataRow dr in Model.dt.Rows)
+        {
+          <tr>
+              <td>@dr["ExpHisID"]</td>
+              <td>@dr["HisTime"]</td>
+              <td>@DataConverter.CDouble(dr["Score"]).ToString("F2")</td>
+              <td>@ShowImgs(dr)</td>
+              <td>@dr["Detail"]</td>
+          </tr>
+        }
+    </tbody>
+    @Html.Partial("_page")
+</table>

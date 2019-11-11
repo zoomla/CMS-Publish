@@ -1,0 +1,27 @@
+#
+# robots.txt for Zoomla!CMS v8 by dotNET core
+#
+
+User-agentUser-agent: *
+Disallow: /dist/
+Disallow: /css/
+Disallow: /js/
+Disallow: /lib/
+Disallow: /theme/
+Disallow: /images/
+Disallow: /API/
+Disallow: /Admin/
+Disallow: /Manage/
+Disallow: /App_Data/
+Disallow: /Config/
+Disallow: /Guest/
+Disallow: /Install/
+Disallow: /User/
+Disallow: /UploadFiles/
+Disallow: /Log/
+Disallow: /Plat/
+Disallow: /PayOnline/
+Disallow: /Plugins/
+Disallow: /Template/
+Disallow: /Tools/
+Disallow: /Web.config

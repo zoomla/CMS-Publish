@@ -1,0 +1,59 @@
+﻿@{ 
+    string fname = ViewBag.fname;
+    string fcontent = ViewBag.fcontent;
+}
+@section head{
+<link rel="stylesheet" href="/Plugins/CodeMirror/lib/codemirror.css">
+<link rel="stylesheet" href="/Plugins/CodeMirror/theme/eclipse.css">
+<script src="/Plugins/CodeMirror/lib/codemirror.js"></script>
+<script src="/Plugins/CodeMirror/mode/css.js"></script>
+<script src="/Plugins/CodeMirror/addon/selection/active-line.js"></script>
+<script src="/Plugins/CodeMirror/mode/htmlmixed.js"></script>
+<title>CSS编辑</title>
+    
+}
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("TemplateSet","模板风格"),
+        new Bread("CssManage","风格管理"),
+        new Bread() {url=Context.Request.RawUrl(), text="CSS编辑",addon="" }})
+<form method="post" action="CSSEdit_Submit?filepath=@ViewBag.FilePath" id="form1">
+    <div class="list_choice">
+        <div class="card card-info">
+            <div class="card-header">
+                <div class="input-group max20rem">
+                    <span class="input-group-prepend"><span class="input-group-text">风格名称：</span></span>
+                    @if (!string.IsNullOrEmpty(fname))
+                    {<label class="form-control text-right disabled">@fname</label> }
+                    else {<input id="TxtFilename" name="TxtFilename" class="form-control text-right" value="@fname"/> }
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="basic-addon2">.css</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" style="padding:0px;">
+                <textarea id="textContent" name="textContent" style="width:100%;">@fcontent</textarea>
+            </div>
+            <div class="card-footer text-center">
+                <input type="submit" class="btn btn-outline-info" value="保存风格" />
+            </div>
+        </div>
+    </div>
+</form>
+}
+@section script{ 
+<script type="text/javascript">
+    //var editor = CodeMirror.fromTextArea(document.getElementById("textContent"), {
+    //    lineNumbers: true,
+    //    styleActiveLine: true
+    //});
+    editor = CodeMirror.fromTextArea(document.getElementById("textContent"), {
+        mode: "text/css",
+        lineNumbers: true,
+        textWrapping: false,
+        styleActiveLine: true
+    });
+</script>
+
+}

@@ -1,0 +1,32 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent IsChecked(DataRow dr, string auth)
+    {
+        if (DataConverter.CLng(dr[auth]) == 1) { return MvcHtmlString.Create("checked=\"checked\""); }
+        else { return MvcHtmlString.Create(""); }
+    }
+
+}
+<table class="table table-bordered table-striped" id="EGV">
+        <thead><tr>
+            <td></td>
+            <td>用户名</td>
+            <td><label><input type="checkbox" onclick="ColChk('Look');" />访问</label></td>
+            <td><label><input type="checkbox" onclick="ColChk('Send');" />发贴</label></td>
+            <td><label><input type="checkbox" onclick="ColChk('Reply');" />回贴</label></td>
+            </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td>
+                <input type="checkbox" onclick="RowChk(this);" />
+                <input type="hidden" name="Uid_Hid" value="@dr["UserID"]"/>
+            </td>
+            <td><a href="javascript:;" onclick="user.showuinfo('@dr["UserID"]');">@(dr["UserName"]+"("+dr["HoneyName"]+")")</a></td>
+            <td><input type="checkbox" @(IsChecked(dr,"Look")) data-auth="Look"  name="Look_@dr["UserID"]" value="1"/></td>
+            <td><input type="checkbox" @(IsChecked(dr,"Send")) data-auth="Send"  name="Send_@dr["UserID"]"   value="1"/></td>
+            <td><input type="checkbox" @(IsChecked(dr,"Reply")) data-auth="Reply" name="Reply_@dr["UserID"]"  value="1"/></td>
+        </tr>
+    }
+    @Html.Partial("_page")
+ </table>

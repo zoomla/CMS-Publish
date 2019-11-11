@@ -1,0 +1,27 @@
+﻿@model System.Data.DataTable
+@{
+    Layout = "_empty";
+}
+@section head{ <title>字典导入</title>}
+@section content{
+    <table class="table table-bordered table-striped">
+        <thead><tr><td style="width:60px;">序号</td><td>字典名</td><td style="width:120px;">操作</td></tr></thead>
+        @foreach (DataRow dr in Model.Rows)
+        { 
+           <tr>
+               <td>@dr["DicCateID"]</td>
+               <td>@dr["CategoryName"]</td>
+               <td><a href="javascript:;" onclick="mvcpage.post({url:'@("DictCate_API?action=items&id="+dr["DicCateID"])',data:{},callback:'choose'});" class="btn btn-info btn-sm">选择</a></td>
+           </tr>
+        }
+    </table>
+
+ }
+@section script{ 
+<script>
+    function choose(data, result) {
+        parent.mfield.addFromDic("@Context.Request.GetParam("conid")", result);
+    }
+</script>
+
+}

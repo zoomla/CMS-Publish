@@ -1,0 +1,193 @@
+﻿@using ZoomLaCMS.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string BaseUrl = "/Plat/Doc/";
+    public string Dir { get { return Context.Request.GetParam("dir"); } }
+    public string CurVPath { get { return ViewBag.CurVPath; } }
+    private IHtmlContent CreatePathNav()
+    {
+        string PathNav_L="";
+        if (!string.IsNullOrEmpty(Dir))//生成路径
+        {
+            string dir = HttpUtility.UrlDecode(Dir), tempdir = "";
+            string[] dirArr = dir.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string span = "<span><a href='" + BaseUrl + "Default?dir={0}'>{1}</a>></span>";
+            foreach (string d in dirArr)
+            {
+                tempdir += d + "/";
+                PathNav_L += string.Format(span, HttpUtility.UrlEncode(tempdir), d);
+            }
+        }//路径处理End;
+        PathNav_L = "<span>文件路径：</span><span><a href=" + (BaseUrl + "Default") + ">公司文库</a>></span>" + PathNav_L;
+        int lIndex = PathNav_L.LastIndexOf(">>");
+        if (lIndex > 0) {PathNav_L = PathNav_L.Remove(lIndex, 1); }
+        return MvcHtmlString.Create(PathNav_L);
+    }
+    //返回图片
+    public IHtmlContent GetFileName(DataRow dr)
+    {
+        string result = "";
+        string fName = DataConverter.CStr(dr["FileName"]);
+        string id = DataConverter.CStr(dr["ID"]);
+        if (Convert.ToInt32(dr["FileType"]) == 2)//文件夹
+        {
+            string dir = HttpUtility.UrlEncode(Dir + fName + "/");
+            result = "<a href='"+BaseUrl+"Default?Dir=" + dir + "' title='打开目录' id='fname_now_" + id + "'>" + fName + "</a>";
+        }
+        else
+        {
+            string vpath = HttpUtility.UrlEncode(CurVPath + fName);
+            result = "<a href='javascript:;' title='点击预览' id='fname_now_" + id + "' onclick=\"FileManage.preview('"+dr["Guid"]+"');\">" + fName + "</a>";
+        }
+        return MvcHtmlString.Create(result);
+    }
+    public string GetExt(DataRow dr)
+    {
+        switch (dr["FileType"].ToString())
+        {
+            case "2":
+                return "filefolder";
+            default:
+                return DataConverter.CStr(dr["FileName"]);
+        }
+    }
+    public string GetSize(string size)
+    {
+        return FileSystemObject.GetFileSize(size);
+    }
+
+}
+@{ 
+
+
+}
+@section head{<title>公司文库</title> }
+@section content{ 
+<style type="text/css">
+#file_div{}
+#file_div thead th{text-align:center;}
+#file_div td{line-height:45px;}
+#file_div .miniIcon{position:relative;bottom:-10px;display:inline-block;}
+#fild_div .hoverDiv{text-align:right;}
+</style>
+<div class="container platcontainer">
+<div style="margin-top: 10px; margin-bottom: 10px;">
+    @CreatePathNav()
+</div>
+<div>
+<input type="button" onclick="$('#article_div').show();" value="撰写文章" class="btn btn-outline-info"/>
+<input type="button" id="upfile_btn" value="上传文件" class="btn btn-outline-info"/>
+<input type="button" data-toggle="modal" data-target="#folder_div" value="新建文件夹" class="btn btn-outline-info"/>
+</div>
+<table class="table table-bordered table-striped" style="margin-top:5px;" id="file_div">
+<thead>
+  <tr>
+	<th>名称</th>
+	<th>大小</th>
+	<th>创建时间</th>
+  </tr>
+</thead>
+<tbody id="FListBody">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr id="file_tr_@dr["ID"]" onmouseover="$(this).find('.hoverDiv').show();" onmouseout="$(this).find('.hoverDiv').hide();">
+        <td>
+            <div class="miniIcon"> @Html.Raw(Call.GetExtNameMini(GetExt(dr))) </div>@GetFileName(dr)
+            <div class="hoverDiv" style="display:none;float:right;">
+                @*<input type="text" id="fname_@dr["ID"]" value="@dr["FileName"]" onkeydown="return PreReName('@dr["ID"]','@dr["FileName"]');" class="form-control rename_t"/>*@
+                @if (DataConverter.CLng(dr["FileType"]) == 1)
+                {
+                    <a href='@(BaseUrl+"Download?FileId="+dr["Guid"])' target='_blank' class="btn btn-info btn-sm"><span class='zi zi_download' title='下载'></span></a>
+                }
+                <a href="javascript:;" class="btn btn-info btn-sm" onclick="FileManage.rename_show('@dr["Guid"]','@dr["FileName"]')"><span class='zi zi_pencilalt' title='重命名'></span></a>
+                <a href="javascript:;" class="btn btn-danger btn-sm"  onclick="FileManage.del('@dr["ID"]','@dr["Guid"]');"><span class='zi zi_trashalt' title='删除'></span></a>
+            </div>
+        </td>
+
+        <td style="width:150px;"><span>@GetSize(DataConverter.CStr(dr["FileSize"]))</span></td>
+        <td style="width:200px;"><span>@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["CDate"])</span></td>
+    </tr>
+}
+</tbody>
+    
+</table>
+@if (Model.pageCount > 1)
+{
+    <div class="text-center">
+    @Html.Raw(PageCommon.CreatePageHtml(Context, PageCommon.GetPageCount(Model.psize, Model.itemCount), Model.cpage))
+</div>
+}
+
+@*@Html.Partial("Default_C_Article",new C_Model() {value="" })*@
+@Html.Partial("/Areas/Plat/Views/Doc/Default_C_Func.cshtml",new C_Model() {value="" })
+</div>
+}
+@section script{ 
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script>
+    $(function () {
+        FileManage.init();
+        setactive("公司");
+});
+function webup_finish() { location = location; }
+
+var FileManage = {
+    apiUrl: "@Html.Raw(Context.Request.RawUrl())",
+    guid: "",//当前操作的文件标识
+    init: function () {
+        ZL_Webup.config.json.ashx = "action=Plat_Doc_Common%26dir=@(Context.Request.GetParam("dir"))";
+         $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+    },
+    newFolder: function () {
+        var name = $("#DirName_T").val();
+        if (ZL_Regex.isEmpty(name)) { alert("文件夹名不能为空"); return false; }
+        $.post(this.apiUrl, {action:"folder_new","dirName": name }, function (data) {
+            var ret = APIResult.getModel(data);
+            if (APIResult.isok(ret)) { location = location; }
+            else { alert(ret.retmsg); }
+        })
+        return true;
+    },
+    preview: function (guid) {
+        $("#preview_div").modal("show");
+        $("#preview_if").attr("src", "/PreView?FileId=" + guid);
+    },
+    //删除目录或文件
+    del: function (id,guid) {
+        var ref = this;
+        if (!confirm("你确定要删除该文件吗!!")) { return false; }
+        $.post(ref.apiUrl, { "action": "del", "guid": guid }, function (data) {
+            var ret = APIResult.getModel(data);
+            if (APIResult.isok(ret)) { $("#file_tr_" + id).remove(); }
+            else {
+                alert(ret.retmsg);
+            }
+        })
+    },
+    rename_show: function (guid,name) {
+        $("#rename_div").modal("show");
+        $("#rename_old").val(name);
+        $("#rename_new").val("");
+        this.guid = guid;
+    },
+    rename_submit: function () {
+        var name_old = $("#rename_old").val();
+        var name_new = $("#rename_new").val();
+        if (ZL_Regex.isEmpty(name_new)) { alert("新名称不能为空"); return false; }
+        if (name_old == name_new) { alert("新旧名称不能相同"); return false; }
+        $.post(this.apiUrl, { "action": "rename", "guid": this.guid, "name_old": name_old, "name_new": name_new }, function (data) {
+            var ret = APIResult.getModel(data);
+            if (APIResult.isok(ret)) { location = location; }
+            else { alert(ret.retmsg); }
+        })
+    },
+    html_submit: function () {
+        if (ZL_Regex.isEmpty($("#ArtTitle_T").val())) { alert("标题不能为空"); return; }
+        var txt = UE.getEditor("Article_T").getContentTxt();
+        if (ZL_Regex.isEmpty(txt)) { alert("内容不能为空"); return; }
+        if (!confirm("确定要保存吗?")) { return; }
+        $("#ArtSave_Btn").trigger("click");
+    }
+};
+</script>
+}

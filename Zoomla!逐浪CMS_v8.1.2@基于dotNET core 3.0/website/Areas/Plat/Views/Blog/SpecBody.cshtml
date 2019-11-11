@@ -1,0 +1,30 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.BLL.Helper
+@functions{
+    public string GetTName(DataRow dr)
+    {
+        return StringHelper.SubStr(DataConverter.CStr(dr["TName"]), 10);
+    }
+    public string GetContent(DataRow dr)
+    {
+        string msg = StringHelper.StripHtml(DataConverter.CStr(dr["MsgContent"]));
+        return StringHelper.SubStr(StrHelper.RemoveBySE(msg));
+    }
+
+}
+<ul class="OspcList">
+    @for (int i = 0; i < Model.dt.Rows.Count; i++)
+    {
+        DataRow dr = Model.dt.Rows[i];
+            <li class="project list@(i%10)" onclick="location='@("/Plat/Blog/?skey="+HttpUtility.UrlEncode(DataConverter.CStr(dr["TName"]))+"&write="+HttpUtility.UrlEncode(DataConverter.CStr(dr["TName"]))))';">
+                <div class="project-info">
+                    <div><h3>@GetTName(dr)</h3></div>
+                    <p>共有@(dr["Count"])条记录，最近一条发布在@(DateHelper.ToDate(dr["CDate"]))</p>
+                    <span>
+                        [@dr["CUName"]] @GetContent(dr)
+                    </span>
+                </div>
+            </li>
+    }
+</ul>
+@Html.Partial("_page")

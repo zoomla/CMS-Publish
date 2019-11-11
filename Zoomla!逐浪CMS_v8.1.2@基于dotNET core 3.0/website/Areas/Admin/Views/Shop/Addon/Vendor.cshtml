@@ -1,0 +1,18 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{<title>供应商</title>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Call.PathAdmin("Shop/Addon/Vendor"),"商品管理"),
+    new Bread("","供应商 [<a href='"+Call.PathAdmin("Shop/Addon/VendorAdd")+"'>添加供应商</a>]")
+})
+<div class="list_choice" id="EGV">
+     @Html.Partial(MVCHelper.ViewDir_Admin_Addon+"Vendor_List.cshtml",Model)  
+</div>
+
+}
+@section script{}

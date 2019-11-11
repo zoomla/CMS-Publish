@@ -1,0 +1,37 @@
+﻿@model ZoomLa.Model.Shop.M_Shop_MoneyRegular
+@section head{<title>赠送规则</title> }
+@section content{ 
+   @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),			
+        new Bread("RegularList","充值赠送"),				
+        new Bread() {url=Context.Request.RawUrl(), text="赠送管理",addon="" }}
+		)
+<form method="post" action="@MVCHelper.GetAction("RegularAdd_Submit",Context.Request)">
+<div class="list_choice">
+<table class="table table-bordered table-striped sys_table">
+    <tr>
+        <th scope="col" class="w12rem_lg">别名</th>
+        <td scope="col"><input type="text" ID="Alias_T" name="Alias_T" class="form-control max20rem required" value="@Model.Alias"/></td>
+    </tr>
+    <tr>
+    <th scope="col">充值金额</th>
+    <td scope="col">
+        <input type="text" ID="Min_T" name="Min_T" class="form-control max20rem required" value="@Model.Min"/>
+    </td>
+    </tr>
+<tr><th>赠送金额</th><td><input type="text" ID="Purse_T" name="Purse_T" class="form-control max20rem required" value="@Model.Purse.ToString("F0")"/></td></tr>
+<tr><th>赠送银币</th><td><input type="text" ID="SIcon_T" name="SIcon_T" class="form-control max20rem required" value="@Model.Sicon.ToString("F0")"/></td></tr>
+<tr><th>赠送积分</th><td><input type="text" ID="Point_T" name="Point_T" class="form-control max20rem required" value="@Model.Point.ToString("F0")"/></td></tr>
+<tr><th>备注</th><td><input type="text" ID="UserRemind_T" name="UserRemind_T" class="form-control m50rem_50" maxlength="50" value="@Model.UserRemind"/></td></tr>
+<tr><th>备注(管理员)</th><td><input type="text" ID="AdminRemind_T" name="AdminRemind_T" class="form-control m50rem_50" maxlength="50" value="@Model.AdminRemind"/></td></tr>
+<tr><td></td><td>
+    <input type="submit" ID="Save_Btn" value="保存信息" class="btn btn-info" />
+    <a href="Regular" class="btn btn-outline-info">返回列表</a>
+</td></tr>
+</table>
+</div>
+</form>
+}
+@section script{ 
+
+}

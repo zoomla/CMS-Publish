@@ -1,0 +1,46 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+
+@model System.Data.DataTable
+@functions{
+    public DataTable UserDT { get { return ViewBag.UserDT; } }
+    public DataTable DataBind(DataRow drv)
+    {
+        DataTable dt = new DataTable();
+        if (drv["ID"].ToString().Equals("0"))
+        {
+            UserDT.DefaultView.RowFilter = "Gid='' OR Gid IS NULL ";
+        }
+        else
+        {
+            string uids = StrHelper.PureIDSForDB(DataConverter.CStr(drv["MemberIDS"]));
+            if (!string.IsNullOrEmpty(uids))
+            {
+                UserDT.DefaultView.RowFilter = "UserID IN (" + uids + ")";
+            }
+        }
+        dt = UserDT.DefaultView.ToTable();
+        return dt;
+    }
+}
+
+    @foreach (DataRow dr in Model.Rows)
+    {
+        DataTable userDT = DataBind(dr);
+        <div>
+            <div data-id="@dr["ID"]" class="gp_info" onclick="leftnav.gp.toggle(this);">
+                <i class="zi zi_forRight r_gray gp_btn"></i><span style="margin-left:8px;">@dr["GroupName"]</span>
+                <span class="r_gray float-right" id="usercount_sp"></span>
+            </div>
+            <ul class="gp_child listul">
+                @foreach (DataRow userDR in UserDT.Rows)
+               {
+                <li onclick="leftnav.showuinfo('@userDR["UserID"]');" title="查看消息">
+                    <img class="icon" src="@userDR["UserFace"]" onerror="shownoface(this);" />
+                    <span class="icon_txt">@userDR["HoneyName"]</span>
+                </li>
+               }
+            </ul>
+        </div>
+    }

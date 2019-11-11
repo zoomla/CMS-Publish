@@ -1,0 +1,55 @@
+﻿@model ZoomLa.Model.M_Temp
+@{ 
+    string quote = "创建后自动生成";
+    if (string.IsNullOrEmpty(Model.Str1)) { Model.Str1 = Call.SiteName; }
+    if (Model.ID > 0) { quote = "<script id='zlchat' data-option='{\"theme\":\"def\",\"id\":\"" + Model.ID + "\"}' src='/JS/Plugs/Chat/chat_def.js?v=" + Model.ID + "'></script>"; }
+}
+@section head{ 
+    <title>引用管理</title>
+    <script src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+
+}
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("Seat","客服管理"),
+        new Bread("CodeList","引用列表"),
+        new Bread() {url=Context.Request.RawUrl(), text="引用管理",addon="" }}
+		)
+<form method="post" action="@MVCHelper.GetAction("CodeAdd_Submit",Context.Request)">
+	<div class="list_choice">
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th scope="col" class="w12rem_lg">企业名称</th>
+            <td scope="col">
+                <input type="text" ID="FName_T" name="FName_T" class="form-control max20rem required" value="@Model.Str1"/>
+            </td>
+        </tr>
+        <tr>
+            <th>欢迎语</th>
+            <td>
+                <textarea ID="Content_T" name="Content_T" style="height:150px;width:100%;">@Model.Str2</textarea>
+                @Html.Raw(Call.GetUEditor("Content_T",2))
+            </td>
+        </tr>
+        <tr><th>主题</th><td><label><input type="radio" name="theme_rad" value="def" checked="checked" />默认主题</label></td></tr>
+        <tr>
+            <th>操作</th>
+            <td>
+                <input type="submit" ID="Save_Btn" value="保存" class="btn btn-info" />
+                <a href="CodeList" class="btn btn-outline-info">返回</a>
+            </td>
+        </tr>
+        <tr>
+            <th>引用代码</th>
+            <td><textarea  class="form-control" readonly="readonly" style="resize:none;" rows="2">@quote</textarea></td>
+        </tr>
+    </table>
+	</div>
+</form>
+}
+@section script{ 
+
+
+}

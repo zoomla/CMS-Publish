@@ -1,0 +1,30 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+ 
+<table class="table table-bordered" id="EGV">
+        <thead>
+            <tr>
+                <td></td>
+                <td>ID</td>
+                <td>回答</td>
+                <td>来源</td>
+                <td>IP</td>
+                <td>创建时间</td>
+                <td>操作</td>
+            </tr>
+        </thead>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td>@dr["ID"]</td>
+                <td><button type="button" class="btn btn-info btn-sm" onclick="ShowAnswer('@dr["ID"]');">查看详情</button></td>
+                <td>@dr["Source"]</td>
+                <td>@ZoomLa.BLL.Helper.IPScaner.IPLocation(DataConverter.CStr(dr["IP"]))</td>
+                <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["CDate"])</td>
+                <td>
+                    <a class="btn btn-danger btn-sm"  onclick="mvcpage.del({url:'Survey_API?action=ans_del',ids:'@dr["ID"]',confirm:'确定要删除吗',after:function(){location=location;}});"><i class="zi zi_trashalt" title="删除"></i></a>
+                </td>
+            </tr>
+        }
+    @Html.Partial("_page")
+    </table>

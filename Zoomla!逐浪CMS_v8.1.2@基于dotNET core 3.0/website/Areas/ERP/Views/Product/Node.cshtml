@@ -1,0 +1,37 @@
+﻿@using ZoomLa.BLL.Content
+@{
+
+    DataTable dt = new B_Node().GetAllShopNode();
+    dt.Columns["NodeID"].ColumnName = "id";
+    C_BootTreeView tv = new C_BootTreeView();
+    tv.textTlp = "@NodeName";
+}
+@section head{ <title>节点浏览</title>}
+@section content{
+    @ERPHelper.SetBread(new Bread[] {
+     new Bread(Context.Request.RawUrl(),"商品管理")
+    })
+     <div id="tree"></div>
+            <input type="hidden" ID="data_hid" value="@tv.CreateTreeView(dt)" />
+}
+@section script{
+    <link href="/Plugins/Third/treeview/bootstrap-treeview.min.css" rel="stylesheet" />
+    <script src="/Plugins/Third/treeview/bootstrap-treeview.js"></script>
+    <script>
+$(function () {
+    var tree = JSON.parse($("#data_hid").val());
+    tree = [{ text: "全部",icon:"fa fa-global", href: "0", nodes: tree }];
+    $('#tree').treeview({
+        data: tree,
+        onNodeSelected: function (event, node) {
+            $("#NodeID").val(node.href);
+            mvcpage.load();
+        },
+        onNodeUnselected: function (event, node) {
+        }
+    });
+})
+
+    </script>
+
+}

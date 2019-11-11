@@ -1,0 +1,114 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@using ZoomLa.BLL.Plat
+@functions{
+    public int UserID
+    {
+        get
+        {
+            return ViewBag.UserID;
+        }
+    }
+    public IHtmlContent GetReplyStr(object rid,DataRow dr)
+    {
+        string msg = DataConverter.CStr(dr["MsgContent"]);
+        switch (DataConverter.CStr("Source"))
+        {
+            case "bar":
+                msg = StrHelper.DecompressString(msg);
+                break;
+        }
+        string result = "<a href='/Plat/Blog/Default?Uids=" + dr["CUser"] + "' title='查看他的工作流'>" + GetUName(dr) + "</a>";
+        if (Convert.ToInt32(rid) != 0)
+        {
+            result += "回复" + dr["ReplyUName"] + "<span class='zi zi_commentdots'></span>：" + msg;
+        }
+        else
+        {
+            result += "<span class='zi zi_commentdots'></span>：" + msg;
+        }
+        return MvcHtmlString.Create(result);
+    }
+    public string GetUName(DataRow dr)
+    {
+        return B_User.GetUserName(dr["HoneyName"],dr["UserName"]);
+    }
+    string attachTlp = "<div class='imgview' onclick='PreView(\"{0}\");'><div class='ext {1}'></div><div class='fname'>{2}</div></div>";
+    string imgTlp = "<a class='athumbnail_img' rel='group_{0}' href='{1}'><img src='{1}' class='thumbnail_img'/></a>";
+    public IHtmlContent GetAttach(DataRow dr)
+    {
+        string imgresult = "", attachresult = "";
+        string attach = DataConverter.CStr(dr["Attach"]);
+        int max = 3;
+        foreach (string file in attach.Split('|'))
+        {
+            if (string.IsNullOrEmpty(file)) continue;
+            if (ZoomLa.Safe.SafeC.IsImage(file) && max > 0)//jpg,png,gif图片显示预览,只显示前三张
+            {
+                imgresult += string.Format(imgTlp, dr["ID"], file); max--;
+            }
+            else
+            {
+                string fname = System.IO.Path.GetFileName(file); fname = fname.Length > 6 ? fname.Substring(0, 6) + ".." : fname;
+                attachresult += string.Format(attachTlp, file, System.IO.Path.GetExtension(file).ToLower().Replace(".", ""), fname);
+            }
+        }
+        imgresult = string.IsNullOrEmpty(imgresult) ? "" : "<div class='thumbnail_div'>" + imgresult + "</div>";
+        return MvcHtmlString.Create(imgresult + attachresult);
+    }
+}
+@{ 
+    DataTable barDT = ViewBag.barDT;
+    DataTable platDT = ViewBag.platDT;
+    string pageHtml = ViewBag.pageHtml;
+}
+<start>
+@if (barDT.Rows.Count > 0)
+{
+    <div class="reply_exinfo_div" id="bar_div">
+        <div><strong><i class="zi zi_sharesquare"></i> 社区信息</strong></div>
+        @foreach (DataRow dr in barDT.Rows)
+        {
+            <div style="padding-top:5px;border-bottom:1px dashed #ddd;">
+                <div class="float-left">
+                    @*<div class="uword uword_xs"><%#Eval("UserName","").Substring(0,1) %></div>
+                    <img class="uimg img_xs replyface" src="@dr["UserFace"]" onerror="showword(this);" />*@
+                    @B_User_Plat.WordFace(dr["CUser"], "uword_xs",DataConverter.CStr(dr["HoneyName"]), DataConverter.CStr(dr["UserName"]))
+                </div>
+                <div class="float-left" style="float: left; overflow: hidden; text-overflow: ellipsis;padding-left:5px;">
+                    <a href="javascript:;">@GetUName(dr)：</a>
+                </div>
+                <div class="text-left">@MvcHtmlString.Create(StrHelper.DecompressString(DataConverter.CStr(dr["MsgContent"])))</div>
+                <div class="clearfix"></div>
+                <div class="text-right" style="font-size:12px;">@dr["CDate"]</div>
+            </div>
+        }
+    </div>
+}
+
+@foreach(DataRow dr in platDT.Rows)
+{
+    <div class="replyrow" id="msgitem-@dr["ID"]">
+        <div class="float-left">
+          <img class="uimg img_xs replyface" src="@dr["UserFace"]" onerror="showword(this);" data-uid="@dr["CUser"]" /> 
+            @*@B_User_Plat.WordFace(dr["CUser"], "uword_xs", DataConverter.CStr(dr["HoneyName"]), DataConverter.CStr(dr["UserName"]))*@
+        </div>
+        <div class="reply_body">
+            <div class="reply_btnlist">@GetReplyStr(dr["ReplyID"],dr) </div>
+            <div class="reply_files">@GetAttach(dr)</div>
+            <div class="replybottom grayremind">
+                <span>@dr["CDate"]</span>
+                @if (DataConverter.CLng(dr["CUser"]) == UserID)
+                {
+                    <span class='zi zi_trashalt' title='删除' onclick="PostDelMsg(@dr["ID"]);"></span>
+                }
+                <span class="zi zi_commentdots" title="回复" onclick="DisReplyOP(@dr["Pid"],@dr["ID"],'@GetUName(dr)');"></span>
+            </div>
+            <div class="replyspear"></div>
+        </div>
+    </div>
+}
+@if (!string.IsNullOrEmpty(pageHtml)) { MvcHtmlString.Create(pageHtml); }
+</start>

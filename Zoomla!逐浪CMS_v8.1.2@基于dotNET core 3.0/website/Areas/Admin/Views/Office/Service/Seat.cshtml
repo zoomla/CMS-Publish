@@ -1,0 +1,23 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{  <title>客服信息</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("","后台管理"),
+        new Bread("","客服通"),
+        new Bread() {url="Seat", text="客服列表<a href='SeatAdd'> [添加席位]</a>",addon="" }},
+		Call.GetHelp(51)
+		)
+<div class=" list_choice">
+    @Html.Partial(MVCHelper.ViewDir_Admin+"Office/Service/Seat_List.cshtml")
+    
+    <div>
+        <input type="button" class="btn btn-outline-danger" value="批量删除" onclick="mvcpage.bat({url:'Seat_API?action=del',confirm:'确定要删除吗'})" />
+        <a href="/common/chat/cs_server" target="_blank" class="btn btn-outline-info">客服端聊天</a>
+    </div>
+</div>
+    
+}
+@section script{ 
+
+
+}

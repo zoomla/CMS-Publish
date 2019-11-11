@@ -1,0 +1,29 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Design
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_Design_Ask askBll = null;
+    public  string GetZTypeStr(DataRow dr)
+    {
+        return askBll.GetZTypeStr(dr["ZType"]);
+    }
+}
+@{
+    askBll = new B_Design_Ask();
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <tr><td></td><td>ID</td><td>问卷名</td><td>投票类型</td><td>操作</td></tr>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td class="td_s"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td class="td_s">@dr["ID"]</td>
+            <td>@dr["Title"]</td>
+            <td>@GetZTypeStr(dr)</td>
+            <td class="td_l">
+                <a href="/Vote/Index?id=@dr["ID"]" target="_blank" > <i class="zi zi_globe"></i>参与问券</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page", Model)
+</table>

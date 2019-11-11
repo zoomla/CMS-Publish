@@ -1,0 +1,69 @@
+﻿@model System.Data.DataTable
+@functions{
+    public string CurrentView { get { return ViewBag.view; } }
+    public string GetProName()
+    {
+        string proName = ViewBag.proName;
+        string result = "";
+        switch (CurrentView)
+        {
+            case "1":
+                result = "待办公文" + proName;
+                break;
+            case "2":
+                result = "已办公文" + proName;
+                break;
+            case "3":
+                result = "我的公文" + proName;
+                break;
+            case "4":
+                result = "我的借阅" + proName;
+                break;
+        }
+        return result;
+    }
+
+}
+@{ 
+    DataTable proDT = new DataTable();
+}
+        @section head{<title>申请列表</title> }
+        @section content{ 
+    <ol id="BreadNav" class="breadcrumb fixed-top mt-1">
+        <li class="breadcrumb-item"><a href="/Office/Index/Main">办公管理</a></li>
+        <li class="breadcrumb-item"><label>@GetProName()</label>(提示：支持自定义分类，分类格式为：/Office/Flow/ApplyList.aspx?view=3&proid=[流程ID])</li>
+    </ol>
+
+    @*<ul id="proul" class="nav nav-tabs">
+        <li id="proli_0" class="nav-item"><a class="nav-link active" href="ApplyList?View=@(CurrentView)">查看全部</a></li>
+        @foreach(DataRow dr in proDT.Rows)
+        {
+              <li class="nav-item" id="proli_@dr["ID"]"><a class="nav-link" href="ApplyList?View=@(CurrentView+"&ProID="+dr["ID"])">@dr["ProcedureName"]</a></li>
+        }
+        <li class="nav-item"><a class="nav-link" href="/Office/Doc/FiledList">归档文件</a></li>
+    </ul>*@
+    @Html.Partial("ApplyList_List")
+}
+    @section script{ 
+    <script>
+        function SetDel(id) {
+            if (!confirm("确定要删除吗?")) { return false; }
+            $("#DelID_Hid").val(id);
+            $("#Del_Btn").click();
+            return true;
+        }
+        function SetWithDraw(id) {
+            if (!confirm("确定要撤回吗?")) { return false; }
+            $("#DelID_Hid").val(id);
+            $("#WithDraw_Btn").click();
+        }
+        $(function () {
+            var proid = "<%:ProID%>";
+            if (proid != "0") {
+                var $lis = $("#proul li");
+                $lis.find("a").removeClass("active");
+                $("#proli_" + proid).find("a").addClass("active");
+            }
+        })
+    </script>
+}

@@ -1,0 +1,19 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{<title>供应商</title>
+}
+@section content{
+@ERPHelper.SetBread(new Bread[] {
+    new Bread(Context.Request.RawUrl(),"供应商列表"),
+})
+<div class="container-fluid">
+    @Html.Partial("_pageTop", new C_Model() { text = "添加供应商", url = "VendorAdd" })
+    <div class="row" id="EGV">
+        @Html.Partial(MVCHelper.ViewDir_Admin_Addon + "Vendor_List.cshtml", Model)
+    </div>
+</div>
+
+}
+@section script{}

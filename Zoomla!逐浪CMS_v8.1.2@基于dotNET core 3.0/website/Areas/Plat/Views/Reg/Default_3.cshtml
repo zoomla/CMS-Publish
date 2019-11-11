@@ -1,0 +1,41 @@
+﻿@{ 
+    M_UserInfo mu = ViewBag.mu;
+}
+@section head{<title>注册成功</title> }
+@section content{
+<form id="form1" method="post" action="@MVCHelper.GetAction("Default_3_Submit",Context.Request)">
+<div id="Step3_Div"> 
+        <ul class="detail_ul">
+            <li><input type="text" class="detail" value="@mu.UserName" disabled="disabled" /></li>
+            <li><input type="text" ID="TrueName_T" name="TrueName_T" placeholder="真名" class="detail required" /></li>
+            <li><input type="text" ID="Post_T" name="Post_T" placeholder="职位" class="detail"  /></li>
+            <li><input type="text" ID="Mobile_T" name="Mobile_T" placeholder="手机" class="detail required mobile" style="border-bottom:1px solid #ddd;" /></li>
+            <li style="padding-bottom:10px;"></li>
+            <li><input type="password" ID="Pwd_T" name="Pwd_T" placeholder="密码" class="detail required" /></li>
+            <li><input type="password" ID="CPwd_T" name="CPwd_T" placeholder="确认密码" class="detail required" style="border-bottom:1px solid #ddd;"/></li>
+            <li style="padding-bottom:10px;"></li>
+            <li style="padding-bottom:10px;"><span><label style="color:#fff;"><input type="checkbox" style="margin-right:5px;height:auto;width:auto;" checked="checked" />阅读并同意</label><a href="#" title="使用条款">《使用条款》</a></span></li>
+            <li><input type="submit" ID="Sub_Btn" value="加入能力中心" OnClick="return subCheck(this);" class="btn btn-info"/></li>
+        </ul> 
+    </div>
+</form>
+
+ }
+@section script{
+<style type="text/css">
+.detail_ul li{margin-bottom:10px;}
+label.error{display:block;}
+</style>
+    <script>
+        function subCheck(dom) {
+           var validator = $("#form1").validate({ meta: "validate" });
+            if (!validator.form()) { return false; }
+            var pwd1 = $("#Pwd_T").val();
+            var pwd2 = $("#CPwd_T").val();
+            if (pwd1 != pwd2) { alert("确认密码必须同于密码"); return false; }
+            disBtn(this, 2000);
+            return true;
+        }
+    </script>
+
+}

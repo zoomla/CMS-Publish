@@ -1,0 +1,215 @@
+﻿<!Doctype html>
+<html>
+<head>
+<meta charset="utf-8" /> 
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PowerShell命令生成工具</title>
+<link rel="stylesheet" href="dist/css/bootstrap4.min.css" />
+<link rel="stylesheet" href="dist/css/zico.min.css"/>
+<script src="JS/jquery.min.js"></script>
+<script src="dist/js/popper.min.js"></script>
+<script src="dist/js/bootstrap4.min.js"></script>
+<script src="/dist/vue/vue.min.js"></script>
+</head>
+<style type="text/css">
+    .cmd_wrap{margin-bottom:1rem;}
+    .cmd_wrap .input-group-text{min-width:90px;}
+    .param_div .input-group{margin-bottom:5px;}
+</style>
+<body>
+<div id="app" class="container" style="margin-bottom:3rem;">
+    <div class="text-center"><h1>PowerShell命令生成工具</h1></div>
+    <div v-for="cmd in cmds" class="cmd_wrap">
+        <h4 style="border-left:5px solid #0094ff;padding-left:5px;">{{cmd.text}}</h4>
+        <div class="param_div" v-for="p in cmd.params">
+
+            <div class="input-group" v-if="p.type=='input'">
+                <span class="input-group-prepend"><span class="input-group-text">{{p.text}}</span></span>
+                <input type="text" class="form-control" :placeholder="p.tip" v-model="p.value" :change="changeParam(cmd)" />
+            </div>
+             <div class="input-group" v-if="p.type=='radio'">
+                <span class="input-group-prepend"><span class="input-group-text">{{p.text}}</span></span>
+                <select class="form-control" :placeholder="p.tip" v-model="p.value" :change="changeParam(cmd)">
+                    <option v-for="option in p.options" :value="option.value">{{option.text}}</option>
+                </select>
+            </div>
+          
+        </div>
+        <div class="text_div" style="margin-top:10px;">
+            <textarea :rows="cmd.row" class="form-control" v-model="cmd.result"></textarea>
+        </div>
+    </div>
+</div>
+<script>
+    var app = new Vue({
+        el: "#app",
+        mounted: function () {
+            var ref = this;
+            function append(cmd, codeText) { cmd.code += codeText + "\r\n"; cmd.row++; }
+            function addParam(cmd, text, value) {
+                var param = ref.newParam();
+                param.text = text;
+                param.value = value;
+                if (!param.value) { param.value = ""; }
+                if (!param.tip) { param.tip = "请输入" + param.text; }
+                cmd.params.push(param);
+            }
+            function addToCmds(cmd) {
+                cmd.result = cmd.code;
+                ref.cmds.push(cmd);
+            }
+           //--------------------------------------------
+            {
+                var cmd = ref.newModel();
+              
+                cmd.text = "文件夹权限覆盖更新";
+
+                append(cmd,"#文件夹权限覆盖更新");
+                append(cmd, "$acl = Get-Acl @下级文件夹名称");
+                append(cmd, "# 添加第一个规则:");
+                append(cmd, '$person = [System.Security.Principal.NTAccount]"Administrator"');
+                append(cmd, '$access = [System.Security.AccessControl.FileSystemRights]"FullControl"');
+                append(cmd, '$inheritance = [System.Security.AccessControl.InheritanceFlags] "ObjectInherit,ContainerInherit"');
+                append(cmd, '$propagation = [System.Security.AccessControl.PropagationFlags]"None"');
+                append(cmd, '$type = [System.Security.AccessControl.AccessControlType]"Allow"');
+                append(cmd, '$rule = New-Object System.Security.AccessControl.FileSystemAccessRule($person,$access,$inheritance,$propagation,$type)');
+                append(cmd, '$acl.AddAccessRule($rule)');
+                append(cmd, '');
+                append(cmd, '# 添加第二个规则:');
+                append(cmd, '$person = [System.Security.Principal.NTAccount]"@授予账户"');
+                append(cmd, '$access = [System.Security.AccessControl.FileSystemRights]"Modify"');
+                append(cmd, '$inheritance = [System.Security.AccessControl.InheritanceFlags] "ObjectInherit,ContainerInherit"');
+                append(cmd, '$propagation = [System.Security.AccessControl.PropagationFlags]"None"');
+                append(cmd, '$type = [System.Security.AccessControl.AccessControlType]"Allow"');
+                append(cmd, '$rule = New-Object System.Security.AccessControl.FileSystemAccessRule($person,$access,$inheritance,$propagation,$type)');
+                append(cmd, '$acl.AddAccessRule($rule)');
+                append(cmd, '');
+                append(cmd, '# 保存权限更新:');
+                append(cmd, 'Set-Acl @下级文件夹名称 $acl');
+                addParam(cmd, "下级文件夹名称", "D:\\test\\a\\");
+                addParam(cmd, "授予账户", "Users");
+                addToCmds(cmd);
+            }
+            {
+                var cmd = ref.newModel();
+                cmd.text = "指定文件夹下文件权限更新";
+                append(cmd, '#作用于当前目录下文件[@文件组名]组完全控制权限：');
+                append(cmd, 'icacls .\* /grant[:r] @文件组名:@授予权限 /t');
+                append(cmd, '');
+                addParam(cmd, "文件组名", "User");
+                {
+                    var p =  { text: "授予权限", value: "M", tip: "", type: "radio", options: [] };
+                    p.options = [{ text: "只读权限(R)", value: "R" }, { text: "读写修改权限(M)", value: "M" }, { text: "完全访问权限(F)", value: "F" }];
+                    cmd.params.push(p);
+                }
+                addToCmds(cmd);
+            }
+            {
+                var cmd = ref.newModel();
+                cmd.text = "压缩&解压缩";
+                append(cmd, 'New-Item -ItemType File 1.txt -Force #新建文本文件');
+                append(cmd, 'Compress-Archive -Path "@待压缩文件" -DestinationPath "@压缩后文件名" -Force	#压缩文件为zip');
+                append(cmd, 'Compress-Archive -Path @待压缩目录 -DestinationPath "@压缩后文件名" -Force #把目录打包为zip');
+                append(cmd, 'Compress-Archive -Path .\\* -DestinationPath "@压缩后文件名" -Force #把当前目录打包zip');
+                append(cmd, 'Expand-Archive -Path "@待解压文件路径" -DestinationPath "@解压后目录路径" -Force #解压到新文件夹内');
+
+                addParam(cmd, "待压缩文件", "test.txt");
+                addParam(cmd, "待压缩目录", "test\\*");
+                addParam(cmd, "压缩后文件名", "test.zip");
+                addParam(cmd, "待解压文件路径", "191101Zoomla逐浪CMS_V8.0.2.zip");
+                addParam(cmd, "解压后目录路径", "191101Zoomla逐浪CMS_V8.0.2")
+                addToCmds(cmd);
+            }
+            {
+                var cmd = ref.newModel();
+                cmd.text = "文件&目录操作";
+                append(cmd, '---------------------------------------------------复制文件');
+                append(cmd, 'Copy-Item @来源文件 @目标目录  #复制文件');
+                append(cmd, 'Copy-Item @来源目录* @目标目录  #复制目录下所有文件至目标目录');
+                append(cmd, 'Copy-Item @来源目录*.txt @目标目录  #只复制 .txt 文件至目标目录');
+                append(cmd, 'Copy-Item @来源目录* @目标目录 –recurse    #将文件夹下的所有文件（含子目录）全复制到目标文件夹：');
+                append(cmd, '');
+                append(cmd, '---------------------------------------------------移动文件');
+                append(cmd, 'Move-Item @来源目录 @目标目录  #移动文件夹');
+                append(cmd, 'Move-Item @来源目录*.jpg @目标目录 -force   #移动文件夹下指定类型文件(-force是强制覆盖参数慎用）');
+                append(cmd, '');
+                append(cmd, '---------------------------------------------------修改文件名');
+                append(cmd, 'Rename-Item @来源目录 @目标目录');
+                append(cmd, 'Dir|ForEach-Object {Rename-Item $_.Name $_.Name.replace("-x86", "") }');
+
+                addParam(cmd, "来源文件", "D:\\test\\source\\test.zip");
+                addParam(cmd, "来源目录", "D:\\test\\source\\");
+                addParam(cmd, "目标目录", "D:\\test\\target\\");
+                addToCmds(cmd);
+            }
+            {
+                var cmd = ref.newModel();
+                cmd.text = "批量修改文件名";
+                append(cmd, '$Path = "@文件目录"');
+                append(cmd, '$Filter = "*.jpg"');
+                append(cmd, '$Prefix = "@Prefix"');
+                append(cmd, '$Counter = @Counter');
+                append(cmd, 'Get-ChildItem -Path $Path -Filter $Filter -Recurse |');
+                append(cmd, '  Rename-Item -NewName {');
+                append(cmd, '    $extension = [System.IO.Path]::GetExtension($_.Name)');
+                append(cmd, '    "{0}{1}.{2}" -f $Prefix, $script:Counter, $extension');
+                append(cmd, '    $script:Counter++');
+                append(cmd, '   } -WhatIf');
+                append(cmd, '#请特别小心要去掉它的-Whatif参数才真正的重命名文件');
+
+                addParam(cmd, "文件目录", "D:\\test\\Protected");
+                addParam(cmd, "文件筛选", "*.jpg");
+                addParam(cmd, "Prefix", "gg");
+                addParam(cmd, "Counter", "1");
+                addToCmds(cmd);
+            }
+            {
+                /*
+                    var cmd = ref.newModel();
+                    cmd.text = "example";
+                    append(cmd, '');
+                    append(cmd, '');
+                    append(cmd, '');
+                    addParam(cmd, "参数名", "初始值");
+                    addToCmds(cmd);
+                */
+            }
+        },
+        data: {
+            cmds: []
+        },
+        methods: {
+            getCmdText: function () {
+                //根据当前选择的命令,生成
+            },
+            changeParam: function (cmd) {
+                var code = cmd.code;
+                for (var i = 0; i < cmd.params.length; i++) {
+                    var p = cmd.params[i];
+                    var holder = "@" + p.text;
+                    while (code.indexOf(holder) > -1) { code = code.replace(holder, p.value); }
+                }
+                cmd.result = code;
+            },
+            //setActive: function (cmd) {
+            //    var ref = this;
+            //    if (cmd.active) { return; }
+            //    for (var i = 0; i < ref.cmds.length; i++) { ref.cmds[i].active = false; }
+            //    cmd.active = true;
+            //},
+            newModel: function () {
+                /*
+                 * code  :命令模板,占位符使用@xxx替代
+                 * result:code替换后的结果
+                 */ 
+                return { text: "", code: "", result: "",row:1, params: [] };
+            },
+            newParam: function () {
+                return { text: "", value: "", tip: "", type: "input", options: [] };
+            },
+        }
+    })
+</script>
+</body>
+</html>

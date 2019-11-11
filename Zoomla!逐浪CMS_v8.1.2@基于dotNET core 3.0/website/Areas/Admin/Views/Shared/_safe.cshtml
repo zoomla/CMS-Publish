@@ -1,0 +1,28 @@
+﻿@{ 
+    bool isok = !string.IsNullOrEmpty(Context.Session.GetString("SPWD"));
+}
+<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link rel="stylesheet" href="/theme/css/v4style.css?v=3" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+@RenderSection("head",false)
+</head>
+<body>
+    @if (isok)
+    {
+        <div ng-app="app" id="maindiv">
+            @RenderSection("content", false)
+        </div>
+    }
+    else
+    {
+        @Html.Partial("SPwd")
+        IgnoreSection("content");
+    }
+
+    @RenderSection("script", false)
+</body>
+</html>

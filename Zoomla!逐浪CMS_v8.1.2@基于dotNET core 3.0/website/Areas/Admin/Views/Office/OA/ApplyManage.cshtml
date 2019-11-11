@@ -1,0 +1,149 @@
+﻿@{ 
+//    B_OA_Document oaBll = new B_OA_Document();
+//protected void Page_Load(object sender, EventArgs e)
+//{
+//    if (!IsPostBack)
+//    {
+//        B_ARoleAuth.AuthCheckEx(ZLEnum.Auth.office, "oa");
+//        MyBind();
+//    }
+//}
+
+//private void MyBind()
+//{
+//    Filter_OADocument filter = new Filter_OADocument();
+//    filter.Skey = searchText.Text.Trim();
+//    EGV.DataSource = oaBll.Sel(filter);
+//    EGV.DataBind();
+//}
+//protected void EGV_PageIndexChanging(object sender, GridViewPageEventArgs e)
+//{
+//    EGV.PageIndex = e.NewPageIndex;
+//    MyBind();
+//}
+//protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+//{
+//    switch (e.CommandName)
+//    {
+//        case "del2":
+//            int id = Convert.ToInt32(e.CommandArgument);
+//            oaBll.Del(id);
+//            break;
+//    }
+//    MyBind();
+//}
+//protected void EGV_RowDataBound(object sender, GridViewRowEventArgs e)
+//{
+//    //if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow)
+//    //{
+//    //    DataRowView dr = e.Row.DataItem as DataRowView;
+//    //    e.Row.Attributes.Add("ondblclick", "location='AddEnglishQuestion.aspx?ID=" + dr["ID"] + "'");
+//    //}
+//}
+//protected void BatDel_Btn_Click(object sender, EventArgs e)
+//{
+//    string ids = Request.Form["idchk"];
+//    if (!string.IsNullOrEmpty(ids))
+//    {
+//        SafeSC.CheckIDSEx(ids);
+//        DBCenter.DelByIDS("ZL_OA_Document", "ID", ids);
+//    }
+//    MyBind();
+//}
+//protected void searchBtn_Click(object sender, EventArgs e)
+//{
+//    MyBind();
+//}
+////--------------后期移入BLL
+//public string GetStatus(string Status)
+//{
+//    string flag = "";
+//    switch (Status)
+//    {
+//        case "-99":
+//            flag = "<span style='color:gray;'>回收站</span>";
+//            break;
+//        case "-80":
+//            flag = "<span style='color:#999;'>草稿</span>";
+//            break;
+//        case "-1":
+//            flag = "<span style='color:red;'>已拒绝</span>";
+//            break;
+//        case "2":
+//            flag = "<span style='color:red;'>已回退</span>";
+//            break;
+//        case "99":
+//            flag = "<span style='color:blue;'>流程完结</span>";
+//            break;
+//        case "105":
+//            flag = "<span style='color:#32A6F1;'>已归档</span>";
+//            break;
+//        case "98":
+//            flag = "<span style='color:blue;'>步骤完成</span>";
+//            break;
+//        case "0":
+//        case "1":
+//        default:
+//            flag = "<span style='color:blue;'>进行中</span>";
+//            break;
+//    }
+//    return flag;
+//}
+}
+
+@section head{<title>公文管理</title> }
+@section content{ 
+<div>
+        <ol class="breadcrumb fixed-top">
+            <li class="breadcrumb-item"><a href='<%=CustomerPageAction.customPath2 %>Main.aspx'>工作台</a></li>
+            <li class="breadcrumb-item"><a href='../Config/SiteOption.aspx'>系统设置</a></li>
+            <li class="breadcrumb-item">公文管理</li>
+            <div class="float-right text-center mr-2 ml-auto"><a href="javascript:;" onclick="selbox.toggle();" id="sel_btn" class="help_btn"><i class="zi zi_search"></i></a></div>
+            <div id="sel_box" runat="server">
+                <div class="input-group float-left">
+                    <asp:TextBox runat="server" ID="searchText" class="form-control max20rem" placeholder="请输入需要查询的信息" />
+                    <span class="input-group-append">
+                        <asp:Button ID="searchBtn" CssClass="btn btn-outline-secondary" runat="server" Text="搜索" OnClick="searchBtn_Click" />
+                    </span>
+                </div>
+            </div>
+        </ol>
+    </div>
+<div class="list_choice table-responsive-md pr-1">
+<ZL:ExGridView ID="EGV" runat="server" AutoGenerateColumns="False" PageSize="10" IsHoldState="false" 
+    OnPageIndexChanging="EGV_PageIndexChanging" AllowPaging="True" AllowSorting="True" OnRowCommand="EGV_RowCommand" OnRowDataBound="EGV_RowDataBound"
+    CssClass="table table-striped table-bordered table-hover" EnableTheming="False" EnableModelValidation="True" EmptyDataText="数据为空">
+    <Columns>
+        <asp:TemplateField ItemStyle-CssClass="">
+            <ItemTemplate>
+                <input type="checkbox" name="idchk" value="<%#Eval("ID") %>" />
+            </ItemTemplate>
+        </asp:TemplateField>
+        <asp:BoundField HeaderText="ID" DataField="ID" ItemStyle-CssClass="" />
+        <asp:BoundField HeaderText="标题" DataField="Title" ItemStyle-CssClass="" />
+        <asp:BoundField HeaderText="拟稿部门" DataField="Branch" />
+        <asp:TemplateField HeaderText="申请人" ItemStyle-CssClass="">
+            <ItemTemplate>
+                <%#Eval("UserName") %>
+            </ItemTemplate>
+        </asp:TemplateField>
+        <asp:TemplateField HeaderText="状态">
+            <ItemTemplate><%# GetStatus(Eval("Status","{0}")) %></ItemTemplate>
+        </asp:TemplateField>
+        <asp:BoundField DataField="CreateTime" DataFormatString="{0:yyyy年MM月dd日}" HeaderText="申请时间" ItemStyle-CssClass=""/>
+        <asp:TemplateField HeaderText="操作" ItemStyle-CssClass="">
+            <ItemTemplate>
+<%--                <a  href="VideoInfo.aspx?id=<%#Eval("ID") %>"><i class="zi zi_pencilalt" title="修改"></i></a>--%>
+                <asp:LinkButton runat="server"  CommandName="del2" CommandArgument='<%#Eval("ID") %>' OnClientClick="return confirm('确定要删除吗');"><i class="zi zi_trashalt" title="删除"></i></asp:LinkButton>
+            </ItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</ZL:ExGridView>
+</div>
+<div class="sysBtline">
+    <asp:Button runat="server" ID="BatDel_Btn" class="btn btn-outline-danger" Text="批量删除" OnClientClick="return confirm('确定要移除吗');" OnClick="BatDel_Btn_Click" />
+</div>
+}
+@section script{ 
+
+}

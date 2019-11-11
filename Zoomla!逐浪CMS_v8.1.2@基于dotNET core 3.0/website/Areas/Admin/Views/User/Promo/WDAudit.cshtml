@@ -1,0 +1,77 @@
+﻿@model ZoomLa.Model.M_Cash
+@{ 
+    B_User buser = new B_User(Context);
+    M_UserInfo mu = buser.SelReturnModel(Model.UserID);
+    string action = Context.Request.GetParam("action");
+
+}
+@section head{<title>提现处理</title>}
+@section content{ 
+<form method="post" id="form1">
+  <div style="min-height:500px;">
+      <table class="table table-striped table-bordered">
+          <tr>
+              <td style="width: 15%" class="text-right">用户名：</td>
+              <td>@Model.YName</td>
+          </tr>
+          <tr><td class="text-right">提现金额：</td><td>@Model.money.ToString("F2")</td></tr>
+          <tr runat="server" id="reject_tr">
+              <td class="text-right">提示：</td>
+              <td class="rd_red">
+                  拒绝提现后,预扣的金额将会返还给用户
+              </td>
+          </tr>
+          <tr>
+              <td class="text-right">备注信息：</td>
+              <td><textarea ID="BackDecs_T" name="BackDecs_T" rows="5" class="form-control txtbody">@Model.Result</textarea></td>
+          </tr>
+          <tr>
+              <td class="text-right">上传凭证：</td>
+              <td>
+                  @if (action != "view")
+                  {<input type="button" id="upfile_btn" class="btn btn-info" value="选择文件" />}
+                  <div style="margin-top: 10px;" id="uploader" class="uploader">
+                      <ul class="filelist"></ul>
+                  </div>
+                  <input type="hidden" id="Attach_Hid" name="Attach_Hid" value="@Model.ResultImg" />
+              </td>
+          </tr>
+          @if (action != "view")
+          {
+              <tr id="optr">
+                  <td></td>
+                  <td>
+                      <input type="button" class="btn btn-info" value="确认提现" onclick="return op_accept();"/>
+                      <input type="button" class="btn btn-danger" value="拒绝提现" onclick="return op_reject();" />
+                  </td>
+              </tr>
+          }
+
+      </table>
+  </div>
+</form>
+}
+@section script{
+<style>
+ #navHolder{display:none;}
+</style>
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script>
+    $(function () {
+        ZL_Webup.config.json.accept = 'img';
+        $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+        var imgs = $("#Attach_Hid").val();
+        if (imgs != "") { ZL_Webup.AddReadOnlyLi(imgs); }
+    })
+    function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+    function op_reject() {
+        if (!confirm("确定拒绝该笔提现吗,预扣的金额将会返回用户账号")) { return false; }
+        mvcpage.help.submit({ "url": "@MVCHelper.GetAction("WDAudit_Reject",Context.Request)" });
+    }
+    function op_accept() {
+        if (!confirm("确定该笔提现已处理吗,建议上传转账截图等信息")) { return false; }
+        mvcpage.help.submit({ "url": "@MVCHelper.GetAction("WDAudit_Accept",Context.Request)" });
+    }
+</script>
+ }

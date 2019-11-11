@@ -1,0 +1,46 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Product_API?action=";
+
+}
+@section head{<title>商品回收站</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("ProductManage",@L.商品管理),
+new Bread(Context.Request.RawUrl(),@L.回收站)
+})
+<div class="list_choice" style="width:100%;">
+    <table class="table table-bordered table-striped" id="EGV_Table">
+        <thead>
+            <tr>
+                <th class="w1rem"></th>
+                <th class="w1rem">ID</th>
+                <th style="width:90px;">@L.商品图片</th>
+                <th>@L.商品名称</th>
+                <th>@L.录入者</th>
+                <th>@L.单位</th>
+                <th>@L.库存</th>
+                <th>@L.价格</th>
+                <th>@L.类型</th>
+                <th>@L.商品属性</th>
+                <th>@L.销售中</th>
+                <th>@L.状态</th>
+                <th>@L.操作</th>
+            </tr>
+        </thead>
+        @Html.Partial(MVCHelper.ViewDir_Admin_Product+"Product_List.cshtml")
+    </table>
+    <div style="margin-top:5px;">
+    <input type="button" ID="Rec_B" class="btn btn-outline-info" value="@L.批量还原" onclick="mvcpage.bat({url:'@(apiUrl+"recover")'});"/>
+    <input type="button" ID="Del_B" class="btn btn-outline-danger" value="@L.批量删除" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});"/>
+    <input type="button" ID="DelAll_B" class="btn btn-outline-danger" value="@L.清空回收站" onclick="mvcpage.del({url:'@(apiUrl+"clear")',confirm:'@L.确定要清空回收站吗'});"/>
+</div>     
+</div>
+
+}
+@section script{
+<script>
+function ShowPopover() { }
+</script>
+}

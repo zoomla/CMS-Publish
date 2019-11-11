@@ -1,0 +1,26 @@
+﻿@using ZoomLa.Model.Design
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    M_Design_Ask askMod = ViewBag.askMod;
+}
+@section head{ <title>结果列表</title>}
+@section content{ 
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("SurveyManage","问卷投票"),
+        new Bread() {url=Context.Request.RawUrl(), text="结果分析 ["+askMod.Title+"]",addon="" }}
+		)
+<div class="list_choice">
+    @Html.Partial("SurveyResultList_List")
+</div>
+<div class="sysBtline">
+    <input type="button" ID="BatDel_Btn" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url:'Survey_API?action=ans_del',confirm:'确定要删除吗',after:'refresh'});"/>
+</div>
+}
+@section script{ 
+<script>
+    function ShowAnswer(ansid) {
+        ShowComDiag("/Vote/ShowAnswer?ID=@(askMod.ID)&AnsID="+ansid,"详情");
+    }
+</script>
+}

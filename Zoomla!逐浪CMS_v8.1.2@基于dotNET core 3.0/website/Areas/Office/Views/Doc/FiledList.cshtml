@@ -1,0 +1,50 @@
+﻿@model System.Data.DataTable
+@section head{<title>已归档公文</title> }
+@section content{ 
+    <ol id="BreadNav" class="breadcrumb fixed-top">
+        <li class="breadcrumb-item"><a href="/Office/Main">办公管理</a></li>
+        <li class="breadcrumb-item"><a href="/Office/Flow/ApplyList?view=3">我的公文</a></li>
+        <li class="breadcrumb-item">归档公文</li>
+    </ol>
+    <div class="table-responsive-md pr-1">
+    <table class="table table-bordered">
+        <thead><tr>
+            <th></th>
+            <th>档号</th>
+            <th>标题</th>
+            <th>部门</th>
+            <th>发起人</th>
+            <th>日期</th>
+            <th>操作</th>
+            </tr></thead>
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td>@dr["No"]</td>
+                <td><a href="/Office/FreeFlow/FlowView?AppID=@dr["ID"]&Action=filed">@dr["Title"]</a></td>
+                <td>@dr["Branch"]</td>
+                <td>@dr["UserName"]</td>
+                <td>@dr["SendDate"]</td>
+                <td>
+                    <a href="/Office/FreeFlow/FlowView?AppID=@dr["ID"]&Action=filed">查看</a>
+                </td>
+            </tr>
+        }
+    </table>
+	</div>
+	<div class="sysBtline">
+    <input type="button" value="文档借阅" onclick="ShowBorrow();" class="btn btn-outline-info" />
+	</div>
+}
+@section script{ 
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script>
+        function ShowBorrow() {
+            var ids = GetValByName("idchk");
+            if (ids == "") { alert("请先选择需要代阅的文件!"); return; }
+            location = "AddBorrow.aspx?ids=" + ids;
+            //ShowComDiag("BorrowEdit.aspx?ids=" + ids,"文档借阅");
+        }
+    </script>
+}

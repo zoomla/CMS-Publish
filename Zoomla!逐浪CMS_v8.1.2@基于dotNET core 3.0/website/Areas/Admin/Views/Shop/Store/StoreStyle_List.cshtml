@@ -1,0 +1,35 @@
+﻿@model  ZoomLa.SQLDAL.SQL.PageSetting
+
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>@L.样式名称</td>
+            <td>@L.预览图片</td>
+            <td>@L.首页模板</td>
+            <td>@L.内容模板</td>
+            <td>@L.列表页模板</td>
+            <td>@L.创建时间</td>
+            <td>@L.备注</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+@foreach(DataRow dr in Model.dt.Rows)
+{
+<tr>
+    <td>@dr["ID"]</td>
+    <td>@dr["StyleName"]</td>
+    <td><img src="@dr["Thumbnail"]" class="img_3rem" onerror="shownopic(this);" /></td>
+    <td>@dr["Template_Index"]</td>
+    <td>@dr["Template_Content"]</td>
+    <td>@dr["Template_List"]</td>
+    <td>@dr["CDate"]</td>
+    <td>@dr["Remind"]</td>
+    <td>
+        <a href="StoreStyleAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i> @L.修改</a>
+        <a href="javascript:;" onclick="mvcpage.del({url:'@("Style_API?action=del")',confirm:'@L.确定要删除吗'});"><i class="zi zi_trashalt"></i> @L.删除</a>
+    </td>
+</tr>
+}
+@Html.Partial("_page")
+</table>

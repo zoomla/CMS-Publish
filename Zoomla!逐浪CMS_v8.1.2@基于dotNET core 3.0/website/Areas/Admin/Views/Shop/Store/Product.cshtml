@@ -1,0 +1,67 @@
+﻿@using ZoomLa.BLL.Content
+@{ 
+    B_Node nodeBll = new B_Node();
+    C_TreeView treeMod = new C_TreeView()
+    {
+        NodeID = "NodeID",
+        NodeName = "NodeName",
+        NodePid = "ParentID",
+        DataSource = nodeBll.GetAllUserShopNode(),
+        liAllTlp = "<a href='Product'>全部店铺商品</a>",
+        LiContentTlp = "<a href='javascript:;' onclick='changeNode(@NodeID);'>@NodeName</a>",
+        //SelectedNode = NodeID.ToString()
+    };
+
+}
+@section head{<title>店铺商品</title> }
+@section content{ 
+<div class="container-fluid">
+    <div class="row">
+        <div id="nodeNav" class="col-3 divBorder" style="height:500px;overflow-y:auto;padding-left:0px;">
+            @Html.Partial("_treeview", treeMod)
+        </div>
+        <div class="col-9">
+            <div>
+                @MvcHtmlString.Create(ViewBag.addlink)
+            </div>
+            <div class="margin_t5 table-responsive">
+                @Html.CMS_EGV_OrderBy()
+                <div class="table-responsive-md" style="width:100%;" id="EGV_Table">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="w1rem"></th>
+                                <th class="w1rem"><span class="zlsort" data-field="ID">ID</span></th>
+                                <th style="width:90px;">商品图片</th>
+                                <th>商品名称</th>
+                                <th>录入者</th>
+                                <th>单位</th>
+                                <th>库存</th>
+                                <th><span class="zlsort" data-field="LinPrice">价格</span></th>
+                                <th>类型</th>
+                                <th>商品属性</th>
+                                <th>销售中</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                         @Html.Partial(MVCHelper.ViewDir_Admin_Product+"Product_List.cshtml")
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="NodeID"  class="mvcparam" value="0"/>
+<input type="hidden" id="StoreID" class="mvcparam" value="@Context.Request.GetParam("StoreID")"/>
+}
+@section script{ 
+    <script>
+        function changeNode(nodeId) {
+            $("#NodeID").val(nodeId);
+            mvcpage.load();
+        }
+    </script>
+
+}

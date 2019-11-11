@@ -1,0 +1,25 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{ 
+    public string ruid { get { return ViewBag.ruid; } }
+    string mytlp = "<div class='mychat'><div class='otherchat_face'><img src='{0}' class='userface myface' onerror='shownoface(this)' />{1}</div>"
+            + "<div class='mychat_c'><p class='other_time'><span class='remindgray'>{3}</span></p>"
+            + "<div class='chat_content'>{2}</div><span class='arrow-before arrow'></span><span class='arrow-after arrow'></span></div></div>";
+    string othertlp = "<div class='otherchat'><div class='otherchat_face'><img src='{0}' class='userface otherface' onerror='shownoface(this)'/>{1}</div>"
+     + "<div class='chat_cont_c'><p class='other_time'><span class='remindgray'>{3}</span></p>"
+     + "<div class='chat_content othercontent'>{2}</div><span class='arrow-before arrow'></span><span class='arrow-after arrow'></span></div></div>";
+    public string GetChatContent(DataRow dr)
+    {
+        string html = DataConverter.CStr(dr["UserID"]).Equals(ruid) ? mytlp : othertlp;
+        return string.Format(html, dr["UserFace"], dr["UserName"], dr["Content"], Convert.ToDateTime(dr["CDate"]).ToString("yy/MM/dd HH:mm:ss"));
+    }
+}
+@{ 
+    string pageHtml= PageCommon.CreatePageHtml(Context,Model.pageCount, Model.cpage);
+}
+<div class="chat_body">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    @Html.Raw(GetChatContent(dr))
+}
+</div>
+<div>@Html.Raw(pageHtml)</div>

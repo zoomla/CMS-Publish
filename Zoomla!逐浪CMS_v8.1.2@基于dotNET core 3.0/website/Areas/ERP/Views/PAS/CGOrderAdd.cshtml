@@ -1,0 +1,62 @@
+﻿@model ZoomLa.Model.ERP.M_ERP_Order
+@{ 
+    //M_ERP_OrderItem item = new M_ERP_OrderItem();
+    //new B_ERP_OrderItem().Insert(item);
+    //throw new Exception(JsonConvert.SerializeObject(ZoomLa.SQLDAL.DBCenter.Sel("ZL_ERP_OrderItem")));
+  
+}
+@section head{ <title>订单信息</title>}
+@section content{
+<style type="text/css">
+.row{margin-bottom:5px;}
+</style>
+@ERPHelper.SetBread(new Bread[] {
+new Bread("CGOrder","订单列表"),
+new Bread(Context.Request.RawUrl(),"订单信息")
+})
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">供应商</span></span>
+            @Html.TextBoxFor(m=>m.CGVendor,new {@class="form-control"})
+        </div>
+        <div class="col-4  input-group">
+            <span class="input-group-prepend"><span class="input-group-text">交易日期</span></span>
+            @Html.TextBoxFor(m=>m.CGDate,new {@class="form-control",onclick="WdatePicker({});" })
+        </div>
+        <div class="col-4  input-group">
+            <span class="input-group-prepend"><span class="input-group-text">单据编码</span></span>
+            @Html.TextBoxFor(m=>m.OrderNo,new {@class="form-control",disabled="disabled" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">采购方式</span></span>
+            @Html.TextBoxFor(m => m.CGType, new { @class = "form-control" })
+        </div>
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">申请人</span></span>
+            @Html.TextBoxFor(m=>m.CUName,new {@class="form-control",disabled="disabled" })
+        </div>
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">采购员</span></span>
+            @Html.TextBoxFor(m => m.CGUName, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">摘要</span></span>
+            @Html.TextBoxFor(m=>m.OrderTip,new {@class="form-control",placeholder="请输入订单摘要" })
+        </div>
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">审批人</span></span>
+            @Html.TextBoxFor(m => m.SHUName, new { @class = "form-control",disabled="disabled" })
+        </div>
+    </div>
+    @Html.Partial("CGOrderFill")
+</div>
+<input type="text" class="form-control" value="@Html.Raw(ERPHelper.Order.采购)" style="display:none;" name="ZType"/>
+}
+@section script{
+
+}

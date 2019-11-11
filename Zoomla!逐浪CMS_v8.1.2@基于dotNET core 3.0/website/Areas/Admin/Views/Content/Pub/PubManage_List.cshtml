@@ -1,0 +1,120 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string apiUrl = "Pub_API?action=";
+}
+@functions{
+    public string ShowPubType(int type)
+    {
+        string typename = "";
+        switch (type)
+        {
+            case 0:
+                typename = "评论";
+                break;
+            case 1:
+                typename = "投票";
+                break;
+            case 2:
+                typename = "活动";
+                break;
+            case 3:
+                typename = "留言";
+                break;
+            case 4:
+                typename = "问券调查";
+                break;
+            case 5:
+                typename = "通用统计";
+                break;
+            case 6:
+                typename = "竞标";
+                break;
+        }
+        return typename;
+    }
+    public string ShowClassName(string Classs)
+    {
+        string classname = "";
+        switch (Classs)
+        {
+            case "0":
+                classname = "内容";
+                break;
+            case "1":
+                classname = "商城";
+                break;
+            case "2":
+                classname = "黄页";
+                break;
+            case "3":
+                classname = "店铺";
+                break;
+            case "4":
+                classname = "会员";
+                break;
+            case "5":
+                classname = "节点";
+                break;
+            case "6":
+                classname = "首页";
+                break;
+        }
+        return classname;
+    }
+    public string ShowLabel(DataRow dr)
+    {
+        int type = DataConverter.CLng(dr["PubType"]);
+        //string load = DataConverter.CStr(dr["PubLoadstr"]);
+        string pubName = DataConverter.CStr(dr["Pubname"]);
+        string result = "";
+        if (type == 7)
+        {
+            //{ZL:StarLabel(ZL.Label id="我是评星7调用标签",1)/}
+            result = "{ZL:StarLabel(ZL.Label id=\"" + pubName + "调用标签\",ID)/}";
+        }
+        else
+        {
+            result = "{Pub.Load_" + pubName + "/}";
+        }
+        return result;
+    }
+}
+<div id="EGV" class="list_choice">
+<table class="table table-bordered table-striped">
+         <thead>
+             <tr>
+                 <td class="w1rem"></td>
+                 <td>ID</td>
+                 <td>@L.模块名称</td>
+                 <td>@L.模块类型</td>
+                 <td>@L.信息类别</td>
+                 <td>@L.模型表名</td>
+                 <td>@L.调用标签</td>
+                 <td>@L.操作</td>
+             </tr>
+         </thead>
+         @foreach (DataRow dr in Model.dt.Rows)
+         {
+             <tr>
+                 <td><input type="checkbox" name="idchk" value="@dr["PubID"]" /></td>
+                 <td>@dr["Pubid"]</td>
+                 <td><a href="PubAdd?menu=edit&id=@dr["PubID"]">@dr["PubName"]</a></td>
+                 <td>@ShowPubType(Convert.ToInt32(dr["PubType"]))</td>
+                 <td>@ShowClassName(DataConverter.CStr(dr["PubClass"]))</td>
+                 <td>@dr["PubTableName"]</td>
+                 <td>@ShowLabel(dr)</td>
+                 <td>
+                     <a href="PubAdd?menu=edit&id=@dr["PubID"]"><i class="zi zi_pencilalt"></i>@L.修改</a>
+                     <a href="Pubsinfo?Pubid=@dr["PubID"]&type=0"> <i class="zi zi_magic" title="信息列表"></i>@L.信息列表</a>
+                     <a href="javascript:;" onclick="mvcpage.del({ids:'@dr["PubID"]',url:'@(apiUrl+"copy")',confirm:'@L.确定要复制吗'});"> <i class="zi zi_copy"></i>@L.复制</a>
+                     @*<a href="pubinfo?menu=delete&id=@dr["PubID"]" onclick="return confirm('确实要放入存档吗!');" ><i class="zi zi_floderLine"></i>存档</a>*@
+                     <a href="javascript:;" onclick="mvcpage.del({ ids: '@dr["PubID"]', url: '@(apiUrl+"del")', confirm: '@L.确定要移除吗' });"><i class="zi zi_trashalt"></i>@L.删除</a>
+                 </td>
+
+             </tr>
+         }
+         @Html.Partial("_page")
+     </table>
+</div>

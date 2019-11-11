@@ -1,0 +1,23 @@
+﻿<div class="modal bd-example-modal-lg" id="article_div" style="position:fixed;top:35px;z-index:5;">
+<div class="modal-dialog modal-lg">
+<form method="post" action="ArtSave_Submit">
+  <div class="modal-content">
+	<div class="modal-header">
+	  <span class="modal-title"><strong>撰写文章</strong></span> 
+	  <button type="button" class="close" data-dismiss="modal" onclick="$('#article_div').hide();"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+	  </div>
+	<div class="modal-body" style="height:460px;overflow-y:auto;">
+        <div style="margin-bottom:5px;"><input type="text" ID="ArtTitle_T" name="ArtTitle_T" class="form-control" placeholder="请输入文章标题"/></div>
+        <div><textarea ID="Article_T" name="Article_T" style="height:300px;"></textarea></div>
+	</div>
+	<div class="modal-footer" style="text-align:center;">
+        <input type="button" class="btn btn-info"    value="保存" onclick="htmlchk();" />
+        <input type="button" class="btn btn-outline-info" value="关闭" onclick="$('#article_div').hide();">
+	</div>
+  </div>
+</form>
+</div>
+</div>
+<script src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+@Html.Raw(Call.GetUEditor("Article_T",2))

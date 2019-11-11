@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+
+<table class="table table-bordered table-striped" id="EGV">
+<thead><tr>
+    <th></th>
+    <th>ID</th>
+    <th>商品名称</th>
+    <th>进价</th>
+    <th>库存数量</th>
+    <th>操作</th>
+    </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+      <tr>
+          <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+          <td>@dr["ID"]</td>
+          <td>@dr["Proname"]</td>
+          <td>@DataConverter.CDouble(dr["LinPrice"]).ToString("F2")</td>
+          <td></td>
+          <td>
+              <a href="ProductAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i></a>
+          </td>
+      </tr>
+    }
+    @Html.Partial("_page")
+</table>

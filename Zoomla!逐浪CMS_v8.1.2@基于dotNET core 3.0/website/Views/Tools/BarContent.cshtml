@@ -1,0 +1,41 @@
+﻿@{ 
+    string result = ViewBag.result;
+    if (string.IsNullOrEmpty(result)) { result = "<span style='color:#999;'>结果显示区域...</span>"; }
+
+}
+@section  head{<title>贴吧内容</title> }
+@section content{ 
+<form method="post" id="form1">
+<div class="row" style="margin-top:55px;">
+    <div class="col-6">
+        <textarea ID="CompressContent_T" name="CompressContent_T" class="form-control fullheight" rows="20" placeholder="请拷贝入待解压缩字符串" style="resize: none;">@ViewBag.content</textarea>
+    </div>
+    <div class="col-6" style="border:1px solid #ddd;">
+        <div runat="server" id="UnCompressContent" class="fullheight" style="overflow:auto;">@MvcHtmlString.Create(result)</div>
+    </div>
+</div>
+<div class="fixed-top container-fulid bg-dark p-1">
+<a href="../Tools/"><i class="zi zi_redoalt" aria-hidden="true"></i> 返回工具箱</a>
+    <input type="submit" ID="Sure_Btn" class="btn btn-info btn-sm" value="点击解压缩字符串->" onclick="return subCheck('uncompress');"/>
+    <input type="submit" ID="Compress_Btn" class="btn btn-info btn-sm" value="压缩字符串" onclick="return subCheck('compress');"/>
+</div>
+</form>
+}
+@section script{ 
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+    $(function () {
+        $(".fullheight").css("height", $(document).height() - 60);
+    })
+    function subCheck(action) {
+        if (ZL_Regex.isEmpty($("#CompressContent_T").val()))
+        {
+            alert("待解压缩字符串不能为空"); return false;
+        }
+        $("#form1").attr("action", "BarContent_" + action);
+        $("#form1").submit();
+        return true;
+    }
+</script>
+
+}

@@ -1,0 +1,284 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Shop
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@using ZoomLa.Components
+@using ZoomLa.SQLDAL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_User buser = new B_User();
+    B_PayPlat platBll = new B_PayPlat();
+    public string Getoperator(DataRow dr)
+    {
+        M_OrderList orderMod = new M_OrderList();
+        string result = "";
+        int orderStatus = DataConverter.CLng(dr["OrderStatus"]);
+        string payNo = DataConverter.CStr(dr["PaymentNo"]);
+        int oid = Convert.ToInt32(dr["ID"]);
+        int aside = Convert.ToInt32(dr["Aside"]);
+        string orderNo = dr["OrderNo"].ToString();
+        //----------如果已经删除,则不执行其余的判断
+        //if (aside != 0)//如果已删除,则不进行其余的判断
+        //{
+        //    result += "<div><a href='javascript:;' data-oid='" + oid + "' onclick='ConfirmAction(this,\"reconver\");'>还原订单</a></div>";
+        //    result += "<div><a href='javascript:;' data-oid='" + oid + "' onclick='ConfirmAction(this,\"realdel\");'>彻底删除</a></div>";
+        //    return result;
+        //}
+        if (string.IsNullOrEmpty(payNo))//未付款,显示倒计时和付款链接
+        {
+            //bool isnormal = true;
+            //订单过期判断
+            if (SiteConfig.ShopConfig.OrderExpired > 0)
+            {
+                int seconds = GetOrderUnix(dr);
+                if (seconds <= 0)
+                { result += "<div class='gray9'>订单关闭</div>"; }//isnormal = false;
+                else
+                { result += "<div class='ordertime' data-time='" + seconds + "'></div>"; }
+            }
+            ////订单未完成,且为正常状态,显示付款
+            //if (isnormal && OrderHelper.IsCanPay(dr.Row))
+            //{
+            //    result += "<div><a href='/Payonline/OrderPay?OrderCode=" + orderNo + "' target='_blank' class='btn btn-info'>前往付款</a></div>";
+            //}
+            //result += "<div><a href='javascript:;' data-oid='" + oid + "' onclick='ConfirmAction(this,\"del\");'>移除订单</a></div>";
+        }
+        else
+        {
+            //已付款,但处理申请退款等状态
+            if (orderStatus < (int)M_OrderList.StatusEnum.Normal)
+            {
+                //result += "<a href='AddShare?CartID=" + dr["CartID"] + "'>取消退款</a><br />";
+            }
+        }
+        return result;
+    }
+    //还差多少分钟到期
+    public int GetOrderUnix(DataRow dr)
+    {
+        DateTime addTime = Convert.ToDateTime(dr["AddTime"]);
+        int seconds = (SiteConfig.ShopConfig.OrderExpired * 60 * 60) - (int)(DateTime.Now - addTime).TotalSeconds;
+        return seconds;
+    }
+    //是否允许返修,退货等售后服务
+    public string GetRepair(DataRow dr)
+    {
+        //已完结状态才能返修,退款等售后,其他情况下申请订单退款
+        string guess = DataConvert.CStr(dr["GuessXML"]);
+        string result = "";
+        string addStatus = DataConvert.CStr(dr["AddStatus"]);
+        int orderStatus = Convert.ToInt32(dr["OrderStatus"]);
+        if (addStatus.Contains("exchange"))
+        {
+            result += "<a href='javascript:;' class='gray9'>已申请换货</a>";
+        }
+        else if (addStatus.Contains("repair"))
+        {
+            result += "<a href='javascript:;' class='gray9'>已申请返修</a>";
+        }
+        else if (addStatus.Contains("drawback"))
+        {
+            result += "<a href='javascript:;' class='gray9'>已申请退货</a>";
+        }
+        //else if (!string.IsNullOrEmpty(guess) && orderStatus >= (int)M_OrderList.StatusEnum.OrderFinish)
+        //{
+        //    result += "<a href='ReqRepair?cid=" + Eval("CartID") + "' class='gray9'>返修/退换货</a>";
+        //}
+        return result;
+    }
+    public string GetImgUrl(DataRow dr)
+    {
+        return function.GetImgUrl(dr["Thumbnails"]);
+    }
+    public string GetShopUrl(DataRow dr)
+    {
+        return OrderHelper.GetShopUrl(DataConvert.CLng(dr["StoreID"]), Convert.ToInt32(dr["ProID"]));
+    }
+    public string GetMessage(DataRow dr)
+    {
+        if (Convert.ToInt32(dr["OrderType"]) == 7)
+        {
+            return "<tr class='idm_tr'><td colspan='6'><p class='idcmessage'>详记：" + dr["Ordermessage"] + "</p></td></tr>";
+        }
+        else return "";
+    }
+    public string GetStoreName(int storeid)
+    {
+        //DataRow[] dr = StoreDT.Select("ID=" + storeid);
+        //if (dr.Length > 0) { return dr[0]["StoreName"].ToString(); }
+        //else { return ""; }
+        return "";
+    }
+    public string GetPayInfo(DataRow dr)
+    {
+        if (!string.IsNullOrEmpty(DataConvert.CStr(dr["PaymentNo"])))
+        {
+            return dr["PaymentNo"].ToString();
+        }
+        else { return OrderHelper.GetPayStatus(Convert.ToInt32(dr["PaymentStatus"])); }
+    }
+    public string GetExpSTime(DataRow dr)
+    {
+        if (DataConvert.CLng(dr["ExpressNum"]) < 1) { return "<span style='color:red;'>未发货</span>"; }
+        else
+        {
+            return DataConvert.CStr(dr["ExpSTime"]);
+        }
+    }
+    public string GetPUserInfo(DataRow dr)
+    {
+        int puid = DataConvert.CLng(dr["ParentUserID"]);
+        if (puid < 1) { return "无推荐人"; }
+        else
+        {
+            string puname = buser.GetUserNameByIDS(puid.ToString());
+            return "<a href=\"javascript:;\" onclick=\"user.showuinfo('" + puid + "')\">" + puname + "(" + puid + ")</a>";
+        }
+    }
+    //首行才执行,生成操作与资金列
+    public string GetOrderOP(DataRow dr)
+    {
+        M_Payment payMod = OrderHelper.GetPaymentByOrderNo(dr);
+        int count = ViewBag.CartDT.Select("id=" + dr["ID"]).Length;
+        string html = "";
+        //收货人
+        html += "<td class='td_l rowtd' rowspan='" + count + "'>";
+        html += "<i class='zi zi_user'></i> <a href='OrderList?UserID=" + dr["UserID"] + "' title='按用户筛选'>" + B_User.GetUserName(dr["HoneyName"], dr["AddUser"]) + "</a>";
+        html += "(<a href='javascript:;' onclick='user.showuinfo(" + dr["UserID"] + ");' title='查看用户信息'><span style='color:green;'>" + dr["UserID"] + "</span></a>)";
+        html += "</td>";
+        //金额栏
+        html += "<td class='td_l rowtd' rowspan='" + count + "' style='font-size:12px;'>总计:<i class='zi zi_yensign'></i> " + Convert.ToDouble(dr["OrdersAmount"]).ToString("f2") + "<br />";
+        string _paytypeHtml = OrderHelper.GetStatus(dr, OrderHelper.TypeEnum.PayType);
+        if (!string.IsNullOrEmpty(_paytypeHtml)) { _paytypeHtml = _paytypeHtml + "<br />"; }
+        html += _paytypeHtml;
+        html += "<div>商品:" + (DataConvert.CDouble(dr["OrdersAmount"]) - DataConvert.CDouble(dr["Freight"])).ToString("F2") + "</div>";
+        html += "<div>运费:" + DataConvert.CDouble(dr["Freight"]).ToString("F2") + "</div>";
+        html += "<div title='优惠券'>优惠:" + payMod.ArriveMoney.ToString("F2") + "</div>";
+        html += "<div>积分:" + payMod.UsePointArrive.ToString("f2") + "(" + payMod.UsePoint.ToString("F0") + ")</div>";
+        switch (payMod.PayType)
+        {
+            case (int)M_OrderList.PayTypeEnum.PrePay:
+                try
+                {
+                    M_PrePayinfo preInfo = new M_PrePayinfo(payMod.PrePayInfo);
+                    string payedTlp = "<div>(<span style='color:green;'>已付款</span>:{0},{1})</div>";
+                    string nopayTlp = "<div>(<span style='color:red;'>未付款</span>)</div>";
+                    html += "<div style='color:#d9534f;'>定金:" + preInfo.money_pre.ToString("F2") + "</div>";
+                    html += preInfo.money_pre_payed > 0 ? string.Format(payedTlp, preInfo.money_pre_payed.ToString("F2"), preInfo.pre_payMethod) : nopayTlp;
+                    html += "<div style='color:#d9534f'>尾款:" + preInfo.money_after.ToString("F2") + "</div>";
+                    html += preInfo.money_after_payed > 0 ? string.Format(payedTlp, preInfo.money_after_payed.ToString("F2"), preInfo.after_payMethod) : nopayTlp;
+                    html += "<div style='color:#d9534f'>总计:" + preInfo.money_total.ToString("F2") + "</div>";
+                }
+                catch
+                {
+                    html += "预付信息错误";
+                }
+                break;
+            default:
+                html += "<div style='color:#d9534f;'>需付:" + payMod.MoneyReal.ToString("F2") + "</div>";
+                break;
+        }
+        if (!string.IsNullOrEmpty(DataConvert.CStr(dr["PaymentNo"])))
+        {
+            string plat = platBll.GetPayPlatName(DataConvert.CStr(dr["PaymentNo"]));
+            html += "<a href='" + StrHelper.Url_AddParam(Context.Request.RawUrl(), "filter=paid") + "' title='筛选已付款订单'>" + "<span style='color:#337ab7;'>" + plat + "</span>"
+                + "(" + OrderHelper.GetStatus(dr, OrderHelper.TypeEnum.Pay) + ")</a>";
+        }
+        else
+        {
+            html += "(" + OrderHelper.GetStatus(dr, OrderHelper.TypeEnum.Pay) + ")";
+        }
+        html += "</td>";
+        //订单状态
+        html += "<td class='td_md rowtd' rowspan='" + count + "'>";
+        html += "<span class='gray9'>" + (DataConvert.CLng(dr["IsSure"]) == 1 ? "已确认" : "未确认") + "</span><br />";
+        html += "<span class='gray9'>" + OrderHelper.GetStatus(dr, OrderHelper.TypeEnum.Order) + "</span> <br />";
+        int ordertype = DataConvert.CLng(dr["OrderType"]);
+        //非旅游与酒店订单,则显示快递信息
+        int expid = DataConvert.CLng(dr["ExpressNum"]);
+        if (ordertype != 7 && ordertype != 9)
+        {
+            html += "<a href='javascript:;' class='expview_a' data-expid='" + expid + "' id='expview_" + dr["ID"] + "_a' onclick=\"exp.apilink(this,'" + expid + "');\">" + OrderHelper.GetExpStatus(Convert.ToInt32(dr["StateLogistics"])) + "</span> <br/>";
+        }
+        html += "</td>";
+        //操作栏
+        html += "<td class='td_md rowtd' rowspan='" + count + "'><a href='"+Call.PathAdmin("Order/OrderListInfo?ID=") + dr["ID"] + "' class='order_bspan'>订单详情</a><br/>" + Getoperator(dr) + "</td>";
+        return html;
+    }
+}
+@{ 
+    DataTable CartDT = ViewBag.CartDT;
+    Filter_Order filter = ViewBag.filter;
+    Model.page_wrap_start = "<div class='clearfix'></div><div class='text-center foot_page'>";
+    Model.page_wrap_end = "</div>";
+    Model.target = "orderlist";
+}
+<div class="orderlist" id="orderlist">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+<div class="order-item">
+        <table class="table prolist" style="margin-bottom:0px;">
+            <thead>
+                <tr class="tips_div">
+                    <th class="orderinfo" colspan="8">
+                        <div style="display: inline-block; width: 1100px;font-size:12px;">
+                            <span><strong><label><input type="checkbox" name="idchk" value="@dr["ID"]" style="position:relative;top:2px;"/>编号：@dr["ID"]</label></strong></span>
+                            <span><strong>订单号：</strong><a href="@Call.PathAdmin("Order/OrderListInfo?ID="+dr["ID"])" title="订单详情">@dr["OrderNo"]</a></span>
+                            <span><strong>下单时间：</strong>@dr["AddTime"]</span>
+                            <span><strong>付款单号：</strong>@MvcHtmlString.Create(GetPayInfo(dr))</span>
+                            <span><strong>发货时间：</strong>@MvcHtmlString.Create(GetExpSTime(dr))</span>
+                            <span><strong>推荐人：</strong>@MvcHtmlString.Create(GetPUserInfo(dr))</span>
+                        </div>
+                        <span style="font-size:16px;font-weight:bolder;">店铺：<asp:Label ID="Store_L" runat="server" /></span>
+                        <a href="javascript:;" title="收缩/展开" onclick="order.slideup(this);"><i class="zi zi_circleDowns" style="font-size: 20px;"></i></a>
+                        @if (filter.addon.Equals("recycle"))
+                        {
+
+                        }
+                        else
+                        {
+                            <a href="javascript:;" onclick="mvcpage.del({url:'Order_API?action=recycle',ids:'@dr["ID"]',confirm:'确定要移入回收站吗',target:'orderlist'});" class="float-right btn btn-sm btn-danger margin_l5"><i class="zi zi_trashalt" zico="垃圾箱竖条"></i>删除订单</a>
+                            @*if (DataConvert.CLng(dr["ExpressNum"]) > 0)
+                            {
+                                <a href="@Call.PathAdmin("Shop/Order/ExpPrint?ID="+dr["ID"])" class="float-right btn btn-sm btn-info"><i class="zi zi_print" zico="打印机"></i> 打印快递单</a>
+                            }*@
+                        }  
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="prowrap">
+                            @{ 
+                                //storeName.Text = GetStoreName(Convert.ToInt32(drv["StoreID"]));
+                                CartDT.DefaultView.RowFilter = "OrderNo='" + dr["OrderNo"] + "'";
+                                DataTable dt = CartDT.DefaultView.ToTable();
+                            }
+                            @for (int i = 0; i < dt.Rows.Count; i++)
+                            {
+                                DataRow cart = dt.Rows[i];
+                                <tr class="@(i>4?"pro_more hidden":"")">
+                                    <td style="text-align: left; border-right: none; border-left: none;">
+                                        <span>
+                                            <a href="@GetShopUrl(cart)" target="_blank">
+                                                <img src="@GetImgUrl(cart)" onerror="shownopic(this)" class="img50" />
+                                            </a>
+                                            <span>@cart["Proname"]</span>
+                                        </span>
+                                        @if (DataConvert.CLng(dr["PClass"]) == 2)
+                                        {<input type='button' class='btn btn-info' value='促销组合' onclick="order.showSuit('@dr["CartID"]');"> }
+                                    </td>
+                                    <td class="td_md goodservice" style="border-left: none;">@MvcHtmlString.Create(GetRepair(dr))</td>
+                                    <td class="td_md">@DataConvert.CDouble(dr["Shijia"]).ToString("F2")</td>
+                                    <td class="td_md gray9">x@(dr["Pronum"])</td>
+                                    @if (i == 0) { @MvcHtmlString.Create(GetOrderOP(cart)); }
+                                </tr>
+                                if (i == 5)
+                                {<tr><td colspan="4" class="text-left" style="line-height:30px;height:30px;"><a href="javascript:;" onclick="order.showMore(this);" class="btn btn-info">查看更多商品 <i class="zi zi_forRight" zico="右指"></i></a></td></tr> }}
+                            @(GetMessage(dr))
+                        </tbody>
+                    </table>
+                </div>
+}
+@Html.Partial("_page")
+ </div>

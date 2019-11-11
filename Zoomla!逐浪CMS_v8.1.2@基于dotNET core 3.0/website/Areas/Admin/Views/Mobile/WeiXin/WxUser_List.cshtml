@@ -1,0 +1,42 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+      public string GetSexIcon(DataRow dr)
+        {
+            string classname = DataConverter.CLng(dr["Sex"]) == 1 ? "zi zi_male" : "zi zi_female";
+            return "<span style='font-size:20px;' class='" + classname + " sex'></span>";
+        }
+
+
+}
+
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td></td>
+            <td>用户头像</td>
+            <td>用户名</td>
+            <td>用户信息</td>
+            <td>OpenID</td>
+            <td>性别</td>
+            @*<td>标识</td>*@
+            <td>更新时间</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td><img class="imgurl img_3rem" src="@dr["HeadImgUrl"]" onerror="shownoface(this);" /></td>
+            <td><span class="name">@dr["Name"]</span></td>
+            <td><a href="javascript:;" onclick="user.showuinfo('@dr["UserID"]');">@dr["UserName"]</a></td>
+            <td>@dr["OpenID"]</td>
+            <td>@GetSexIcon(dr)</td>
+            @*<td> <%#ShowZType() %></td>*@
+            <td><span class="cdate">@dr["CDate"]</span></td>
+            <td><a href="javascript:;" title="更新用户信息" onclick="mvcpage.del({url:'WXUser_API?action=update',ids:'@dr["ID"]'});" data-oid="@dr["OpenID"]" class="wxoption"><span class="zi zi_sync"></span>更新用户信息</a></td>
+        </tr>
+    }
+@Html.Partial("_page")
+</table>
+

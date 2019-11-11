@@ -1,0 +1,57 @@
+﻿@model ZoomLa.Model.ERP.M_ERP_Order
+@using ZoomLa.BLL.ERP
+@using ZoomLa.Model.ERP
+@using ZoomLa.SQLDAL;
+@using Newtonsoft.Json
+@{ 
+    DataTable proDT = DBCenter.SelWithField("ZL_Commodities","ID,ProName,ProUnit,LinPrice,Stock,Clearimg","Sales=1");
+    DataTable itemDT = DBCenter.Sel("ZL_ERP_OrderItem","OrderID="+Model.ID);
+}
+@section head{ <title>订单信息</title>}
+@section content{
+<style type="text/css">
+.row{margin-bottom:5px;}
+</style>
+@ERPHelper.SetBread(new Bread[] {
+new Bread("CGOrder","订单列表"),
+new Bread(Context.Request.RawUrl(),"订单信息")
+})
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">客户</span></span>
+            @Html.TextBoxFor(m=>m.SaleClient,new {@class="form-control"})
+        </div>
+        <div class="col-4  input-group">
+            <span class="input-group-prepend"><span class="input-group-text">单据日期</span></span>
+            @Html.TextBoxFor(m=>m.CGDate,new {@class="form-control",onclick="WdatePicker({});" })
+        </div>
+        <div class="col-4  input-group">
+            <span class="input-group-prepend"><span class="input-group-text">单据编码</span></span>
+            @Html.TextBoxFor(m=>m.OrderNo,new {@class="form-control",disabled="disabled" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">销售类型</span></span>
+            @Html.TextBoxFor(m => m.CGType, new { @class = "form-control" })
+        </div>
+        <div class="col-4 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">销售员</span></span>
+            @Html.TextBoxFor(m => m.CGUName, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8 input-group">
+            <span class="input-group-prepend"><span class="input-group-text">销售备注</span></span>
+            @Html.TextBoxFor(m=>m.OrderTip,new {@class="form-control",placeholder="请输入订单摘要" })
+        </div>
+    </div>
+    @Html.Partial("CGOrderFill")
+</div>
+<input type="text" class="form-control" value="@Html.Raw(ERPHelper.Order.销售)" style="display:none;" name="ZType"/>
+}
+@section script{
+
+
+}

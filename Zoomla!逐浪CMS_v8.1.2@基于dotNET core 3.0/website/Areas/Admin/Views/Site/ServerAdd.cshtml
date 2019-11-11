@@ -1,0 +1,53 @@
+﻿@model System.Data.DataRow
+@{ 
+  
+}
+@section head{ <title>服务器信息</title>}
+@section content{
+@Call.SetBread(new Bread[] { 
+ new Bread("{admin}"),
+ new Bread("ServerClusterConfig","服务器管理"),
+ new Bread(Context.Request.RawUrl(),"服务器信息")
+
+})
+<div class="list_choice">
+<form method="post" action="@MVCHelper.GetAction("ServerAdd_Submit",Context.Request)">
+    <table class="table table-bordered">
+        <tr>
+            <th class="w12rem_lg">主控站点网址</th>
+            <td>
+                <input type="text" ID="siteUrl" name="siteUrl" style="float:left;" class=" form-control required" value="@Model["SiteUrl"]"/>
+                <small class="text-muted">示例:http://www.z01.com/ </small>
+            </td>
+        </tr>
+          <tr>
+            <th>服务器名</th>
+            <td><input type="text" class="form-control required" ID="SiteName" name="SiteName" value="@Model["SiteName"]"/></td>
+        </tr>
+        <tr>
+            <th>管理员帐号</th>
+            <td><input type="text" class="form-control required" ID="siteUser" name="siteUser" value="@Model["siteUser"]"/></td>
+        </tr>
+        <tr>
+            <th>管理员密码</th>
+            <td>
+                <input type="text" class="form-control required" ID="sitePasswd" name="sitePasswd" value="@Model["sitePasswd"]"/>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID="GetCustomPath" value="保存信息" class="btn btn-outline-info" />
+            </td>
+        </tr>
+    </table>
+</form>
+</div>
+
+}
+@section script{
+<script>
+    $("form").validate({});
+</script>
+
+}

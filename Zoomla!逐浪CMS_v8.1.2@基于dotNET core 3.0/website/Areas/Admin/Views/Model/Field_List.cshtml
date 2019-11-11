@@ -1,0 +1,79 @@
+﻿@using ZoomLa.Model.Content
+@using ZoomLa.BLL.Content
+@model System.Data.DataTable
+@functions{
+    B_ModelField bll = new B_ModelField();
+    public string GetChk(DataRow dr)
+    {
+        if (DataConverter.CBool(DataConverter.CStr(dr["sys_type"]))) { return ""; }
+        else { return "<input type='checkbox' name='idchk' value='" + dr["FieldID"] + "' />"; }
+    }
+    public string GetFieldType(string TypeName)
+    {
+        return bll.GetFieldType(TypeName);
+    }
+
+    public bool Get_sum(string Sys_type)
+    {
+        return !DataConverter.CBool(Sys_type);
+    }
+    public string IsSysField(DataRow dr)
+    {
+        if (DataConverter.CBool(DataConverter.CStr(dr["Sys_type"])))
+        {
+            return "<span style='color:green;'>系统</span>";
+        }
+        else { return "自定义"; }
+    }
+    public IHtmlContent IsValid(object value, string type = "")
+    {
+        string check = ComRE.Icon_OK;
+        string error = ComRE.Icon_Error;
+        string result = "";
+        if (type.Equals("iscopy"))
+        {
+            result = value.Equals("-1") ? error : check;
+        }
+        else
+        {
+            result = DataConverter.CBool(DataConverter.CStr(value)) ? check : error;
+        }
+        return Html.Raw(result);
+    }
+
+}
+@{ 
+    M_ModelInfo modInfo = ViewBag.model;
+    string addUrl = "FieldAdd?ModelID=" + modInfo.ModelID + "&ModelType=" + modInfo.ModelType;
+
+}
+<tbody id="EGV">
+    @foreach (DataRow dr in Model.Rows)
+            {
+                <tr data-id="@dr["FieldID"]" ondblclick="GetToUrl('@dr["FieldID"]');">
+                    <td>@Html.Raw(GetChk(dr))</td>
+                    <td>@dr["FieldID"]</td>
+                    <td>@dr["FieldName"]</td>
+                    <td>@dr["FieldAlias"]</td>
+                    <td>@GetFieldType(DataConverter.CStr(dr["FieldType"]))</td>
+                    <td>@Html.Raw(IsSysField(dr))</td>
+                    <td>@IsValid(dr["IsCopy"], "iscopy")</td>
+                    <td>@IsValid(dr["IsShow"])</td>
+                    <td>@IsValid(dr["IsNotNull"])</td>
+                    <td>@IsValid(dr["Islotsize"])</td>
+                    <td>@IsValid(dr["IsChain"])</td>
+                    <td>
+                        <a href="javascript:;" onclick="moveup(this)">↑@L.上移</a><a href="javascript:;" onclick="movedown(this)">@L.下移↓</a>
+                    </td>
+                    <td class="text-center">
+                        <input type="text" class="text_x text-center" name="order" data-id="@dr["FieldID"]" data-old="@dr["OrderID"]" value="@dr["OrderID"]" />
+                    </td>
+                    <td class="text-center">
+                        <a href="@(addUrl+"&ID="+dr["FieldID"])"><i class="zi zi_pencilalt" title="修改"></i></a>
+                        <a href="javascript:;" onclick="mvcpage.del({ ids: '@dr["FieldID"]', url: 'Field_API?action=del',after:function(){location=location;}, confirm: '@L.确定要移除吗' });"><i class="zi zi_trash" title="删除"></i></a>
+                    </td>
+                </tr>
+            }
+<script>$("#FieldList tr td:contains('系统')").parent().hide();</script>
+</tbody>
+    

@@ -1,0 +1,62 @@
+﻿@model System.Data.DataTable
+@functions{
+        public string GetAllowAttach(string allowAttach)
+        {
+            switch (allowAttach)
+            {
+                case "0":
+                    return "不允许";
+                case "1":
+                    return "允许";
+                default:
+                    return "";
+            }
+        }
+
+}
+@section head{<title>流程列表</title> }
+@section content{ 
+
+    <ol id="BreadNav" class="breadcrumb fixed-top">
+        <li class="breadcrumb-item"><a href="/Office/Index/Main">办公平台</a></li>
+        <li class="breadcrumb-item"><a href="@Context.Request.RawUrl()">流程列表</a></li>
+    </ol>
+    <table class="table table-bordered table-striped">
+        <thead><tr>
+            <th>ID</th>
+            <th>流程名称</th>
+            <th>流程表单</th>
+            <th>允许附件</th>
+            <th>备注</th>
+            <th>操作</th>
+            </tr></thead>
+  
+
+    @foreach (DataRow dr in Model.Rows)
+    {
+    <tr>
+        <td>@dr["ID"]</td>
+        <td><a href="FlowApply?ProID=@dr["ID"]">@dr["ProcedureName"]</a></td>
+        <td>@dr["FormInfo"]</td>
+        <td>@GetAllowAttach(DataConvert.CStr(dr["AllowAttach"]))</td>
+        <td>@dr["Remind"]</td>
+        <td>
+            <a href="FlowApply?ProID=@dr["ID"]" class="btn btn-outline-info">新建@(dr["SponsorGroup"])</a>
+            <button type="button" onclick="ShowImgDiag('@dr["ID"]')" class="btn btn-outline-info">查看流程图</button>
+        </td>
+    </tr>
+    }
+          </table>
+}
+@section script{ 
+<script>
+    var diag = new ZL_Dialog();
+    function ShowImgDiag(proID) {
+        diag.title = "查看流程图";
+        diag.width = "diag";
+        diag.url = "ImgWorkFlow?proid=" + proID;
+        diag.maxbtn = false;
+        diag.ShowModal();
+    }
+</script>
+}

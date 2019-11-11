@@ -1,0 +1,108 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL.SQL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string ShowUserName(DataRow dr)
+    {
+        string html = DataConverter.CStr(dr["UserName"]);
+        string trueName = DataConverter.CStr(dr["PERMISSIONS"]);
+        if (!string.IsNullOrEmpty(trueName))
+        {
+            html += "(" + trueName + ")";
+        }
+        return html;
+    }
+    public IHtmlContent ShowStatus(object value)
+    {
+        string html = "";
+        if (DataConverter.CLng(value) == 3)
+            html = ComRE.Icon_OK;
+        else
+            html = ComRE.Icon_Error;
+        return MvcHtmlString.Create(html);
+    }
+    public IHtmlContent ShowCStatus(object value)
+    {
+        string html = "";
+        if (DataConverter.CBool(DataConverter.CStr(value)))
+            html = ComRE.Icon_OK;
+        else
+            html = ComRE.Icon_Error;
+        return MvcHtmlString.Create(html);
+    }
+    public IHtmlContent ShowOrderSort(string name,string field,string orderSql)
+    {
+        string tlp = "<a href=\"javascript:;\" data-sort=\"" + field + "_desc\">" + name+"<a>";
+        //<span class="zi zi_arrowUp"></span>
+        return MvcHtmlString.Create(tlp);
+    }
+    public string ShowPayPlat(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["status"]) == (int)M_Payment.PayStatus.NoPay) { return ""; }
+        string platFormInfo = DataConverter.CStr(dr["platFormInfo"]);
+        string plat = DataConverter.CStr(dr["PayPlatName"]);
+        switch (platFormInfo)
+        {
+            case "Purse":
+                plat = "余额";
+                break;
+            case "SilverCoin":
+                plat = "银币";
+                break;
+            case "Point":
+                plat = "积分";
+                break;
+        }
+        return plat;
+    }
+}
+@{
+    string apiUrl = "Payment_API?action=";
+    int status = DataConverter.CLng(Context.Request.GetParam("status"), -100);
+}
+
+<tbody id="EGV">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr ondblclick="location.href='PaymentInfo?ID=@dr["PaymentID"]';">
+        <td>
+            <input name="idchk" value="@dr["PaymentID"]" type="checkbox" />
+        </td>
+        <td>@dr["PaymentID"]</td>
+        <td>
+            <a href="PaymentList?UserID=@dr["UserID"]">@ShowUserName(dr)</a>
+        </td>
+        <td><a href="PaymentInfo?ID=@dr["PaymentID"]">@dr["PayNo"]</a></td>
+        <td>@dr["PaymentNum"]</td>
+        <td>@ShowPayPlat(dr)</td>
+        <td>@DataConverter.CDouble(dr["MoneyPay"]).ToString("F2")</td>
+        <td>@DataConverter.CDouble(dr["MoneyTrue"]).ToString("F2")</td>
+        <td>@ShowStatus(dr["status"])</td>
+        <td>@ShowCStatus(dr["cstatus"])</td>
+        <td>@dr["PayTime"]</td>
+        <td>@dr["SuccessTime"]</td>
+        <td>
+            <a href="@(Call.PA("Pay/PaymentInfo"))?ID=@dr["PaymentID"]"><i class="zi zi_eye" title="浏览"></i>浏览</a>
+            @*@if (status == -99)
+        {
+        <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"realdel")',ids:@(dr["PaymentID"]),confirm:'确定要彻底删除吗'});">
+            <i class="zi zi_trashalt" title="删除"></i>
+        </a>
+        <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"recover")',ids:@(dr["PaymentID"])});">
+            <i class="zi zi_recycle" title="恢复"></i>
+        </a>
+        }
+        else
+        {
+        <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',ids:@(dr["PaymentID"]),confirm:'确定要放入回收站吗'});">
+            <i class="zi zi_trashalt" title="删除"></i>
+        </a>
+        }*@
+
+        </td>
+    </tr>
+}
+@Html.Partial("_page")
+</tbody>    
+

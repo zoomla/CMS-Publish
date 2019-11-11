@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.BLL
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    B_GuestAnswer ansBll = new B_GuestAnswer();
+    string qids = ansBll.GetUserAnswerIDS(new B_User(Context).GetLogin().UserID);
+    M_UserInfo mu = ViewBag.mu;
+}
+@section head{<title>我的回答</title>}
+@section content{
+<div class="container">
+    <div class="asklist">
+        @Html.Partial("MyAnswerList_List",Model)
+    </div>
+</div>
+
+}
+@section script{
+<script type="text/javascript">
+    $(function () {
+        setNav("我的回答");
+    })
+</script> 
+}

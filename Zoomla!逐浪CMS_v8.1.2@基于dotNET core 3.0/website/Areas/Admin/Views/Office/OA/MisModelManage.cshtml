@@ -1,0 +1,90 @@
+﻿@{ 
+
+//    protected B_Mis_Model bmis = new B_Mis_Model();
+//protected M_Mis_Model mmis = new M_Mis_Model();
+//protected void Page_Load(object sender, EventArgs e)
+//{
+//    if (!IsPostBack)
+//    {
+//        MyBind();
+//    }
+//}
+//private void MyBind(string key = "")
+//{
+//    DataTable dt = bmis.Sel(-100, searchText.Text);
+//    EGV.DataSource = dt;
+//    EGV.DataBind();
+//}
+//protected void EGV_PageIndexChanging(object sender, GridViewPageEventArgs e)
+//{
+//    EGV.PageIndex = e.NewPageIndex;
+//    MyBind();
+//}
+//protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+//{
+//    switch (e.CommandName.ToLower())
+//    {
+//        case "del":
+//            bmis.DelByModelID(DataConvert.CLng(e.CommandArgument.ToString()));
+//            break;
+//    }
+//    MyBind();
+//}
+//protected void EGV_RowDataBound(object sender, GridViewRowEventArgs e)
+//{
+//    e.Row.Attributes["class"] = "tdbg";
+//    if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow)
+//    {
+//        e.Row.Attributes["ondblclick"] = String.Format("javascript:location.href='AddMisModel.aspx?&ID={0}'", this.EGV.DataKeys[e.Row.RowIndex].Value.ToString());
+//        e.Row.Attributes["onmouseover"] = "this.className='tdbgmouseover'";
+//        e.Row.Attributes["onmouseout"] = "this.className='tdbg'";
+//        e.Row.Attributes["style"] = "cursor:pointer;";
+//        e.Row.Attributes["title"] = "双击修改";
+//    }
+//}
+//protected void searchBtn_Click(object sender, EventArgs e)
+//{
+//    MyBind();
+//}
+}
+@section head{ <title>模板管理</title>}
+@section content{ 
+    <div>
+        <ol class="breadcrumb fixed-top">
+            <li class="breadcrumb-item"><a href='<%=CustomerPageAction.customPath2 %>Main.aspx'>工作台</a></li>
+            <li class="breadcrumb-item"><a href='../Config/SiteOption.aspx'>系统设置</a></li>
+            <li class="breadcrumb-item">模板管理<a href='AddMisModel.aspx'> [添加套红模板]</a></li>
+            <div class="float-right mr-2 ml-auto"><a href="javascript:;" onclick="selbox.toggle();" id="sel_btn" class="help_btn"><i class="zi zi_search"></i></a></div>
+            <div id="sel_box" runat="server">
+                <div class="input-group float-left">
+                    <asp:TextBox runat="server" ID="searchText" class="form-control max20rem" placeholder="请输入需要查询的信息" />
+                    <span class="input-group-append">
+                        <asp:Button ID="searchBtn" CssClass="btn btn-outline-secondary" runat="server" Text="搜索" OnClick="searchBtn_Click" />
+                    </span>
+                </div>
+            </div>
+        </ol>
+    </div>
+    <div class="list_choice table-responsive-md pr-1">
+        <ZL:ExGridView runat="server" ID="EGV" AutoGenerateColumns="false" AllowPaging="true" PageSize="20" EnableTheming="False"
+            GridLines="None" CellPadding="2" CellSpacing="1" Width="100%" CssClass="table table-striped table-bordered table-hover" 
+            OnPageIndexChanging="EGV_PageIndexChanging" DataKeyNames="ID" OnRowDataBound="EGV_RowDataBound" OnRowCommand="EGV_RowCommand"  
+            AllowUserToOrder="true" EmptyDataText="当前没有类型!!">
+            <Columns>
+                <asp:BoundField DataField="ID" ItemStyle-CssClass="" />
+                <asp:BoundField HeaderText="模板名称" DataField="ModelName" />
+                <asp:TemplateField HeaderText="模板类型" ItemStyle-CssClass="">
+                    <ItemTemplate><%#bmis.GetDocType(Convert.ToInt32(Eval("DocType"))) %></ItemTemplate>
+                </asp:TemplateField>
+                <asp:BoundField HeaderText="创建时间" DataField="CreateTime"  ItemStyle-CssClass=""/>
+                <asp:TemplateField HeaderText="操作" ItemStyle-CssClass="">
+                    <ItemTemplate>
+                        <a href="AddMisModel.aspx?ID=<%#Eval("ID") %>"><i class="zi zi_pencilalt" title="修改"></i></a>
+                        <asp:LinkButton CommandName="del" CommandArgument='<%# Eval("ID") %>' runat="server"><i class="zi zi_trashalt" title="删除"></i>删除</asp:LinkButton>
+                    </ItemTemplate>
+                </asp:TemplateField>
+            </Columns>
+        </ZL:ExGridView>
+    </div>
+}
+@section script{ }

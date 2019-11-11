@@ -1,0 +1,50 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+
+
+    //protected void DelChats_Click(object sender, EventArgs e)
+    //{
+    //    string ids = Request.Form["idchk"];
+    //    if (!string.IsNullOrEmpty(ids))
+    //    {
+    //        chatBll.DelByIds(ids);
+    //        MyBind();
+    //    }
+    //}
+    //protected void DelByWeek_Click(object sender, EventArgs e)
+    //{
+    //    chatBll.DelByWeek();
+    //    MyBind();
+    //}
+    //protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+    //{
+    //    if (e.CommandName.Equals("del"))
+    //    {
+    //        chatBll.Del(DataConverter.CLng(e.CommandArgument));
+    //        MyBind();
+    //    }
+    //}
+
+}
+@section head{ <title>客服聊天记录</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("Seat","客服通"),
+        new Bread() {url=Context.Request.RawUrl(), text="聊天记录",addon="" }}
+		)
+	<div class="list_choice">
+         @Html.Partial(MVCHelper.ViewDir_Admin+"Office/Service/MsgEx_List.cshtml")
+	</div>
+    <div>
+        <input type="button" class="btn btn-outline-danger" value="批量删除" onclick="mvcpage.bat({url:'Seat_API?action=chat_del',confirm:'确定要删除吗'})"/>
+      @**@
+      @*<asp:Button ID="DelByWeek" class="btn btn-outline-info" OnClientClick="return confirm('确定删除上一周的记录？')" OnClick="DelByWeek_Click" runat="server" Text="删除上周数据" />*@
+    </div>
+}
+
+@section script{ 
+
+
+}

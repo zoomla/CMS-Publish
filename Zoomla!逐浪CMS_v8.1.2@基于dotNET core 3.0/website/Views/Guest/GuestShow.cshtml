@@ -1,0 +1,64 @@
+﻿@using ZoomLa.Model
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_empty.cshtml";
+    B_User buser = new B_User(Context);
+    M_UserInfo mu = ViewBag.mu;
+    M_GuestBookCate cateMod = ViewBag.cateMod;
+    M_GuestBook guestMod = ViewBag.guestMod;
+    M_UserInfo sendMU = buser.SelReturnModel(guestMod.UserID);
+}
+@section head{
+<title>留言详情</title>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+<link href="/theme/css/V4.css" rel="stylesheet" />
+<style type="text/css">
+.media{border:1px solid #ddd;padding:15px;padding-bottom:0px; border-bottom:none;}
+.media:last-child{border-bottom:1px solid #ddd;}
+.media-left{text-align:center;}
+.pagination {display:inline-block;}
+</style>
+}
+@section content{
+@Html.Partial("MasterView")
+<div class="container ask_breadcrumb">
+   <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">网站首页</a></li>
+        <li class="breadcrumb-item"><a href="/Guest/">留言中心</a></li>
+        <li class="breadcrumb-item"><a href="/Guest/Default?CateID=@cateMod.CateID">@cateMod.CateName</a></li>
+        <li class="breadcrumb-item active">查看留言</li>
+    </ol>
+   <div class="s_body">
+       <div id="g_show">
+           <div class="card card-default" style="margin-bottom:5px;">
+               <div class="card-header"><h3>@guestMod.Title</h3></div>
+               <div class="card-body g_show_list" style="padding:0px;">
+                   <div class="media" style="border:none;">
+                       <div class="media-left">
+                           <div><img src="@sendMU.UserFace" onerror="javascript:this.src='/Images/userface/noface.png';" /></div>
+                           <div>@sendMU.UserName</div>
+                       </div>
+                       <div class="media-body">
+                           <div style="min-height:5rem;padding-left:30px;">@MvcHtmlString.Create(guestMod.TContent)</div>
+                           <div class="r_gray text-right">
+                               <i class="zi zi_clock"></i> @guestMod.GDate
+                           </div>
+
+                       </div>
+                   </div>
+               </div>
+           </div>
+           @Html.Partial("GuestShow_List")
+       </div>
+       @Html.Partial("Guest_Editor", new C_Model() { mode = cateMod.NeedLog.ToString(),formAction = "AddReply" })
+   </div>
+</div>
+}
+@section script{
+<script>
+    $(function () {
+        $("#lmenu@(cateMod.CateID)").addClass("active");
+    })
+</script>
+}

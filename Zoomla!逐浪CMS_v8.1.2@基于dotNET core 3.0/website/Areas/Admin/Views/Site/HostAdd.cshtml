@@ -1,0 +1,49 @@
+﻿@functions{
+ /*
+B_CodeModel hostBll = new B_CodeModel("ZL_FZ_User");
+        private string FzUserName { get { return HttpUtility.UrlDecode(Request["Name"] ?? ""); } }
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                SqlParameter[] sp = new SqlParameter[] { new SqlParameter("name", FzUserName) };
+                DataTable dt = hostBll.SelByWhere("Name=@name", "Name", sp);
+                if (dt.Rows.Count < 1) { function.WriteErrMsg("主机[" + FzUserName + "]不存在"); }
+                DataRow dr = dt.Rows[0];
+                Name_T.Text = DataConverter.CStr(dr["Name"]);
+                UserPwd_T.Text = DataConverter.CStr(dr["UserPwd"]);
+                CDate_T.Text = DataConverter.CStr(dr["CDate"]);
+                EndDate_T.Text = DataConverter.CDate(dr["EndDate"]).ToString("yyyy/MM/dd");
+                SiteInfo_T.Text = DataConverter.CStr(dr["SiteInfo"]);
+                 Call.SetBreadCrumb(Master, "<li><a href='" + CustomerPageAction.customPath2 + "Main.aspx'>工作台</a></li><li><a href='Default.aspx'>站群管理</a></li><li><a href='" + Request.RawUrl + "'>主机管理</a></li><li>主机信息</li>");
+            }
+        }
+        protected void Save_Btn_Click(object sender, EventArgs e)
+        {
+            SqlParameter[] sp = new SqlParameter[] { new SqlParameter("name", FzUserName) };
+            DataRow dr = hostBll.SelByWhere("Name=@name", "Name", sp).Rows[0];
+            dr["CDate"] = DataConverter.CDate(CDate_T.Text);
+            dr["EndDate"] = DataConverter.CDate(EndDate_T.Text);
+            dr["SiteInfo"] = SiteInfo_T.Text.Trim();
+            hostBll.UpdateByID(dr,"Name");
+            function.WriteSuccessMsg("操作成功", "HostList.aspx");
+        }
+
+*/
+
+
+}
+@section head{<title>主机管理</title>}
+@section script{
+<table class="table table-bordered">
+    <tr><td class="td_m">FTP用户名</td><td><asp:TextBox runat="server" ID="Name_T" CssClass="form-control text_300" disabled="disabled"/></td></tr>
+    <tr><td>FTP密码</td><td><asp:TextBox runat="server" ID="UserPwd_T" CssClass="form-control text_300" disabled="disabled"/></td></tr>
+    <tr><td>创建时间</td><td><asp:TextBox runat="server" ID="CDate_T" CssClass="form-control text_300" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' });"/></td></tr>
+    <tr><td>到期时间</td><td><asp:TextBox runat="server" ID="EndDate_T" CssClass="form-control text_300" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });"/></td></tr>
+    <tr><td>站点名称</td><td><asp:TextBox runat="server" ID="SiteInfo_T" CssClass="form-control text_300"/></td></tr>
+    <tr><td></td><td><asp:Button runat="server" ID="Save_Btn" Text="保存信息" class="btn btn-primary" OnClick="Save_Btn_Click"/></td></tr>
+</table>
+}
+@section script{
+ <script src="/JS/DatePicker/WdatePicker.js"></script>
+}

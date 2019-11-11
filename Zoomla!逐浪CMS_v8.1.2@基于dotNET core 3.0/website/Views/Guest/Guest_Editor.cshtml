@@ -1,0 +1,52 @@
+﻿@model C_Model
+@{ 
+    M_UserInfo mu = new B_User(Context).GetLogin();
+}
+<div style="margin-top:10px;">
+    @*cateMod.NeedLog*@
+    @if (Model.mode == "0" || mu.UserID > 0)
+    {
+        <form method="post" action="@MVCHelper.GetAction(Model.formAction,Context.Request)" onsubmit="return CheckDirty();">
+            <div>
+                @if (Model.addon == "main")
+                {
+                    <div class="input-group" style="margin-bottom:5px;">
+                        <span class="input-group-prepend"><span class="input-group-text"><i class="zi zi_pencilalt"></i> 发布信息</span></span>
+                        @*<select id="Cate" name="Cate" class="form-control text_x" style="border-right:none;">
+                            @foreach (DataRow dr in cateDt.Rows)
+                            {
+                                //string selected = (dr["CateName"].ToString() == cateMod.CateName) ? "selected" : "" );
+                                <option value="@(dr["CateID"])">@dr["CateName"]</option>
+                            }
+                        </select>*@
+                        <input type="text" id="Title" name="Title" maxlength="100" class="form-control" title="标题不能为空" placeholder="请输入标题" />
+                    </div>
+                }
+                <div>
+                    <textarea id="Content" name="Content" style="width: 100%; height: 200px;"></textarea>
+                    @MvcHtmlString.Create(Call.GetUEditor("Content", 4, "light"))
+                </div>
+                <div style="margin-top:5px;">
+                    <div style="display:inline-block;width:300px;padding-top:3px;">@Html.Partial("Verify/Index",new C_Verify() { })</div>
+                    <button type="submit" class="btn btn-secondary" onclick="return checkSub();"><i class="zi zi_pencilalt"></i> 回复留言</button>
+                </div>
+                <script>
+                    function checkSub() {
+                        var content = UE.getEditor("Content").getContent();
+                        if ("@Model.addon" == "main")
+                        {
+                            if (ZL_Regex.isEmpty($("#Title").val())) { alert("标题不能为空"); return false; }
+                        }
+                        if (ZL_Regex.isEmpty(content)) { alert("内容不能为空"); return false; }
+                        if (ZL_Regex.isEmpty($("#VCode").val())) { alert("验证码不能为空"); return false; }
+                        return true;
+                    }
+                </script>
+            </div>
+        </form>
+    }
+    else
+    {
+        <div id="AnonyBan" class="alert alert-danger" role="alert">请先登录再发布留言!<a href="/user/Login?ReturnUrl=/guest/" style="color: #133db6;">[点击登录]</a></div>
+    }
+</div>

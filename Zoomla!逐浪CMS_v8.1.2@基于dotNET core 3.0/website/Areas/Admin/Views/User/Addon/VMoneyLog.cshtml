@@ -1,0 +1,39 @@
+﻿@model  ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    int type = ViewBag.type;
+}
+@section head{<title>财务流水</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Call.PA("User/UserManage"),@L.会员管理),
+    new Bread(Context.Request.RawUrl(),@L.财务流水)
+})
+<div class="list_choice">
+<div class="input-group" style="margin-bottom:5px;">
+    <input type="text" id="stime_t" placeholder="@L.起始时间" class="form-control mvcparam" onclick="WdatePicker({})" />
+    <input type="text" id="etime_t" placeholder="@L.结束时间" class="form-control mvcparam" onclick="WdatePicker({})" />
+    <input type="text" id="skey_t" placeholder="@L.关键词" class="form-control mvcparam"/>
+    <input type="hidden" id="stype" class="mvcparam" value="@Context.Request.GetParam("SType")" />
+    <span class="input-group-append">
+        <button type="button" id="Skey_Btn" class="btn btn-outline-secondary" onclick="mvcpage.load();"><span class="zi zi_search"></span></button>
+    </span>
+</div>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item"><a id="a_1" class="nav-link" href="?type=@((int)M_UserExpHis.SType.Purse)">@L.余额</a></li>
+    <li class="nav-item"><a id="a_2" class="nav-link" href="?type=@((int)M_UserExpHis.SType.SIcon)">@L.银币</a></li>
+    <li class="nav-item"><a id="a_3" class="nav-link" href="?type=@((int)M_UserExpHis.SType.Point)">@L.积分</a></li>
+    <li class="nav-item"><a id="a_4" class="nav-link" href="?type=@((int)M_UserExpHis.SType.UserPoint)">@L.点券</a></li>
+    <li class="nav-item"><a id="a_5" class="nav-link" href="?type=@((int)M_UserExpHis.SType.DummyPoint)">@L.虚拟币</a></li>
+    <li class="nav-item"><a id="a_6" class="nav-link" href="?type=@((int)M_UserExpHis.SType.Credit)">@L.信誉值</a></li>
+</ul>
+
+    @Html.Partial(MVCHelper.ViewDir_Admin+"User/Addon/VMoneyLog_List.cshtml")
+</div>
+}
+@section script{ 
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script>
+    $("#a_@type").addClass("active");
+</script>
+}

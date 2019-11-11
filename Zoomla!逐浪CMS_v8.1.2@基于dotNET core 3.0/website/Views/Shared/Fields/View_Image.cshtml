@@ -1,0 +1,22 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.Safe
+    @model ZoomLaCMS.Models.Field.VM_FieldModel
+    @functions{
+        private string PreViewImg()
+        {
+            string value = Model.GetValue();
+            string imgHtml = "";
+            if (StrHelper.StrNullCheck(value)) { return ""; }
+            string[] imgArr = value.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            foreach (string img in imgArr)
+            {
+                if (!SafeSC.IsImage(img)) { continue; }
+                imgHtml += "<img src='" +function.GetImgUrl(img) +  "' class='thumbnail_img' title='" + img + "'/>";//onerror=\"this.src='/UploadFiles/nopic.svg'\"
+            }
+            return imgHtml;
+        }
+    }
+@Html.Raw(PreViewImg())

@@ -1,0 +1,43 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_User buser = new B_User();
+    //根据IDS获取用户名
+    public string GetUserName(string ids)
+    {
+        string unames = buser.GetUserNameByIDS(ids);
+        return unames.Length > 30 ? unames.Substring(0, 30) + "..." : unames;
+    }
+
+}
+@{ 
+
+}
+<table class="table table-bordered">
+<thead><tr>
+    <td></td>
+    <td>任务名</td>
+    <td>到期日</td>
+    <td>负责人</td>
+    <td>任务色彩</td>
+    <td>操作</td>
+    </tr></thead>
+
+@foreach (DataRow dr in Model.dt.Rows)
+{
+<tr>
+    <td><input type="checkbox" value="@dr["ID"]" name="idChk" /></td>
+    <td><a href="AddTask.aspx?ID=@dr["ID"]" title="查看详情">@dr["TaskName"]</a></td>
+    <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["EndTime"])</td>
+    <td><%#GetUserName(Eval("LeaderIDS").ToString()) %></td>
+    <td>
+        <span class="colorSpan_F @dr["Color"]" id="colorSpan_@dr["ID"]" onclick="ShowColor(this)"><span class="colorSpan"></span></span>
+        <div class="ex_Color" onclick="HideColor()" data-id="@dr["ID"]"><span class="colorSpan_F White" data-color="White"><span class="colorSpan"></span></span><span class="colorSpan_F SkyBlue" data-color="SkyBlue"><span class="colorSpan"></span></span><span class="colorSpan_F Purple" data-color="Purple"><span class="colorSpan"></span></span><span class="colorSpan_F Pink" data-color="Pink"><span class="colorSpan"></span></span><span class="colorSpan_F StoneYellow" data-color="StoneYellow"><span class="colorSpan"></span></span><span class="colorSpan_F BrightYellow" data-color="BrightYellow"><span class="colorSpan"></span></span></div>
+    </td>
+    <td>
+        <a href="AddTask?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i>修改</a>
+        <a href="javascript:;" onclick="mvcpage.del({url:'Task_API',ids:'@dr["ID"]',confirm:'确定要删除吗'});"><i class="zi zi_trashalt"></i>删除</a>
+    </td>
+</tr>
+}
+@Html.Partial("_page")
+</table>

@@ -1,0 +1,17 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{ <title>库存流水</title>}
+@section content{
+    @ERPHelper.SetBread(new Bread[] {
+new Bread(Context.Request.RawUrl(),"库存流水")
+})
+    <div class="container-fluid">
+        @Html.Partial("_pageTop", new C_Model() { text = "", url = "" })
+        <div class="row">
+            @Html.Partial("Stock_List")
+        </div>
+    </div>
+}
+@section script{
+
+
+}

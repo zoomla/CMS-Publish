@@ -1,0 +1,12 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link href="/theme/css/V4user.css?version=@(ZoomLa.BLL.BLLCommon.Version_JS)" rel="stylesheet" />
+@RenderSection("head")
+</head>
+<body>
+@RenderSection("content")
+@RenderSection("script",false)
+</body>
+</html>

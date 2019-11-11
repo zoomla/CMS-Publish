@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>115</LabelID>
+    <LabelName>店铺商品列表_分页</LabelName>
+    <LabelType>4</LabelType>
+    <LabelCate>店铺</LabelCate>
+    <LabelDesc />
+    <LabelParam>TitleNum,25,1,名称长|ShowNum,10,1,显示数|UserShopID,0,1,店铺ID|ClassName,col-lg-3 col-md-3 col-sm-3 col-xs-6,1,Class|NodeID,0,1,节点ID</LabelParam>
+    <LabelTable>ZL_Commodities</LabelTable>
+    <LabelField>Nodeid,ID,LinPrice,Proname,Thumbnails,ShiPrice</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID or NodeID in (select NodeID from ZL_Node where ParentID=@NodeID)) And UserShopID='@UserShopID' And Sales=1 And istrue=1 And Recycler=0</LabelWhere>
+    <LabelOrder>ZL_Commodities.AddTime DESC</LabelOrder>
+    <LabelContent>&lt;div class="shop_img"&gt;
+&lt;div class="row"&gt;
+&lt;ul class="list-unstyled"&gt;
+{Repeate}
+&lt;li class="@ClassName"&gt;
+&lt;div class="shop_img_t"&gt;&lt;a href="{ZL:GetShopUrl({Field="ID"/})/}" target="_blank"&gt;&lt;img src="{ZL:GetPicUrl({Field="Thumbnails"/})/}" onerror="javascript:this.src='/Images/nopic.gif';" alt="{Field="Proname"/}" class="img-responsive img-thumbnail" /&gt;&lt;/a&gt;&lt;/div&gt;
+&lt;p&gt;&lt;a href="{ZL:GetShopUrl({Field="ID"/})/}" target="{ZL:GetInfoOpen({Field="Nodeid"/})/}" title="{Field="Proname"/}"&gt;{ZL:CutText({Field="Proname"/},@TitleNum,)/}&lt;/a&gt;&lt;/p&gt;
+&lt;div class="shop_img_p"&gt;&lt;span&gt;商城价：￥{ZL:GetMoney({Field="LinPrice"/},2,1)/}&lt;/span&gt;&lt;/div&gt;
+&lt;/li&gt;{/Repeate}
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+{ZL.Page id="响应式列表分页v4"/}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue>0</Modelvalue>
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Commodities","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

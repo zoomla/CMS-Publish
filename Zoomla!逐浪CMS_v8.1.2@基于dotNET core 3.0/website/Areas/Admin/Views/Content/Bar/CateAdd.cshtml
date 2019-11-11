@@ -1,0 +1,297 @@
+﻿@using Newtonsoft.Json
+@model ZoomLa.Model.M_GuestBookCate
+@functions{
+    public string PCate_ul = "";
+    public void BindItem(DataTable dt, int pid = 0, int layer = 0)
+    {
+        PCate_ul += string.Format("<li role=\"{1}\" onclick=\"selectCate(this)\"><a role=\"menuitem\" tabindex=\"1\" href=\"javascript:;\">{0}</a></li>", "不指定", 0);
+        DataRow[] drs = dt.Select("ParentID=" + pid);
+        string pre = layer > 0 ? "{0}<img src='/Images/TreeLineImages/t.gif' />" : "";
+        string nbsp = "";
+        for (int i = 0; i < layer; i++)
+        {
+            nbsp += "&nbsp;&nbsp;&nbsp;";
+        }
+        pre = string.Format(pre, nbsp);
+        foreach (DataRow dr in drs)
+        {
+            PCate_ul += string.Format("<li role=\"{1}\" onclick=\"selectCate(this)\"><a role=\"menuitem\" tabindex=\"1\" href=\"javascript:;\">{0}</a></li>", pre + dr["CateName"].ToString(), dr["CateID"].ToString());
+            BindItem(dt, Convert.ToInt32(dr["CateID"]), (layer + 1));
+        }
+    }
+
+
+}
+@{ 
+    B_GuestBookCate cateBll = new B_GuestBookCate();
+    B_User buser = new B_User();
+    BarOption baroption = null;
+    string BarOwner_Json = "";
+    if (Model.CateID > 0)
+    {
+        baroption = GuestConfig.GuestOption.BarOption.Find(v => v.CateID == Model.CateID);
+        DataTable userDT = buser.SelectUserByIds(Model.BarOwner);
+        if (userDT != null && userDT.Rows.Count > 0)
+        {
+            userDT = userDT.DefaultView.ToTable(true, "UserID", "UserName");
+            BarOwner_Json = JsonConvert.SerializeObject(userDT);
+        }
+    }
+    DataTable dt = cateBll.Cate_Sel(1);
+    BindItem(dt);
+}
+@section head{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<title>贴吧栏目设置</title>
+}
+@section content {
+
+
+
+	@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("CateList","贴吧版面"),
+        new Bread() {url="", text="版面信息",addon="" }}
+		)
+<ul class="nav nav-tabs list_choice">
+    <li class="nav-item"><a class="nav-link active" href="#basic" data-toggle="tab">基本设置</a></li>
+    <li class="nav-item"><a class="nav-link" href="#auth" data-toggle="tab">权限设定</a></li>
+</ul>
+<form method="post" action="@MVCHelper.GetAction("CateAdd_Submit",Context.Request)">
+<div class="tab-content barconfig container-fluid pr-0">
+    <div class="tab-pane active table-responsive-md  row sysRow" id="basic">
+        <table class="table table-bordered sys_table">
+            <tr class="onlybar">
+                <th class="w12rem_lg">上级栏目</th>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle max20rem" type="button" id="dropdownMenu1" runat="server" data-toggle="dropdown" aria-expanded="true">
+                            <span id="dr_text"></span>
+                            <span class="caret float-right mt-2"></span>
+                        </button>
+                        <input type="hidden" id="selected_Hid" name="selected_Hid" value="@Model.ParentID" />
+                        <ul id="PCate_ul" class="dropdown-menu max20rem" role="menu" aria-labelledby="dropdownMenu1">@MvcHtmlString.Create(PCate_ul)</ul>
+                    </div>
+                    </td>
+            </tr>
+            <tr class="onlybar">
+                <th><span>所属类别</span></th>
+                <td>@MVCHelper.H_Radios("PermiBit","论坛版面|论坛分类".Split('|'),"0|1".Split('|'),Model.PermiBit)
+                </td>
+            </tr>
+            @*<tr>
+                <th class="w12rem_lg">栏目类型</th>
+                <td>
+                    <asp:RadioButtonList runat="server" ID="GType_Rad" RepeatDirection="Horizontal">
+                        <asp:ListItem Value="1" Selected="True">贴吧栏目</asp:ListItem>
+                        <asp:ListItem Value="0">留言栏目</asp:ListItem>
+                    </asp:RadioButtonList></td>
+            </tr>*@
+            <tr>
+                <th><span>栏目名称</span></th>
+                <td>
+                    @Html.TextBoxFor(m=>m.CateName,new {@class="form-control max20rem required" })
+                </td>
+            </tr>
+            <tr>
+                <th>审核模式</th>
+                <td>
+                    @MVCHelper.H_Check("Status",Model.Status==1,new { @class="switchChk"})
+                </td>
+            </tr>
+            <tr id="checkopt_tr">
+                <th>显示模式</th>
+                <td>
+                    @MVCHelper.H_Check("IsShowUnaudit", Model.IsShowUnaudit == 1, new { @class = "switchChk" })
+                   <div> <small class="text-muted">(开启后列表将显示未审核的留言)</small></div>
+                </td>
+            </tr>
+            <tr class="onlybar">
+                <th>发贴积分</th>
+                <td>
+                    @Html.TextBoxFor(m=>m.SendScore,new {@class="form-control td_s" })
+                </td>
+            </tr>
+            <tr class="onlybar">
+                <th>回贴积分</th>
+                <td>
+                      @Html.TextBoxFor(m=>m.ReplyScore,new {@class="form-control td_s" })
+                </td>
+            </tr>
+            <tr class="onlybar">
+                <th>注册发帖</th>
+                <td>
+					<div class="input-group mb-3">
+					  <input type="text" ID="UserTime_T" name="UserTime_T"  value="120" class="form-control max20rem" />
+					  <div class="input-group-append">
+						<span class="input-group-text">分钟</span>
+					  </div>
+					</div>
+                </td>
+            </tr>
+            <tr>
+                <th>发帖间隔</th>
+                <td>
+					<div class="input-group mb-3">
+					  <input type="text" ID="SendTime_T" name="UserTime_T" value="5" class="form-control max20rem" />
+					  <div class="input-group-append">
+						<span class="input-group-text">分钟</span>
+					  </div>
+					</div>
+                </td>
+            </tr>
+
+            <tr class="barFile_div onlybar">
+                <th><span>图片压缩</span></th>
+                <td>
+                    <div class="input-group float-left max20rem">
+                        @Html.TextBoxFor(m=>m.ZipImgSize,new {@class="form-control" })
+                        <span class="btn btn-primary input-group-addon">KB</span>
+                    </div><div class="float-left"><span>0为不压缩,如输入2048,则超过2M的图片会自动等比压缩</span> </div>
+                </td>
+            </tr>
+            <tr class="barFile_div">
+                <th><span>栏目图标</span></th>
+                <td>
+                    @Html.Partial("C_SFileUP",new C_SFileUP() {ID="BarImage",SaveType="admin",Value=Model.BarImage })
+                </td>
+            </tr>
+            <tr class="barFile_div">
+                <th><span>栏目简介</span></th>
+                <td>
+                    @Html.TextAreaFor(m => m.Desc, new { @class = "form-control" })
+                </td>
+            </tr>
+            <tr class="onlybar">
+                <th>管理人员</th>
+                <td>
+                    <button type="button" onclick="UserList.open();" class="btn btn-info"><i class="zi zi_plus"></i> 选择用户</button>
+                    <span style="padding-left: 5px;">提示：包含拥有在前台修改,删除,置顶,精华权限</span>
+                    <table class="table table-bordered table-striped" style="width:500px;">
+                        <thead><tr><td>ID</td><td>用户名</td><td>操作</td></tr></thead>
+                        <tbody id="UserList_Body"></tbody>
+                    </table>
+                    <div id="page_footer"></div>
+                    @Html.Hidden("BarOwner_Json_T",BarOwner_Json)
+                    @Html.Hidden("BarOwner_Hid",Model.BarOwner)
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="tab-pane table-responsive-md row sysRow" id="auth">
+        <table class="table table-bordered table-hover table-striped sys_table">
+            <tr>
+                <th class="w12rem_lg"><span>访问权限</span></th>
+                <td>
+                    @MVCHelper.H_Radios("NeedLog", "允许匿名|登录用户|指定用户".Split('|'), "0|1|2".Split('|'), Model.NeedLog.ToString())
+                </td>
+            </tr>
+            <tr>
+                <th><span>发贴权限</span></th>
+                <td>
+                     @MVCHelper.H_Radios("PostAuth", "允许匿名|登录用户|指定用户".Split('|'), "0|1|2".Split('|'), Model.NeedLog.ToString())
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="text-center Conent_fix">
+        <input type="submit" class="btn btn-info" ID="AddBar_Btn" value="保存信息"/>
+        <a id="cencel_A" href="CateList" class="btn btn-outline-info">返回列表</a>
+    </div>
+</div>
+</form>   
+}
+@section script{ 
+<script src="/dist/js/bootstrap-switch.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/Controls/ZLPage.js"></script>
+<script src="/JS/Controls/Control.js?v=2"></script>
+<script>
+    $(function () {
+        $("form").validate();
+        //$("#ImageInfo_T").IconSelect();
+   
+        $("#GType_Rad :radio").click(function () { if (this.value == "1") $(".onlybar").show(); else $(".onlybar").hide(); });
+        $("#dropdownMenu1").find("#dr_text").text($("#PCate_ul").find("[role=" + $("#selected_Hid").val() + "]").children().first().text().trim());
+        $("#PostAuth :radio").click(function () {
+            if ($(this).val() == "2") {
+                ShowDiag("请指定用户权限","BarAuthSet?ID=@Model.CateID");
+            }
+        });
+        $("#NeedLog :radio").click(function () {
+            if ($(this).val() == "2") {
+                ShowDiag("请指定用户权限", "BarAuthSet?ID=@Model.CateID");
+            }
+        });
+    });
+    function HideBarSet() {$(".onlybar").hide();}
+    //function CheckData() {
+    //    if (ZL_Regex.isEmpty($("#CateName").val())) {
+    //        alert("栏目名称不能为空！");
+    //        return false;
+    //    }
+    //    if (!ZL_Regex.isNum($("#SenderScore").val()) || !ZL_Regex.isNum($("#ReplyScore_T").val())) {
+    //        alert('积分格式不对！');
+    //        return false;
+    //    }
+    //    if(!ZL_Regex.isNum($("#UserTime_T").val()) || !ZL_Regex.isNum($("#SendTime_T").val())){
+    //        alert('用户发贴时间或发贴间隔格式不对!');
+    //        return false;
+    //    }
+    //    return true;
+    //}
+    function Refresh() {
+        parent.location = parent.location;
+    }
+    var bardiag=new ZL_Dialog();
+    function SelBarOwner() {
+        bardiag.title = "选择吧主";
+        bardiag.content = "userdiv";
+        bardiag.ShowModal();
+    }
+    function selectCate(data) {
+        $("#selected_Hid").val($(data).attr("role"));
+        $("#dropdownMenu1").find("#dr_text").text($(data).children().first().text().trim());
+    }
+    function CloseDiag() {
+        //diag.CloseModal();
+        bardiag.CloseModal();
+        comdiag.CloseModal();
+    }
+</script>
+<script>
+    var UserList = { };
+    var ulist=[];
+    //打开选择用户弹窗
+    UserList.open = function (select) {
+        var url = "/Com/SelUser";
+        if (select && select != "") { url += "#" + select; }
+        comdiag.maxbtn = false;
+        comdiag.ShowModal(url, "选择用户");
+    }
+    UserList.del = function (uid) {
+        $("#tr_" + uid).remove();
+        page.list.RemoveByID(uid, "UserID");
+        $("#BarOwner_Hid").val(page.list.GetIDS("UserID"));
+    }
+    if(!ZL_Regex.isEmpty($("#BarOwner_Json_T").val()))
+    {
+        ulist=JSON.parse($("#BarOwner_Json_T").val());
+    }
+    var page = new ZLPage(ulist, '<tr id="tr_@@UserID"><td>@@UserID</td><td>@@UserName</td><td><a href="javascript:;" onclick="UserList.del(@@UserID);" title="删除"><i class="zi zi_times"></a></td></tr>', {
+        body: "#UserList_Body",
+        footer: "#page_footer",
+        //psize: 10, cpage: 1,pnum:9,
+        rowEvent:null,
+    });
+    function UserFunc(list, select) {
+        page.list.addAll(list, "UserID");
+        page.notifyListChange();
+        page.showPage(1);
+        $("#BarOwner_Hid").val(page.list.GetIDS("UserID"));
+        CloseDiag();
+    }
+</script>
+}

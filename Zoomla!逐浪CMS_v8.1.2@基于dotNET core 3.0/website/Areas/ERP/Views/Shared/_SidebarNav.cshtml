@@ -1,0 +1,89 @@
+﻿<nav class="sidebar-nav">
+    <ul class="nav active" id="pas_ul">
+        <li class="nav-item">
+            <a class="nav-link" onclick="ShowMain('','/ERP/Index/Home')"><i class="zi zi_home"></i> 首页 @*<span class="badge badge-primary">5</span>*@</a>
+        </li>
+        
+        <li class="nav-item nav-dropdown">
+            <a class="nav-link nav-dropdown-toggle" href="#"><i class="zi zi_cubes"></i>商品管理</a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item"><a class="nav-link" onclick="ShowMain('','/ERP/Product/')"><i class="zi zi_minus"></i> 商品信息</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="ShowMain('','/ERP/Product/Node')"><i class="zi zi_minus"></i> 商品类型</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="ShowMain('','/ERP/Product/Vendor')"><i class="zi zi_minus"></i> 供应商</a></li>
+            </ul>
+        </li>
+        <li class="divider"></li>
+        <li class="nav-title">进销存</li>
+        <li class="nav-item nav-dropdown">
+            <a class="nav-link nav-dropdown-toggle"><i class="zi zi_sign"></i>采购管理</a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a onclick="ShowMain('','/ERP/PAS/CGOrderAdd');" class="nav-link"><i class="zi zi_minus"></i>新建订单</a>
+                </li>
+                <li class="nav-item">
+                    <a onclick="ShowMain('','/ERP/PAS/CGOrder');" class="nav-link"><i class="zi zi_minus"></i>订单管理</a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item nav-dropdown">
+            <a class="nav-link nav-dropdown-toggle"><i class="zi zi_dollarSign"></i>销售管理</a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a onclick="ShowMain('','/ERP/PAS/SaleOrderAdd');" class="nav-link"><i class="zi zi_minus"></i>新建单据</a>
+                </li>
+                <li class="nav-item">
+                    <a onclick="ShowMain('','/ERP/PAS/SaleOrder');" class="nav-link"><i class="zi zi_minus"></i>单据管理</a>
+                </li>
+            </ul>
+        </li>
+        @*<li class="nav-item nav-dropdown">
+            <a class="nav-link nav-dropdown-toggle" href="#"><i class="zi zi_cubes"></i>库存管理</a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a href="/ERP/PAS/Stock" class="nav-link"><i class="zi zi_minus"></i>库存信息</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/ERP/PAS/StockOrder" class="nav-link"><i class="zi zi_minus"></i>出入库单据</a>
+                </li>
+            </ul>
+        </li>*@
+        <li class="nav-item">
+            <a onclick="ShowMain('','/ERP/PAS/Stock');" class="nav-link"><i class="zi zi_home"></i> 库存流水</a>
+        </li>
+    </ul>
+    <ul id="hr_ul" class="nav">
+        <li class="nav-title">人力资源</li>
+        <li class="nav-item nav-dropdown">
+            <a class="nav-link nav-dropdown-toggle" href="#"><i class="zi zi_user"></i>员工管理</a>
+            <ul class="nav-dropdown-items">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="ShowMain('','/ERP/User/UserManage')"><i class="zi zi_minus"></i> 员工信息</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="ShowMain('','/ERP/User/UserGroup')"><i class="zi zi_minus"></i>部门信息</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul id="crm_ul" class="nav">
+         <li class="nav-title">客户管理</li>
+    </ul>
+    <ul id="finance_ul" class="nav">
+        <li class="nav-title">财务报表</li>
+    </ul>
+</nav>
+<style type="text/css">
+   .sidebar-nav .nav {display:none;}
+   .sidebar-nav .nav.active {display:block;}
+</style>
+<script>
+    $(function () {
+        var $links = $(".sidebar-nav .nav-link");
+        $links.click(function () {
+            var $this = $(this);
+            if ($this.hasClass("active") || $this.attr("class").indexOf("nav-dropdown-toggle")>-1) { return; }
+            $links.removeClass("active");
+            $this.addClass("active");
+        });
+    })
+</script>

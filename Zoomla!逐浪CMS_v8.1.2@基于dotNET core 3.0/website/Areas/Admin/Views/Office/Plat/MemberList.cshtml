@@ -1,0 +1,60 @@
+﻿@model System.Data.DataTable
+@{ 
+
+ 
+}
+@section head{<title>成员列表</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("CompList","能力中心"),
+new Bread(){ url=Context.Request.RawUrl(),text="成员管理"}
+},"{search}")
+<div class="list_choice table-responsive-md pr-1">
+<table class="table table-bordered">
+<thead><tr>
+    <th></th>
+    <th>UserID</th>
+    <th>头像</th>
+    <th>部门</th>
+    <th>用户名</th>
+    <th>姓名</th>
+    <th>职位</th>
+    <th>手机</th>
+    <th>操作</th>
+    </tr></thead>
+@foreach (DataRow dr in Model.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["UserID"]" /></td>
+        <td>@dr["UserID"]</td>
+        <td><img src="@dr["UserFace"]" class="img_3rem" onerror="shownoface(this);" /></td>
+        <td>@dr["GroupName"]</td>
+        <td>@dr["UserName"]</td>
+        <td>@dr["TrueName"]</td>
+        <td>@dr["Post"]</td>
+        <td>@dr["Mobile"]</td>
+        <td>
+             <a href="@Call.PA("User/UserInfo?ID="+dr["UserID"])"><i class="zi zi_pencilalt" title="修改"></i></a>
+             <a href="javascript:;" onclick="mvcpage.del({url:'Member_API?action=del',ids:'@dr["UserID"]',confirm:'确定要移除吗'});,after:function(){location=location;}"><i class="zi zi_trashalt" title="移除"></i>移除</a>
+        </td>
+    </tr>
+}
+</table>
+<div class="alert alert-info">请前往用户详情页,添加公司成员</div>
+	</div>
+<form method="post" action="Member_Add?CompID=@(Context.Request.GetParam("CompID"))">
+    <input type="hidden" ID="UserIDS_Hid" name="UserIDS_Hid" />
+</form>
+
+@*<asp:Button runat="server" style="display:none;" ID="BatAdd_Btn" OnClick="BatAdd_Btn_Click" />*@
+}
+@section script{ 
+
+<script>
+    user.hook["User"] = function (list, select) {
+        $("#UserIDS_Hid").val(user.getids(list));
+        $("#BatAdd_Btn").click();
+    }
+</script>
+}

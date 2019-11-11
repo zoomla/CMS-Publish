@@ -1,0 +1,26 @@
+﻿@model ZoomLa.Model.M_Ask
+@section head{<title>问答详情</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("Default","问答列表"),
+new Bread(Context.Request.RawUrl(),"问答详情")
+})
+<form method="post" action="@MVCHelper.GetAction("AskAdd_Submit",Context.Request)">
+<div class="list_choice">
+    <table class="table table-bordered">
+        <tr><th class="td_m">标题</th><td>@Html.TextBoxFor(m=>m.QTitle,new {@class="form-control text_300" })</td></tr>
+        <tr><th>内容</th><td>@Html.TextAreaFor(m=>m.Qcontent,new { style="width:90%;height:400px;"})</td></tr>
+        <tr><td></td><td>
+            <input type="submit" value="保存信息" class="btn btn-info"/>
+            <a href="Default" class="btn btn-info">返回列表</a>
+            </td></tr>
+    </table>
+</div>
+</form>
+    }
+@section script{
+<script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="~/Plugins/Ueditor/ueditor.all.min.js"></script>
+@MvcHtmlString.Create(Call.GetUEditor("Qcontent",2))
+}

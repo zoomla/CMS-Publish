@@ -1,0 +1,27 @@
+﻿@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@model ZoomLa.Model.Design.M_Design_Question
+@{
+    JObject json = JsonConvert.DeserializeObject<JObject>(Model.QFlag);
+    string type = json["type"].ToString();
+    string regex = json["regex"].ToString();
+    string onclick = "";
+    if (regex.Equals("date"))
+    {
+        string regex2 = ZoomLa.BLL.Helper.JsonHelper.GetVal(json,"regex2");
+        if (string.IsNullOrEmpty(regex2)) { onclick = "onclick=\"WdatePicker({ dateFmt: 'yyyy/MM/dd' });\""; }
+        else { onclick = "onclick=\"WdatePicker({ dateFmt: '"+regex2+"' });\""; }
+    }
+    //---------------------------
+    string id = "q" + Model.ID;
+}
+@switch (type)
+{
+    case "text":
+        <input type="text" style="overflow: auto;width:62%;height:30px;" class="inputtext @regex" name="@id" id="@id" @(Html.Raw(onclick)) />
+        break;
+    case "textarea":
+    default:
+        <textarea style="overflow: auto;width:62%;height:110px;" class="inputtext" name="@id" id="@id"></textarea>
+        break;
+}

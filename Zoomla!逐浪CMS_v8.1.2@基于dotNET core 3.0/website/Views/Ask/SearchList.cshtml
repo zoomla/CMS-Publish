@@ -1,0 +1,18 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+}
+@section head{
+    <title>问题列表_@Call.SiteName</title>
+}
+@section content{
+<div class="container">
+    <div> @Html.Partial("comp/CommonView")</div>
+    <div class="asklist">
+        @Html.Partial("List_List",Model)
+    </div>
+</div>
+}
+@section script{
+    
+}

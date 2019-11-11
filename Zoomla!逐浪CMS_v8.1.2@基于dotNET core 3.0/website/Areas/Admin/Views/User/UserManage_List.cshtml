@@ -1,0 +1,73 @@
+﻿@using System.Web
+@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@using Microsoft.AspNetCore.Html;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+    public string GetStatus(string Status)
+    {
+        switch (Status)
+        {
+            case "0":
+                return "正常";
+            case "1":
+                return "锁定";
+            case "2":
+                return "待认证";
+            case "3":
+                return "双认证";
+            case "4":
+                return "邮件认证";
+            case "5":
+                return "待认证";
+        }
+        return "正常";
+    }
+    public string GetState(string State)
+    {
+        switch (State)
+        {
+            case "0":
+            case "1":
+            default:
+                return  ComRE.Icon_Error;
+            case "2":
+                return ComRE.Icon_OK ;
+        }
+    }
+
+}
+
+<tbody id="EGV">
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr ondblclick="location='UserInfo?id=@dr["UserID"]';">
+                <th scope="row" class="w1rem excel_no"><input type="checkbox" name="idchk" value='@dr["UserID"]' /></th>
+                <td>@dr["UserID"]</td>
+                <td><a href="UserInfo?id=@dr["UserID"]" class="uinfo">@dr["UserName"]</a></td>
+                <td>@dr["HoneyName"]</td>
+                <td><a href="UserManage?GroupID=@dr["GroupID"]">@dr["GroupName"]</a></td>
+                <td>@DataConverter.CDouble(dr["Purse"]).ToString("F2")</td>
+                <td>@DateHelper.ToDate(dr["RegTime"])</td>
+                <td>@DataConvert.CDouble(dr["UserExp"]).ToString("F2")</td>
+                <td>@dr["LoginTimes"]</td>
+                <td>@DateHelper.ToDate(dr["LastLoginTime"])</td>
+                <td>@GetStatus(DataConvert.CStr(dr["Status"]))</td>
+                <td>@MvcHtmlString.Create(GetState(DataConvert.CStr(dr["State"])))</td>
+                <td class="excel_no">
+                    <a href='UserInfo?id=@dr["UserID"]' class="option_style"><i class="zi zi_key"></i>详情</a>
+                </td>
+            </tr>
+        }
+      @(Html.Partial("_page"))
+<script>$(function () {iCheckInit();})</script>
+</tbody>
+        
+
+
+

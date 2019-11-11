@@ -1,0 +1,58 @@
+﻿@using ZoomLa.Common
+@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    B_Group gpBll = new B_Group();
+    DataTable gpDT = gpBll.Sel();
+    DataRow allrow = gpDT.NewRow();
+    allrow["GroupID"] = 0;
+    allrow["GroupName"] = "所有会员组";
+    gpDT.Rows.InsertAt(allrow, 0);
+    string apiUrl = "User_API?action=";
+    int groupId = DataConverter.CLng(Context.Request.GetParam("GroupID"));
+}
+@section head{<title>会员管理</title> }
+@section content{
+@ERPHelper.SetBread(new Bread[] {
+new Bread(Context.Request.RawUrl(),"会员管理"),
+})
+
+
+@Html.CMS_EGV_OrderBy()
+<div class="container-fluid">
+    @Html.Partial("_pageTop", new C_Model() { text = "", url = "" })
+    <div class="row sysRow ">
+        <table id="EGV_wrap" class="table table-striped table-bordered">
+            <tr>
+                <th class="excel_no"></th>
+                <th><span class="zlsort" data-field="a.userid">ID</span></th>
+                <th>用户名</th>
+                <th>昵称</th>
+                <th>会员组</th>
+                <th><span class="zlsort" data-field="Purse">资金</span></th>
+                <th><span class="zlsort" data-field="regtime">注册时间</span></th>
+                <th><span class="zlsort" data-field="UserExp">积分</span></th>
+                <th>登录次数</th>
+                <th><span class="zlsort" data-field="LastLoginTime">最后登录时间</span></th>
+                <th>状态</th>
+                <th>聚合认证</th>
+                <th class="excel_no">操作</th>
+            </tr>
+            @Html.Partial("~/Areas/Admin/Views/User/UserManage_List.cshtml")
+        </table>
+    </div>
+</div>
+}
+@section script{
+<script src="/js/SelectCheckBox.js"></script>
+<script src="/js/Label/ZLHelper.js?v=@(DateTime.Now)"></script>
+    <script>
+        $(function () {
+           
+        })
+        function ShowOrderIcon(id) {
+            $("#" + id).find(".order_img").show();
+        }
+    </script>
+
+}

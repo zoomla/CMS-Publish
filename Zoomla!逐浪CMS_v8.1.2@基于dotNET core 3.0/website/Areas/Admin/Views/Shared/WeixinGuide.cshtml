@@ -1,0 +1,39 @@
+﻿@{ 
+    B_WX_APPID WxBll = new B_WX_APPID();
+    DataTable dt=WxBll.Sel();
+
+}
+<div class="m_left_ul open">
+<div class="menu_tit" onclick="wxclick(this);"><i class="zi zi_forDown"></i> @L.微信配置</div>
+<div id="wx_menu" class="NodeTree_left_ul">
+<ul>
+<li id="menu10_2_2" onclick="wxclick(this);"><a onclick="ShowMain('', 'Mobile/WeiXin/WxAppManage');"><i class="zi zi_list"></i> @L.公众号码</a></li>
+
+<li class="pl-0"> <p class="menu_tit laybtn below"><i class="zi zi_forDown"></i> @L.微信公众号</p></li>
+@foreach (DataRow dr in dt.Rows)
+{
+	<li class="wx_item" style="padding-left:1.2rem;font-weight:bolder;" onclick="wxclick(this);"><a href="javascript:;"><i class="zi zi_tmWeixin"></i>[@dr["ZType"]]@dr["Alias"]</a></li>
+	<ul class="downmenu d-none">
+         <li><a href="javascript:;" onclick="ShowMain('', 'Mobile/Weixin/WxConfig?id=@dr["ID"]');"><i class="zi zi_qrcode"></i> @L.微信配置</a></li>
+        @if (DataConverter.CStr(dr["ZType"]).Equals("小程序"))
+        {
+
+        }
+        else
+        {  
+            <li><a href="javascript:;" onclick="ShowMain('', 'Mobile/Weixin/WelPage?appid=@dr["ID"]');"><i class="zi zi_globe"></i> @L.欢迎语</a></li>
+            <li><a href="javascript:;" onclick="ShowMain('','Mobile/Weixin/MsgTlp?appid=@dr["ID"]');"><i class="zi zi_comment"></i> 消息群发</a></li>
+	        <li><a href="javascript:;" onclick="ShowMain('','Mobile/Weixin/ReplyList?appid=@dr["ID"]');"><i class="zi zi_comments"></i> @L.自动回复</a></li>
+	        <li><a href="javascript:;" onclick="ShowMain('', 'Mobile/Weixin/EditWxMenu?appid=@dr["ID"]');"><i class="zi zi_book"></i> @L.菜单配置</a></li>
+	        <li><a href="javascript:;" onclick="ShowMain('', 'Mobile/Weixin/WxUserList?appid=@dr["ID"]');"><i class="zi zi_users"></i> @L.粉丝管理</a></li>
+	        @*<li><a class="" href="javascript:;" onclick="ShowMain('','Mobile/Weixin/WxMaterial?appid=@(dr["ID"])&type=image');"><i class="zi zi_newspaper"></i> 素材管理</a></li>*@
+	        @*<li><a class="" href="javascript:;" onclick="ShowMain('','Mobile/Weixin/Red/RedPacket?appid=@dr["ID"]');"><i class="zi zi_gift"></i> 红包管理</a></li>
+	        <li><a class="" href="javascript:;" onclick="ShowMain('','Mobile/Weixin/Pay/EnterPrise?appid=@dr["ID"]');"><i class="zi zi_creditCard"></i> 企业付款</a></li>*@
+        }
+        <li><a class="" href="javascript:;" onclick="ShowMain('','Mobile/Weixin/PayLog?appid=@dr["ID"]');"><i class="zi zi_database"></i> @L.支付日志</a></li>
+	    <li><a class="" href="javascript:;" onclick="ShowMain('', 'Mobile/Weixin/WxPayConfig?appid=@dr["ID"]');"><i class="zi zi_shoppingcart"></i> @L.支付配置</a></li>
+	</ul>
+}
+</ul>
+</div>
+</div>

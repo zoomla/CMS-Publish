@@ -1,0 +1,68 @@
+﻿@model ZoomLa.Model.M_OrderList
+@using ZoomLa.Model.Shop
+@{
+    M_Order_Exp expMod = ViewBag.expMod;
+    if (expMod == null) {   expMod = new M_Order_Exp();}
+}
+@section head{<title>订单发货</title>}
+@section content{
+<form method="post" action="@MVCHelper.GetAction("OrderSend_Submit",Context.Request)">
+    <div>
+        <h3 style="font-weight:bold;">处理订单</h3>
+        <table class="mytable">
+            <tr><td class="tdbgleft">订单号</td><td>@Model.OrderNo</td></tr>
+            <tr><td class="tdbgleft">购买会员</td><td>@Model.Rename</td></tr>
+            <tr><td class="tdbgleft">下单时间</td><td>@ZoomLa.BLL.Helper.DateHelper.ToDate(Model.AddTime)</td></tr>
+            <tr><td class="tdbgleft">订单备注</td><td>@Model.Ordermessage</td></tr>
+            <tr><td class="tdbgleft">配送地址</td><td>@(Model.Shengfen + " " + Model.Jiedao)</td></tr>
+            <tr><td class="tdbgleft">邮编</td><td>@Model.ZipCode</td></tr>
+            <tr><td class="tdbgleft">手机</td><td>@Model.MobileNum</td></tr>
+            <tr><td class="tdbgleft">固定电话</td><td>@Model.Phone</td></tr>
+            <tr><td class="tdbgleft">收货人</td><td>@Model.Receiver</td></tr>
+            <tr><td class="tdbgleft">快递公司</td><td>
+                <select ID="ExpComp_DP" name="ExpComp_DP" class="form-control text_300" onchange="ExpChange(this);">
+                    <option Value="顺丰快递">顺丰快递</option>
+                    <option Value="中通快递">中通快递</option>
+                    <option Value="申通快递">申通快递</option>
+                    <option Value="圆通快递">圆通快递</option>
+                    <option Value="韵达快递">韵达快递</option>
+                    <option Value="安能物流">安能物流</option>
+                    <option Value="百世汇通">百世汇通</option>
+                    <option Value="天天快递">天天快递</option>
+                    <option Value="全峰快递">全峰快递</option>
+                    <option Value="宅急送">宅急送</option>
+                    <option Value="EMS">EMS</option>
+                    <option Value="UPS">UPS</option>
+                    <option Value="其它">其它</option>
+                </select>
+                <input type="text" ID="ExpOther_T" name="ExpOther_T" value="@expMod.ExpComp" class="form-control text_300" placeholder="请输入快递名称" style="display:none;" />
+            </td></tr>
+            <tr><td class="tdbgleft">物流单号</td><td>
+                <input type="text" ID="ExpNo_T" name="ExpNo_T" class="form-control text_300 required" value="@expMod.ExpNo"/>
+            </td></tr>
+        </table>
+        <div class="margin_t5 text-center" style="margin-top:5px;">
+            <input type="submit" ID="Save_Btn" value="保存信息" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+    <style type="text/css">
+        * {font-family:'Microsoft YaHei';}
+        .mytable {width:100%;border:1px solid #ddd;color:gray;}
+        .mytable tr td{padding:8px;}
+        .tdbgleft {width:100px;text-align:right;}
+    </style>
+}
+@section script{
+    <script>
+        function ExpChange(dp) {
+            $dp = $(dp);
+            if ($dp.val() == "其它") { $("#ExpOther_T").show(); }
+            else { $("#ExpOther_T").hide(); }
+        }
+        $(function () {
+            ExpChange(document.getElementById("Express_DP"));
+            $("form").validate({});
+        })
+    </script>
+}

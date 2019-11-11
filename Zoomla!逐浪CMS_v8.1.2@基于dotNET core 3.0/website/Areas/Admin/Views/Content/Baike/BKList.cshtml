@@ -1,0 +1,18 @@
+﻿@using ZoomLa.BLL.Message
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "_empty";
+    string view = ViewBag.viewDir + "BK_List.cshtml";
+
+}
+@section head {<title>词条版本浏览</title>}
+@section content {
+    <div>
+        @Html.Partial(view)
+    </div>
+
+}
+@section script{
+
+
+}

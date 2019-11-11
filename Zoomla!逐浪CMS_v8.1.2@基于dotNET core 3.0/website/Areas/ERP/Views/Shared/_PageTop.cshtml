@@ -1,0 +1,19 @@
+﻿@model ZoomLaCMS.Control.C_Model
+@{ 
+
+
+}
+<div class="row" style="padding-bottom:5px;">
+    <div class="col-6" style="padding:0px;">
+        @if (!string.IsNullOrEmpty(Model.text))
+        {
+            <a class="btn btn-info" style="color:#fff;" href="@Model.url" id="btn_new">@Model.text</a>
+        }
+    </div>
+    <div class="col-6" style="padding:0px;">
+        <div class="input-group">
+            <input type="text" class="form-control" id="skey_t" placeholder="请输入关键词" />
+            <span class="input-group-append"><button type="button" class="btn btn-info" style="color:#fff;" onclick="mvcpage.load();" id="btn_search"><i class="zi zi_search"></i></button></span>
+        </div>
+    </div>
+</div>

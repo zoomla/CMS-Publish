@@ -1,0 +1,89 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLaCMS.Control.C_SelProduct
+@functions{
+   
+}
+@{
+    Model.setting.dt = Model.setting.dt.DefaultView.ToTable(true,"ID,Proname,Thumbnails,LinPrice".Split(','));
+    for (int i = 0; i < Model.setting.dt.Rows.Count; i++)
+    {
+        DataRow dr = Model.setting.dt.Rows[i];
+       dr["Thumbnails"] = function.GetImgUrl(dr["Thumbnails"]);
+    }
+}
+
+<div id="EGV">
+@if (Model.viewMode == "single")
+{
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+            <td class="td_s">ID</td>
+            <td>商品信息</td>
+            <td class="td_m">操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.setting.dt.Rows)
+    {
+        <tr>
+            <td>@dr["ID"]</td>
+            <td style="display:flex;">
+                <div><img src="@dr["Thumbnails"]" class="img50" onerror="shownopic(this);"/></div>
+                <div style="margin-left:10px;">
+                    <div style="font-size:14px;">@dr["Proname"]</div>
+                    <div><span class="text-danger">¥@(Convert.ToDouble(dr["LinPrice"]).ToString("F2"))</span></div>
+                </div>
+            </td>
+            <td>
+                <button type="button" onclick="single_return('@dr["ID"]');" class="btn btn-primary">选择</button>
+            </td>
+        </tr>
+    }
+@Html.Partial("_page",Model.setting)
+</table>
+    <style type="text/css">
+    .allchk_l {display:none;}
+    </style>
+}
+else if (Model.viewMode == "multi")
+{
+ <table class="table table-bordered">
+    <thead>
+        <tr>
+            <td class="td_s"></td>
+            <td class="td_s">ID</td>
+            <td>商品信息</td>
+        </tr>
+    </thead>
+     @foreach (DataRow dr in Model.setting.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+            <td>@dr["ID"]</td>
+            <td style="display:flex;">
+                <div><img src="@dr["Thumbnails"]" class="img50" onerror="shownopic(this);"/></div>
+                <div style="margin-left:10px;">
+                    <div style="font-size:14px;">@dr["Proname"]</div>
+                    <div><span class="text-danger">¥@(Convert.ToDouble(dr["LinPrice"]).ToString("F2"))</span></div>
+                </div>
+            </td>
+        </tr>
+    }
+@Html.Partial("_page",Model.setting)
+</table>
+<script>
+    $(function () {
+        $("input[name='idchk']").each(function () {
+            if (multi_value.indexOf("," + this.value + ",") > -1) { this.checked = true; }
+        });
+        $(function () { iCheckInit("", { click: function (chk) { multi_click(chk); } }); })
+    })
+</script>
+}
+
+<script>
+    var dt=@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.setting.dt));
+</script>
+</div>

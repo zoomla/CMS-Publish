@@ -1,0 +1,107 @@
+﻿@using ZoomLa.BLL.Message
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions
+{
+    B_BaikeEdit editBll = new B_BaikeEdit();
+    public IHtmlContent getcommend(DataRow dr)
+    {
+        return MvcHtmlString.Create(editBll.GetStatus(DataConverter.CLng(dr["Status"])));
+    }
+    public string getElite(object aa)
+    {
+        string aaa = aa.ToString();
+        switch (aaa)
+        {
+            case "0":
+                return "未推荐";
+            case "1":
+                return "推荐";
+            case "2":
+                return "特色";
+            case "3":
+                return "每日图片";
+            default:
+                return "未推荐";
+        }
+    }
+    protected string getsta(string i)
+    {
+        if (i != "")
+        {
+            return "已合并";
+        }
+        else
+        {
+            return "未合并";
+        }
+    }
+}
+@{
+    string apiUrl = "BK_API?action=";
+}
+    
+    <div class="panel panel-default" id="EGV">
+        <div class="panel panel-body table-responsive-md">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>ID</td>
+                        <td>@L.词条</td>
+                        <td>@L.版本</td>
+                        <td>@L.创建人</td>
+                        <td>@L.创建时间</td>
+                        <td>@L.推荐</td>
+                        <td>@L.状态</td>
+                        <td>@L.操作</td>
+                    </tr>
+                </thead>
+           
+            @foreach(DataRow dr in Model.dt.Rows)
+            {
+                <tr>
+                    <td><input type="checkbox" name="idchk" value='@dr["ID"]' /></td>
+                    <td>@dr["ID"]</td>
+                    <td>@dr["Tittle"]</td>
+                    <td>@dr["VerStr"]</td>
+                    <td>@dr["UserName"]</td>
+                    <td>@dr["AddTime"]</td>
+                    <td>@getElite(DataConverter.CStr(dr["Elite"]))</td>
+                    <td>@getcommend(dr)</td>
+                    <td>
+                            <a href="/Baike/Details?id=@dr["ID"]" target="_blank" ><i class="zi zi_eye" title="预览"></i></a>
+                            <a href="/Baike/BKEditor?id=@dr["ID"]&mode=admin" target="_blank" ><i class="zi zi_pencil" title="修改"></i></a>
+                            <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗',ids:'@dr["ID"]'});"><i class="zi zi_trashalt" title="@L.删除"></i></a>
+                            @*<%--<a href="baikeMerger?tittle=<%#Eval("Tittle").ToString()%><i class="zi zi_columns" title="合并"></i>合并词条</a>--%>
+<%--                            <a href="InfoList?id=<%#Eval("ID").ToString()%><i class="zi zi_listalt" title="列表"></i>信息列表</a>--%>*@
+                              <a href="javascript:;" onclick="ShowBKList('@dr["Flow"]');"><i class="zi zi_list"></i>@L.版本管理</a>
+                    </td>
+                </tr>
+          @*<%--          <asp:TemplateField HeaderText="分类" HeaderStyle-class="max20rem">
+                        <ItemTemplate>
+                            <%#Eval("GradeName") %>
+                        </ItemTemplate>
+                    </asp:TemplateField>--%>*@
+            }
+            @Html.Partial("_page")
+            </table>
+        </div>
+        <div class="sysBtline">
+            <input type="button" value="@L.批量删除" onclick="bat('del','@L.确定要批量删除词条吗');" class="btn btn-outline-danger " />
+            <input type="button" value="@L.批量审核" onclick="bat('audit');" class="btn btn-outline-info " />
+            <input type="button" value="@L.取消审核" onclick="bat('unaudit');" class="btn btn-outline-danger " />
+            <input type="button" value="@L.推荐" onclick="bat('elite');" class="btn btn-outline-info " />
+            <input type="button" value="@L.取消推荐" onclick="bat('unelite');" class="btn btn-outline-danger " />
+            @*<input type="button" value="特色" onclick="BtnSubmit8_Click" class="btn btn-outline-info " />
+            <input type="button" value="取消特色" onclick="BtnSubmit9_Click" class="btn btn-outline-danger " />
+            <input type="button" value="每日图片" onclick="BtnSubmit6_Click" class="btn btn-outline-info " />
+            <input type="button" value="取消每日图片" onclick="BtnSubmit7_Click" class="btn btn-outline-danger " />*@
+        </div>
+    </div>
+<script>
+    function bat(action,msg)
+    {
+        if (msg && !confirm(msg)) { return false; }
+        mvcpage.bat({url:'@(apiUrl+"")'});
+    }
+</script>

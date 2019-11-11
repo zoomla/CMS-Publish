@@ -1,0 +1,36 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{
+    <title>试卷管理</title>
+}
+@section content{
+<div class="w-100">
+    <div class="container-fluid mysite marginbot10" id="BreadDiv">
+        <div class="row">
+            <ol id="BreadNav" class="breadcrumb fixed-top w-100">
+                <li class="breadcrumb-item"><a href='Papers_System_Manage'>@L.教育模块</a></li>
+                <li class="breadcrumb-item"><a href='Papers_System_Manage'>@L.考试管理</a></li>
+                <li class="breadcrumb-item">@L.试卷管理 [<a href='Papers_System_Add?NodeID=@ViewBag.nodeid'>@L.添加试卷</a>]</li>
+                <div id="sel_box">
+                    <div class="input-group max20rem">
+                        <input type="text" id="skey" class="form-control max20rem mvcparam" placeholder="@L.请输入关键词" onkeypress="selbox.search();" />
+                        <span class="input-group-append">
+                            <input type="button" class="btn btn-outline-secondary" value="@L.搜索" onclick="mvcpage.load();" />
+                        </span>
+                    </div>
+                </div>
+                <div id="help" class="float-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle();"><i class="zi zi_search"></i></a></div>
+            </ol>
+        </div>
+    </div>
+    @Html.Partial("Papers_System_Manage_List")
+	<div class="sysBtline">
+    <button id="del_btn" class="btn btn-outline-danger" onclick="mvcpage.bat({ url: 'Papers_Del', confirm: '@L.确定要删除选中的数据吗？' });">@L.批量删除</button> 
+	</div>
+</div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+}

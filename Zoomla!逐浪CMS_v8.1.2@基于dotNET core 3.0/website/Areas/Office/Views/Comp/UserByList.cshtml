@@ -1,0 +1,47 @@
+﻿@using ZoomLa.BLL.User
+@functions{
+    B_User buser = new B_User();
+    B_Structure strBll = new B_Structure();
+    //string ids { get { return Request["ids"] ?? ""; } }
+    //  //操作方法名称
+    //public string del { get { string _del= DataConverter.CStr(Request["del"]); return string.IsNullOrEmpty(_del) ? "delUser" : _del; } }
+    //protected void Page_Load(object sender, EventArgs e)
+    //{
+    //    M_UserInfo mu = buser.GetLogin();
+    //    if (mu.IsNull) { Response.Write("用户未登录"); Response.End(); }
+    //    //可改为生成缓存表,每十分钟更新一次
+    //    //用户必须已加入组织才可访问该页
+    //    if (!IsPostBack)
+    //    {
+    //        RPT.DataSource= Sel(ids);
+    //        RPT.DataBind();
+    //    }
+    //}
+    //private DataTable Sel(string ids)
+    //{
+    //    if (string.IsNullOrEmpty(ids)) { return null; }
+    //    SafeSC.CheckIDSEx(ids);
+    //    ids = StrHelper.PureIDSForDB(ids);
+    //    string fields = "UserID,UserName,HoneyName,Salt AS UserFace";
+    //    fields += ",(SELECT TOP 1 NAME FROM ZL_Structure WHERE UserIDS lIKE '%,'+ CAST(UserID as varchar(20))+',%')StrName ";
+    //    string where = " UserID IN (" + ids + ")";
+    //    PageSetting setting = PageSetting.Single(1, 100, "ZL_User", "UserID", where, "", null, fields);
+    //    DBCenter.SelPage(setting);
+    //    return setting.dt;
+    //}
+
+}
+<table class="table table-bordered table-striped" style="font-size:12px;">
+    <tr><td style="width:50px;">ID</td><td style="width:120px;">部门</td><td>用户名</td><td style="width:120px;">姓名</td><td style="width:80px;">操作</td></tr>
+    <asp:Repeater runat="server" ID="RPT" EnableViewState="false">
+        <ItemTemplate>
+            <tr>
+                <td><%#Eval("UserID") %></td>
+                <td><%#Eval("StrName") %></td>
+                <td><%#Eval("UserName") %></td>
+                <td><%#Eval("HoneyName") %></td>
+                <td><a href="javascript:;" onclick="<%#del+"(this,"+Eval("UserID")+")"%>;"><i class="zi zi_trashalt" zico="垃圾箱竖条"></i></a></td>
+            </tr>
+        </ItemTemplate>
+    </asp:Repeater>
+</table>

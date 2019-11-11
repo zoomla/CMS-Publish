@@ -1,0 +1,64 @@
+﻿@using Microsoft.Extensions.DependencyModel
+@functions{
+    public IHtmlContent ShowTr(string msg)
+    {
+        string html = "<div class=\"result_tr\"><i class=\"zi zi_check\"></i> "+msg+"</div>";
+        return MvcHtmlString.Create(html);
+    }
+    public string NetCoveVersion()
+    {
+        //.NETCoreApp,Version=v2.0
+        string verStr= DependencyContext.Default.Target.Framework;
+        if (verStr.Contains("=")) { return verStr.Split('=')[1].ToUpper(); }
+        else { return verStr; }
+    }
+}
+<div style="padding:15px;">
+    <div class="checkItem">
+        <div class="title">检测结果</div>
+        <div class="body">
+            <div style="font-size:1rem;color:green;"><i class="zi zi_check"></i> 安全检测通过,未发现可疑文件</div>
+        </div>
+    </div>
+    <div class="checkItem">
+        <div class="title">网站概况</div>
+        <div class="body">
+            <div>运行环境：NetCore @NetCoveVersion()</div>
+            <div>操作系统：Windows Server 2019</div>
+            <div>服务器IP：@Context.Connection.LocalIpAddress</div>
+        </div>
+    </div>
+    <div class="checkItem">
+        <div class="title">网页恶意内容</div>
+        <div class="body">
+            @ShowTr("虚假和欺诈等不良信息")
+            @ShowTr("异常广告信息和恶意链接")
+            @ShowTr("黑链和恶意劫持")
+        </div>
+    </div>
+    <div class="checkItem">
+        <div class="title">网站环境</div>
+        <div class="body">
+            @ShowTr("系统运行环境与API")
+            @ShowTr("安全服务与支持类库")
+        </div>
+    </div>
+    <div class="checkItem">
+        <div class="title">攻击风险</div>
+        <div class="body">
+            @ShowTr("自身攻击风险")
+            @ShowTr("0Day漏洞")
+            @ShowTr("SQL注入项测试")
+            @ShowTr("任务文件上传检测")
+            @ShowTr("路径回溯等攻击手段检测")
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+#result_div .checkItem{margin-bottom:20px;}
+#result_div .title{border-left:3px solid #0094ff;font-size:1.2rem;font-weight:bolder;padding-left:8px;}
+#result_div .body{margin-left:10px;}
+#result_div .result_tr{border-bottom:1px solid #ddd;padding:8px;}
+#result_div .result_tr .zi_check{color:green;}
+</style>

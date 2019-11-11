@@ -1,0 +1,182 @@
+﻿@{
+    string pageName = "内容防护";
+}
+@section head{<title>@pageName</title>
+<style>
+    .nav {
+        margin-left: 20px;
+        padding-right:3%;
+        padding-left: 0px;
+        margin-bottom: 10%;
+        width: 100%;
+        height: 100%;
+    }
+
+    .List_total {
+        width: 100%;
+        margin-bottom:0px;
+        border-left:none;
+        border-right:none;
+        border-top:none;
+        border-bottom:solid 1px;
+        border-color:lightgray;
+    }
+
+    .List_li {
+        height: 35px;
+        padding: 5px 10px;
+        margin-bottom: 0px;
+        margin-top: 8px;
+        float: left;
+        border: solid 1px;
+        border-color: darkgray;
+        color: black;
+    }
+
+    .List_liClick {
+        height: 35px;
+        padding: 5px 10px;
+        margin-bottom: 0px;
+        margin-top: 8px;
+        float: left;
+        border: solid 1px;
+        border-top-color: dodgerblue;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        color: dodgerblue;
+    }
+
+    .font_total {
+        font: 15px bold;
+        color: black;
+    }
+
+    .font_Content {
+        font-size: 10px;
+        color: darkgray;
+        line-height: 2;
+    }
+</style>
+
+}
+@section content{
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),"安全中心"),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+    <form method="post" action="@MVCHelper.GetAction("_Submit",Context.Request)">
+        <div class="list_choice">
+            <div class="nav">
+                <div class="List_total">
+                    <ul id="ul">
+                        <li class="List_li" onclick="Click_li(this)">设置</li>
+                        <li class="List_li" onclick="Click_li(this)">通知</li>
+                        <li class="List_li" onclick="Click_li(this)">安装和卸载插件</li>
+                    </ul>
+                </div>
+                <div style="margin-top:0px;">
+                    <div>
+                        <sapn class="font_total">病毒查杀</sapn>
+                        <div class="font_Content">
+                            <sapn>提醒：由于网络攻击手段，病毒样本在不断演变，同时实际的业务环境也各有不同，因此无法保证时时检测防御所有的未知威胁，建议您基于安全告警处理，漏洞，基线检查，云平台配置检查等安全能力提升整体得分安全防线，预防黑客入侵植入恶意病毒，盗取或破坏业务数据</sapn><br />
+                            <span>检测范围：&nbsp;&nbsp;&nbsp;</span>
+                            <label id="Num1">0</label><span>台/总</span>
+                            <label id="Num2">0</label><span>台</span>&nbsp;&nbsp;
+                            <a style="color:dodgerblue;">管理</a><br />
+                            <sapn>自动隔离：&nbsp;&nbsp;&nbsp;</sapn>
+                            <sapn class="zi zi_toggleon"></sapn>&nbsp;&nbsp;
+                            <span>检测出主流木马病毒，勒索软件，挖矿病毒DDos木马后自动隔离查杀</span>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div>
+                        <span class="font_total">网站后门查杀</span>
+                        <div class="font_Content">
+                            <sapn>对网络服务器网页目录，进行检测和识别网站后门，让黑客悄然植入后门无处隐藏</sapn><br />
+                            <span>检测范围：&nbsp;&nbsp;&nbsp;</span>
+                            <label id="Num1">0</label><span>台/总</span>
+                            <label id="Num2">0</label><span>台</span>&nbsp;&nbsp;
+                            <a style="color:dodgerblue;">管理</a><br />
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div>
+                        <sapn class="font_total">容器威胁检测（Beta）</sapn>
+                        <div class="font_Content">
+                            <sapn>企业版才可以使用该功能，请</sapn>
+                            <a style="color:dodgerblue;">立即升级</a><br />
+                            <br />
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div>
+                        <sapn class="font_total">安全管控</sapn>
+                        <div class="font_Content">
+                            <sapn>IP白名单：支持针对负载均衡，弹性公司IP对您的（部分或所有）资产访问将不受任何限制。</sapn>
+                            <a style="color:dodgerblue;">配置</a><br />
+                            <br />
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div>
+                        <sapn class="font_total">访问控制</sapn>
+                        <div class="font_Content">
+                            <sapn>权限策略管理：支持您管理当前账户下所有权限。</sapn>
+                            <a style="color:dodgerblue;">管理</a><br />
+                            <br />M
+                            <sapn>用户管理：支持您创建的账户进行管理。</sapn>
+                            <a style="color:dodgerblue;">管理</a><br />
+                            <br />
+                            <sapn>角色管理：支持您创建的RAM角色向您信任的实体（eg：RA用户，某个应用或阿里云服务）进行快速授权</sapn>
+                            <a style="color:dodgerblue;">管理</a><br />
+                            <br />
+
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div>
+                        <sapn class="font_total">防护模式管理</sapn>
+                        <a class="font_Content" style="color:dodgerblue;">管理</a><br />
+                        <div class="font_Content">
+                            <sapn>为服务器选择合适的防护模式，更高效，更安全。</sapn><br />
+                            <div style="float:left; margin-right:5%;">
+                                <sapn>业务优先模式</sapn><br />
+                                <sapn><label style="font-size:45px; color:black; font:bold; margin-right:8px;">0</label>台</sapn><br />
+                                <sapn style="color:darkgoldenrod;">以业务运行为优先考虑，使用最低的内存和CPU运行防护工作，确保业务运行无碍，合适</sapn><br />
+                                <sapn style="color:darkgoldenrod;">工作最较高无法中断的服务器</sapn>
+                            </div>
+                            <div style="float:left;">
+                                <sapn>防护优先模式</sapn><br />
+                                <sapn><label style="font-size:45px; color:black; font:bold; margin-right:8px;">0</label>台</sapn><br />
+                                <sapn style="color:darkgoldenrod;">以安全防护为优先考虑，使用相对高的系统内存和CPU，可以及时查杀病毒和威胁告警,</sapn><br />
+                                 <sapn style="color:darkgoldenrod;">适合安全等级较高的服务器</sapn>
+                            </div>
+                            <br />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+}
+@section script{
+    <script>
+        function Click_li(obj) {
+            var arr = document.getElementById("ul").getElementsByTagName("li");
+            for (var i = 0; i < arr.length; i++) {
+                arr[i].className = "List_li";
+
+            };
+
+            obj.className = "List_liClick";
+        }
+    </script>
+}

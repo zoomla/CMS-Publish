@@ -1,0 +1,50 @@
+﻿@using ZoomLa.BLL.Message
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions
+{
+
+B_BaikeEdit editBll = new B_BaikeEdit();
+public string VerStr { get { return Context.Request.GetParam("VerStr"); } }
+public string GetStatus(DataRow dr)
+{
+    int status = DataConverter.CLng(dr["Status"]);
+    return editBll.GetStatus(status);
+}
+public string ShowVersion(DataRow dr)
+{
+    if (DataConverter.CStr(dr["VerStr"]).Equals(VerStr)) { return "<span class='text-danger'>(当前版本)</span>"; }
+    else { return DataConverter.CStr(dr["VerStr"]); }
+}
+}
+@{
+string apiUrl="BK_API?action=";
+
+}
+<table class="table table-bordered table-striped" id="EGV">
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>@L.版本号</td>
+                <td>@L.提交人</td>
+                <td>@L.状态</td>
+                <td>@L.操作</td>
+            </tr>
+        </thead>
+
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td>@dr["ID"]</td>
+                <td>@ShowVersion(dr)</td>
+                <td>@dr["UserName"]</td>
+                <td>@MvcHtmlString.Create(GetStatus(dr))</td>
+                <td>
+                    <a href="/Baike/Details?EditID=@dr["ID"]" target="_blank" ><i class="zi zi_eye" title="预览"></i></a>
+                    <a href="/Baike/BKEditor?EditID=@dr["ID"]&mode=admin" target="_blank"><i class="zi zi_pencilalt" title="修改"></i></a>
+                    <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',ids:'@dr["ID"]',confirm:'@L.确实要删除吗'});"><i class="zi zi_trashalt" title="删除"></i></a>
+                    <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"apply")',ids:'@dr["ID"]',confirm:'@L.确定要使用该版词条吗'});"><i class="zi zi_flag"></i>@L.应用</a>
+                </td>
+            </tr>
+        }
+        @Html.Partial("_page")
+    </table>

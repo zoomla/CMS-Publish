@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link rel="stylesheet" href="/theme/css/v4style.css?v=3" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+
+<style type="text/css">
+.list_choice form{width:100%;}
+.thumImg{max-width:100px;max-height:100px;}
+ul{list-style-type:none;}
+.detail{border:none;width:300px;height:34px;border-top:1px solid #ddd;padding-left:7px;vertical-align:middle;}
+body { background: url(https://code.z01.com/web/plat/reg-bg.jpg) center no-repeat;background-color:#000; }
+body h1 { margin-top: 20%; margin-bottom: 1em; }
+
+.form_div{width:400px;margin:0 auto;}
+.form_div>div{margin-bottom:10px;}
+.form_div>div .btn{width:70%;}
+</style>
+@RenderSection("head",false)
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <div class="col-lg-12  col-md-12 col-sm-12 col-xs-12">
+            <div style="display:none" id="MaskLayer_Div"></div>
+            <h1 class="regplat_title" style="color:#fff;">连接世界的力量</h1>        
+                @RenderSection("content",false)
+        </div>
+    </div>
+</div>
+<script>
+    function closeme() {
+        $("#Step2_Div").hide();
+        $("#MaskLayer_Div").hide();
+    }
+    function ShowMask() {
+        var sw = $(window).width();
+        var sh = $(window).height();
+        $("#MaskLayer_Div").css({ "display": "", "position": "fixed", "background": "#000", "z-index": "1", "-moz-opacity": "0.5", "opacity": ".50", "filter": "alpha(opacity=50)", "width": sw, "height": sh });
+    }
+</script>
+
+@RenderSection("script",false)
+</body>
+</html>

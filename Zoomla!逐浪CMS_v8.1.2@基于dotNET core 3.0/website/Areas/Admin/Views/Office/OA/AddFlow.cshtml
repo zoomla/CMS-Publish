@@ -1,0 +1,185 @@
+﻿@functions{
+
+    //protected B_User buser = new B_User();
+    //  protected B_Group groupBll = new B_Group();
+    //  protected M_MisProcedure proMod = new M_MisProcedure();
+    //  protected B_MisProcedure proBll = new B_MisProcedure();
+    //  protected B_MisProLevel stepBll = new B_MisProLevel();
+    //  protected M_MisProLevel stepMod = new M_MisProLevel();
+    //  public int ProID { get { return DataConvert.CLng(Request.QueryString["ProID"]); } }
+    //  protected void Page_Load(object sender, EventArgs e)
+    //  {
+    //      if (ProID < 1) { function.WriteErrMsg("请先选定流程!!!"); }
+    //      if (!IsPostBack)
+    //      {
+    //          MyBind();
+    //          Call.HideBread(this.Master);
+    //      }
+    //  }
+    //  private void MyBind()
+    //  {
+    //      //stepCodeT.Text = GenStepCode(proID).ToString();
+    //      proMod = proBll.SelReturnModel(ProID);
+    //      ProceName_L.Text = proMod.ProcedureName;
+    //      DataTable dt = stepBll.SelByProID(ProID,searchText.Text);
+    //      EGV.DataSource = dt;
+    //      EGV.DataBind();
+    //      ImgData_Hid.Value = JsonHelper.JsonSerialDataTable(dt);
+    //  }
+    //  protected void EGV_PageIndexChanging(object sender, GridViewPageEventArgs e)
+    //  {
+    //      EGV.PageIndex = e.NewPageIndex;
+    //      MyBind();
+    //  }
+    //  protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+    //  {
+    //      switch (e.CommandName.ToLower())
+    //      {
+    //          case "del2":
+    //              //删除记录，同时删除目标数据库
+    //              int id = DataConvert.CLng(e.CommandArgument.ToString());
+    //              stepBll.Del(id);
+    //              //stepBll.UpdateStep(DataConvert.CLng(ProID));
+    //              break;
+    //      }
+    //      MyBind();
+    //  }
+    //  protected void EGV_RowDataBound(object sender, GridViewRowEventArgs e)
+    //  {
+    //      if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow)
+    //      {
+    //          e.Row.Attributes["ondblclick"] = String.Format("javascript:location.href='AddFlowStep.aspx?proID={0}&StepID={1}'", ProID, this.EGV.DataKeys[e.Row.RowIndex].Value.ToString());
+    //      }
+    //  }
+    //  protected void Search_Btn_Click(object sender, EventArgs e)
+    //  {
+    //      MyBind();
+    //  }
+    //  protected void SaveOrder_Btn_Click(object sender, EventArgs e)
+    //  {
+    //      DataTable dt = JsonConvert.DeserializeObject<DataTable>(Order_Hid.Value);
+    //      foreach (DataRow dr in dt.Rows)
+    //      {
+    //          DBCenter.UpdateSQL("ZL_MisProLevel", "StepNum=" + Convert.ToInt32(dr["stepnum"]), "ID=" + Convert.ToInt32(dr["ID"]));
+    //      }
+    //      function.WriteSuccessMsg("步骤序号更新成功", Request.RawUrl);
+    //  }
+    //  public string GetNextAuth()
+    //  {
+    //      switch (Eval("DocAuth", ""))
+    //      {
+    //          case "refer":
+    //              return "主办人";
+    //          case "sender":
+    //              return "发起人";
+    //          case "all":
+    //              return "发起人与主办人";
+    //          default:
+    //              return "未配置[" + Eval("DocAuth") + "]";
+    //      }
+    //  }
+    //  public string GetTreeLine()
+    //  {
+    //      if (Convert.ToInt32(Eval("ParentID")) > 0) {return B_Node.GetTreeLine(1); }
+    //      else {return ""; }
+    //  }
+
+}
+@section head{<title>流程设计</title> }
+@section content{ 
+    <ol id="BreadNav" class="breadcrumb  fixed-top">
+        <li class="breadcrumb-item"><a href="/Admin/Main.aspx">工作台</a></li>
+        <li class="breadcrumb-item"><a href="Default.aspx">流程列表</a></li>
+        <li class="breadcrumb-item">
+            <asp:Label runat="server" ID="ProceName_L"></asp:Label>
+            <a href="AddFlowStep.aspx?proID=<%=ProID %>&Add=1">[添加步骤]</a>
+        </li>
+        <div id="help" class="float-right text-center"><a href="javascript:;" id="sel_btn" class="help_btn" onclick="selbox.toggle();"><i class="zi zi_search"></i></a></div>
+        <div id="sel_box" class="padding5">
+            <div class="input-group">
+                <asp:TextBox runat="server" id="searchText" class="form-control mvcparam max20rem" placeholder="请输入关键词" onkeypress="selbox.search();" />
+                <span class="input-group-append">
+                    <asp:LinkButton runat="server" class="btn btn-outline-secondary" ID="Search_Btn" OnClick="Search_Btn_Click"><i class="zi zi_search"></i></asp:LinkButton>
+                </span>
+            </div>
+        </div>
+    </ol>
+    <div class="list_choice table-responsive-md pr-1">
+        <ZL:ExGridView runat="server" ID="EGV" AutoGenerateColumns="false" AllowPaging="true" PageSize="20" 
+            EnableTheming="False"  OnRowDataBound="EGV_RowDataBound" CssClass="table table-striped table-bordered" 
+            OnPageIndexChanging="EGV_PageIndexChanging" DataKeyNames="ID" OnRowCommand="EGV_RowCommand" AllowUserToOrder="true" EmptyDataText="当前没有信息!!">
+            <Columns>
+                <asp:TemplateField ItemStyle-CssClass="w1rem">
+                    <ItemTemplate>
+                        <input type="checkbox" name="idchk" value="<%#Eval("ID") %>" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:BoundField HeaderText="ID" DataField="ID" ItemStyle-CssClass="" />
+                <asp:TemplateField HeaderText="步骤名" ItemStyle-CssClass="">
+                    <ItemTemplate>
+                        <%#GetTreeLine() %>
+                        <%#Eval("StepName") %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="序号" ItemStyle-CssClass="w12rem_lg">
+                    <ItemTemplate>
+                        <input type="text" class="stepnum form-control" data-id="<%#Eval("ID") %>" value="<%#Eval("StepNum") %>" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="会签" ItemStyle-CssClass="">
+                    <ItemTemplate>
+                        <%#OACommon.GetHQoption(Eval("HQoption","")) %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="强制转交" ItemStyle-CssClass="">
+                    <ItemTemplate>
+                        <%#OACommon.GetQzzjoption(Eval("Qzzjoption","")) %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="回退" ItemStyle-CssClass="">
+                    <ItemTemplate>
+                        <%#OACommon.GetHToption(Eval("HToption","")) %>
+                    </ItemTemplate>
+                </asp:TemplateField>
+                <asp:TemplateField HeaderText="下一步权限" ItemStyle-CssClass=""><ItemTemplate>
+                    <%#OACommon.GetNextAuth(Eval("DocAuth","")) %>
+                </ItemTemplate></asp:TemplateField>
+                <asp:BoundField HeaderText="备注" DataField="Remind"  ItemStyle-CssClass=""/>
+                <asp:TemplateField HeaderText="操作"  ItemStyle-CssClass="">
+                    <ItemTemplate>
+                       <a href="AddFlowStep.aspx?proID=<%= ProID %>&stepID=<%#Eval("ID") %>">查看详情</a>
+                      |<asp:LinkButton runat="server" CommandName="Del2" CommandArgument='<%#Eval("ID") %>' OnClientClick="return confirm('你确定要删除吗!');" ToolTip="删除" Text="删除" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+            </Columns>
+        </ZL:ExGridView>
+		<div class="alert alert-light">
+        <asp:Button runat="server" ID="SaveOrder_Btn" Text="保存排序" class="btn btn-info" OnClick="SaveOrder_Btn_Click" OnClientClick="return OrderCheck();" />
+        <button type="button" class="btn btn-outline-info" onclick="ShowImgDiag()">查看流程图</button></div>
+    </div>
+    <div class="alert alert-info">步骤序号从1开始,不可缺少数值,支持同值序号(分支步骤)</div>
+    <asp:HiddenField runat="server" ID="Order_Hid" />
+    <asp:HiddenField runat="server" ID="ImgData_Hid" />
+    <input type="hidden" id="image_hid" />
+}
+@section script{ 
+<script>
+    function OrderCheck() {
+        var list = [];
+        $(".stepnum").each(function () {
+            $input = $(this);
+            if (Convert.ToInt($input.val()) == 0) { alert("[" + $input.data("id") + "]步骤序号错误"); return false; }
+            list.push({ id: $input.data("id"), "stepnum": $input.val() });
+        });
+        $("#Order_Hid").val(JSON.stringify(list));
+    }
+        
+    var diag = new ZL_Dialog();
+    function ShowImgDiag() {
+        diag.title = "查看流程图";
+        diag.url = "/Office/flow/ImgWorkFlow.aspx?proid=<%:ProID %>";
+        diag.maxbtn = false;
+        diag.ShowModal();
+    }
+</script>
+}

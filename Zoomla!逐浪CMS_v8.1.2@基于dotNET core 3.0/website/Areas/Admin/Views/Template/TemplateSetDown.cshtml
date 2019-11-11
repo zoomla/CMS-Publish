@@ -1,0 +1,205 @@
+﻿@using System.IO
+@using System.Net
+@using System.Net.Http
+@using ZoomLa.BLL.SYS
+@using ZoomLa.Components.Comp
+@using ZoomLa.Safe
+@using ICSharpCode.SharpZipLib.Checksum;
+@using ICSharpCode.SharpZipLib.Zip;
+@using System.IO
+@functions{
+    string prodirName = "";
+    string serverdomain = SiteConfig.SiteOption.ProjectServer;
+    string ProName { get { return Context.Request.GetParam("ProName"); } }
+    string ProDir { get { return Context.Request.GetParam("dir"); } }
+    string ProViewImg { get { return serverdomain + "/Template/" + ProDir + "/view.jpg"; } }
+
+    public void DownFileWorkAsync()
+    {
+        string prodir = "/Template/" + ProDir + "/";
+        string ZipSrcUrl = serverdomain + "/template/" + ProDir + ".zip";//模板http地址
+        string ZipSaveVPath = "/template/" + ProDir + ".zip";
+        string ZipSavePPath = function.VToP(ZipSaveVPath);
+         if (File.Exists(ZipSavePPath)) { SafeSC.DelFile(ZipSaveVPath); }
+        int userID = B_Admin.GetLogin(Context).AdminId;
+        SafeC.Cache[userID + "downTempT"] = GetFileSize(ZipSrcUrl);
+         DownloadFile(ZipSrcUrl, ZipSavePPath, userID + "downTempP");//下载模板
+        //------解压
+        ZipResult result = ZipHelper.UnZipFiles(new ZipConfig()
+        {
+            UnZipSrc = ZipSaveVPath,
+            UnZipDir = "/Template/",
+            //Flow = userID + "uzP",
+        });
+    }
+    /// <summary>
+    /// 从指定站点下载文件，并保存在指定位置,//下载，迁入ZipClass
+    /// </summary>
+    /// <param name="strUrl">目标Url</param>
+    /// <param name="strFileName">本地物理路径</param>
+    /// <param name="flag">appliatoin[flag]用于存进度</param>
+    /// <param name="ct">当前上下文HttpContext</param>
+    /// <param name="begin">从指定位置开始下载(未实现)</param>
+    public void DownloadFile(string strUrl, string strFileName, string flag = "", int begin = 0)
+    {
+        if (SafeSC.FileNameCheck(strFileName)) { throw new Exception(strFileName + "取消保存"); }
+        //已完成的,1%长度
+        int CompletedLength = 0;
+        long percent = 0;
+        long sPosstion = 0;//磁盘现盘文件的长度
+                           //long count = 0;// count += sPosstion,从指定位置开始写入字节
+        FileStream FStream;
+        if (File.Exists(strFileName))//如果文件存在
+        {
+            FStream = File.OpenWrite(strFileName);//打开继续写入,并从尾部开始,用于断点续传
+            sPosstion = FStream.Length;
+            FStream.Seek(sPosstion, SeekOrigin.Current);//移动文件流中的当前指针
+        }
+        else
+        {
+            FStream = new FileStream(strFileName, FileMode.Create);
+            sPosstion = 0;
+        }
+        //打开网络连接
+        Stream myStream = null;
+        try
+        {
+            HttpWebRequest myRequest = (HttpWebRequest)HttpWebRequest.Create(strUrl);
+            //if (CompletedLength > 0)//断点续传
+            //    myRequest.AddRange((int)CompletedLength);//设置Range值,即头，从指定位置开始接收文件..
+            //向服务器请求，获得服务器的回应数据流
+            HttpWebResponse webResponse = (HttpWebResponse)myRequest.GetResponse();
+            long FileLength = webResponse.ContentLength;//文件大小
+            percent = FileLength / 100;
+            myStream = webResponse.GetResponseStream();
+            byte[] btContent = new byte[1024];
+
+            //开始写入
+            int count = 0;
+            while ((count = myStream.Read(btContent, 0, 1024)) > 0)//返回读了多少字节,为0表示全部读完
+            {
+                FStream.Write(btContent, 0, count);//知道有多少个数字节后再写入
+                CompletedLength += count;
+                if (!string.IsNullOrEmpty(flag)) { SafeC.Cache[flag] = CompletedLength; }
+            }
+            myStream.Close();
+        }
+        finally
+        {
+            if (myStream != null) { myStream.Close(); }
+            if (FStream != null) { FStream.Close(); }
+        }
+    }
+    public long GetFileSize(string strUrl)
+    {
+        try
+        {
+            HttpWebRequest myRequest = (HttpWebRequest)HttpWebRequest.Create(strUrl);
+            HttpWebResponse webResponse = (HttpWebResponse)myRequest.GetResponse();
+            return webResponse.ContentLength;
+        }
+        catch
+        {
+            return -1;
+        }
+    }
+}
+@{
+
+    System.Threading.Thread th = new System.Threading.Thread(DownFileWorkAsync);
+    th.Start();
+
+}
+@section head{<title>获取云模板</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread("TemplateSet","模板风格"),
+    new Bread("TemplateSetOfficial","云模板"),
+    new Bread() {url="", text="下载方案",addon="" }
+    })
+    <div class="container-fluid">
+        <div class="row list_choice" ID="Panel1">
+            <div id="gallery" style="margin:0 auto;">
+                <div><a class="lightbox" href="@(ProViewImg)"><img src="@(ProViewImg)"></a></div>
+            </div>
+        </div>
+    </div>
+    <div id="downimg" class="navbar fixed-bottom" style="background-color:rgba(0, 0, 0, 0.30)">
+        [@ProName>]模版下载中请耐心等待片刻…
+        <div class="progress progress-striped active" style="margin-top:5px;">
+            <div id="downTempDiv" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                <span id="downTempSpan" class="sr-only" style="position: relative;"></span>
+            </div>
+        </div>
+    </div>
+    <div id="downbtn" class="navbar fixed-bottom downbtnBar">
+        <input type="button" id="down_b" value="点击从云端部署" onclick="beginCheckS('getTempP');" class="btn btn-outline-info" />
+    </div>
+    <div id="DownTips" style="display: none;position:fixed;width:100%;height:100%;top:0px;left:0px;">
+        <div class="d-flex justify-content-center alert alert-info alert-dismissible fade show" style="height:100%;">
+            <div class="align-self-center">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h4><i class="zi zi_checkcircle"></i> 云模板下载完成-现在就可以设为默认使用新模板:</h4>
+                <p>
+                    <button id="setdef_b" type="button" onclick="setDefault()" class="btn btn-default"><i class="zi zi_squareCorrect" zico="打勾正方形"></i> 设为默认</button>
+                    <a href="TemplateSetOfficial" class="btn btn-outline-info"><i class="zi zi_backward"></i> 返回模板列表</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+}
+
+@section script{
+    <link href="/Plugins/JqueryUI/LightBox/css/lightbox.css" rel="stylesheet" />
+    <script src="/Plugins/JqueryUI/LightBox/jquery.lightbox.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            base_url = document.location.href.substring(0, document.location.href.indexOf('index.html'), 0);
+            $(".lightbox").lightbox({
+                fitToScreen: true,
+                imageClickClose: false
+
+            });
+            //进入该页即自动下载,获取下载进度
+            beginCheckS('getTempP');
+        });
+        var interval;
+        function PostToCS(a, v) {
+            $.post("TemplateSetDown?action=" + a, { "value": v }, function (data) {
+                $("#downTempDiv").css("width", data + "%");
+                $("#downTempSpan").text(data + "%");
+                if (data == 100) {
+                    clearInterval(interval);
+                    $("#downimg").hide();
+                    $("#DownTips").show();
+                }
+            })
+        }
+        function beginCheckS(action) {
+            $("#downimg").show();
+            $("#downbtn").hide();
+            interval = setInterval(function () { PostToCS(action, '') }, 1000);
+        }
+
+        function setDefault() {
+            if (!confirm("确认将该模板设为默认吗?")) { return; }
+		$.ajax({
+            type: "Post",
+			url: "TemplateSetDown",
+			data: { action: 'setdefault', value: '@(ProDir)>' },
+			success: function (data) {
+				$("#setdef_b").attr("disabled", "disabled").html("<i class='zi zi_squareCorrect'></i> 设置成功");
+                }
+            });
+        }
+        //完成,可以开始安装
+        //跳转
+        function jump() {
+            window.location = "@Call.PathAdmin("Config/SiteOption?ProDirName="+prodirName)";
+        }
+    </script>
+
+
+}

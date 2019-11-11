@@ -1,0 +1,38 @@
+﻿@model ZoomLa.Model.Shop.Addon.M_Shop_Vendor
+@section head{<title>供应商信息</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+ new Bread("{admin}"),
+ new Bread(Call.PathAdmin("Shop/Addon/Vendor"),"供应商列表"),
+ new Bread(Context.Request.RawUrl(),"供应商信息")
+
+})
+<div class="list_choice">
+    <form method="post" action="@MVCHelper.GetAction("VendorAdd_Submit",Context.Request)">
+        <table class="table table-bordered table-striped">
+            <tr><td class="td_m">名称</td><td>@Html.TextBoxFor(m => m.Name, new { @class = "form-control text_300 required" })</td></tr>
+            <tr><td>电话</td><td>@Html.TextBoxFor(m => m.Mobile, new { @class = "form-control text_300 mobile" })</td></tr>
+            <tr><td>传真</td><td>@Html.TextBoxFor(m => m.Fax, new { @class = "form-control text_300" })</td></tr>
+            <tr><td>主页</td><td>@Html.TextBoxFor(m => m.SiteUrl, new { @class = "form-control text_300" })</td></tr>
+            <tr><td>状态</td><td>
+                 @MVCHelper.H_Radios("ZStatus","正常,禁用".Split(','),"99,0".Split(','),Model.ZStatus.ToString())
+                </td></tr>
+            <tr><td>厂商信息</td><td>@Html.TextAreaFor(m => m.Name, new { @class = "form-control",rows="5" })</td></tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="保存信息" class="btn btn-info" />
+                </td>
+            </tr>
+        </table>
+</form>
+</div>
+
+ }
+@section script{
+    <script>
+        $("form").validate({});
+    </script>
+
+
+ }

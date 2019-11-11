@@ -1,0 +1,36 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@model System.Data.DataTable
+@functions{
+
+    public string GetAddress(DataRow dr)
+    {
+        string html= string.Format("{0} {1}({2} 收) {3} ", dr["Provinces"], dr["Street"], dr["ReceivName"], dr["MobileNum"]);
+        if (DataConverter.CLng(dr["isDefault"]) == 1)
+        {
+            html+= "<span style='color:#17a2b8;'>(默认地址)</span>";
+        }
+        return "<div style='display:inline-block;'>"+ html + "</div>";
+    }
+}
+@{ 
+   
+}
+@if (Model.Rows.Count >0)
+{
+    foreach (DataRow dr in Model.Rows)
+    {
+        <li id="addli_@dr["ID"]">
+            <label class="normalw"><input type="radio" name="address_rad" value="@dr["ID"]" />@MvcHtmlString.Create(GetAddress(dr))</label>
+            <span>
+                <a href="javascript:;" class="btn btn-info btn-sm" style="color:#fff;" onclick="EditAddress(@dr["ID"]);">修改</a>
+                <a href="javascript:;" class="btn btn-info btn-sm" style="color:#fff;" onclick="DelAddress(@dr["ID"]);">删除</a>
+            </span>
+        </li>
+    }
+}
+else
+{
+    <div id="EmptyDiv" class="r_red">你没有收货地址,请先填写收货地址</div>
+}

@@ -1,0 +1,125 @@
+﻿@using ZoomLa.BLL.User
+@functions{
+    B_Structure strBll = new B_Structure();
+    B_User buser = new B_User();
+    //----节点
+    string path = CustomerPageAction.customPath2 + "AddOn/";
+    string hasChild, noChild;
+    //--------------会员相关
+    //private string preAction
+    //{
+    //    get { return ViewState["preAction"] as string; }
+    //    set { ViewState["preAction"] = value; }
+    //}
+    //public string preValue
+    //{
+    //    get { return ViewState["preValue"] as string; }
+    //    set { ViewState["preValue"] = value; }
+    //}
+    //public string orderType
+    //{
+    //    get { return ViewState["orderType"] as string; }
+    //    set { ViewState["orderType"] = value; }
+    //}
+    //protected void Page_Load(object sender, EventArgs e)
+    //{
+    //    hasChild = "<a href='StructList.aspx?action=struct&value={0}' id='a{0}' class='list1'>{2}<span class='list_span'>{1}</span></a>";
+    //    noChild = "<a href='StructList.aspx?action=struct&value={0}'>{2}{1}</a>";
+    //    if (!IsPostBack)
+    //    {
+    //        preAction = Request.QueryString["action"];
+    //        preValue = Request.QueryString["value"];
+    //        BindNode();
+    //        MyBind();
+    //    }
+    //}
+    //private void MyBind()
+    //{
+    //    M_Structure strMod = strBll.SelReturnModel(DataConvert.CLng(preValue));
+    //    if (strMod == null) return;
+    //    DataTable dt = buser.SelectUserByIds(strMod.UserIDS); //buser.SelPage(pageSize, pageIndex, out itemCount, preAction, preValue, orderType);
+    //    RPT.DataSource = dt;
+    //    RPT.DataBind();
+    //}
+    //protected void BindNode()
+    //{
+    //    DataTable dt = strBll.Sel();
+    //    nodeHtml.Text = "<ul class='tvNav'><li><a  class='list1' id='a0' href='StructList.aspx' ><span class='list_span'>全部成员</span><span class='zi zi_list'></span></a>" + B_Node.GetLI(dt, hasChild, noChild) + "</li></ul>";
+    //}
+    //protected void OrderBtn_Click(object sender, EventArgs e)
+    //{
+    //    LinkButton linkbt = ((LinkButton)sender);
+    //    orderType = linkbt.CommandArgument;
+    //    RPT.DataBind();
+    //    if (orderType.IndexOf("Asc") > -1)//判断是否倒序
+    //    {
+    //        linkbt.CommandArgument = orderType.Replace("Asc", "");
+    //        linkbt.Text = linkbt.Text.Replace("fa-arrow-up", "fa-arrow-down");
+    //    }
+    //    else
+    //    {
+    //        linkbt.CommandArgument = "Asc" + orderType;
+    //        linkbt.Text = linkbt.Text.Replace("fa-arrow-down", "fa-arrow-up");
+    //    }
+    //    function.Script(this, "ShowOrderIcon('" + linkbt.ID + "')");
+    //}
+
+}
+@section head{ <title>组织结构</title>}
+@section content{ 
+    <div class="container-fluid mt-1">
+	<div class="row">
+    <div id="nodeNav" class="col-12 col-md-2">
+        <div>
+            <div class="tvNavDiv">
+                <div class="left_ul">
+                    <asp:Literal runat="server" ID="nodeHtml" EnableViewState="false"></asp:Literal>
+                </div>
+            </div>
+            <span style="color: green;" runat="server" id="remind" visible="false" />
+        </div>
+    </div>
+    <div class="col-12 col-md-10">
+        <table id="EGV" class="table table-striped table-bordered table-hover" >
+           <tr>
+	        <td></td>
+	        <td><asp:LinkButton runat="server" ID="ID_A" CommandArgument="AscID" OnClick="OrderBtn_Click">ID<i class='zi zi_arrowUp order_img'></i></asp:LinkButton></td>
+	        <td>会员名</td>
+	        <td>工号</td>
+	      <%--  <td>部门名</td>--%>
+	        <td><asp:LinkButton runat="server" ID="Addtime_A" CommandArgument="Addtime" OnClick="OrderBtn_Click">注册时间<i class='zi zi_arrowUp order_img'></i></asp:LinkButton></td>
+	        <td><asp:LinkButton runat="server" ID="point_A" CommandArgument="point" OnClick="OrderBtn_Click">积分<i class='zi zi_arrowUp order_img'></i></asp:LinkButton></td>
+	        <td><asp:LinkButton runat="server" ID="LoginTimes_A" CommandArgument="LoginTimes" OnClick="OrderBtn_Click">登录次数<i class='zi zi_arrowUp order_img'></i></asp:LinkButton></td>
+	        <td><asp:LinkButton runat="server" ID="AuthTime_A" CommandArgument="AscAuthTime" OnClick="OrderBtn_Click">最后登录时间<i class='zi zi_arrowUp order_img'></i></asp:LinkButton></td>
+	        <td>状态</td>
+          </tr>
+           <ZL:ExRepeater runat="server" ID="RPT" PageSize="10" PagePre="<tr><td><input type='checkbox' id='AllID_Chk'></td><td colspan='12'><div class='text-center'>" PageEnd="</div></td></tr>">
+	        <ItemTemplate>
+	          <tr ondblclick="location='UserInfo.aspx?id=<%# Eval("UserID") %>';">
+		        <td><input type="checkbox" name="chkSel" value='<%# Eval("UserID") %>' /></td>
+		        <td><%#Eval("UserID") %></td>
+		        <td><a href="/user/Info/UserInfo?id=<%# Eval("UserID") %>" target="_blank"><%#Eval("HoneyName") %></a></td>
+		        <td><%#Eval("WorkNum") %></td>
+		        <td><%#Eval("RegTime","{0:yyyy年MM月dd日 HH:mm}") %></td>
+		        <td><%#Eval("UserExp") %></td>
+		        <td><%#Eval("LoginTimes") %></td>
+		        <td><%#Eval("LastLoginTime","{0:yyyy年MM月dd日 HH:mm}") %></td>
+		        <td>
+                   <%-- <%#GetStatus(Eval("Status","{0}")) %>--%>
+		        </td>
+	          </tr>
+	        </ItemTemplate>
+	        <FooterTemplate></FooterTemplate>
+          </ZL:ExRepeater>
+        </table>
+    </div>
+	</div>
+        </div>
+}
+@section script{ 
+    <script>
+        function ShowOrderIcon(id) {
+            $("#" + id).find(".order_img").show();
+        }
+    </script>
+}

@@ -1,0 +1,46 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLaCMS.Control.C_SelProduct
+@functions{
+  
+}
+@{
+    Model.setting.dt = Model.setting.dt.DefaultView.ToTable(true,"GeneralID,Title,NodeName".Split(','));
+}
+
+<div id="EGV">
+
+
+ <table class="table table-bordered">
+    <thead>
+        <tr>
+            <td class="td_s"></td>
+            <td class="td_s">ID</td>
+            <td>标题</td>
+        </tr>
+    </thead>
+     @foreach (DataRow dr in Model.setting.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+            <td>@dr["ID"]</td>
+            <td style="display:flex;">
+               <span>[@dr["NodeName"]]</span>
+               <a href="@Call.PA("Content/EditContent?GeneralID="+dr["ID"])" target="_blank">@dr["Title"]</a>
+            </td>
+        </tr>
+    }
+@Html.Partial("_page",Model.setting)
+</table>
+<script>
+    $(function () {
+        $(function () { iCheckInit("", { click: function (chk) { multi_click(chk); } }); })
+    })
+</script>
+}
+
+<script>
+    var dt=@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.setting.dt));
+</script>
+</div>

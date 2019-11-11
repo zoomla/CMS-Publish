@@ -1,0 +1,81 @@
+﻿@using ZoomLa.BLL.Shop
+@{
+    B_Shop_MoneyRegular regBll = new B_Shop_MoneyRegular();
+    M_UserInfo mu = ViewBag.mu;
+    DataTable regDT = regBll.Sel(new Com_Filter()
+    {
+        orderBy = "money_asc"
+    });
+}
+@section head{ <title>用户充值</title>}
+@section content{ 
+    <div id="pageflag" data-nav="home" data-ban="UserInfo"></div>
+<form method="post" action="SelectPayPlat_Submit">
+    <div class="container p-0">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+            <li class="breadcrumb-item"><a href="/User/Info/UserInfo">账户管理</a></li>
+            <li class="breadcrumb-item active">用户充值</li>
+        </ol>
+    </div>
+    <div class="container u_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label class="weui-label">会员名：</label>
+            </div>
+            <div class="weui-cell__bd">
+                @mu.UserName
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label class="weui-label">现有余额：</label>
+            </div>
+            <div class="weui-cell__bd">
+                @mu.Purse.ToString("F2")
+            </div>
+        </div>
+        <div id="reglist" class="weui-cells weui-cells_checkbox" style="margin-top:0px;">
+            @foreach(DataRow dr in regDT.Rows)
+            {
+
+<label class="weui-cell weui-check__label" for="x@(dr["ID"])">
+                        <div class="weui-cell__hd">
+                            <input type="radio" name="regular_rad" id="x@(dr["ID"])" value="@dr["ID"]" checked="checked">
+                        </div>
+
+                        <div class="weui-cell__bd">
+                            <p style="position:relative;bottom:-8px;">
+                                @dr["Alias"]
+                                (<span class="text-danger"><i class="zi zi_yensign">@(DataConverter.CDouble(dr["Min"]).ToString("F2"))</i></span>)
+                            </p>
+                        </div>
+                    </label>
+            }
+                    
+     
+            <label class="weui-cell weui-check__label" for="x0">
+                <div class="weui-cell__hd">
+                    <input type="radio" name="regular_rad" id="x0" value="0">
+                </div>
+                <div class="weui-cell__bd">
+                    <div class="input-group">
+                        <div class="input-group-prepend"><span class="input-group-text">手动输入充值金额</span></div>
+                        <input type="text" ID="Money_T" name="Money_T" class="form-control" value="100" runat="server" placeholder="请输入充值金额" maxlength="7" />
+                    </div>
+                </div>
+            </label>
+        </div>
+        <div class="weui-btn-area">
+            <input type="submit" ID="Sure_Btn"  class="btn btn-info btn-block" Text="确定充值" />
+        </div>
+    </div>
+</form>
+}
+@section script{
+<link href="/dist/css/weui.min.css" rel="stylesheet" />
+<script src="/dist/js/weui.js"></script>
+<script>
+$("#reglist .weui-cell:first").click();
+</script>
+}

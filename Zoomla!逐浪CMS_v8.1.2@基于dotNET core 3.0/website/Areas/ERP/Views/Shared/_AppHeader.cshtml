@@ -1,0 +1,72 @@
+﻿@{
+    M_UserInfo mu = new B_User(Context).GetLogin();
+ }
+
+<header class="app-header navbar">
+    <!--<button class="navbar-toggler mobile-sidebar-toggler d-md-down-none mr-auto" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>-->
+    <a class="navbar-brand" href="/ERP/">
+        <img src="@Call.LogoUrl" />
+    </a>
+    <button class="navbar-toggler sidebar-toggler" type="button">
+        <i class="zi zi_doubleArrowLandscape"></i>
+    </button>
+
+    <ul class="nav navbar-nav d-md-down-none" id="app_header_navs">
+        <li class="nav-item px-3 active"><a class="nav-link" href="javascript:;" onclick="ShowLeft('pas')">进销存管理</a></li>
+        <li class="nav-item px-3"><a class="nav-link" href="javascript:;" onclick="ShowLeft('hr')">人力资源</a></li>
+        <li class="nav-item px-3"><a class="nav-link" href="javascript:;" onclick="ShowLeft('crm')">客户管理</a></li>
+        <li class="nav-item px-3"><a class="nav-link" href="javascript:;" onclick="ShowLeft('finance');">财务报表</a></li>
+    </ul>
+    <ul class="nav navbar-nav ml-auto">
+        <li class="nav-item d-md-down-none">
+            <a class="nav-link" href="#"><i class="zi zi_bell"></i><span class="badge badge-pill badge-danger">5</span></a>
+        </li>
+        <li class="nav-item d-md-down-none">
+            <a class="nav-link" href="#"><i class="zi zi_inbox"></i></a>
+        </li>
+        <li class="nav-item d-md-down-none">
+            <a class="nav-link" href="#"><i class="zi zi_locationarrow"></i></a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                <img src="@(mu.UserFace)" onerror="shownoface(this);" class="img-avatar" alt="@(mu.UserName)">
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header text-center">
+                    <strong>Account</strong>
+                </div>
+                <a class="dropdown-item" href="#"><i class="zi zi_bell"></i> Updates<span class="badge badge-info">42</span></a>
+                <a class="dropdown-item" href="#"><i class="zi zi_envelope"></i> Messages<span class="badge badge-success">42</span></a>
+                <a class="dropdown-item" href="#"><i class="zi zi_tasks"></i> Tasks<span class="badge badge-danger">42</span></a>
+                <a class="dropdown-item" href="#"><i class="zi zi_comments"></i> Comments<span class="badge badge-warning">42</span></a>
+                <div class="dropdown-header text-center">
+                    <strong>Settings</strong>
+                </div>
+                <a class="dropdown-item" asp-area="" asp-controller="Manage" asp-action="Index"><i class="zi zi_user"></i> Profile</a>
+                <a class="dropdown-item" href="#"><i class="zi zi_cog"></i> Settings</a>
+                <a class="dropdown-item" href="#"><i class="zi zi_dollarSign"></i> Payments<span class="badge badge-secondary">42</span></a>
+                <a class="dropdown-item" href="#"><i class="zi zi_file"></i> Projects<span class="badge badge-primary">42</span></a>
+                <div class="divider"></div>
+                <a class="dropdown-item" href="#"><i class="zi zi_shieldalt"></i> Lock Account</a>
+                <a class="dropdown-item" href="#"><i class="zi zi_lock"></i> Logout</a>
+            </div>
+        </li>
+    </ul>
+    <button class="navbar-toggler aside-menu-toggler" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</header>
+<style type="text/css">
+    #app_header_navs .nav-item.active .nav-link{color:#0094ff;}
+</style>
+<script>
+    $(function () {
+        $("#app_header_navs .nav-item").click(function () {
+            if ($(this).hasClass("active")) { return; }
+            $("#app_header_navs .nav-item").removeClass("active");
+            $(this).addClass("active");
+        });
+    })
+</script>

@@ -1,0 +1,60 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string ShowStatus(object ss)
+    {
+        switch (DataConverter.CLng(ss))
+        {
+            case 1:
+                return "已审核";
+
+            case 0:
+                return "待审核";
+            case 2:
+                return "已解决";
+            //case "3":
+            //    return "新版本待审";
+            default:
+                return "待审核";
+        }
+    }
+
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td></td>
+            <td>ID</td>
+            <td>@L.标题</td>
+            <td>@L.提交人</td>
+            <td>@L.提交时间</td>
+            <td>@L.审核</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value='@dr["ID"]' /></td>
+            <td>@dr["ID"]</td>
+            <td>[<a href="?type=@dr["QueType"]">@dr["GradeName"]</a>] @(dr["QTitle"])</td>
+            <td><a href="javascript:;" onclick="user.showuinfo('@dr["UserId"]');">@dr["UserName"]</a></td>
+            <td>@dr["AddTime"]</td>
+            <td>@ShowStatus(dr["status"])</td>
+            <td>
+                <a href="/Ask/SearchDetails?soure=manager&ID=@dr["ID"]" target="_blank"><i class="zi zi_eye"></i>@L.前端浏览</a>
+                <a href="AskAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i></a>
+                <a href="javascript:;" onclick="mvcpage.del({url:'Ask_API?action=recycle',ids:'@dr["ID"]',confirm:'@L.确定要移入回收站吗'})"><i class="zi zi_trash"></i></a>
+            </td>
+        </tr>
+            @*<asp:TemplateField HeaderText="<%$Resources:L,操作 %>" HeaderStyle-Width="240">
+                <ItemTemplate>
+                    <a href="WdAlter.aspx?ID=<%#Eval(" ID")%>" target="_self"><i class="zi zi_pencilalt" title="<%=Resources.L.修改 %>"></i></a>
+                    <asp:LinkButton ID="LinkButton2" runat="server" OnClientClick="return confirm('确实要删除吗？');" CommandArgument='<%#Eval("ID") %>'
+                                    CommandName="Del" CausesValidation="false"><i class="zi zi_trashalt" title="<%=Resources.L.删除 %>"></i></asp:LinkButton>
+                    <a href="Asklist.aspx?ID=<%#Eval(" ID")%>"><i class="zi zi_comments" title="<%=Resources.L.留言 %>"></i><%=Resources.L.留言 %></a>
+                    <asp:LinkButton ID="LinkButton1" runat="server" CommandArgument='<%#Eval("ID") %>' CommandName="Audit" CausesValidation="false"><i class="zi zi_gavel" title="<%=Resources.L.审核 %>"></i><%=Resources.L.审核 %></asp:LinkButton>
+                </ItemTemplate>
+            </asp:TemplateField>*@
+    }
+    @Html.Partial("_page")
+</table>

@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>132</LabelID>
+    <LabelName>常规商品数据源</LabelName>
+    <LabelType>3</LabelType>
+    <LabelCate>数据源标签</LabelCate>
+    <LabelDesc>用于商品内容页输出数据源</LabelDesc>
+    <LabelParam>InfoID,0,2,内容ID</LabelParam>
+    <LabelTable>ZL_Commodities left join ZL_P_Shop on ZL_Commodities.ItemID=ZL_P_Shop.ID</LabelTable>
+    <LabelField>*</LabelField>
+    <LabelWhere>ZL_Commodities.ID=@InfoID</LabelWhere>
+    <LabelOrder />
+    <LabelContent />
+    <LabelCount>0</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Commodities","tb_s":"ZL_P_Shop"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

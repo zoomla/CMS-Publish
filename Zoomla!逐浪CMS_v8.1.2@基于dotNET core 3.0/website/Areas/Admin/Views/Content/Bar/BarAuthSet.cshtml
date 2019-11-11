@@ -1,0 +1,48 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string view = ViewBag.viewDir + "BarAuthSet_List.cshtml";
+
+}
+@section head{ <title>权限设置</title><style>.allchk_l{display:none;}</style>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("CateList","贴吧版面"),
+new Bread(Context.Request.RawUrl(),"权限设置")
+},"{search}")
+<form method="post" action="@MVCHelper.GetAction("BarAuthSet_Submit",Context.Request)">
+<div class="template mt-2 table-responsive-md " id="template" runat="server">
+    <ul class="nav nav-tabs hidden-xs hidden-sm list_choice">
+        <li class="nav-item"><a class="nav-link active" href="#tab_all" data-toggle="tab" onclick="ShowTabs('all')">全部</a></li>
+        <li class="nav-item"><a class="nav-link" href="#tab_leastone" data-toggle="tab" onclick="ShowTabs('leastone')">有权限</a></li>
+    </ul>
+    @Html.Partial(view)
+	<div class="alert alert-light">
+    @*<asp:Button runat="server" ID="Save_Btn" Text="保存" CssClass="btn btn-info" OnClick="Save_Btn_Click" />*@
+    <input type="submit" value="保存修改" class="btn btn-outline-info"/>
+    <a href="CateList" class="btn btn-outline-info">返回列表</a></div>
+</div>
+</form>
+}
+@section script{ 
+<script type="text/javascript">
+        $(function () {
+            showtab('@Context.Request.GetParam("View")');
+        })
+        function RowChk(obj) {
+            $(obj).closest("tr").find(":checkbox").each(function () { this.checked = obj.checked; });
+        }
+        function ColChk(name) {
+            obj = event.srcElement;
+            $(":checkbox[data-auth=" + name + "]").each(function () { this.checked = obj.checked; });
+        }
+        function ShowTabs(type) {
+            location.href = 'BarAuthSet?CateID=@(Context.Request.GetParam("CateID"))&view=' + type;
+        }
+        function showtab(type) {
+            $("ul.nav li").find("a").removeClass('active');
+            $("a[href='#tab_" + type + "']").addClass("active");
+        }
+    </script>
+
+}

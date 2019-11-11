@@ -1,0 +1,70 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+}
+@{ 
+    string apiUrl = "Store_API?action=";
+}
+@section head{<title>店铺审核</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("StoreManage",@L.商城管理)
+},"{search}")
+
+    <ul class="nav nav-tabs hidden-xs hidden-sm list_choice">
+	<li class="nav-item"><a class="nav-link active" href="#tab-1" data-toggle="tab" onclick="ShowTabs(-100)">@L.所有内容</a></li>
+	<li class="nav-item"><a class="nav-link" href="#tab0" data-toggle="tab" onclick="ShowTabs(99)">@L.已审核</a></li>
+	<li class="nav-item"><a class="nav-link" href="#tab1" data-toggle="tab" onclick="ShowTabs(0)">@L.未审核</a></li>
+</ul>
+    <div>
+         @Html.Partial(MVCHelper.ViewDir_Admin_Store+"StoreManage_List.cshtml")
+        <div class="alert alert-light">
+            <input type="button" ID="Batch"   class="btn btn-outline-info mb-1" value="@L.批量审核"  onclick="mvcpage.bat({url:'@(apiUrl+"audit")'});" />
+            <input type="button" ID="Bcancle" class="btn btn-outline-info mb-1" value="@L.取消审核"  onclick="mvcpage.bat({url:'@(apiUrl+"unaudit")'});" />
+            <input type="button" ID="Button1" class="btn btn-outline-info mb-1" value="@L.设为推荐"  onclick="mvcpage.bat({url:'@(apiUrl+"elite")'});" />
+            <input type="button" ID="Button6" class="btn btn-outline-danger mb-1" value="@L.取消推荐"  onclick="mvcpage.bat({url:'@(apiUrl+"unelite")'});" />
+            <input type="button" ID="Button3" class="btn btn-outline-danger mb-1" value="@L.批量删除"  onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});" />
+        </div>
+    </div>
+ }
+@section script{ 
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        $().ready(function () {
+            ShowStatus();
+        });
+        function ShowStatus() {
+            var type = '@Context.Request.GetParam("type")';
+            if (type != '') {
+                $("li a[href='#tab" + type + "']").parent().find("a").addClass("active").parent().siblings("li").find("a").removeClass("active");
+            }
+        }
+        function CheckAll(spanChk)//CheckBox全选
+        {
+            var oItem = spanChk.children;
+            var theBox = (spanChk.type == "checkbox") ? spanChk : spanChk.children.item[0];
+            xState = theBox.checked;
+            elm = theBox.form.elements;
+            for (i = 0; i < elm.length; i++)
+                if (elm[i].type == "checkbox" && elm[i].id != theBox.id) {
+                    if (elm[i].checked != xState)
+                        elm[i].click();
+                }
+        }
+        function ShowTabs(s) {
+            location.href = 'StoreManage?status=' + s;
+        }
+        function bat(){}
+        //--------------查看用户信息
+        var TemDiag = new ZL_Dialog();
+        var SelUser = function (uid) {
+            TemDiag.title = "用户信息";
+            TemDiag.maxbtn = false;
+            TemDiag.url = "../User/UserInfo?id=" + uid;
+            TemDiag.ShowModal();
+        }
+    </script>
+
+}

@@ -1,0 +1,153 @@
+﻿@using ZoomLa.BLL.ERP
+@using ZoomLa.Model.ERP
+@using ZoomLa.SQLDAL;
+@using Newtonsoft.Json
+@model ZoomLa.Model.ERP.M_ERP_Order
+@{ 
+    DataTable proDT = DBCenter.SelWithField("ZL_Commodities", "ID,ProName,ProUnit,LinPrice,Stock,Clearimg", "Sales=1");
+    DataTable itemDT = DBCenter.Sel("ZL_ERP_OrderItem", "OrderID=" + Model.ID);
+    C_SelProduct selProduct = new C_SelProduct()
+    {
+        viewMode = "single",
+        //skey = "test"
+    };
+}
+<div class="row" id="app" style="padding-left:15px;padding-right:15px;">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <td class="td_s">操作</td>
+                <td class="td_s">序号</td>
+                <td style="width:260px;">商品编码</td>
+                <td style="width:100px;">数量</td>
+                <td>商品名称</td>
+                <td>商品单位</td>
+                <td>进价</td>
+                <td>库存</td>
+                <td>金额</td>
+                <td>备注</td>
+                </tr></thead>
+            <tbody>
+                <tr v-for="(item,index) in list">
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" v-on:click="del(item);"><i class="zi zi_trash"></i></button>
+                    </td>
+                    <td>{{index+1}}</td>
+                    <td>
+                        <input type="text" v-model="item.ProID" v-on:change="getFromAPI(item,index)" placeholder="请输入商品ID"/>
+                        <button type="button" v-on:click="selProduct(item)">选择</button>
+                    </td>
+                    <td><input type="text" v-model="item.ProNum" style="width:100px;"/></td>
+                    <td>{{item.ProName}}</td>
+                    <td>{{item.ProUnit}}</td>
+                    <td>{{item.ProPrice}}</td>
+                    <td>{{item.Stock}}</td>
+                    <td>{{sumTotal(item)}}</td>
+                    <td><input type="text" v-model="item.Remind" style="width:100%;" placeholder="请输入商品备注,便于协同"/></td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="margin-top:5px;">
+            <button type="button" class="btn btn-info" @@click="add()">新增一列</button>
+            <button type="button" class="btn btn-info" @@click="save()">保存单据</button>
+        </div>
+    </div>
+
+@*{"ID":1,"OrderID":0,"ProID":0,"ProName":"","ProPrice":0.0000,"ProNum":1.00,"ProTotal":0.0000,"Discount":0.0000,"Remind":"","SysRemind":"","CDate":"2019-03-05T10:03:48.36","CUser":0,"ZType":"","ZStatus":99}*@
+<script src="/dist/vue/vue.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script>
+    var app = new Vue({
+        el: "#app",
+        created: function () {
+            var ref = this;
+            if ("@(Model.ID)" == "0") {
+                for (var i = 0; i < 8; i++) {
+                    ref.list.push({});
+                }
+            }
+            else {
+                ref.list=@Html.Raw(JsonConvert.SerializeObject(itemDT));
+            }
+        },
+        data: {
+            list: [],
+            activeItem: null,
+            activeIndex: -1,
+            products:@Html.Raw(JsonConvert.SerializeObject(proDT))
+        },
+        methods: {
+            add: function () {
+                var ref = this;
+                ref.list.push({});
+            },
+            del: function (item) {
+                var ref = this;
+                if(ref.list.length<=1){return;}
+                for (var i = 0; i < ref.list.length; i++) {
+                    if (ref.list[i] == item) {ref.list.splice(i, 1); return; }
+                }
+            },
+            selProduct: function (item) {
+                var ref = this;
+                ref.activeItem = item;
+                for (var i = 0; i < ref.list.length; i++) {
+                    if (ref.list[i] == item) { ref.activeIndex = i; break; }
+                }
+                ShowComDiag("/Common/SelProduct?@(selProduct.ToQuery())", "选择商品");
+            },
+            //ajax保存至后端
+            save:function(){
+                var ref=this;
+                if(!confirm("确定要保存吗")){return;}
+                var packet={list:JSON.stringify(ref.list)};
+                $(".form-control").each(function(){
+                    packet[this.name]=this.value;
+                });
+
+                $.post("CGOrder_API?action=save&id=@(Model.ID)",packet,function(data){
+                    if(data=="1"){alert("保存成功");}
+                    else{alert("保存失败:"+data);}
+                })
+
+            },
+            //失去焦点时检测有无修改,有修改则重取
+            getFromAPI: function (item,index) {
+                var ref=this;
+                var getProduct=function(id){
+                    if(!id||id<1){return null;}
+                    for (var i = 0; i < ref.products.length; i++) {
+                        if(ref.products[i].ID==id){return ref.products[i];}
+                    }
+                    return null;
+                }
+                var product=getProduct(item.ProID);
+                if(product==null){item.ProName="错误,商品不存在";}
+                else{
+                    item.ProName=product.ProName;
+                    item.ProUnit=product.ProUnit;
+                    item.ProPrice=product.LinPrice;
+                    item.Stock=product.Stock;
+                }
+                //通过更新
+                Vue.set(ref.list, index, item)
+            },
+            sumTotal: function (item) {
+                if (!item || Convert.ToInt(item.ProNum) < 1 || Convert.ToDouble(item.ProPrice) < 0) { return "0.00"; }
+                return (item.ProPrice * item.ProNum).toFixed(2);
+            }
+        }
+    });
+</script>
+<script>
+    @*function selProduct()
+    {
+        ShowComDiag("/Common/SelProduct?@(selProduct.ToQuery())","选择商品");
+    }*@
+    function selProduct_cb(result) {
+        app.activeItem.ProID = result.ID;
+        Vue.set(app.list, app.activeIndex, app.activeItem);
+        app.getFromAPI(app.activeItem, app.activeIndex);
+        CloseComDiag();
+    }
+</script>

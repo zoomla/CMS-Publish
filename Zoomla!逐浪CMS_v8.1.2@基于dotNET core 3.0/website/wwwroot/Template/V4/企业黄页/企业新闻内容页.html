@@ -1,0 +1,57 @@
+﻿{ZL.Source id="企业信息数据源标签"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="企业信息数据源标签" FD="Title" page="0"/}_{$SiteName/}_阅读文章内容</title>
+<meta name="Keywords" content="{SField sid="图库模型数据源标签" FD="Tagkey" page="0"/}">
+<link href="{$CssDir/}global.css" rel="stylesheet" type="text/css" />
+<link href="{$CssDir/}fix.css" rel="stylesheet" type="text/css" />
+<SCRIPT language=javascript src="/skin/ajax.js"></SCRIPT>
+<script language="javascript">
+//多行滚动JS 
+function chang(id){
+var chi = 0;
+while (chi < 13){
+chi++;
+eval("btnContent"+chi+".style.display='none';");
+}
+eval("btnContent"+id+".style.display='';");
+}
+</script>
+</head>
+<body>
+<div id="xtop">
+<span>欢迎您，{ZL:IPcity()/}的{ZL:GetuserName()/}</span>
+</div>
+<div id="mysite">
+<p>您的位置：<a href="/">{$SiteName/}</a>>>公司黄页>>{SField sid="企业信息数据源标签" FD="Title" page="0"/}</p>
+</div>
+<!--内容主体开始 -->
+<div id="massage">
+    <p class="title"><strong>{SField sid="企业信息数据源标签" FD="Title" page="0"/}</strong></p>
+    <p style="text-align:center;margin:5px;">作者：{SField sid="企业信息数据源标签" FD="Inputer" page="0"/} &nbsp;&nbsp;{SField sid="企业信息数据源标签" FD="CreateTime" page="0"/} </p>
+    <div class="con_body">
+        <p class="con_tit">文章内容</p>
+        <div class="con">{SField sid="企业信息数据源标签" FD="qywh" page="0"/}</div>
+    </div>
+    <div class="con_body">
+        <p class="con_tit">企业地址</p>
+        <div class="con">{SField sid="企业信息数据源标签" FD="qydz" page="0"/}</div>
+    </div>
+    <div class="con_body">
+        <p class="con_tit">企业图片</p>
+        <div class="con"><img src='{SField sid="企业信息数据源标签" FD="qytp" page="0"/}' alt="企业图片" /></div>
+    </div>
+</div>
+<style>
+    #xtop,#massage{width:960px;margin:8px auto;}
+    #massage .title{text-align:center;font-size:24px;}
+    #massage .con_body{margin:15px 0;border-bottom:1px dashed  #ccc;}
+    #massage .con_tit{font-weight:bolder;font-size:16px;}
+    #massage .con{text-indent:2em;font-size:14px;margin:10px 0;}
+    #massage .con img{width:85%;margin:0 auto;}
+</style>
+<SCRIPT src="/js/openType.js" type=text/javascript></SCRIPT> 
+</body>
+</html>

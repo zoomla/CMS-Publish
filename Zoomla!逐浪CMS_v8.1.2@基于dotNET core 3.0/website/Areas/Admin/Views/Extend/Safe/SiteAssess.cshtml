@@ -1,0 +1,483 @@
+﻿@{
+    string pageName = "等级测评";
+}
+@section head{<title>@pageName</title>
+<style>
+    .nav {
+        margin-left: 0px;
+        margin-right: 0px;
+        padding-right: 0px;
+        margin-bottom: 10%;
+        width: 100%;
+        height: 100%;
+        border: solid 1px;
+        border-color: lightgray;
+        background-color: antiquewhite;
+    }
+
+    .nav_left {
+        padding-left: 20px;
+        padding-right: 20px;
+        width: 15%;
+        background-color: white;
+    }
+
+    .nav_left_total {
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        border-bottom: solid 1px;
+        border-color: lightgray;
+        padding-bottom: 15px;
+        margin-top: 15px;
+    }
+
+    .nav_right {
+        margin: 0 auto;
+        width: 82%;
+        margin: 15px;
+        float: right;
+    }
+
+    .font_total {
+        font: 15px bold;
+        color: black;
+    }
+
+    .font_Content {
+        font-size: 10px;
+        color: darkgray;
+        line-height: 2;
+    }
+
+    .Div_margin {
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+
+    .nav_right_total {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: white;
+    }
+
+    .nav_right_Content {
+        width: 32%;
+        height: 250px;
+        margin-right: 16px;
+        margin-bottom: 20px;
+        padding: 15px;
+        float: left;
+        background-color: white;
+    }
+
+    .buttonClass {
+        border: none;
+        background-color: firebrick;
+        color: white;
+    }
+
+    .Content {
+        font: 20px bold;
+        color: red;
+    }
+</style>
+
+}
+@section content{
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),"安全中心"),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+    <form method="post" action="@MVCHelper.GetAction("_Submit",Context.Request)">
+        <div class="list_choice">
+            <div class="nav">
+                <div class="nav_left">
+                    <div class="nav_left_total">
+                        <span class="font_total">选择数据</span>
+                    </div>
+                    <div>
+                        <div class="Div_margin">
+                            <span class="font_total">安全运营</span><br />
+                            <input name="SecurityRating" type="checkbox" checked="checked" /><span class="font_Content">安全评分</span>
+                        </div>
+
+                        <div class="Div_margin">
+                            <span class="font_total">资产</span><br />
+                            <input name="SecurityRating" type="checkbox" checked="checked" /><span class="font_Content">资产风险分布</span>
+                        </div>
+
+                        <div class="Div_margin">
+                            <span class="font_total">销售</span><br />
+                            <input name="SecurityRating" type="checkbox" checked="checked" /><span class="font_Content">安全告警趋势</span><br />
+                            <input name="SecurityRating" type="checkbox" /><span class="font_Content">主动防御趋势</span><br />
+                            <input name="SecurityRating" type="checkbox" /><span class="font_Content">反篡改趋势</span>
+                        </div>
+
+                        <div class="Div_margin">
+                            <span class="font_total">漏洞</span><br />
+                            <input name="SecurityRating" type="checkbox" checked="checked" /><span class="font_Content">漏洞检查</span>
+                        </div>
+
+                        <div class="Div_margin">
+                            <span class="font_total">基线</span><br />
+                            <input name="SecurityRating" type="checkbox" checked="checked" /><span class="font_Content">基线问题趋势</span>
+                        </div>
+
+                        <div class="Div_margin">
+                            <span class="font_total">攻击</span><br />
+                            <input name="SecurityRating" type="checkbox" checked="checked" /><span class="font_Content">攻击数量趋势</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="nav_right">
+                    <div class="nav_right_total">
+                        <span class="font_total">尊敬的云安全中心客户</span><br />
+                        <span class="font_total">发现<label>1</label>个安全风险，您的资产存在安全隐患，可能被病毒或黑客入侵主机，请尽快处理</span><br />
+                        <button type="button" class="buttonClass">立即处理</button>
+                    </div>
+
+                    <div class="">
+                        <div class="nav_right_Content">
+                            <span class="font_total">安全评分</span><br />
+                            <div id="main_1" style="width:90%;height:90%;"></div>
+                        </div>
+
+                        <div class="nav_right_Content">
+                            <span class="font_total">资产分纤分布</span><br />
+                            <div id="main_2" style="width:90%;height:90%;" hidden="hidden"></div>
+                            <span class="font_total Content">暂无数据</span>
+                        </div>
+
+                        <div class="nav_right_Content">
+                            <span class="font_total">安全告警趋势</span><br />
+                            <div id="main_3" style="width:90%;height:90%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="">
+                        <div class="nav_right_Content">
+                            <span class="font_total">漏洞趋势</span><br />
+                            <div id="main_4" style="width:90%;height:90%;"></div>
+                        </div>
+                        <div class="nav_right_Content">
+                            <span class="font_total">基线问题趋势</span><br />
+                            <div id="main_5" style="width:90%;height:90%;"></div>
+                        </div>
+                        <div class="nav_right_Content">
+                            <span class="font_total">攻击数量趋势趋势</span><br />
+                            <div id="main_6" style="width:90%;height:90%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+}
+@section script{
+    <script src="~/lib/ECharts/echarts.js"></script>
+    <script type="text/javascript">
+
+        ///饼状图
+        var myChart_1 = echarts.init(document.getElementById('main_1'));
+        option_1 = {
+            tooltip: {
+                formatter: "{a} <br/>{b} : {c}%"
+            },
+            toolbox: {
+                feature: {
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            series: [
+                {
+                    name: '安全指数',
+                    type: 'gauge',
+                    detail: { formatter: '{value}' },
+                    data: [{ value: 80, name: '' }]
+                }
+            ]
+        };
+
+        setInterval(function () {
+            option.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+        }, 2000);
+        myChart_1.setOption(option_1);
+
+        ///折线图
+        var myChart_3 = echarts.init(document.getElementById('main_3'));
+        option_3 = {
+            title: {
+                text: '',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['紧急', '可疑', '提醒']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: '紧急',
+                type: 'line',
+                data: [5, 3, 0, 1, 0, 2, 0]
+            },
+            {
+                name: '可疑',
+                type: 'line',
+                data: [8, 1, 4, 1, 3, 1, 1]
+            },
+            {
+                name: '提醒',
+                type: 'line',
+                data: [9, 5, 3, 4, 0, 0, 1],
+            },
+            ]
+        };
+        myChart_3.setOption(option_3);
+
+
+        ///柱状图
+        var myChart_4 = echarts.init(document.getElementById('main_4'));
+        option_4 = {
+            title: {
+                text: '',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['高危', '中危', '低危']
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    dataView: { show: true, readOnly: false },
+                    magicType: { show: true, type: ['line', 'bar'] },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '高危',
+                    type: 'bar',
+                    data: [3, 0, 2, 3, 0, 0, 1],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '中危',
+                    type: 'bar',
+                    data: [8, 5, 2, 3, 1, 0, 1],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '低危',
+                    type: 'bar',
+                    data: [10, 5, 2, 1, 0, 2, 1],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+            ]
+        };
+        myChart_4.setOption(option_4);
+
+
+        ///柱状图
+        var myChart_5 = echarts.init(document.getElementById('main_5'));
+        option_5 = {
+            title: {
+                text: '',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['高危', '中危', '低危']
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    dataView: { show: true, readOnly: false },
+                    magicType: { show: true, type: ['line', 'bar'] },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '高危',
+                    type: 'bar',
+                    data: [3, 1, 0, 3, 0, 1, 1],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '中危',
+                    type: 'bar',
+                    data: [4, 5, 4, 3, 1, 3, 1],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '低危',
+                    type: 'bar',
+                    data: [1, 5, 4, 1, 2, 2, 1],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+            ]
+        };
+        myChart_5.setOption(option_5);
+
+
+        ///折线图
+        var myChart_6 = echarts.init(document.getElementById('main_6'));
+        option_6 = {
+            title: {
+                text: '',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['攻击次数']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: '攻击次数',
+                type: 'line',
+                data: [5, 3, 0, 1, 0, 2, 0]
+            }]
+        };
+        myChart_6.setOption(option_6);
+
+
+
+
+    </script>
+}

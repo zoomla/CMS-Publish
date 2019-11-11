@@ -1,0 +1,25 @@
+﻿@model System.Data.DataTable
+@{ 
+    ViewBag.skey = "";
+}
+@section head{ <title>节点回收站</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("NodeManage","节点管理"),
+        new Bread() {url=Context.Request.RawUrl(), text="节点回收站",addon="" }}
+		)
+<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive-md">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Content/Node/NodeSearch_List.cshtml")
+    </div>
+    <div style="margin-top:5px;">
+        <button type="button" class="btn btn-info" onclick="mvcpage.bat({ url: 'Node_API?action=recover',after:'' });">恢复节点</button>
+        <button type="button" class="btn btn-danger" onclick="mvcpage.bat({ url: 'Node_API?action=realdel',confirm:'确定要删除吗' });">彻底删除</button>
+    </div>
+</div>
+ }
+@section script{ 
+
+
+}

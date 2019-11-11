@@ -1,0 +1,43 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_User buser = new B_User();
+    public IHtmlContent GetReceUser(DataRow dr)
+    {
+        string ReceUser = DataConverter.CStr(dr["ReceUser"]).Trim(',');
+        if (DataConverter.CLng(ReceUser) > 0)
+        {
+            return MvcHtmlString.Create("<a href='javascript:;' onclick='user.showuinfo(" + ReceUser + ")'>" + buser.SelReturnModel(DataConverter.CLng(ReceUser)).UserName + "</a>");
+        }
+        else { return MvcHtmlString.Create(ReceUser + "(游客)"); }
+    }
+}
+@{ 
+
+
+}
+<table class="table table-bordered" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>发送者</th>
+        <th>接收者</th>
+        <td>内容</td>
+        <th>发送时间</th>
+        @*<th>操作</th>*@
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td><a href="javascript:;" onclick="user.showuinfo('@dr["UserID"]');">@dr["UserName"]</a></td>
+                <td>@GetReceUser(dr)</td>
+                <td>@Html.Raw(DataConverter.CStr(dr["Content"]))</td>
+                <td>@dr["CDate"]</td>
+                @*<td>
+                    <a href="MsgInfo?id=<%#Eval(" ID") %>"><i class="zi zi_pencilalt" title="修改"></i></a>
+                    <asp:LinkButton ID="Del" runat="server" CommandName="del" OnClientClick="return confirm('确定删除该记录?')" CommandArgument='<%#Eval("ID") %>'><i class="zi zi_trashalt" zico="垃圾箱竖条"></i></asp:LinkButton>
+                    <a href="MsgList?suid=@dr["UserID"]&ruid=@dr["ReceUser"]" title="查看聊天详情" target="_blank" ><i class="zi zi_eye" title="查看"></i>查看详情</a>
+                </td>*@
+            </tr>
+    }
+    @Html.Partial("_page")
+</table>

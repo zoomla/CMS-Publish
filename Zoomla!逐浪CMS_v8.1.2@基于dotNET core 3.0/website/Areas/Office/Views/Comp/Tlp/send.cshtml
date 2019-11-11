@@ -1,0 +1,133 @@
+﻿@functions{
+        B_Mis_AppProg progBll = new B_Mis_AppProg();
+        B_OA_Document oaBll = new B_OA_Document();
+        private int AppID { get { return DataConvert.CLng(Context.Request.GetParam("AppID")); } }
+        public M_OA_Document  oaMod=null;
+        public string GetHQInfo(int stepnum)
+        {
+            if (AppID < 1) { return ""; }
+           
+            DataTable dt = progBll.SelHQDT(AppID, stepnum);
+            string result = "";
+            foreach (DataRow dr in dt.Rows)
+            {
+                result += dr["UserName"] + ":" + dr["Remind"] + "(" + Convert.ToDateTime(dr["CreateTime"]).ToString("yyyy年MM月dd日") + ")<br/>";
+            }
+            return result;
+        }
+        //获取大于指定步骤的会签信息,
+        public string GetLastHqInfo(int stepnum)
+        {
+            int maxstep = DataConvert.CLng(DBCenter.ExecuteScala("ZL_Mis_AppProg", "ProLevel", "APPID=" + AppID));
+            if (maxstep < stepnum) { return ""; }
+            return GetHQInfo(maxstep);
+        }
+}
+@{ 
+    oaMod = oaBll.SelReturnModel(AppID);
+    if (oaMod == null) { oaMod = new M_OA_Document(); }
+}
+ @Html.Partial("/Areas/Office/Views/Comp/Tlp/assets.cshtml")
+<table class="table formtb table_red">
+    <tr>
+        <th style="border-color: #f00; text-align: center;" colspan="2">
+            <h1>江西省人民政府金融办公室发文稿纸</h1>
+        </th>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="mr-1 table_red" id="basic-addon1">编号：</span>
+                </div>
+                <input type="text" ID="No_T" name="No_T" disabled="disabled" class="form-control max20rem" />
+                <select class="form-control max20rem" ID="bhxx"><option>未指定</option></select>
+                <span class="input-group-prepend">
+                    <span class="mr-1 table_red" id="basic-addon1">号</span>
+                </span>
+                <span class="input-group-prepend">
+                    <span class="mr-1 table_red" id="basic-addon1">等级</span>
+                </span>
+                <select ID="dj" class="form-control text_x"><option>普通</option></select>
+                <span class="input-group-prepend">
+                    <span class="mr-1 table_red" id="basic-addon1">密级</span>
+                </span>
+                <select ID="mj" class="form-control text_x"><option>密级</option></select>
+                @*<div class="input-group-prepend">
+            <button type="button" class="btn btn-default">产生文号</button>
+            <button type="button" class="btn btn-default">文号查看</button>
+        </div>*@
+            </div>
+			
+
+
+	
+        </td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top; height: 200px;">
+            <span>签发：</span>
+            <div class="labelfont">@GetHQInfo(4)</div>
+        </td>
+        <td style="vertical-align: top;">
+            <span>拟稿：</span>
+            <div class="labelfont">@oaMod.UserName </div>
+        </td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top; height: 200px;"><span>审批：</span>
+            <div class="labelfont">@(GetHQInfo(1)+GetHQInfo(2))</div>
+        </td>
+        <td style="vertical-align: top;">
+            <span>核稿：</span>
+            <div class="labelfont">@GetHQInfo(3)</div>
+        </td>
+    </tr>
+    <tr>
+        <td style="vertical-align: top; height: 200px;" colspan="2">
+            <span>会签：</span>
+            <div style="color: #666;"></div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="media">
+                <div class="media-left"><span>标题：</span></div>
+                <div class="media-body">
+                    <textarea ID="Title_T" class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="media">
+                <div class="media-left"><span>主送：</span></div>
+                <div class="media-body">
+                    <textarea ID="zs" class="form-control" rows="4"></textarea>
+                </div>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="media">
+                <div class="media-left"><span>抄送：</span></div>
+                <div class="media-body">
+                    <textarea  ID="cs" class="form-control" Rows="4"></textarea>
+                </div>
+            </div>
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <span>收文日期：</span>
+            <input type="text" ID="swrq" name="swrq" class="form-control text_300" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' });" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm");"/>
+        </td>
+        <td>
+            <span>发文日期：</span>
+            <input type="text" ID="fwrq" name="fwrq" class="form-control text_300" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' });" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm");"/>
+        </td>
+    </tr>
+</table>

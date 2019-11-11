@@ -1,0 +1,28 @@
+﻿@model ZoomLa.Model.Plat.M_Plat_UserRole
+@functions{
+
+
+
+}
+@section head{<title>权限信息</title> }
+@section content{ 
+
+<div class="container platcontainer">
+<div class="child_head"><span class="child_head_span1"></span> <span class="child_head_span2">角色管理</span></div>
+    <table class="table table-bordered table-striped sys_table">
+        <tr>
+          <th class="w12rem_lg">角色名称：</th>
+          <td>@Html.TextBoxFor(m=>m.RoleName,new {@class="form-control" })</td>
+        </tr>
+        <tr>
+          <th>备注：</th>
+          <td><asp:TextBox CssClass="form-control text_300" ID="RoleDesc_T" TextMode="MultiLine" runat="server" style="height:100px;"></asp:TextBox></td>
+        </tr>
+        <tr>
+            <th></th>
+          <td><asp:Button runat="server" Text="添加角色" ID="Save_Btn" CssClass="btn btn-outline-info" OnClick="Save_Btn_Click" /></td>
+        </tr>
+    </table>
+</div>
+}
+@section script{ }

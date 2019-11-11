@@ -1,0 +1,25 @@
+<ion-view view-title="资讯中心">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()" ui-sref="tab.dash"></button>
+<div class="title title-center header-item">{{nodename}}</div>
+</ion-header-bar>
+<ion-content style="background:#f0f0f0;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="news_list">
+<div class="media" ng-repeat="item in articlelist">
+<a href="#/news/content/{{item.generalid}}">
+<div class="media-left"><img class="media-object" ng-src="{{item.topimg}}" alt="{{item.title}}" onerror="javascript:this.src='/UploadFiles/nopic.gif';" /></div>
+<div class="media-body media-middle">
+<h4 class="media-heading">{{item.title}}</h4>
+<p>
+<span>{{item.author}}</span>
+<span>{{item.createtime | date:"yyyy-MM-dd HH:mm:ss"}}</span>
+</p>
+</div>
+</a>
+</div>
+</div>
+<div class="h48"></div>
+<ion-infinite-scroll ng-if="pullup.canbeload" on-infinite="pullup.load();" distance="1%"></ion-infinite-scroll>
+</ion-content>
+</ion-view>

@@ -1,0 +1,98 @@
+﻿@model ZoomLa.Model.Plat.M_Plat_Comp
+@{ 
+
+   
+}
+
+@section head{<title>公司管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("/{manage}/Plat/PlatInfoManage","能力中心"),
+        new Bread("PlatInfoManage","信息管理"),
+        new Bread() {url=Context.Request.RawUrl(), text="公司管理",addon="" }}
+		)
+<div class="container-fluid pr-0">
+<div class="row sysRow list_choice table-responsive-md">
+<form method="post" action="@MVCHelper.GetAction("AddComp_Submit",Context.Request)">
+    <table class="table table-bordered sys_table">
+        <tr>
+            <th scope="col" class="w12rem_lg">公司简称</th>
+            <td scope="col">
+                <input type="text" ID="CompShort_T" name="CompShort_T" class="form-control max20rem" value="@Model.CompShort" />
+            </td>
+        </tr>
+        <tr>
+            <th scope="col">公司名称</th>
+            <td scope="col">
+                <input type="text" ID="CompName_T" name="CompName_T"  class="form-control max20rem" value="@Model.CompName" />
+            </td>
+        </tr>
+        <tr>
+            <th>Logo</th>
+            <td>
+                @Html.Partial("C_SFileUP",new C_SFileUP() {ID="CompLogo",SaveType="admin",Value=Model.CompLogo })
+            </td>
+        </tr>
+        <tr>
+            <th>企业邮箱</th>
+            <td>
+				<input type="text" ID="EMail_T" name="EMail_T"  class="form-control max20rem" value="@Model.Mails" />
+            </td>
+        </tr>
+        <tr>
+            <th>联系电话</th>
+            <td><input type="text" ID="Telephone_T" name="Telephone_T" value="@Model.Telephone" class="form-control max20rem" /></td>
+        </tr>
+        <tr>
+            <th>联系手机</th>
+            <td>
+                <input type="text" ID="Mobile_T" name="Mobile_T" class="form-control max20rem mobile" value="@Model.Mobile" /></td>
+        </tr>
+        <tr>
+            <th>公司网址</th>
+            <td><input type="text" ID="CompHref_T" name="CompHref_T" class="form-control max20rem" value="@Model.CompHref" /></td>
+        </tr>
+        <tr>
+            <th>公司详情</th>
+            <td>
+                <textarea ID="CompDesc_T" name="CompDesc_T" class="form-control" rows="5" >@Model.CompDesc</textarea>
+            </td>
+        </tr>
+        <tr>
+            <th>创建时间</th>
+            <td>
+                <input type="text" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })" ID="CDate_T" name="CDate_T" value="@Model.CreateTime" class="form-control max20rem" />
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID="Save_Btn" class="btn btn-info" value="保存" />
+                <a href="CompList" class="btn btn-outline-info">返回</a></td>
+        </tr>
+    </table>
+</form>
+</div></div>
+}
+@section script{ 
+    <script src="/JS/DatePicker/WdatePicker.js"></script>
+    <script>
+        var TemDiag = new ZL_Dialog();
+        function SelUser() {
+            TemDiag.title = "选择用户";
+            TemDiag.maxbtn = false;
+            TemDiag.url = "/Common/Dialog/SelGroup";
+            TemDiag.ShowModal();
+        }
+        function UserFunc(list, select) {
+            //var users = "";
+            //$.each(list, function (i, val) {
+            //    users += val.UserName + ",";
+            //});
+            $("#CUser_T").val(list[0].UserName);
+            TemDiag.CloseModal()
+        }
+    </script>
+}

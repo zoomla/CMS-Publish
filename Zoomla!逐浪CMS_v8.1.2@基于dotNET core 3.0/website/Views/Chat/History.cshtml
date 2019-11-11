@@ -1,0 +1,36 @@
+﻿@using ZoomLa.Common
+@functions{
+
+    public M_UserInfo smu { get { return ViewBag.smu; } }
+ 
+    }
+@{ 
+    Layout = "_empty";
+}
+}
+@section head{
+<title>历史聊天记录</title>
+<link href="/Plugins/Third/Chat/chat.css" rel="stylesheet" />
+<style>
+* { margin:0;}
+html { min-height:100%;}
+body { min-height:100%; background:url(/Plugins/Third/Chat/chat_bg.jpg) center no-repeat; background-size:cover;}
+</style>
+}
+@section content{
+<div class="container">
+<div class="chat_top">
+<span id="uinfo_name">@("与" + smu.UserName + "的聊天记录")</span>
+</div>
+<div class="chat_history">
+@Html.Partial("History_List")
+</div>
+</div>
+}
+@section script{
+<script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+}

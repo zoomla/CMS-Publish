@@ -1,0 +1,142 @@
+﻿@using System.Data
+@using ZoomLa.BLL.User
+@using ZoomLa.BLL.Content
+@using ZoomLa.BLL.Auth
+@using ZoomLa.BLL.Helper
+@using ZoomLaCMS.Resources;
+@model ZoomLaCMS.Control.C_Model
+@functions{
+    B_Spec specBll = new B_Spec();
+    B_Node nodeBll = new B_Node();
+    B_Node_Auth naBll = new B_Node_Auth();
+    string LinkUrl = "";
+    string LinkAllUrl = "";
+    string hasChild { get; set; }
+    string noChild { get; set; }
+    string nodeHtml { get; set; }
+    public string GetLI(DataTable dt, int pid = 0)
+    {
+        string result = "";
+        DataRow[] dr = dt.Select("ParentID='" + pid + "'");
+        for (int i = 0; i < dr.Length; i++)
+        {
+            result += "<li>";
+            if (dt.Select("ParentID='" + Convert.ToInt32(dr[i]["NodeID"]) + "'").Length > 0)
+            {
+                result += string.Format(hasChild, dr[i]["NodeID"], dr[i]["NodeName"]);
+                result += "<ul class='tvNav tvNav_ul' style='display:none;'>" + GetLI(dt, Convert.ToInt32(dr[i]["NodeID"])) + "</ul>";
+            }
+            else
+            {
+                result += string.Format(noChild, dr[i]["NodeID"], dr[i]["NodeName"]);
+            }
+            result += "</li>";
+        }
+        return result;
+    }
+    protected DataTable BindNode()
+    {
+        DataTable dt = null;
+        if (Model.mode == "product")
+        {
+            LinkUrl = @Call.PathAdmin("Product/ProductManage?NodeID={0}");
+            dt = nodeBll.GetAllShopNode(0);
+        }
+        else if (Model.mode == "product_recycle")
+        {
+            LinkUrl = @Call.PathAdmin("Product/ProductRecycle?NodeID={0}");
+            dt = nodeBll.GetAllShopNode(0);
+        }
+        else if (Model.mode == "product_special")
+        {
+            dt = specBll.SelPage(1, 1000, new Com_Filter() { storeId = 1 }).dt;
+            specBll.ChangeColumnToNode(dt);
+            LinkUrl = @Call.PathAdmin("Product/ProductManage?Special={0}");
+            LinkAllUrl = @Call.PathAdmin("Product/ProductManage?Special=-1");
+        }
+        else if (Model.mode == "product_store")
+        {
+            LinkUrl = @Call.PathAdmin("Product/ProductManage?NodeID={0}&StoreID=-1");
+            LinkAllUrl =@Call.PathAdmin("Product/ProductManage?StoreID=-1");
+            dt = nodeBll.GetAllUserShopNode();
+        }
+        else if (Model.mode == "special")
+        {
+            dt = specBll.SelPage(1, 1000, new Com_Filter() { storeId = 0 }).dt;
+            specBll.ChangeColumnToNode(dt);
+            LinkUrl = @Call.PathAdmin("Content/ContentManage?Special={0}");
+            LinkAllUrl = @Call.PathAdmin("Content/ContentManage?Special=-1");
+        }
+        else if (Model.mode == "page")
+        {
+            ZoomLa.BLL.Page.B_PageTemplate tempBll = new ZoomLa.BLL.Page.B_PageTemplate();
+            dt = tempBll.Sel(0, true);
+            dt.Columns["TemplateID"].ColumnName = "NodeID";
+            dt.Columns["TemplateName"].ColumnName = "NodeName";
+
+            LinkUrl = @Call.PathAdmin("Page/PageContent?NodeID={0}");
+            LinkAllUrl = @Call.PathAdmin("Page/PageContent");
+        }
+        else if (Model.mode == "content_recycle")
+        {
+            dt = nodeBll.SelByPid(0, true);
+            dt.DefaultView.RowFilter = "NodeType IN (0,1)";
+            dt = dt.DefaultView.ToTable();
+            LinkUrl = @Call.PathAdmin("Content/ContentRecycle?NodeID={0}");
+        }
+        else
+        {
+            dt = nodeBll.SelByPid(0, true);
+            //剃除链接类型
+            dt.DefaultView.RowFilter = "NodeType IN (0,1)";
+            dt = dt.DefaultView.ToTable();
+            LinkUrl = @Call.PathAdmin("Content/ContentManage?NodeID={0}");
+        }
+        foreach (DataRow dr in dt.Rows)
+        {
+            if (dr["NodeName"].ToString().Length > 30)
+            {
+                dr["NodeName"] = dr["NodeName"].ToString().Substring(0, 30) + "..";
+            }
+        }
+        //当前管理员的节点管理权限
+        dt = AuthNodeDT(dt);
+        if (string.IsNullOrEmpty(LinkAllUrl)) { LinkAllUrl = LinkUrl.Split('?')[0]; }
+        return dt;
+    }
+    //只保留有权限管理的节点
+    public DataTable AuthNodeDT(DataTable nodeDT)
+    {
+        M_AdminInfo adminMod = B_Admin.GetLogin(Context);
+        if (adminMod.IsSuperAdmin()) { return nodeDT; }
+        DataTable naDT = naBll.Sel(new Com_Filter() { rids = adminMod.RoleList });
+        naDT.DefaultView.RowFilter = "zadd=1";
+        naDT = naDT.DefaultView.ToTable();
+        string nids = StrHelper.GetIDSFromDT(naDT, "NodeID").Trim(',');
+        //保留结构,去除所有数据
+        if (string.IsNullOrEmpty(nids)) { nids = "-1"; }
+        nodeDT.DefaultView.RowFilter = "NodeID IN (" + nids + ")";
+        nodeDT = nodeDT.DefaultView.ToTable();
+        return nodeDT;
+    }
+}
+@{
+    DataTable dt = BindNode();
+    hasChild = "<a href='javascript:;' onclick=\"ShowMain('','" + LinkUrl + "');\" target='main_right' id='a{0}' class='list1'><span class='list_span'>{1}</span> <i class='zi zi_forDown' title='浏览父节点'></i></a>";
+    noChild = " <a href='javascript:;' onclick=\"NodeTree.activeSelf(this);ShowMain('','" + LinkUrl + "');\">{1}</a>";
+    nodeHtml = "<ul class='tvNav'><li><a class='list1' id='a0' href='javascript:;' onclick=\"ShowMain('','" + LinkAllUrl + "');\"><span class='list_span'>全部内容</span> <i class='zi zi_thlarge'></i></a>" + GetLI(dt) + "</li></ul>";
+}
+<div class="menu_tit pl-2"><i class="zi zi_forDown"></i> @L.信息管理</div>
+<div id="nodeNav">
+    <div class="input-group">
+        <input type="text" id="keyWord" class="form-control ascx_key" onkeydown="return ASCX.OnEnterSearch('@(LinkUrl.Split('?')[0]+"?keyWord=")',this);" />
+        <div class="input-group-append">
+            <button class="input-group-text" type="button" onclick="ASCX.Search('@(LinkUrl.Split('?')[0]+"?keyWord=")','keyWord');"><i class="zi zi_search"></i></button>
+        </div>
+    </div>
+    <div class="tvNavDiv">
+        <div class="NodeTree_left_ul">
+            @Html.Raw(nodeHtml)
+        </div>
+    </div>
+</div>

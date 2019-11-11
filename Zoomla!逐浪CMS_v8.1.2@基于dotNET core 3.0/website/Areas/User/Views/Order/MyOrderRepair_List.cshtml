@@ -1,0 +1,31 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Model.cols = 7;
+    Model.Check = false;
+    B_Order_Repair repBll = new B_Order_Repair();
+}
+<div id="EGV" style="margin-top:5px;">
+    <table class="table table-bordered table-striped">
+        <tr><td class="td_s">编号</td><td>商品名称</td><td>数量</td><td>申请时间</td><td>进度</td><td>类型</td><td>操作</td></tr>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+        <tr>
+            <td>@dr["id"]</td>
+            <td>
+                <img src="@(function.GetImgUrl(dr["Thumbnails"]))" class="img50" />
+                @dr["Proname"]
+            </td>
+            <td>@dr["pronum"]</td>
+            <td>@DateHelper.ToDate(dr["CDate"])</td>
+            <td>@repBll.ShowStatus(dr["Status"])</td>
+            <td>@repBll.ShowServerType(dr["ServiceType"])</td>
+            <td><a href="RepairInfo?id=@dr["id"]" target="_blank">查看</a></td>
+        </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

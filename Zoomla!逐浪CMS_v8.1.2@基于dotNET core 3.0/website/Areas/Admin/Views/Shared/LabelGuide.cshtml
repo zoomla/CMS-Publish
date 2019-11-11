@@ -1,0 +1,24 @@
+﻿@using ZoomLaCMS.Resources;
+<div class="m_left_ul open">  
+<div class="menu_tit"><i class="zi zi_circleDownLong"></i> @L.标签管理</div>
+<ul>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/TemplateManage')">@L.模板管理</a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/LabelManage')">@L.标签管理</a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/CSSManage')">@L.风格管理</a></li>
+    @*<li><a href="javascript:;" onclick="ShowMain('','{$path}Template/SPage/Default')">可视设计</a></li>*@
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/TemplateSet');">@L.方案设置</a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/TemplateSetOfficial')">@L.云端下载</a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/LabelCallTab')">@L.标签助手</a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/DSList')">@L.外部数据</a></li>
+    @*
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Template/GetPageHtml')"><%=Resources.L.源码查看器 %></a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Content/Addon/MNBakList')"><%=Resources.L.元数据备份 %></a></li>
+    <li><a href="javascript:;" onclick="ShowMain('','{$path}Design/Addon/Restore')">加载动力版</a></li>*@
+</ul>
+<div class="input-group" >
+<input type="text" id="keyWord" class="form-control ascx_key" placeholder="@L.请输入标签名称"  onkeydown="return ASCX.OnEnterSearch('/Admin/Template/LabelManage?keyWord=',this);"/>
+<div class="input-group-append">
+    <button class="input-group-text" type="button" onclick="ASCX.Search('/Admin/Template/LabelManage?keyWord=','keyWord');"> <i class="zi zi_search"></i></button>
+</div>
+</div>
+</div>

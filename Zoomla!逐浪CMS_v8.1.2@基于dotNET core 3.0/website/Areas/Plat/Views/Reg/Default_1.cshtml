@@ -1,0 +1,26 @@
+﻿@section head{<title>用户注册</title> }
+@section content{
+    <form method="post" action="Default_1_Submit">
+        <div id="Step1_Div" class="form_div">
+            <div><input ID="Email_T" name="Email_T" placeholder="推荐使用企业邮箱" type="email" class="form-control" /></div>
+            <div>
+                <input type="submit" ID="Step1_Btn" value="点击申请" onclick="return subCheck(this);" class="btn btn-primary"/>
+            </div>
+            <div>
+                 <a href="/User/Login" class="btn btn-info"><i class="fa fa-angle-left"></i>返回登录</a>
+            </div>
+        </div>
+    </form>
+}
+@section script{
+    <script>
+        function subCheck(dom) {
+            // OnClick="Step1_Btn_Click"
+            var email = $("#Email_T").val();
+            if (ZL_Regex.isEmpty(email)) { alert("邮箱不可为空"); return false; }
+            if (!ZL_Regex.isEmail(email)) { alert("邮箱格式不正确"); return false; }
+            disBtn(dom, 3000);
+            return true;
+        }
+    </script>
+}

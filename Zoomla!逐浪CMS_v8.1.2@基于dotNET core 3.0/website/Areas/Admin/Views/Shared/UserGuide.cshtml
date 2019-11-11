@@ -1,0 +1,24 @@
+﻿<div class="tvNavDiv">
+<div class="m_left_ul open">  
+<div class="menu_tit"><i class="zi zi_circleDownLong"></i> @L.会员管理</div>
+<div class="input-group">
+<input type="text" ID="keyWord" class="form-control ascx_key" onkeydown="return ASCX.OnEnterSearch('User/UserManage?skey=',this);" placeholder="@L.请输入用户名" />
+<div class="input-group-append">
+<button class="input-group-text" type="button" onclick="ASCX.Search('User/UserManage?skey=', 'keyWord');"><i class="zi zi_search"></i></button>
+</div>
+</div> 
+<ul class="m_left_ulin open">
+    <li><a onclick="ShowMain('','User/UserManage')">@L.会员管理</a></li>
+    <li><a onclick="ShowMain('','User/GroupManage')">@L.会员组别</a></li>
+    <li><a onclick="ShowMain('','User/Addon/PointGroup')">@L.积分等级</a></li>
+    <li><a onclick="ShowMain('','User/Addon/VMoneyLog')">@L.财务流水</a></li>
+    @*
+    <li><a onclick="ShowMain('','User/Addon/UserDay')">手机节日</a></li>
+    <li><a onclick="ShowMain('','User/Addon/UserDayManage')">用户节日</a></li>*@
+    <li><a onclick="ShowMain('','Config/UserConfig')">@L.会员参数</a></li>
+    <li><a onclick="ShowMain('','Content/Model/Field?ID=-1&ModelType=9')">@L.注册字段</a></li>
+    @*<li><a onclick="ShowMain('','User/Promo/InviteCodeList')">邀请编码</a></li>*@
+    <li><a onclick="ShowMain('','User/Addon/ThirdInfo')">@L.社会登录</a></li>
+</ul> 
+</div> 
+</div>

@@ -1,0 +1,55 @@
+<ion-view view-title="{{usershop.storename}}">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">{{usershop.storename}}</div>
+</ion-header-bar>
+<ion-content style="background:#f6f6f6;">
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载店铺最新商品" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="usershop_video" style="display:none;">
+<video ng-src="{{videourl}}" controls width="100%"></video>
+</div>
+
+<ion-slide-box delegate-handle="image-viewer" on-slide-changed="slideHasChanged($index)" auto-play="true" ng-if="pics">
+<ion-slide ng-repeat="item in pics" repeat-done="repeatDone()">
+<div class="box"><img class="full-image" ng-src="/UploadFiles/{{item.url}}" alt="{{item.desc}}" /></div>
+</ion-slide>
+</ion-slide-box>
+<div class="usershop_cont">
+<div class="usershop_cont_t">
+<h1>{{usershop.storename}}</h1>
+<div class="weui-cells">
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>联系人</p></div>
+<div class="weui-cell__ft">{{usershop.lxr}}</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>联系电话</p></div>
+<div class="weui-cell__ft">{{usershop.tel}}</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>所在地区</p></div>
+<div class="weui-cell__ft">{{usershop.area}}</div>
+</div>
+<div class="weui-cell">
+<div class="weui-cell__bd"><p>详细地址</p></div>
+<div class="weui-cell__ft">{{usershop.addr}}</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="usershop_pro">
+<div class="col-xs-6 usershop_pro_c" ng-repeat="item in userpro">
+<a href="#/product/detail/{{item.id}}">
+<div class="usershop_pro_ct"><img ng-src="/UploadFiles/{{item.thumbnails}}" alt="{{item.proname}}" /></div>
+<h3>{{item.proname}}</h3>
+<p>{{item.linprice | currency:'￥'}}</p>
+<div class="clearfix"></div>
+</a>
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="h48"></div>
+<ion-infinite-scroll ng-if="pullup.canbeload" on-infinite="pullup.load();" distance="1%"></ion-infinite-scroll>
+</ion-content>
+</ion-view>

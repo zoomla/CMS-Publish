@@ -1,0 +1,112 @@
+﻿@model  ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent GetItemIcon(DataRow dr)
+    {
+        return MvcHtmlString.Create(StringHelper.GetItemIcon(DataConverter.CStr(dr["ico"])));
+    }
+    public string startUrl = SiteConfig.SiteOption.Admin_StartUrl.ToLower();
+    public IHtmlContent ShowLinkType(DataRow dr)
+    {
+        string result = "";
+        string url = DataConverter.CStr(dr["FileUrl"]).ToLower();
+        if (url.StartsWith("http") || url.StartsWith("https")) { return MvcHtmlString.Create("<i class='zi zi_link' style='color:#FF7A00;'></i>"); }
+        switch (DataConverter.CLng(dr["Type"]))
+        {
+            case 0://站内链接  
+                result = "<i class='zi zi_folderOpen' style='color:#FF7A00;'></i>";
+                break;
+            case 1://用户中心
+                result = "<i class='zi zi_listalt' style='color:#FF7A00;'></i>";
+                break;
+            case 2://站外链接
+                result = "<i class='zi zi_folderOpen' style='color:#FF7A00;'></i>";
+                break;
+        }
+        return MvcHtmlString.Create(result);
+    }
+    public string ShowStatus(DataRow dr)
+    {
+        switch (DataConverter.CLng(dr["state"]))
+        {
+            case 1:
+                return ComRE.Icon_OK;
+            case 2:
+            default:
+                return ComRE.Icon_Error;
+        }
+    }
+    public IHtmlContent IsMobile(object o)
+    {
+        string result = "<i class='{0}' title='{1}'/>";
+        if (o.ToString().Equals("1"))
+        {
+            result = string.Format(result, "zi zi_check", @L.支持移动);
+        }
+        else
+        {
+            result = string.Format(result, "zi zi_times", @L.不支持);
+        }
+        return MvcHtmlString.Create(result);
+    }
+    public IHtmlContent ShowAttribute(DataRow dr)
+    {
+        string result = "";
+        if (DataConverter.CLng(dr["Mobile"]) == 1)
+        {
+            result += "<i class='zi zi_mobile' title='支持移动' style='font-size:22px;'/> ";
+        }
+
+        string linkUrl = DataConverter.CStr(dr["FileUrl"]).Replace("/Manage/","/"+ SiteConfig.SiteOption.ManageDir+"/").ToLower();
+        if (linkUrl.Equals(startUrl))
+        {
+            result += "<i class='zi zi_home' title='启动页' style='font-size:20px;'/> ";
+        }
+        return MvcHtmlString.Create(result);
+    }
+}
+@{ 
+     string apiUrl = "SearchFunc_API?action=";
+}
+<div id="EGV">
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>@L.名称</td>
+            <td>@L.路径</td>
+            <td>@L.图标</td>
+            <td>@L.排序</td>
+            <td>@L.状态</td>
+            <td>@L.属性</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value='@dr["id"]' /></td>
+        <td><a href="SearchFuncAdd?id=@dr["ID"]">@dr["Name"]</a></td>
+        <td><a>@dr["FileUrl"]</a></td>
+        <td><i class="@dr["ico"]"></i></td>
+        <td>
+            <input type="number" min="1" class="text_x text-center" name="order_T" value="@dr["OrderID"]" />
+            <input type="hidden" name="order_Hid" value="@(dr["ID"]+":"+dr["OrderID"]+":"+dr["OrderID"])" />
+        </td>
+        <td>
+            @MvcHtmlString.Create(ShowStatus(dr))
+        </td>
+        <td>@ShowAttribute(dr)</td>
+        <td>
+            <a href="javascript:;" class="btn btn-info btn-sm" onclick="mvcpage.post({url:'@(apiUrl+"starturl")',data: {ids:'@dr["ID"]'},callback:'reload'});">@L.设为启动页</a>
+            <a href="javascript:;" class="btn btn-danger btn-sm" onclick="mvcpage.del({url:'@(apiUrl+"del")',ids:'@dr["ID"]',confirm:'@L.确定要删除吗'})"><i class="zi zi_trash"></i></a>
+        </td>
+    </tr>
+}
+@Html.Partial("_page")
+</table>
+<script>
+    $(function () {
+        iCheckInit("#EGV_Table input[type=checkbox]");
+    })
+</script>
+</div>

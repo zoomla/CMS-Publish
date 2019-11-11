@@ -1,0 +1,115 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@model ZoomLaCMS.Control.C_Model
+@{ 
+    B_Spec spBll = new B_Spec();
+    DataTable spDT = spBll.SelByIDS(Model.value);
+}
+ 
+<script>
+    @*function ShowSpecDiag() {
+        ShowDiag("/@(ZoomLa.Components.SiteConfig.SiteOption.ManageDir)/Content/SpecialList?cate="+@(Model.addon), "选择专题 [<a href='javascript:;' onclick='SelSpec()'>选好点此确认</a>]");
+    }*@
+    //function ShowSpDiag() {
+    //    ShowDiag("SpecialList", "选择专题 [<a href='javascript:;' onclick='SelSpec()'>选好点此确认</a>]");
+    //}
+    //function AddToSpecial() {
+    //    var urlstr = "SpecialList";
+    //    var isMSIE = (navigator.appName == "Microsoft Internet Explorer");
+    //    var arr = null;
+    //    if (isMSIE) {
+    //        arr = window.showModalDialog(urlstr, "self,width=200,height=150,resizable=yes,scrollbars=yes");
+    //        if (arr != null) {
+    //            UpdateSpecial(arr);
+    //        }
+    //    }
+    //    else {
+    //        window.open(urlstr, 'newWin', 'modal=yes,width=200,height=150,resizable=yes,scrollbars=yes');
+    //    }
+    //}
+    function DelSpecial(specialId) {
+        var li = document.getElementById("SpecialSpanId" + specialId);
+        if (li != null) {
+            li.parentNode.removeChild(li);
+        }
+        var hdnSpecial = document.getElementById("HdnSpec");
+        var SelectedSpecial = hdnSpecial.value.split(",");
+        var newselected = '';
+        for (i = 0; i < SelectedSpecial.length; i++) {
+            if (SelectedSpecial[i] != specialId) { if (newselected != '') { newselected = newselected + ','; } newselected = newselected + SelectedSpecial[i]; }
+        }
+        hdnSpecial.value = newselected;
+    }
+    //function DealResult(json) {
+    //    $(".specDiv").html(''); $("#Spec_Hid").val("");
+    //    if (!json || json == "") 
+    //    var nodeArr = JSON.parse(json);
+    //    var ids = "";
+    //    for (var i = 0; i < nodeArr.length; i++) {
+    //        var model = nodeArr[i];
+    //        $(".specDiv").append("<div class='spec'><div class='specname'>" + model.name + "</div> <a href='javascript:;' onclick='removeSpe(this," + model.id + ")'><span class='zi zi_times'></span></a></div>");
+    //        ids += model.id + ",";
+    //    }
+    //    $("#Spec_Hid").val(',' + ids);
+    //    CloseDiag();
+    //}
+    function removeSpe(obj, id) {
+        $("#Spec_Hid").val($("#Spec_Hid").val().replace("," + id + ",", ","));
+        $(obj).parent().remove();
+    }
+
+    function UpdateSpecial(arr) {
+        var arrNodes = arr.split(',');
+        var HdnSpecial = document.getElementById("HdnSpec");
+        var SelectedSpecial = HdnSpecial.value.split(",");
+        var isExist = false;
+        for (i = 0; i < SelectedSpecial.length; i++) {
+            if (SelectedSpecial[i] == arrNodes[0])
+            { isExist = true; }
+        }
+
+        if (!isExist) {
+            if (HdnSpecial.value != '')
+            { HdnSpecial.value = HdnSpecial.value + ','; }
+
+            HdnSpecial.value = HdnSpecial.value + arrNodes[0];
+
+            var newli = document.createElement("SPAN");
+            newli.setAttribute("id", "SpecialSpanId" + arrNodes[0]);
+            newli.innerHTML = arrNodes[1] + " ";
+            var newlink = document.createElement("INPUT");
+            newlink.onclick = function () { DelSpecial(arrNodes[0]); };
+            newlink.setAttribute("type", "button");
+            newlink.setAttribute("class", "btn btn-primary");
+            newlink.setAttribute("value", "从此专题中移除");
+            newli.appendChild(newlink);
+            var newbr = document.createElement("BR");
+            newli.appendChild(newbr);
+            var links = document.getElementById("lblSpec");
+            links.appendChild(newli);
+            DelSpecial('0');
+        }
+    }
+    function UpdateSpe(name, id) {
+        $("#SpeName").text($("#SpeName").text() + "," + name);
+        $("#Spec_Hid").val($("#Spec_Hid").val() + "," + id + ",");
+        CloseDiag();
+    }
+</script>
+<div class="specDiv">
+    @foreach (DataRow dr in spDT.Rows)
+    {
+        <div class='spec'><div class='specname'>@dr["SpecName"]</div><a href='javascript:;' onclick='removeSpe(this,"@dr["SpecID"]")'><span class='zi zi_times' title="关闭"></span></a></div>
+    }
+    @if (spDT.Rows.Count < 1)
+    {
+        <div class='btn btn-outline-info btn-sm disabled'><i class='zi zi_exclamationCircle'></i> 不归属任何专题</div>
+    }
+</div>
+<input type="hidden" value="@Model.value" name="Spec_Hid" id="Spec_Hid"/>
+<style type="text/css">
+.spec{display:inline-block;min-width:120px;padding:5px 8px;border:1px solid #ddd;border-radius:5px;position:relative;}
+.spec .specname{margin-right:15px;}
+.spec .zi_times{position:absolute;right:8px;top:8px;}
+.spec .zi_times:hover{color:#ff0000;}
+</style>

@@ -1,0 +1,36 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "GOption_API?action=";
+
+}
+<div id="EGV">
+    <div class="panel panel-body table-responsive-md">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>ID</td>
+                    <td>@L.选项</td>
+                    <td>@L.操作</td>
+                </tr>
+            </thead>   
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["GradeID"]" /></td>
+                <td>@dr["GradeID"]</td>
+                <td>@dr["GradeName"]</td>
+                <td>
+                    <a href="javascript:;" onclick="ShowComDiag('GOptionAdd?ID=@dr["GradeID"]');"><i class="zi zi_pencilalt"></i></a>
+                    <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗',ids:'@dr["GradeID"]'});"><i class="zi zi_trash"></i></a>
+                    <a href="GradeOption?ParentID=@dr["GradeID"]&CateID=@dr["Cate"]"><i class="zi zi_listul" title="下级"></i>@L.下级选项列表</a>
+                </td>
+            </tr>
+        }
+            @Html.Partial("_page")
+    </table>
+    </div>
+    <div>
+        <input type="button" ID="BatDel_Btn" value="@L.批量删除"  onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});" class="btn btn-outline-danger" />
+    </div>
+</div>

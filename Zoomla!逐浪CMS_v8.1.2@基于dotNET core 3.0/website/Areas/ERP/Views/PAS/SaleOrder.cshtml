@@ -1,0 +1,13 @@
+﻿@section head{ <title>采购订单</title>}
+@section content{
+               <div class="container-fluid">
+                   @Html.Partial("_pageTop", new C_Model() { text = "新建订单", url = "SaleOrderAdd" })
+                  <div class="row">
+                       @Html.Partial("SaleOrder_List")
+                  </div>
+               </div>
+ }
+@section script{
+
+
+ }

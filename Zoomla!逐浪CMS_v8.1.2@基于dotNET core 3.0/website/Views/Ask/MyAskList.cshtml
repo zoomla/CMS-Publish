@@ -1,0 +1,23 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+}
+@section head{
+<title>问题列表-@(Call.SiteName)问答</title>
+<style>#AllID_Chk{display:none;}</style>
+}
+@section content{
+<div class="container">
+    <div class="asklist">
+        @Html.Partial("List_List",Model)
+    </div>
+</div>
+
+}
+@section script{
+<script type="text/javascript">
+    $(function () {
+        setNav("我的回答");
+    })
+</script> 
+}

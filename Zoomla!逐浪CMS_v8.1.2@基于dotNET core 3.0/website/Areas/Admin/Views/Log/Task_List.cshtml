@@ -1,0 +1,70 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetExecuteTime(DataRow dr)
+    {
+        string date = DataConverter.CStr(dr["ExecuteTime"]);
+        string interval = DataConverter.CStr(dr["Interval"]);
+        try
+        {
+            switch (Convert.ToInt32(dr["ExecuteType"]))
+            {
+                case (int)M_Content_ScheTask.ExecuteTypeEnum.Interval:
+                    return "每隔:" + interval + "分钟";
+                case (int)M_Content_ScheTask.ExecuteTypeEnum.EveryDay:
+                    return "每日:" + Convert.ToDateTime(date).ToString("HH:mm:ss");
+                case (int)M_Content_ScheTask.ExecuteTypeEnum.JustOnce:
+                default:
+                    return date;
+            }
+        }
+        catch { return date; }
+    }
+    public string GetLastTime(DataRow dr)
+    {
+        string last = DataConverter.CStr(dr["LastTime"]);
+        try
+        {
+            if (string.IsNullOrEmpty(last)) { return "尚未执行"; }
+            else { return Convert.ToDateTime(last).ToString(); }
+        }
+        catch (Exception) { return "<span style='color:red;'>转换失败:[" + last + "]</span>"; }
+    }
+
+}
+@{
+    B_Content_ScheTask scheBll = new B_Content_ScheTask();
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>任务名称</td>
+            @*<td>运行状态</td>*@
+            <td>执行计划</td>
+            <td>创建时间</td>
+            <td>执行时间</td>
+            <td>最近一次执行</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td>@dr["ID"]</td>
+        <td>@dr["TaskName"]</td>
+        @*<td>@dr["IsRun"]</td>*@
+        <td>@MvcHtmlString.Create(scheBll.GetExecuteType(DataConverter.CLng(dr["ExecuteType"])))</td>
+        <td>@dr["CDate"]</td>
+        <td>@GetExecuteTime(dr)</td>
+        <td>@GetLastTime(dr)</td>
+        <td>
+            <a href="TaskAdd?id=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i>修改</a>
+            <a href="javascript:;" onclick="mvcpage.del({url:'@("Task_API?action=execute")',ids:'@dr["ID"]',confirm:'确定要立即执行一次吗'});"><i class="zi zi_banyue" title="删除"></i>执行</a>
+            <a href="javascript:;" onclick="mvcpage.del({url:'@("Task_API?action=del")',ids:'@dr["ID"]',confirm:'确定要删除吗'});"><i class="zi zi_trash" title="删除"></i>删除</a>
+            @*<a href="TaskLog?TaskID=@dr["ID"]"><i class="zi zi_file"></i>查看日志</a>*@
+        </td>
+    </tr>
+
+}
+@Html.Partial("_page")
+</table>

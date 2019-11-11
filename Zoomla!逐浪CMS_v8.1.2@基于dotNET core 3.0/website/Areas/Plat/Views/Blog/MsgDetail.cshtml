@@ -1,0 +1,430 @@
+﻿@model ZoomLa.Model.Plat.M_Blog_Msg
+@using ZoomLa.Safe
+@functions{
+    B_Blog_Msg msgBll = new B_Blog_Msg();
+    B_Plat_Like likeBll = new B_Plat_Like();
+    B_User_Plat upBll = new B_User_Plat();
+    public M_User_Plat upMod { get { return ViewBag.upMod; } }
+
+
+    /*------------------------------------------------------------------------------*/
+    public IHtmlContent GetUserLike()
+    {
+        string ids = string.IsNullOrEmpty(Model.LikeIDS.Trim(',')) ? "0" : Model.LikeIDS.Trim(',');
+        string uid = upMod.UserID.ToString();
+        string result = "";
+        result = "<span id=\"showlike_span\" data-init=\"" + (ids.Contains(uid) ? "1" : "0") + "\" style=\"margin-left:-5px;" + (ids.Contains(uid) ? "display:inline;" : "display:none;") + "\">1</span>";
+        return MvcHtmlString.Create(result);
+    }
+    //public string GetUserFace()
+    //{
+    //    string ids = string.IsNullOrEmpty(ids_Hid.Value.Trim(',')) ? "0" : ids_Hid.Value.Trim(',');
+    //    string result = "";
+    //    if (!string.IsNullOrEmpty(ids))
+    //    {
+    //        DataTable dt = GetUserDT();
+    //        dt.DefaultView.RowFilter = "UserID IN(" + ids + ")";
+    //        foreach (DataRow dr in dt.DefaultView.ToTable().Rows)
+    //        {
+    //            result += "<li title='" + dr["TrueName"] + "' class='likeids_li'><a href='javascript:;'><img class='imgface_mid' src='" + dr["UserFace"] + "' onerror=\"this.src='/Images/userface/noface.png';\"/></a></li>";
+    //        }
+    //    }
+    //    return result;
+    //}
+    public string IsShowLike()
+    {
+        return Model.LikeIDS.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Length > 0 ? "" : "display:none;";
+    }
+
+    //public M_Blog_Msg FillMsg(string msg, int pid = 0, int rid = 0)
+    //{
+    //    M_Blog_Msg model = new M_Blog_Msg();
+    //    model.MsgType = 1;
+    //    model.Status = 1;
+    //    model.CUser = upMod.UserID;
+    //    model.CUName = upMod.TrueName;
+    //    #region 信息内容处理
+    //    msg = Server.HtmlEncode(msg);//避免写入js,后面可插入Html
+    //                                 //------处理@功能
+    //                                 //@功能
+    //    {
+    //        MatchCollection mc = regHelper.GetValuesBySE(msg, "@", "]");
+    //        int id = 0;
+    //        string atuser = "", atgroup = "", name = "";
+    //        string uTlp = "<a href='javascript:;' onclick='ShowUser({0});'>{1}</a>";
+    //        string gTlp = "<a href='javascript:;' onclick='ShowGroup({0});'>{1}</a>";
+    //        foreach (Match m in mc)
+    //        {
+    //            if (string.IsNullOrEmpty(m.Value)) continue;
+    //            if (m.Value.Contains("uid:"))
+    //            {
+    //                id = DataConvert.CLng(regHelper.GetValueBySE(m.Value, "uid:", "]", false));
+    //                name = regHelper.GetValueBySE(m.Value, "@", @"\[").Replace("[", "");
+    //                atuser += id + ",";
+    //                msg = msg.Replace(m.Value, string.Format(uTlp, id, name));
+    //            }
+    //            else if (m.Value.Contains("gid:"))
+    //            {
+    //                id = DataConvert.CLng(regHelper.GetValueBySE(m.Value, "gid:", "]", false));
+    //                name = regHelper.GetValueBySE(m.Value, "@", @"\[").Replace("[", "");
+    //                atgroup += id + ",";
+    //                msg = msg.Replace(m.Value, string.Format(gTlp, id, name));
+    //            }
+    //            msg = msg.Replace(m.Value, "");
+    //        }
+    //        if (!string.IsNullOrEmpty(atuser) || !string.IsNullOrEmpty(atgroup))
+    //        {
+    //            atuser += upBll.SelByGIDS(atgroup);
+    //            if (!string.IsNullOrEmpty(atuser.Replace(",", "")))
+    //            {
+    //                model.ATUser = StrHelper.IdsFormat(atuser);
+    //                //model.ATUser = model.ATUser.Replace("," + upMod.UserID, "");//过滤自己
+    //                //提示被@人
+    //                M_Notify notifyMod = new M_Notify();
+    //                notifyMod.CUName = upMod.UserName;
+    //                notifyMod.Title = "Hi,有人@你了,点击查看详情";
+    //                notifyMod.Content = msg.Length > 30 ? msg.Substring(0, 30) : msg;
+    //                notifyMod.ReceUsers = model.ATUser;
+    //                B_Notify.NotifyList.Add(notifyMod);
+    //            }
+    //        }
+    //    }
+    //    #endregion
+    //    model.MsgContent = msg;
+    //    model.pid = pid;
+    //    model.ReplyID = rid;
+    //    if (rid > 0)
+    //    {
+    //        M_Blog_Msg msgMod = msgBll.SelReturnModel(model.ReplyID);
+    //        model.ReplyUserID = msgMod.CUser;
+    //        model.ReplyUName = msgMod.CUName;
+    //    }
+    //    if (!string.IsNullOrEmpty(Request.Form["Attach_Hid"]))//为安全，不允许全路径，必须后台对路径处理
+    //    {
+    //        string uppath = B_Plat_Common.GetDirPath(B_Plat_Common.SaveType.Blog);
+    //        M_UserInfo bus = buser.GetLogin();
+    //        string files = SafeSC.PathDeal(Request.Form["Attach_Hid"].Trim());
+    //        foreach (string file in files.Split('|'))
+    //        {
+    //            if (string.IsNullOrEmpty(file)) continue;
+    //            model.Attach += uppath + file + "|";
+    //        }
+    //    }
+    //    model.GroupIDS = Request.Form["GroupIDS_Chk"];//后期需加入检测,避免前台伪造
+    //    model.ColledIDS = "";
+    //    //model.CompID = upMod.CompID;
+    //    return model;
+    //}
+        }
+@{ 
+    //Layout = "_empty";
+    //---------------------------------
+    int pageCount = 0;
+    DataTable likeDT = likeBll.SelLikeUsers(Model.ID, "plat");
+    //Like_RPT.DataSource = dt;
+    //Like_RPT.DataBind();
+
+    DataTable msgDT = msgBll.SelByPid(20, 1, out pageCount, Model.ID);
+    upBll.SelPage(1, int.MaxValue, new F_User() { compIds = upMod.CompID.ToString() });
+
+}
+    @section head{
+<title>浏览主题</title>
+<script type="text/javascript" src="/JS/JQueryAjax.js"></script>
+<style>
+.msg_left_div {padding-left:10px;min-width:100px; float:left;}
+.msg_content_div {float:left;padding-top:10px;border-left:none ;}
+.createDate { color: #9a9a9a; font-size: 12px; }
+.content { font-size: 15px; }
+.ContentDiv{margin-top:20px;}
+.ContentDiv .head_d{float:left;}
+.ContentDiv .content_d{margin-left:60px;}
+.content_operate { margin-top: 20px; text-align: left; color: #9a9a9a; }
+.content_operate div{float: right!important;}
+.content_operate div *{ margin-right:10px;}
+.comment_div { margin-top: 30px; background-color: #fafafa; float: left; width: 100%; }
+.comment_div div { font-weight: 500; float: left; font-size: 20px; width: 50%; color: #9a9a9a; text-align: center; padding-top: 10px; padding-bottom: 10px; }
+.comment_div div:hover:not(.comment_selected) { background: rgba(153,153,153,0.1); }
+.comment_selected { background: rgba(153,153,153,0.2);}
+.comment_content { float: left; margin-top: 20px; border-top: 1px solid #ddd; width: 100%; }
+.comment_content .noneContent { color: #9a9a9a; font-size: 15px; margin-top: 10px; display: inline-block;}
+.margintop10 { margin-top: 10px; }
+.userface_list { text-align: left; width: 100%; padding-left: 10px; }
+.likeIcon { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; }
+.colorfix { color: #9a9a9a; }
+.recommd { border: 1px solid #ccc; }
+.likelist_ul li{margin-bottom:20px;}
+.likelist_ul .likelist_img{padding:5px;}
+.likelist_ul .likelist_content{padding:5px 20px;}
+.likelist_ul .likelist_content .likelist_time{color:#999;font-size:12px;margin-top:5px;}
+.likelist_ul .likelist_content .likelist_desc{margin-top:20px;color:#888;}
+.likelist_ul .likelist_img img{width:70px;height:70px;border-radius:50px; cursor:pointer;}
+.likeids_div_ul li img {width:70px;height:70px;}
+.popover-content { padding: 0px;}
+.uinfodiv {display: block;position: static;width: 272px;}
+.uinfo_bottom a{margin-right:5px;}
+.send_btn_div{margin-top:5px;border:1px solid #ddd;padding:5px;}
+.send_reply{margin-top:20px;}
+/*图片*/
+.thumbnail_img {width:auto;max-width:90%;}
+/*投票*/
+#vote{border:1px solid #ccc;padding:3px;margin-top:10px;}
+.replydiv {overflow:hidden;height:40px;border:1px solid #ddd;}
+.replydiv .msg {height:80px;width:100%;padding:5px 8px;border:none;color:#ddd;resize:none;outline:none;}
+.replydiv.active {border:1px solid #03a9f4;}
+.replydiv.active .msg {color:#666; }
+
+</style>
+}
+ @section content{
+<form method="post" action="@MVCHelper.GetAction("MsgDetail_Send",Context.Request)">
+
+<div class="container">
+    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-lg-offset-2 platcontainer">
+        <div class="ContentDiv">
+                 <div class="head_d">@B_User_Plat.WordFace(upMod.UserID,"uword_s uinfo",upMod.TrueName,upMod.UserName)</div>
+                 <div class="content_d">
+                    <p><a href="#">@upMod.UserName</a>:</p>
+                    @MvcHtmlString.Create(Model.MsgContent)
+                    <div class="margin_t5">
+                        @Html.Partial("Msg_C_Attach", new C_Model() { id = Model.ID.ToString(), value = Model.Attach })
+                    </div>
+                   <div class="content_operate">
+                        <span class="createDate">
+                            <label>@Model.CDate.ToString("yyyy年MM月dd日 hh:mm")</label>
+                            <label><span title='阅读量'> <i class='zi zi_eye'></i> @Model.ReadNumber</span></label>
+                        </span>
+                        <div>
+                            <div title="点赞" style="cursor: pointer;" onclick="PostLike()"><span class="zi zi_thumbsup"></span>@GetUserLike()</div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        
+        <div class="comment_div">
+            <div id="comm" onclick="showComms()" class="comment_selected">评论(@(msgBll.GetSumCount(Model.ID)))</div>
+            <div id="like" onclick="showLikes()">赞(<span id="likeCount_L"></span>)</div>
+        </div>
+        <div class="comment_content text-center">
+            <div id="comm_div">
+                @if (msgDT.Rows.Count < 1)
+                {<span class="noneContent" id="Empty_Span_Comm" style="padding: 3px;">当前没有评论！</span> }
+                else
+                {
+                    @foreach (DataRow dr in msgDT.Rows)
+                    {
+                        <div class="msgmain_div margintop10">
+                            <div class="msg_left_div" style="min-width: 100px;">
+                                <div>
+                                    @(ZoomLa.BLL.B_User_Plat.WordFace(dr["CUser"], "uword_s", DataConverter.CStr(dr["HoneyName"]), DataConverter.CStr(dr["UserName"])))
+                                </div>
+                            </div>
+                            <div class="msg_content_div text-left" style="margin-left: 5px;">
+                                <div>
+                                    <a href="javascript:ShowUserDiv('@dr["CUser"]')">@dr["CUName"]</a>
+                                </div>
+                                <div class="msg_content_article_div">@MvcHtmlString.Create(DataConverter.CStr(dr["MsgContent"]))</div>
+                                <div>@Html.Partial("Msg_C_Attach", new C_Model() { id = DataConverter.CStr(dr["ID"]), value = DataConverter.CStr(dr["Attach"]) })</div>
+                                <span class="content_date r_gray">@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["CDate"])</span>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    }
+                }
+
+            </div>
+            <div id="likes_div" style="display: none;">
+                @if (likeDT.Rows.Count < 1) { <span class="noneContent" id="Empty_Span_Like" >当前无人点赞！</span> }
+                else {
+                    <div class="msgmain_div">
+                    <div class="userface_list">
+                        <ul class="likelist_ul"></ul>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                }
+
+            </div>
+        </div>
+        @*<div>
+            <asp:Literal  ID="MsgPage_L" EnableViewState="false"></asp:Literal>
+        </div>*@
+        <div class="clearfix"></div>
+              
+        <span class="zi zi_commentdots colorfix send_reply"></span> <strong class="colorfix">发表评论</strong>
+                                                                   
+        @*<div class="replydiv" id="replydiv">*@
+            <div id="send_text_div">
+                <textarea id="MsgContent_T" name="MsgContent_T" class="msg" style="width:100%;resize:none;" rows="3"></textarea>
+            </div>
+      
+            <div class="send_btn_div" style="display:block;border:none;margin-top:0px;padding:0px;">
+                <input type="submit" ID="sendButton" value="发布评论"  class="btn btn-info" />
+            </div>
+        @*</div>*@
+    </div>
+    @*<div class="right_InfoDiv" id="ShowUser_Div">
+        <iframe style="width: 100%; border: 0px; height: 1000px;" id="ShowUser_if"></iframe>
+    </div>*@
+</div>
+<input type="hidden" ID="UserInfo_Hid" name="UserInfo_Hid" value="@(upMod.TrueName+":"+upMod.UserFace)" />
+</form>
+}
+@section script{
+<link type="text/css" rel="stylesheet" href="/JS/atwho/jquery.atwho.css" />
+<script src="/JS/atwho/jquery.atwho.js"></script>
+<script src="/JS/ICMS/MainBlog.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script>
+    LoadLikes();
+    $(function () {
+            pop.bindEvent($(".uinfo"));
+            TextReply.init();
+        $.post("/Plat/Common/Common", { action: "Plat_CompUser", value: "" }, function (data) { InitAt(data); });
+        $("#MsgContent_T").keydown(function () {
+                if (event.ctrlKey && event.keyCode == '13') {
+                $("#sendButton").trigger("click");
+                }
+            });
+            //增加阅读数
+            addRead(@Model.ID);
+        });
+        function addRead(id) {//阅读量统计
+        $.post("/Plat/Common/Common", { action: "AddRead", ids: id }, function (data) { })
+    }
+        function ShowMsgDiv(args1, arsg2) {
+        $(args1).hide();
+        $(arsg2).show();
+        }
+        function checkvote() {
+            var name = "vote_@(Model.ID)";
+            var val = $("input:radio[name='" + name + "']:checked").val()
+            if (!val) { return false; }
+            else { return true; }
+        }
+        function LoadLikes() {
+            var tlp = "<li>"
+            + "<div class=\"likelist_img float-left\">"
+            + "<img src=\"@@salt\" onerror=\"shownopic(this);\" onclick='ShowUser(@@CUser)' />"
+            + "</div>"
+            + "<div class=\"likelist_content float-left\">"
+            + "<div class=\"likelist_desc\"><a href=\"javascript:ShowUser(@@CUser);\">@@UserName</a> 赞了这条信息</div>"
+            + "<div class=\"likelist_time\">@@CDate</div>"
+            + "</div>"
+            + "<div class=\"clearfix\"></div>"
+            + "</li>";
+        $.post('MsgDetail?action=likelist', { msgid: "@Model.ID" }, function (data) {
+
+                var likelist = JSON.parse(data);
+            var html = "";
+            for (var i = 0; i < likelist.length; i++) {
+                likelist[i].CDate=likelist[i].CDate.replace("T", " ").split('.')[0]
+                html += tlp.replace(/@@salt/g, likelist[i].salt).replace(/@@UserName/g, likelist[i].UserName).replace(/@@CDate/g, likelist[i].CDate).replace(/@@CUser/g, likelist[i].CUser);
+                }
+            $("#likeCount_L").html(likelist.length);
+            $(".likelist_ul").html(html);
+            });
+        }
+        function showComms() {
+        $("#comm_div").show();
+        $("#likes_div").hide();
+        $("#comm").attr("class", "comment_selected")
+            $("#like").attr("class", "");
+
+        }
+        function showLikes() {
+        $("#comm_div").hide();
+        $("#likes_div").show();
+        $("#comm").attr("class", "")
+            $("#like").attr("class", "comment_selected");
+        }
+        function PostLike()//点赞
+{
+            var id = "@Model.ID";
+            var tlp = "<li title='{0}' class='likeids_li'><a href='javascript:;'><img class='imgface_mid' src='{1}' /></a></li>", a = "";
+            var $main = $(".likeids_div_ul");
+            var uname = $("#UserInfo_Hid").val().split(':')[0];
+            var likeobj = $main.find("li[title='" + uname + "']");
+            if ($("#showlike_span").attr("data-init") == "1") {
+                a = "ReLike";
+                likeobj.remove();
+        $("#showlike_span").hide();
+        $("#showlike_span").attr("data-init", "0");
+            }
+    else {
+                a = "AddLike";
+                var uface = $("#UserInfo_Hid").val().split(':')[1];
+                tlp = tlp.replace("{0}", uname).replace("{1}", uface);
+        $main.append(tlp);
+        $("#showlike_span").show();
+        $("#showlike_span").attr("data-init", "1");
+            }
+            var num = $main.find(".likeids_li").length;
+            if (num>0) {
+        $("#Empty_Span_Like").hide();
+            } else {
+        $("#Empty_Span_Like").show();
+            }
+    $("#likeCount_L").text(num);
+            PostToCS2("/Plat/Blog/Blog_API", a, id, function () { LoadLikes(); });
+        }
+        function ShowUserDiv(uid) {
+    $("#ShowUser_Div").show();
+    $("#ShowUser_if").attr("src", "/Plat/Common/UserDetail?ID=" + uid);
+        }
+        function ShowUser(uid) {
+            var diag = new ZL_Dialog();
+            diag.title = "用户信息";
+            diag.maxbtn = false;
+            diag.url = "/Plat/Common/UserDetail?ID=" + uid;
+            diag.ShowModal();
+        }
+        //-----AT
+        function InitAt(json) {
+            json = eval(json);
+    $(".atwho").atwho({
+                tpl: '<li data-value="${atwho-at}${name}${suffix}"><img src="${imageUrl}" onerror="this.src=\'/Images/userface/noface.png\'" style="width:25px;height:25px;" />&nbsp;${name}</li>',
+        at: "@@",
+        search_key: "name",
+        title: "请选择要@的同事名称",
+        data: json,
+        limit: 8,
+        max_len: 20,
+        start_with_space: false,
+        //data:jsonArr,
+        callbacks: {
+                    remote_filter: function (query, callback)//@@之后的语句
+            {
+                        //callback(json);
+                    }
+                }//callback
+            });
+        }
+        function AddAT(uname, uid) {
+            var v = $("#MsgContent_T").val();
+    $("#MsgContent_T").val(v + "@@" + uname + "[uid:" + uid + "]");
+        }
+        //----------------------------
+        var TextReply = {
+    $div: $("#replydiv"),
+    init: function () {
+                var ref = this;
+        $("body").click(function () {
+                    ref.$div.removeClass("active").animate({ height: "40px" })
+        });
+                ref.$div.click(function () {
+                    if (!$(this).hasClass("active")) {
+                $(this).animate({ height: '140px' }).addClass("active");
+                    }
+                    var e = event || window.event;
+                    if (e && e.stopPropagation) { e.stopPropagation(); }
+                    else { e.cancelBubble = true; }
+                    if(e.target.id=="sendButton"){return true;}
+                    else{return false;}
+                });
+            }
+        };
+
+
+</script>
+}
