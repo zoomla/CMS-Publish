@@ -22,18 +22,18 @@
 
 
 官方程序包信息：
-MD5: EBEEFB5B91D45819ACAADA597EBFD5F8
-
-SHA1: 6650DEA9C1F38864FA4DA16E82C6202D423C692C
-
-CRC32: 7445DF10
+原基于.NET 4.0架构的，于x3.9.7为止，不再面向非商业用户提供更新。
+全面转为dotNET core框架内核。
+190101：发布基于dot NET core 2.0的Zoomla!逐浪CMS v8.0.1
+191110：发布基于dot NET core 3.0的Zoomla!逐浪CMS v8.1.2
+更多信息请访问www.z01.com
 
 
 
 ## 研发理念
 官方程序包信息：
 
-时隔三个月，以技术创新为目标的Zoomla!逐浪CMS官方推全新的CMS版本：Zoomla!逐浪CMS2 x3.9.5。
+时隔三个月，以技术创新为目标的Zoomla!逐浪CMS官方推全新的CMS版本：Zoomla!逐浪CMS。
 
 
 秉承开源的思路，开拓创新，推出一系列的功能，优化核心组件，充分融合最新移动技术，是具备创新品质的产品。
