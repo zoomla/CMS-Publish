@@ -1,0 +1,477 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Model
+@using ZoomLa.Components
+@using Newtonsoft.Json
+@model ZoomLaCMS.Models.Cart.VM_CartOrder
+@{ 
+    Layout = "_layout.cshtml";
+    bool IsWechat = DeviceHelper.GetBrower() == DeviceHelper.Brower.Micro;
+}
+@section head{ 
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<title>订单结算_@Call.SiteName</title>
+<style type="text/css">
+ul{padding:0px;margin:0px;}
+.order_extend .extenddiv {padding:10px;}
+
+.arrive_o .item {height:110px;width:203px;max-width:46%; float:left;margin-right:5px;margin-bottom:20px;background:#fff;border:1px solid #ddd;border-top:none;cursor:pointer;position:relative;padding-left:0px;}
+.arrive_o .c_msg {width:100%;height:70px; background-color:#74d2d4;padding:5px 20px;}
+.arrive_o .c_top {height:3px;width:100%;background:#fff url(/App_Themes/User/shop_splite.png) -36px -6px no-repeat;}
+.arrive_o .c_price {color:#fff;font-size:24px;}
+.arrive_o .c_limit {color:#fff;font-size:12px;}
+.arrive_o .c_time {color:#fff;font-size:12px;}
+.arrive_o .c_type {height:32px;border-top:1px solid #ddd;line-height:32px;padding-left:10px;padding-right:10px;color:#ccc;font-size:12px;}
+.arrive_o .c_choose {display:none; position:absolute;left:0;bottom:0; border:0;height:30px;width:100%;/*z-index:10;*/background:url(/Plugins/Ueditor/dialogs/image/images/success.png) no-repeat right bottom;}
+.arrive_o .item.disable {cursor:not-allowed;}
+.arrive_o .item.choose {border:1px solid #0094ff;border-top:none;}
+.arrive_o .disable .c_msg {background-color:#d1d1d1;}
+.arrive_o .disable .c_top {background:#fff url(/App_Themes/User/shop_splite.png) -36px -3px no-repeat;}
+.arrive_o .disable .c_time {color:#b0afaf;}
+.arrive_o .choose .c_choose {display:block;}
+</style>
+}
+@section content{
+<form method="post" action="@MVCHelper.GetAction("GetOrderInfo_Submit",Request)">
+<div class="progress carpro">
+    <div class="progress-bar w-50" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><h1>填写订单信息</h1></div>
+</div>
+<div class="container cartbody">
+    <div class="Settlbody">
+        @if (Model.ShowAddress)
+        {
+            <div class="bordered card" id="Address_Div">
+                <div class="card-header">
+                    <i class="zi zi_pencilsquare strong">收货人信息</i>
+                    <button type="button" class="btn btn-info btn-sm ml-2" onclick="AddAddress();"><i class="zi zi_tmAdn"></i> 添加新地址</button>
+                </div>
+                <section class="card-header">
+                    <ul class="addresssul indent" id="addressul"></ul>
+                    <div class="ml-2">
+                        <span>配送时间：</span>
+                        <span id="exptime_sp">工作日、双休日与节假日均可送货</span>
+                        <a href="javascript:;" onclick="exp.showExpTime();">修改</a>
+                        <input type="hidden" ID="exptime_hid" name="exptime_hid" value="工作日、双休日与节假日均可送货" />
+                    </div>
+                </section>
+            </div>
+            <div class="bordered card">
+                <div class="card-header mb-1">
+                    <label class="btn btn-info btn-sm">
+                        <i class="zi zi_gouwulan"></i> 用户自提
+                        <input type="radio"  onclick="showlistbox('#self_wrap')" value="self" name="ars_chk" style="display: none;" />
+                    </label>
+                </div>
+                <div class="arsInfo_wrap card-body" id="self_wrap" style="display: none;">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">联系人</span>
+                        </div>
+                        <input type="text" class="form-control text_md" id="arsInfo_name" name="arsInfo_name" />
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">联系电话</span>
+                        </div>
+                        <input type="text" class="form-control text_md" id="arsInfo_mobile" name="arsInfo_mobile" />
+                    </div>
+                </div>
+            </div>
+        }
+        @if (IsWechat)
+        {
+            <div class="bordered card" id="wx_address">
+                <div class="card-header mb-1" onclick="showlistbox('#wx_address_wrap')">
+                    <label onclick="wx_openAddress();" class="btn btn-info btn-sm arsItem">
+                        <i class="zi zi_tmWeixin"></i> <input type="button" value="调用微信地址" name="ars_chk" hidden />
+                    </label>
+                </div>
+                <div class="arsInfo_wrap card-body" id="wx_address_wrap" style="display: none;">
+                    <table class="table table-bordered table-striped">
+                        <tr><td>收货人</td><td><input type="text" class="form-control" id="wxad_name" name="wxad_name" /></td></tr>
+                        <tr><td>手机</td><td><input type="text" class="form-control" id="wxad_mobile" name="wxad_mobile" /></td></tr>
+                        <tr><td>省份城市</td><td><input type="text" class="form-control" id="wxad_city" name="wxad_city" /></td></tr>
+                        <tr><td>详细地址</td><td><input type="text" class="form-control" id="wxad_address" name="wxad_address" /></td></tr>
+                    </table>
+                </div>
+            </div>
+        }
+        
+        <div class="card">
+            <div class="card-header mb-1">
+                <button type="button" class="btn btn-info btn-sm" onclick="showlistbox('.shopInvoice')"><i class="zi zi_th strong"></i> 发票信息</button>
+            </div>
+            <div class="bordered card-body shopInvoice">
+                @Html.Partial("Comp/Order_Invoice")
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="shop_list_t" onClick="showlistbox('.orderbody')"><i class="zi zi_cubes strong"></i> 商品清单↓
+                <a href="/Cart/Cart.aspx?Proclass=@(Model.ProClass)" title="返回购物车" class="pull-right padding_r10">&lt;返回购物车</a>
+            </div>
+            <div class="card-body indent orderbody">
+                <table class="table text-center Settlement_table">
+                <tr class="shop_tabtr"><td>商品</td><td></td><td>金额</td><td>优惠</td><td>数量</td><td class="move_d_none">状态</td></tr>
+                 @foreach (DataRow store in Model.StoreDT.Rows){
+                     //按店铺展示商品列表
+                     Model.CartDT.DefaultView.RowFilter = "StoreID=" + store["ID"];
+                     DataTable dt = Model.CartDT.DefaultView.ToTable();
+                    <tbody>
+                        <tr><td colspan="6" class="storename text-left"><label><i class="zi zi_home"></i>@store["StoreName"]</label></td></tr>
+                        @foreach (DataRow item in dt.Rows)
+                        {
+                            Model.dr = item;
+                            if (DataConverter.CLng(item["ProClass"]) == 2)
+                            {
+                                @Html.Partial("Order_ItemSuit")
+                            }
+                            else
+                            {
+                                @Html.Partial("Order_Item")
+                            }
+                        }
+                        <tr>
+                            <td colspan="6" class="text-right">
+                                <span>配送方式:</span>
+                                @MvcHtmlString.Create(DataConverter.CStr(store["fareHtml"]))
+                            </td>
+                        </tr>
+                    </tbody>
+                 }
+                <tr>
+                    <td colspan="6">
+                        <div class="text-right total_count_div">
+                            <div>
+                                <span><span id="itemnum_span" class="text-success">@(Model.CartDT.Rows.Count)</span>件商品,总商品金额：</span><i class="zi zi_yensign" id="totalmoney_span1">@Model.allmoney.ToString("F2")</i>
+                            </div>
+                            <div><span>优惠券：</span><i class="zi zi_yensign" id="arrive_money_sp">0.00</i></div>
+                            <div><span>积分折扣：</span><i class="zi zi_yensign" id="point_money_sp">0.00</i></div>
+                            <div><span>运费：</span><i class="zi zi_yensign" id="fare_span">0.00</i></div>
+                            <div class="pay_moneyAll"><span>应付总额：</span><i class="zi zi_yensign" id="totalmoney_span2">0.00</i></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            </div>
+            <div class="order_extend">
+                <ul>
+                    @if (Model.ShowPassenger){
+                        <li id="userli">@Html.Partial("Comp/Order_Passenger")</li>}
+
+                    <li>
+                        <a href="javascript:;" onclick="$('#arrive_div').toggle();"><i class="zi zi_pluscircle"></i> 优惠券</a>
+                        @Html.Partial("Comp/Order_Coupon")
+                    </li>
+                    <li id="point_li">
+                        <a href="javascript:;" onclick="$('.point_div').toggle();"><i class="zi zi_pluscircle"></i> 积分抵扣</a>
+                        @if (Model.usepoint > 0)
+                    {
+                            <div id="point_body" class="extenddiv point_div">
+                                共<span style="color:#ff6a00;">@(Model.mu.UserExp.ToString("F0"))</span>个积分,本次可用<span id="usepoint_span" class="text-danger"></span>个积分,<input type="text" ID="Point_T" name="Point_T" value="0" onkeyup="checkMyPoint(this);" class="form-control text_150 num" />
+                            </div>
+                            <script>
+                            $(function(){SumByPoint(@Model.usepoint);})
+                            </script>
+                    }
+                    else
+                    {
+                            <div id="point_tips" class="alert alert-warning point_div extenddiv" role="alert">
+                                <i class="zi zi_exclamationcircle"></i> 积分抵扣已关闭!
+                            </div>
+                    }
+                    </li>
+                    <li>
+                        <a href="javascript:;" onclick="$('#oremind_div').toggle();"><i class="zi zi_pluscircle"></i> 订单备注</a>
+                        <div id="oremind_div" class="extenddiv">
+                            <p>提示：请勿填写有关支付、收货、发票方面的信息</p>
+                            <input type="text" name="ORemind_T" ID="ORemind_T" class="form-control max" MaxLength="100" placeholder="限100个字" />
+                        </div>
+                    </li>
+                </ul>
+            </div>
+		</div>
+        </div>
+    <div class="total_div total_divPC">
+        <input type="submit" class="btn btn-info btn-lg ml-2" ID="AddOrder_Btn" value="提交订单" onclick="return subCheck();" />
+    </div>
+    <section class="fixed-bottom fixed_Set">
+        @*<span class="Settlement_tex total">应付总额: <i id="totalmoney_i" class="zi zi_yensign"></i> 0.00</span>*@
+        <input type="button" id="pubsdd" value="提交订单" class="Settlement_btn">
+    </section>
+</div>	
+</form>	
+<input type="hidden" ID="PointRate_Hid" value="@SiteConfig.ShopConfig.PointRate.ToString("F2")" />     
+}
+
+@section script{
+<script src="/JS/Modal/APIResult.js"></script>
+@*<script src="/JS/Mobile/vconsole.min.js"></script>*@
+@if (IsWechat)
+{
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+    <script>
+        try {
+            if (wx) {
+                wx.config({@Call.MVCLabel("{ZL:WXJSSign(1,)/}"),jsApiList:['checkJsApi','onMenuShareTimeline','onMenuShareAppMessage','openAddress','chooseWXPay']});}
+        }catch (ex) { console.log("wechat",ex.message); }
+        //-----------------------------
+        var allow_wx_address=true;
+        function wx_openAddress(){
+            var e = event || window.event;
+            if (e && e.stopPropagation) { e.stopPropagation(); }
+            else { e.cancelBubble = true; }
+            if(allow_wx_address==false){return;}
+            wx.openAddress({
+                success: function (res) {
+                    $("#wxad_name").val(res.userName);
+                    $("#wxad_mobile").val(res.telNumber);
+                    $("#wxad_city").val(res.provinceName+" "+res.cityName+" "+res.countryName);
+                    $("#wxad_address").val(res.detailInfo);
+                    IsDisBtn();
+                },
+                cancel:function(res){console.log("cancel");},
+                fail:function(res){
+                    alert("加载微信地址数据失败");
+                    allow_wx_address=false;//避免单击卡死
+                    ;}
+            })
+
+            return false;
+
+        };
+    </script>
+}
+
+
+<script>
+    $(function () {
+        //付款方式
+        $(".methodul li").click(function () {
+            $(this).siblings().removeClass("active");
+            $(this).addClass("active");
+            $(this).find(":radio")[0].checked = true;
+        })
+        $(".methodul li:first").click();
+        //运费
+        $(".fare_select").change(function () {
+            UpdateTotalPrice();
+        });
+        arrive.init();
+        exp.init();
+        UpdateTotalPrice();
+        ZL_Regex.B_Num(".num");
+        IsDisBtn();
+    })
+    var diag = new ZL_Dialog();
+    diag.width = "minwidth";
+    diag.maxbtn = false;
+    function AddAddress() {
+        diag.title = "添加新地址";
+        diag.url = "/User/Info/AddUserAddress";
+        diag.ShowModal();
+    }
+    function EditAddress(id) {
+        diag.title = "修改地址";
+        diag.url = "/User/Info/AddUserAddress?id=" + id;
+        diag.ShowModal();
+    }
+    function DelAddress(myid) {
+        if (confirm("确定要删除吗")) {
+            $("#addli_" + myid).remove();
+            exp.addressDefChk();
+            $.post("ordercom.ashx", { action: "deladdress", id: myid }, function () {});
+        }
+    }
+    //价格统计
+    function UpdateTotalPrice() {
+        var total = parseFloat($("#totalmoney_span1").text());
+        var arrive = parseFloat($("#arrive_money_sp").text());
+        var point = parseFloat($("#point_money_sp").text());
+        var fare = 0;
+        //根据所选,计算运费
+        $(".fare_select").each(function () {
+            fare += parseFloat($(this).find("option:selected").data("price"));
+        });
+        total = (total + arrive + fare - point);
+        total = total > 0 ? total : 0;
+        $("#fare_span").text(fare.toFixed(2));
+        $("#totalmoney_span2").text(total.toFixed(2));
+        $("#totalmoney_i").text(total.toFixed(2));
+        $("#totalPurse_sp").text(GetSumByFilter(".purse_sp"));
+        $("#totalSicon_sp").text(GetSumByFilter(".sicon_sp"));
+        $("#totalPoint_sp").text(GetSumByFilter(".point_sp"));
+    }
+    //计算可用积分抵扣
+    function SumByPoint(usepoint) {
+        var point = parseFloat($("#Point_L").text());
+        if (usepoint > point) { usepoint = point; };
+        $("#usepoint_span").text(usepoint);
+        $("#Point_T").change(function () {
+            var point = Convert.ToDouble(this.value);
+            if (point > usepoint) { point = usepoint; }
+            this.value = point;
+        });
+    }
+    function GetSumByFilter(filter) {
+        var total = 0.00;
+        $(filter).each(function () {
+            var price = parseFloat($(this).text());
+            if (price) total += price;
+        });
+        return total.toFixed(2);
+    }
+    //是否禁用按钮
+    function IsDisBtn() {
+        var flag = false;
+        if ($("input[name='ars_chk']:checked").length>0) { }
+        else if ($("#Address_Div").length > 0 && $(".addresssul li").length < 1) {
+            console.log("未选定地址"); flag = true;
+        }
+        if ($(".stockout").length > 0) { console.log("有缺货数据"); flag = true; }
+        if (flag) { disBtn(document.getElementById("AddOrder_Btn")); }
+        else { console.log("检测通过"); disBtn(document.getElementById("AddOrder_Btn"),100); }
+    }
+    //提交前检测
+    function subCheck() {
+        $rad = $("input[name='ars_chk']:checked");
+        if ($rad.length > 0) {
+            switch ($rad.val()) {
+                case "self":
+                    {
+                        if (ZL_Regex.isEmpty($("#arsInfo_name").val())) { alert("联系人不能为空"); return false; }
+                        if (!ZL_Regex.isMobilePhone($("#arsInfo_mobile").val())) { alert("手机号码格式错误"); return false; }
+                    }
+                    break;
+                case "wechat":
+                    {
+                        if (ZL_Regex.isEmpty($("#wxad_name").val())) { alert("联系人不能为空"); return false; }
+                        if (!ZL_Regex.isMobilePhone($("#wxad_mobile").val())) { alert("手机号码格式错误"); return false; }
+                        if (ZL_Regex.isEmpty($("#wxad_address").val())) { alert("详细地址不能为空"); return false; }
+                    }
+                    break;
+            }
+        }
+        disBtn(document.getElementById("AddOrder_Btn"), 5000);
+        return true;
+    }
+    function checkMyPoint(obj) {
+        if (isNaN(parseFloat($(obj).val()))) { $(obj).val("0"); }
+        var val = parseFloat($(obj).val());
+        var usepoint = parseFloat($("#usepoint_span").text());//可用积分
+        if (usepoint <= val) { val = usepoint; };
+        var pointrate = parseFloat($("#PointRate_Hid").val());
+        $("#point_money_sp").text((val * pointrate).toFixed(2));
+        UpdateTotalPrice();
+    }
+    function closeDiag() { diag.CloseModal(); CloseComDiag(); }
+    //--------------
+    var exp = {};
+    exp.init = function () {
+        $("#addressul").load("/cart/Order_Address", {}, function () {
+            exp.addressDefChk();          
+        });
+        $(".arsItem").click(function () {
+            if ($(this).hasClass("checked")) { return; }
+            //------------------
+            $(".addresssul li").removeClass("active");
+            $(".addresssul li input:radio").each(function () { this.checked = false; });
+            $(".arsItem").removeClass("checked");
+            $(".arsInfo_wrap").hide();
+            $(this).addClass("checked");
+            $(this).parent(".bordered").find(".arsInfo_wrap").show();
+        });
+    }
+    //选中第一个地址,添加或删除后
+    exp.addressDefChk = function () {
+        if ($(".addresssul li").length > 0) {
+            $(".addresssul li").click(function () {
+                $(this).siblings().removeClass("active");
+                $(this).addClass("active");
+                $(this).find("input:radio")[0].checked = true;
+                //隐藏用户自提
+                $(".arsItem").removeClass("checked");
+//                $(".arsInfo_wrap").hide();
+                $("input[name='ars_chk']").each(function () {
+                    this.checked = false;
+                });
+            });
+            $(".addresssul li:first").click(); $(":radio[name=address_rad]")[0].checked = true;
+        }
+        IsDisBtn();
+    }
+    //快递添加修改后回调
+    exp.addressBack = function () {
+        diag.CloseModal(); $("#addressul").load("/cart/Order_Address", {}, function () {
+            exp.addressDefChk();
+        });
+    }
+    exp.showExpTime = function () {
+        diag.title = "配送时间";
+        diag.url = "/cart/comp/exptime.aspx";
+        diag.ShowModal();
+    }
+    exp.expTimeBack = function (json) {
+        $("#exptime_sp").text(json.txt);
+        $("#exptime_hid").val(json.txt);
+        //$("#exptime_hid").data("json", JSON.stringify(json));
+    }
+    //--------------
+    var arrive = {};
+    arrive.init = function () {
+        $("#arrive_active_ul .item").click(function () {
+            var $this = $(this);
+            if ($this.hasClass("choose")) {//取消使用
+                $this.removeClass("choose");
+                arrive.use("");
+            }
+            else {
+                $(".arrive_o .item").removeClass("choose");
+                $this.addClass("choose");
+                arrive.use($this.data("flow"));
+            }
+        });
+    }
+    arrive.use = function (flow) {
+        var model = { action: "arrive", "flow": flow, money: $("#totalmoney_span1").text(), ids: "@Request["ids"]" };
+        if (flow == "") {
+            $("#arrive_money_sp").text("-0.00"); $("#Arrive_Hid").val(flow); UpdateTotalPrice(); return;
+        }
+        $.post("ordercom.ashx", model, function (data) {
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) {
+                $("#arrive_money_sp").text("-" + parseFloat(model.result.amount).toFixed(2));
+            }
+            else { $("#arrive_money_sp").text("-0.00"); alert(model.retmsg); }
+            $("#Arrive_Hid").val(flow);
+            UpdateTotalPrice();
+        });
+    }
+	
+	//处理商品图片大小
+    var cart_Ting = $(".preimg_m");
+    for(var iseq = 0;iseq<=cart_Ting.length;iseq++){
+        //	console.log(cart_Ting.eq(iseq).height());
+        if(cart_Ting.eq(iseq).height()>150){
+            cart_Ting.eq(iseq).css({"width":"128px","height":"128px"})
+        }
+    }
+	
+	function showlistbox(obj){
+	    $(obj).slideToggle();
+	    console.log("123123");
+	}
+	//提交订单
+	$("#pubsdd").click(function(){
+	    $('#AddOrder_Btn').click();
+	})
+	//搜索
+	function skey()
+	{
+	    var key = $("#skey_t").val();
+	    window.open("/Search/SearchList?node=0&keyword="+key);
+	}
+</script>
+}

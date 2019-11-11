@@ -1,0 +1,31 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+<title>酒店订单管理</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="shop"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+    <li class="breadcrumb-item active">酒店订单管理</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+    @Html.Partial("OrderTop")
+</div>
+<div class="container margin_t10">
+    @Html.Partial("HotelOrder_List",Model)
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>	
+}
+@section script{
+
+}

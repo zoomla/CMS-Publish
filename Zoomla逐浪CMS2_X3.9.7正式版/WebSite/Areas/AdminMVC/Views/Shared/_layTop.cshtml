@@ -1,0 +1,47 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link href="/App_Themes/V4style.css?version=@(ZoomLa.BLL.BLLCommon.Version_JS)" rel="stylesheet" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+<script src="/JS/ICMS/alt.js?v=@(ZoomLa.BLL.BLLCommon.Version_JS)"></script>
+<script src="/JS/Plugs/transtool.js?version=@(ZoomLa.BLL.BLLCommon.Version_JS)"></script>
+<style type="text/css">
+    .img100,.img_100{max-width:100px;text-align:center;}
+    .img50,.img_50{max-width:50px;text-align:center;}
+    .mb_img{max-width:100px;text-align:center;}
+</style>
+@RenderSection("head")
+</head>
+<body>
+@*<div class="container-fluid mysite" runat="server" id="BreadDiv">
+    <div class="row">
+	<ol class="breadcrumb navbar-fixed-top" runat="server" id="BreadNav">
+	    <asp:Literal runat="server" ID="navLabel"></asp:Literal></ol>
+    </div>
+</div>*@
+<div class="container-fluid">
+    <div class="row">
+        @RenderSection("content")
+    </div>
+</div>
+<script>
+//$(function () {
+//    var filter = "input[type=text][id]:visible:not(.nofocus):first";
+//    if ($(filter).length > 0) {
+//        $(filter).focus();
+//    }
+//})
+var siteconf = {
+    path: "@CustomerPageAction.customPath2",
+    updir: "@ZoomLa.Components.SiteConfig.SiteOption.UploadDir.ToLower()"
+};
+</script>
+<style type="text/css">
+.btn.btn-default{border:1px solid #ddd;}
+</style>
+@RenderSection("script")
+</body>
+</html>

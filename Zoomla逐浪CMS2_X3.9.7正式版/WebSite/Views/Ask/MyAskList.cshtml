@@ -1,0 +1,52 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+}
+@section head{
+    <title>问题列表-@(Call.SiteName)问答</title>
+    <style>#AllID_Chk{display:none;}</style>
+}
+@section content{
+<nav  class="container baike_miannav" aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb mybreadcrumb">
+<li class="breadcrumb-item">您的位置：<a href="/">网站首页</a></li>
+<li class="breadcrumb-item"><a href="/Ask">问答中心</a></li>
+<li class="breadcrumb-item active" aria-current="page">我的问题列表</li>
+</ol>
+</nav>
+
+<div class="container  mytow-nav">
+    <ul class="list-inline" style="margin-bottom:0;">
+        <li class="on"><a title="问答首页" href="#" class="btn btn-info">问答首页</a> </li>
+        <li><a title="问答之星" href="Star" class="btn btn-info">问答之星</a></li>
+        <li><a title="分类大全" href="Classification" class="btn btn-info">分类大全</a></li>
+        <li><a href="List.aspx?QueType=@Server.HtmlEncode(Request["QueType"])" class="btn btn-info">待完善问题</a></li>
+    </ul>
+</div>
+
+<div class="container mt-3">
+    <div class="asklist">
+        @Html.Partial("List_List",Model)
+    </div>
+</div>
+
+}
+@section script{
+<script type="text/javascript">
+    $(function () {
+        $("#top_nav_ul li[title='我的提问']").addClass("active");
+    })
+    function show() {
+        var div = document.getElementById("show");
+        if (div.style.display == "none") {
+            div.style.display = "block";
+        }
+    }
+    function show() {
+        var div = document.getElementById("show");
+        if (div.style.display == "none") {
+            div.style.display = "block";
+        }
+    }
+</script> 
+}

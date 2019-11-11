@@ -1,0 +1,324 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Shop
+@model ZoomLaCMS.Models.Cart.VM_Cart
+@{
+    Layout = "_layout.cshtml";
+
+}
+@section head{<title>购物车_@(Call.SiteName)</title> }
+@section content{
+<div class="progress carpro">
+<div class="progress-bar w-25" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><h1>加入购物车</h1></div>
+</div>
+<section class="container cartbody">
+<form id="cartForm" method="post" action="@MVCHelper.GetAction("Cart_Submit",Request)">
+    <table id="EGV" class="table-hover table-sm" style="width:100%;">
+    <tr class="shop_tabtr">
+	    <th></th>
+	    <th style="width: 12%">商品</th>
+
+        <th></th>
+
+        <th id="ptype_td">单价</th>
+	    <th>数量</th>
+	    <th class="move_d_none">状态</th>
+	    <th class="move_d_none">小计</th>
+	    <th>操作</th>
+    </tr>
+    @foreach (DataRow store in Model.StoreDT.Rows)
+    {
+        DataTable proDT = Model.GetCartDTByStore(Convert.ToInt32(store["ID"]));
+        if (proDT.Rows.Count < 1) { continue; }
+
+        <tbody class="cart_body">
+            <tr>
+                <td colspan="8" class="storename">
+                    <label>
+                        <input type="checkbox" class="store_chk" name="store_chk" checked="checked" value="@store["ID"]" />
+                        <i class="zi zi_home" title="店铺"></i> @store["StoreName"]
+                    </label>
+                </td>
+            </tr>
+            @foreach (DataRow item in proDT.Rows)
+            {
+                Model.dr = item;
+                if (DataConverter.CLng(item["ProClass"]) == 2)
+                {
+                    @Html.Partial("Cart_ItemSuit")
+                }
+                else
+                {
+                   @Html.Partial("Cart_Item")
+                }
+            }
+        </tbody>
+    }
+            <tr>
+                <td colspan="8">
+                    <input type="button" value="批量删除" class="btn btn-danger pl_remove" style="color:#fff;" onclick="cart.batdel();" />
+
+                    <span class="Settlement_tex Settlement_texPc">
+                        <span>数量：<span class="trprice pronum_span"></span>
+                        总价:<span class="totalmoney">@Model.TotalPrice.ToString("F2")</span>(不含邮费)</span>
+                    </span>
+                    <div class="pull-right">
+                        <input type="button" value="去结算" class="btn btn-info ml-2 NextStep_btn" onclick="GetNextStep();" />
+                        @*<asp:Button ID="RealNext_Btn" OnClick="NextStep_Click" class="d_none" />*@
+                    </div>
+                </td>
+            </tr>
+    </table>
+</form>
+</section>
+<div id="remind_max" class="d_none p-4">
+<div>
+<span class="zi zi_exclamationTriangle zi_2x"></span>
+<span class="ml-2">商品数量不能大于200</span>
+</div>
+</div>
+
+<section class="fixed-bottom fixed_Set">
+    <label><input type="checkbox" checked="checked" class="shaopqx" id="AllID_Chk" /></label>
+    <span class="Settlement_tex">
+        <span>
+            数量：<span class="trprice pronum_span" id="pronum_span"></span>
+            总价：<span id="totalmoney" class="totalmoney">@Model.TotalPrice.ToString("F2")</span>
+        </span>
+    </span>
+    <input type="button" id="NextStep" value="去结算" class="Settlement_btn" onclick="GetNextStep();" disabled="">
+</section>
+
+}
+@section script{
+<script src="/JS/Controls/B_User.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/Control.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<style type="text/css">
+    .form-control,.input-group-text{height:30px;}
+</style>
+<script>
+    $(function () {
+            var $chks = $("input[type='checkbox']");
+        $chks.on('ifChanged', function (event) {
+                var $this = $(this);
+                if (this.id == "AllID_Chk" || this.id == "chkAll") {
+                    if (this.checked) { $chks.iCheck("check"); }
+                else { $chks.iCheck("uncheck"); }
+                        }
+                    else if ($this.hasClass("store_chk")) {
+                $("#EGV input[name=prochk]").each(function () {
+                            if ($(this).data("store") != $this.attr("value")) { return; }
+                    $(this).iCheck(($this[0].checked ? "check" : "uncheck"));
+                        });
+                    }
+                    UpdateItemNum();
+                    UpdateTotalPrice();
+                }).iCheck({ checkboxClass: 'icheckbox_square-blue', increaseArea: '20%' });
+            })
+    //全选本店商品
+    //function ChkByStore(obj) {
+    //    $("#EGV input[name=prochk]").each(function () {
+    //        //[data-store=" + obj.value + "]
+    //        var $chk = $(this);
+    //        if ($chk.data("store") != obj.value) { return; }
+    //        $chk.iCheck((obj.checked ? "check" : "uncheck"));
+    //    });
+    //    UpdateItemNum();
+    //    UpdateTotalPrice();
+    //}
+    ////--商品数量相关
+    //function ChkAll(obj) {
+    //    //$("#EGV [type='checkbox']").each(function () { this.checked = obj.checked; });
+    //    //UpdateItemNum();
+    //    //UpdateTotalPrice();
+    //}
+
+    var buser = new B_User();
+            var diag = new ZL_Dialog();
+            var cart = { api: "/cart/OrderCom.ashx?action=", suit: {}, price: {} };
+        cart.del = function (id) {
+            if (!confirm("确定要删除吗")) { return false; }
+        $.post(cart.api + "cart_del", { "ids": id }, function (data) {
+                APIResult.ifok(data, function () { location = location; }, function () { console.log("failed", data); });
+            })
+    }
+        cart.batdel = function () {
+            var ids = "";
+            var $chks = $("input[name='prochk']:checked");
+            if ($chks.length < 1) { alert("未选定需要删除的商品"); }
+        $chks.each(function () { ids += this.value + ","; });
+            ids = ids.substr(0, ids.length - 1);
+            cart.del(ids);
+        }
+        cart.setnum = function (id, num) {
+            num = cart.getnum(id, num);
+        $.post(cart.api + "cart_setnum", { "id": id, pronum: num }, function (data) {
+                APIResult.ifok(data, function () { }, function () { console.log("setnum failed:", data); })
+        });
+            cart.updatePrice(id);
+        }
+        cart.updatePrice = function (id) {
+            var pronum = $("#pronum_" + id).val();
+            var price = $("#price_" + id).text();
+            var obj = $("#trprice_" + id);
+            obj.text((price * pronum).toFixed(2));
+            UpdateTotalPrice();
+        }
+        //套装商品修改数量
+        cart.suit.setnum = function (id, num) {
+            num = cart.getnum(id, num);
+        //$("#suit_wrap_" + id).find(".suit_item_pronum").text(num);
+        $.post(cart.api + "cart_setnum", { "id": id, pronum: num }, function (data) {
+                APIResult.ifok(data, function () { }, function () { console.log("setnum failed:", data); })
+        });
+            cart.updatePrice(id);
+            cart.suit.updateNumAndPrice(id,num);
+        }
+        //更新套装商品价格,仅显示,不参与逻辑
+        cart.suit.updateNumAndPrice = function (id,num) {
+            var $items = $("#suit_wrap_" + id).find(".suit_item");
+        //直接根据零售价和数量算出总价
+        $items.each(function () {
+                var $this = $(this);
+                var price = Convert.ToDouble($this.find(".suit_item_price").text());
+                var suitnum = Convert.ToInt($this.find(".suit_item_num").text());
+            $this.find(".suit_item_pronum").text(num * suitnum);
+            $this.find(".suit_item_total").text((price * num).toFixed(2))
+        });
+        }
+        //解绑套装,并删除对应商品,解绑定作为普通商品存在
+        cart.suit.unbind = function (suitid, proid) {
+
+        }
+        //-----------------公用方法
+        cart.getnum = function (id, num) {
+            var $text = $("#pronum_" + id);
+            var v = Convert.ToInt($text.val(), 1);
+            switch (num) {
+                case "+":
+                    if (v > 1) { --v; }
+                $text.val(v);
+                    break;
+                case "-":
+                $text.val(++v);
+                    break;
+                default:
+                $text.val(Convert.ToInt(num, 1));
+                    break;
+            }
+            return parseInt($text.val());
+        }
+    //-------------------------------------------
+    $(function () {
+            ZL_Regex.B_Num(".pronum_text");
+            ZL_Regex.B_Value(".pronum_text", {
+                min: 1, max: 200, overmin: function () { }, overmax: function () {
+                    ShowRemind();
+                }
+            });
+        $("input[name=prochk]").click(function () {
+                UpdateTotalPrice();
+                UpdateItemNum();
+            });
+            //$(".store_chk").click(function () {
+            //    ChkByStore(this);
+            //    UpdateItemNum();
+            //    UpdateTotalPrice();
+            //});
+            UpdateItemNum();
+            UpdateTotalPrice();
+            Control.EnableEnter();
+            buser.IsLogged(function () { });
+        })
+    //------AJAX
+    function GetNextStep() {
+            disBtn($("#NextStep")[0], 2000);
+            buser.IsLogged(function (data, flag) {
+                if (flag) {
+                    $("#cartForm").submit();
+                    //$("#RealNext_Btn").click();
+                }
+                else {
+                    diag.width = "minwidth";
+                    diag.title = "用户登录";
+                    diag.url = "/com/login_Ajax";
+                    diag.maxbtn = false;
+                    diag.backdrop = true;
+                    diag.ShowModal();
+                }
+            });
+        }
+        function LoginSuccess() {
+            diag.CloseModal();
+        $("#RealNext_Btn").click();
+        }
+        function AutoHeight() { diag.AutoHeight(); }
+        //------Page
+        function skey()
+    {
+            var key = $("#skey_t").val();
+            window.open("/Search/SearchList?node=0&keyword="+key);
+        }
+        //更新数量,确定是否禁用按钮
+        function UpdateItemNum() {
+            var num = $("[name=prochk]:checked").length;
+        $("#pronum_span").text(num);
+        $(".pronum_span").text(num);
+            document.getElementById("NextStep").disabled = (num < 1) ? "disabled" : "";
+        }
+        //更新总金额
+        function UpdateTotalPrice() {
+            var $chkarr = $("[name=prochk]:checked");
+            var money = 0.00, purse = 0.00, sicon = 0.00, point = 0.00;
+            for (var i = 0; i < $chkarr.length; i++) {
+                var id = $chkarr[i].value;
+                var num = $("#pronum_" + id).val();
+                var pursePrice = parseFloat($("#price_purse_" + id).text());
+                var siconPrice = parseFloat($("#price_sicon_" + id).text());
+                var pointPrice = parseFloat($("#price_point_" + id).text());
+                if (pursePrice)
+                    purse += pursePrice * num;
+                if (siconPrice)
+                    sicon += siconPrice * num;
+                if (pointPrice)
+                    point += pointPrice * num;
+                money += parseFloat($("#trprice_" + id).text());
+            }
+        $("#totalmoney").text(money.toFixed(2));
+        $(".totalmoney").text(money.toFixed(2));
+        $("#totalPurse_sp").text(purse.toFixed(2));
+        $("#totalSicon_sp").text(sicon.toFixed(2));
+        $("#totalPoint_sp").text(point.toFixed(2));
+        }
+        //---------------------------数量提示窗
+        var reminddiv;
+    $(function () {
+            reminddiv = $("#remind_max");
+            reminddiv.remove();
+            reminddiv.show();
+        })
+    function ShowRemind() {
+            var diag = new ZL_Dialog();
+            diag.width = "minwidth";
+            diag.maxbtn = false;
+            diag.backdrop = false;
+            diag.title = "提示";
+            diag.body = reminddiv[0].outerHTML;
+            diag.ShowModal();
+        }
+        //处理商品图片大小
+        var cart_Ting = $(".cart_Ting");
+    for (var iseq = 0; iseq <= cart_Ting.length; iseq++) {
+            if (cart_Ting.eq(iseq).height() > 150) {
+                cart_Ting.eq(iseq).css({ "width": "128px", "height": "128px" })
+        }
+        }
+	
+
+	
+</script>
+}

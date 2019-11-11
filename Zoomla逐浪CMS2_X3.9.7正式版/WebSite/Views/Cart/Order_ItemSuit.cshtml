@@ -1,0 +1,51 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@model ZoomLaCMS.Models.Cart.VM_CartOrder
+@{
+    B_Product proBll = new B_Product();
+    DataRow dr = Model.dr;
+    DataTable proDT = null;
+    try
+    {
+        proBll.Suit_GetProduct(DataConverter.CStr(dr["procontent"]), DataConverter.CLng(dr["Pronum"]));
+    }
+    catch { proDT = new DataTable(); }
+}
+<tr>
+    <td class="text-left">
+        <div>
+            <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品"><strong>【套装】</strong>@dr["ProName"]</a>
+        </div>
+    </td>
+    <td>
+        <i class="zi zi_yensign">@Convert.ToDouble(dr["AllMoney"]).ToString("F2")</i>
+    </td>
+    <td class="text-danger">@Model.GetDisCount(dr)</td>
+    <td>x @dr["Pronum"]</td>
+    <td>@Model.GetStockStatus(dr)</td>
+</tr>
+@foreach (DataRow pro in proDT.Rows)
+{
+    <tr class="suit_item">
+        <td class="text-left pl-4">
+            <div class="pull-left">
+                <a href="@(Model.GetShopUrl(pro))" target="_blank" title="浏览商品">
+                    <img src="@(function.GetImgUrl(pro["Thumbnails"]))" onerror="shownopic(this);" class="preimg_m" />
+                </a>
+            </div>
+
+        </td>
+        <td>
+            <div class="tdtext shop_ddcon">
+                <a href="@Model.GetShopUrl(pro)" target="_blank" title="浏览商品"><span>@pro["ProName"]</span></a>
+            </div>
+        </td>
+        <td class="tdtext">
+            @* <i class="zi zi_yensign">@pro["AllMoney"]</i>*@
+        </td>
+        <td class="text-danger"></td>
+        <td class="r_gray tdtext">1件/套 x@(pro["Pronum"])</td>
+        <td class="tdtext cartStock move_d_none">@Model.GetStockStatus(pro)</td>
+    </tr>
+}

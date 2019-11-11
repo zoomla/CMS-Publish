@@ -1,0 +1,11 @@
+﻿@using ZoomLaCMS.Models.Ask
+@{ 
+    VM_AskInfo vmask = new VM_AskInfo();
+}
+<div class="alert alert-info" style="margin-bottom:5px;">
+    <span style="margin-right:5px;">最佳回答采纳率: @vmask.Adoption，</span> 
+    <span style="margin-right:5px;">已解决问题数: @vmask.SolvedCount，</span>  
+    <span style="margin-right:5px;">待解决问题数: @vmask.SolvingCount，</span> 
+    <span style="margin-right:5px;">当前在线: @(HttpContext.Current.Application["online"] ?? "0")，</span> 
+    <span style="margin-right:5px;">注册用户: @vmask.UserCount</span> 
+</div>

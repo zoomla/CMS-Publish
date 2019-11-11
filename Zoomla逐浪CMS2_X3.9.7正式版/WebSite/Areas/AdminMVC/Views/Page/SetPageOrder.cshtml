@@ -1,0 +1,89 @@
+﻿@model System.Data.DataTable
+@using System.Data
+@{
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@functions{
+    public string gettemptype(string type)
+    {
+        string restr = string.Empty;
+        switch (type)
+        {
+            case "1":
+                restr = "文本型栏目";
+                break;
+            case "2":
+                restr = "栏目型栏目";
+                break;
+            case "3":
+                restr = "Url转发型栏目";
+                break;
+            case "4":
+                restr = "功能型栏目";
+                break;
+            default:
+                restr = "未知栏目";
+                break;
+        }
+        return restr;
+    }
+}
+@section head{
+    <title>栏目排序</title>
+}
+@section content{
+    <div class="container-fluid mysite" id="BreadDiv">
+        <div class="row">
+            <ol id="BreadNav" class="breadcrumb fixed-top w-100">
+                <li class="breadcrumb-item">系统设置</li>
+                <li class="breadcrumb-item">栏目管理</li>
+            </ol>
+        </div>
+    </div>
+    <form id="moveform" method="post" class="w-100">
+	<div class="container-fluid pr-0">
+	<div class="row sysRow list_choice table-responsive-md">
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <td class=""><strong>ID</strong></td>
+                <td><strong>栏目名</strong></td>
+                <td><strong>节点类型</strong></td>
+                <td class=""><strong>手动排序</strong></td>
+                <td><strong>排序</strong></td>
+            </tr>
+            @foreach (DataRow dr in Model.Rows)
+            {
+                <tr>
+                    <td>@dr["TemplateID"]</td>
+                    <td>@dr["TemplateName"]</td>
+                    <td>@gettemptype(dr["templateType"].ToString())</td>
+                    <td>
+                        <input type="text" class="l_input" style="width:40px; text-align:center" name="OrderField@(dr["TemplateID"])" id="OrderField@(dr["TemplateID"])" value="@dr["OrderID"]" />
+                        <input type="hidden" name="PageValue" id="SpecIDValue" value="@dr["TemplateID"]" />
+                    </td>
+                    <td>
+                        <a href="javascript:;" onclick="UpMove(@dr["TemplateID"]);"><i class="zi zi_arrowUp"></i>上移</a>
+                        <a href="javascript:;" onclick="DownMove(@dr["TemplateID"]);"><i class="zi zi_arrowDown"></i>下移</a>
+                    </td>
+                </tr>
+            }
+        </table>
+		</div>
+		</div>
+		<div class="alert alert-light">
+        <button id="save_btn" type="button" onclick="BatchMove();" class="btn btn-outline-info">批量更新排序</button></div>
+    </form>
+}
+@section script{
+    <script>
+        function BatchMove() {
+            $("#moveform").attr("action", "@MVCHelper.GetAction("SetPageOrder_Batch",Request)").submit();
+        }
+        function UpMove(tid) {
+            $("#moveform").attr("action", "@MVCHelper.GetAction("SetPageOrder_UpMove", Request)&tempid=" + tid).submit();
+        }
+        function DownMove(tid) {
+            $("#moveform").attr("action", "@MVCHelper.GetAction("SetPageOrder_DownMove", Request)&tempid=" + tid).submit();
+        }
+    </script>
+}

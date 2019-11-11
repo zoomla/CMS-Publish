@@ -1,0 +1,46 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Model
+@using ZoomLa.SQLDAL
+@model ZoomLa.Model.M_Product
+@functions{
+    B_Shop_Material matBll = new B_Shop_Material();
+    //用于商品添加与维护页,通过AJAX引入
+    private DataTable Sel()
+    {
+        DataTable dt = DBCenter.SelWithField(matBll.TbName, "*,MatNum=0");
+        if (Model.ID > 0)
+        {
+            DataTable valueDT = DBCenter.Sel("ZL_Shop_ProMaterial","ProID="+Model.ID);
+            for (int i = 0; i < valueDT.Rows.Count; i++)
+            {
+                DataRow valueDR = valueDT.Rows[i];
+                DataRow[] drs = dt.Select("ID='" + valueDR["MatID"] + "'");
+                if (drs.Length > 0) { drs[0]["MatNum"] = valueDR["MatNum"]; }
+            }
+        }
+        return dt;
+    }
+}
+@{ 
+    DataTable matDT = Sel();
+}
+<table class="table table-bordered table-striped">
+<tr>
+    <td>原料名</td>
+    <td class="td_m">单位</td>
+    <td>数量</td>
+</tr>
+@foreach (DataRow dr in matDT.Rows)
+{
+    <tr>
+        <td>@dr["Name"]</td>
+        <td>@dr["Unit"]</td>
+        <td>
+            <input type="text" class="form-control text_300" value="@dr["Matnum"]" name="mat_@dr["ID"]_num"/>
+        </td>
+    </tr>
+}
+</table>
+
+

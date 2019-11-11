@@ -1,0 +1,62 @@
+<ion-view>
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">添加地址</div>
+</ion-header-bar>
+<ion-content style="background:#f0f2f5;">
+
+<div class="addrecei_form">
+<input type="hidden" id="p_hid" />
+<div class="list">
+<label class="item item-input">
+<span class="input-label">收件人</span>
+<input type="text" placeholder="请输入收件人姓名" id="ReceivName" ng-model="receiv.ReceivName" required />
+</label>
+<label class="item item-input item-select">
+<div class="input-label">省</div>
+<select name="province" id="province" ng-model="receiv.province" required></select>
+</label>
+<label class="item item-input item-select">
+<div class="input-label">市</div>
+<select name="city" id="city" ng-model="receiv.city" required ></select>
+</label>
+<label class="item item-input item-select">
+<div class="input-label">县/区</div>
+<select name="county" id="county" ng-model="receiv.county" required ></select>
+</label>
+<label class="item item-input">
+<span class="input-label">详细地址</span>
+<input type="text" placeholder="请输入详细地址信息" name="Street" id="Street" ng-model="receiv.Street" required  />
+</label>
+<label class="item item-input">
+<span class="input-label">邮政编码</span>
+<input type="text" placeholder="请输入邮政编码" name="Zipcode" id="Zipcode" ng-model="receiv.Zipcode" ng-minlength="6" ng-maxlength="6" required  />
+</label>
+<label class="item item-input">
+<span class="input-label">手机号码</span>
+<input type="tel" placeholder="请输入手机号码" name="MobileNum" id="MobileNum" ng-model="receiv.MobileNum" />
+</label>
+<label class="item item-input">
+<span class="input-label">电话号码</span>
+<input type="text" placeholder="区号-号码" name="phone" id="phone" ng-model="receiv.phone" />
+</label>
+<label class="item item-input">
+<span class="input-label">电子邮箱</span>
+<input type="email" placeholder="请输入电子邮箱" name="Email" id="Email" ng-model="receiv.Email" />
+</label>
+</div>
+
+<div class="addrecei_form_b">
+<button type="button" class="btn btn-danger btn-block" ng-click="Addreceiv()">添加地址</button>
+</div>
+</div>
+
+<script src="/js/ICMS/area.js"></script>
+<script src="/js/Controls/ZL_PCC.js"></script>
+<script src="/js/ZL_Regex.js"></script>
+<script>
+var pcc = new ZL_PCC("province", "city", "county");
+pcc.ProvinceInit();
+</script>
+</ion-content>
+</ion-view>

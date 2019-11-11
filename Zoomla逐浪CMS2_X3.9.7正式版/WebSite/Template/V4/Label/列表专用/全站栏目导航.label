@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>53</LabelID>
+    <LabelName>全站栏目导航</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>列表专用</LabelCate>
+    <LabelDesc />
+    <LabelParam>ShowNum,30,1,调用数</LabelParam>
+    <LabelTable>ZL_Node</LabelTable>
+    <LabelField>NodeID,NodeName,Description</LabelField>
+    <LabelWhere>Depth=1 And ZL_Node.ZStatus=99</LabelWhere>
+    <LabelOrder>orderid asc</LabelOrder>
+    <LabelContent>{Repeate}
+&lt;div class="dao_show"&gt;&lt;p&gt;&lt;a href="{ZL:GetNodeUrl({Field="NodeID"/})/}" target="_blank"&gt;&lt;img src="/skin/caa/images/view.jpg" /&gt;&lt;/a&gt;&lt;strong&gt;{Field="NodeName"/}&lt;/strong&gt;{Field="Description"/}&lt;/p&gt;
+&lt;ul&gt;
+{ZL.Label id="二级栏目导航" Parentid="{Field="NodeID"/}" ShowNum="30" /}
+&lt;/ul&gt;
+&lt;/div&gt;
+{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Node","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

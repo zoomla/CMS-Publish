@@ -1,0 +1,28 @@
+<ion-view>
+<ion-header-bar class="bar-assertive bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">商品检索</div>
+</ion-header-bar>
+<ion-content>
+<div class="bar bar-header item-input-inset">
+<label class="item-input-wrapper"><i class="icon ion-ios-search placeholder-icon"></i><input type="search" placeholder="Search" ng-model="searchkey" id="searchkey" ng-change="searchfun()" /></label>
+<button class="button button-clear" ng-click="searchfun()">搜索</button>
+</div>
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="pro_list">
+<ul>
+<li ng-repeat="item in prolist">
+<a href="#/product/detail/{{item.id}}">
+<div class="pro_list_c">
+<img ng-src="/UploadFiles/{{item.thumbnails}}" alt="{{item.proname}}" />
+<h3>{{item.proname}}</h3>
+<p class="pro_list_cp">{{item.proinfo}}</p>
+<p><strong>{{item.linprice | currency:'￥'}}</strong><span>{{item.shiprice | currency:'￥'}}</span></p>
+</div>
+</a>
+</li>
+</ul>
+</div>
+<ion-infinite-scroll ng-if="pullup.canbeload" on-infinite="pullup.load();" distance="1%"></ion-infinite-scroll>
+</ion-content>
+</ion-view>

@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>310</LabelID>
+    <LabelName>商城店铺列表_不分页</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>店铺</LabelCate>
+    <LabelDesc />
+    <LabelParam>ShowNum,2,1,显示数|TitleNum,50,1,标题长</LabelParam>
+    <LabelTable>ZL_CommonModel LEFT JOIN ZL_Store_reg ON ZL_CommonModel.ItemID=ZL_Store_reg.ID</LabelTable>
+    <LabelField>ZL_CommonModel.GeneralID,ZL_CommonModel.Title,ZL_Store_reg.logo,ZL_Store_reg.StoreName</LabelField>
+    <LabelWhere>Status=99 And ModelID=24</LabelWhere>
+    <LabelOrder />
+    <LabelContent>{Repeate}
+&lt;div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"&gt;
+&lt;div class="shop_store"&gt;
+&lt;a href="/Store/StoreIndex?id={Field="GeneralID"/}" target="_blank" title="{Field="StoreName"/}"&gt;
+&lt;img src="{ZL:GetPicUrl({Field="logo"/})/}" alt="{Field="StoreName"/}" onerror="javascript:this.src='/Images/nopic.gif';" /&gt;
+&lt;h3&gt;{ZL:CutText({Field="Title"/},@TitleNum,)/}&lt;/h3&gt;
+&lt;/a&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_Store_reg"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

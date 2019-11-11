@@ -1,0 +1,73 @@
+<ion-view cache-view="false">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">{{pro.proname}}</div>
+</ion-header-bar>
+<ion-content>
+<ion-slide-box delegate-handle="image-viewer" on-slide-changed="slideHasChanged($index)" auto-play="false" ng-if="pics">
+<ion-slide ng-repeat="item in pics" repeat-done="repeatDone()">
+<div class="box"><img class="full-image" ng-src="/UploadFiles/{{item.url}}" alt="{{item.desc}}" /></div>
+</ion-slide>
+</ion-slide-box>
+<div class="pro_title">
+<h1>{{pro.proname}}</h1>
+<p><strong>{{pro.linprice | currency:'￥'}}</strong><span>{{pro.shiprice | currency:'￥'}}</span></p>
+</div>
+<div class="padding pro_cont" ng-bind-html="content"></div>
+<div class="pro_ping">
+<div class="pro_ping_t">商品评价<span class="pull-right">26233人评价</span></div>
+<div class="pro_ping_c">
+<ul>
+<li>
+<div class="pro_ping_ct">
+<img src="/Template/zoomlaWeb02/style/img/userface.jpg" alt="" />
+<span>admin的评价</span>
+<span class="pull-right">2015-10-25 12:57:21</span>
+</div>
+<div class="pro_ping_cc">
+<p class="margin_bottom0"><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i></p>
+<p>大小正好，外观满分，快递速度满分，非常愉快的一次购物。</p>
+<ul>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<div class="clearfix"></div>
+</ul>
+</div>
+</li>
+<li>
+<div class="pro_ping_ct">
+<img src="/Template/zoomlaWeb02/style/img/userface.jpg" alt="" />
+<span>admin的评价</span>
+<span class="pull-right">2015-10-25 12:57:21</span>
+</div>
+<div class="pro_ping_cc">
+<p class="margin_bottom0"><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i><i class="icon ion-android-star"></i></p>
+<p>大小正好，外观满分，快递速度满分，非常愉快的一次购物。</p>
+<ul>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<li><a href="#"><img src="/Template/zoomlaWeb02/style/img/shop_img1.jpg" alt="" /></a></li>
+<div class="clearfix"></div>
+</ul>
+</div>
+</li>
+<div class="clearfix"></div>
+</ul>
+</div>
+</div>
+<div class="h52"></div>
+</ion-content>
+<div class="pro_bottom">
+<div class="pro_bottom_l">
+<a ng-click="ChatFun();"><i class="icon ion-ios-person-outline"></i>供应商</a>
+<a ng-href="#/shop/detail/{{pro.usershopid}}"><i class="icon ion-ios-home-outline"></i>店铺</a>
+<a href="#"><i class="icon ion-ios-heart-outline"></i>关注</a>
+<a href="javascript:;" ng-click="ProLike()" class="{{proview.likeactive}}"><i class="icon {{proview.likeclass}}"></i>{{proview.liketext}}</a>
+<a ui-sref="product.cart" class="mobile_cart"><i class="icon ion-ios-cart-outline"></i><span>({{pronum}})</span></a>
+</div>
+<div class="pro_bottom_r"><a href="javascript:;" ng-click="AddToCart();">加入购物车</a></div>
+</div>
+</ion-view>

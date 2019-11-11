@@ -1,0 +1,15 @@
+﻿@using ZoomLa.Components
+@{ 
+    //使用默认配置
+    ZoomLa.AppCode.Controls.C_Verify Model = new ZoomLa.AppCode.Controls.C_Verify();
+    Model.VType = SiteConfig.SiteOption.VerifyType;
+}
+@switch (Model.VType)
+{
+    case 1:
+        @Html.Partial("Verify/TouClick", Model)
+        break;
+    default:
+        @Html.Partial("Verify/CMSCode", Model)
+        break;
+}

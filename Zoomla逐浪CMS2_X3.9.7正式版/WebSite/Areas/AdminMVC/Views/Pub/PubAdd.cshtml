@@ -1,0 +1,363 @@
+﻿@using System.Data
+@using ZoomLa.AppCode.Controls
+@model ZoomLa.Model.M_Pub
+@functions{
+    
+}
+@{ 
+    DataTable modelDT = ViewBag.modelDT;
+    string disbaled = Model.Pubid > 0 ? "disabled=\"disabled\"" : "";
+}
+@section head{
+    <link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <script src="/dist/js/bootstrap-switch.js"></script>
+    <script src="/JS/DatePicker/WdatePicker.js"></script>
+    <script src="/JS/chinese.js"></script>
+    <script src="/JS/SelectCheckBox.js"></script>
+    <title>@Resources.L.互动模块配置</title>
+	@MvcHtmlString.Create(Call.SetBread(new Bread[] {
+    new Bread("PubManage","互动模块"),
+    new Bread() {url=Request.RawUrl, text=@Resources.L.互动管理,addon="" }}
+    )) 
+    }
+@section content{
+ <div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive">
+        <form method="post" action="@MVCHelper.GetAction("PubAdd_Submit",Request)">
+            <table id="table" class="table table-bordered sys_table">
+            <tr>
+                <th class="w12rem_lg">
+                    <strong>@Resources.L.互动名称 <font class="text-danger">*</font></strong>
+                </th>
+                <td>
+                    @if (Model.Pubid > 0)
+                    {
+                        @Html.TextBox("PubName", Model.PubName, new { @class = "form-control max20rem required" })
+                    }
+                    else
+                    {
+                        <input type="text" onkeyup="Getpy('PubName', 'PubTableName', 'PubLoadstr', 'PubInputLoadStr')"
+                               name="PubName" ID="PubName" class="form-control max20rem required" />
+                    }
+           </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.模型表名 <span class="text-danger">*</span></strong>
+                </th>
+                <td>
+                    @if (Model.Pubid < 1)
+                    {
+                        <div class="input-group" style="width:500px;">
+                            <span class="input-group-prepend"><span class="input-group-text">ZL_Pub_</span></span>
+                            <input type="text" name="PubTableName" ID="PubTableName" class="form-control" value="@Model.PubTableName" />
+                            @Html.DropDownList("ModelList_DP", MVCHelper.ToSelectList(modelDT, "ModelName", "TableName", Model.PubTableName), new { @class = "form-control max20rem", onchange = "setmodelname(this)" })
+                        </div>
+                        <div id="modelname_span"></div>
+                        <script>
+                            var $modelTip = $("#modelname_span");
+                            var $modelText = $("#PubTableName");
+                            function modelCheck() {
+                                $modelTip.html("");
+                                var value = $modelText.val();
+                                $.post("Pub_API?action=modelname", { "value": value }, function (data) {
+                                    var model = APIResult.getModel(data);
+                                    if (APIResult.isok(model)) {
+                                        $modelTip.html("<span style='color:green;'>" + model.retmsg + "</span>");
+                                    }
+                                    else {
+                                        $modelTip.html("<span style='color:red;'>" + model.retmsg + "</span>");
+                                    }
+                                })
+                            }
+                            $("#PubName,#PubTableName").change(function () { modelCheck(); });
+                            function setmodelname(obj) {
+                                $modelText.val($(obj).find("option:checked").val().replace("@(ZoomLa.BLL.B_Pub.PREFIX)", ""));
+                                modelCheck();
+                            }
+                        </script>
+                    
+                    }
+                    else
+                    {
+                      <input type="text" class="form-control max20rem" disabled="disabled" value="@Model.PubTableName"/>
+                    }
+
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.信息类别</strong>
+                </th>
+                <td>
+                    @MVCHelper.H_Radios("PubClass","内容|首页|节点|商城|黄页|店铺|会员".Split('|'),"0|6|5|1|2|3|4".Split('|'), Model.PubClass.ToString())
+                </td>
+            </tr>
+            <tr id="PubTypes">
+                <th>
+                    <strong>@Resources.L.互动类型</strong>
+                    @*<div class="text-danger" style="font-weight:normal;">(不可修改)</div>*@
+                </th>
+                <td>
+                    @MVCHelper.H_Radios("PubType"
+               , "评论|投票|活动|留言|问券|表单".Split('|')
+               , "0|1|2|3|4|5|8".Split('|'), Model.PubType.ToString())
+                </td>
+            </tr>
+            <tr>
+                <th><strong>@Resources.L.前台权限</strong></th>
+                <td>
+                    <label>@MVCHelper.H_Check("PubPermissions", Model.PubPermissions.Contains("view"),new {value= "view" })@Resources.L.可查看</label>
+                    <label>@MVCHelper.H_Check("PubPermissions", Model.PubPermissions.Contains("edit"),new {value= "edit" })@Resources.L.可修改</label>
+                    <label>@MVCHelper.H_Check("PubPermissions", Model.PubPermissions.Contains("del"),new {value= "del" }) @Resources.L.可删除</label>
+                    <label>@MVCHelper.H_Check("PubPermissions", Model.PubPermissions.Contains("audit"),new {value= "audit" }) @Resources.L.可审核</label>
+                </td>
+            </tr>
+            <tr>
+                <th><strong>@Resources.L.提交完毕跳转地址</strong></th>
+                <td>
+                    <span>
+                        <input type="text" ID="PubGourl" name="PubGourl" class="form-control max20rem" value="@Model.PubGourl"/>
+                        <small class="text-muted">@Resources.L.为空则默认跳转</small>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.保留天数信息</strong>
+                </th>
+                <td>
+                    <div class="input-group max20rem">
+                        <input type="text" ID="Pubkeep" name="Pubkeep" class="form-control" value="@Model.Pubkeep" />
+                        <span class="input-group-append">
+                            <span class="input-group-text">天</span>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+            <tr id="PubTemplates">
+                <th>
+                    <strong>@Resources.L.互动模板地址</strong><br />
+                    <small class="text-muted">@Resources.L.互动模板地址_notice</small>
+                </th>
+                <td>
+                    @(MvcHtmlString.Create(PageCommon.GetTlpDP("PubTemplate")))
+                    <input type="hidden" name="PubTemplate_hid" ID="PubTemplate_hid" value="@Model.PubTemplate" />
+                </td>
+            </tr>
+            <tr id="PubLoadstrs">
+                <th>
+                    <strong>@Resources.L.自定义调用互动标签</strong>
+                </th>
+                <td>
+                    <div class="input-group mb-3 max20rem">
+                        <span class="input-group-prepend"><span class="input-group-text">{Pub.Load_</span></span>
+                        <input type="text" ID="PubLoadstr" name="PubLoadstr" value="@Model.PubLoadstr" class="form-control" @disbaled/>
+                        <span class="input-group-append"><span class="input-group-text">/}</span></span>
+                    </div>
+                    @*<asp:Label ID="Label4" runat="server" CssClass="rd_red"></asp:Label>*@
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.是否公开</strong>
+                </th>
+                <td>
+                    @MVCHelper.H_Check("RaPublic", Model.Public == 1, new { @class = "switchChk", value = "1" })
+                </td>
+            </tr>
+            <tr id="PubOpenComments">
+                <th>
+                    <strong>@Resources.L.是否开启前台管理</strong>
+                </th>
+                <td>
+                    @MVCHelper.H_Check("PubOpenComment", Model.PubOpenComment==1,new {@class= "switchChk",value="1" })
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.自定义信息提交模板</strong>
+                </th>
+                <td>
+                    @(MvcHtmlString.Create(PageCommon.GetTlpDP("PubInputTM")))
+                    <input type="hidden" name="PubInputTM_hid" ID="PubInputTM_hid" value="@Model.PubInputTM" />
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.调用信息提交标签</strong>
+                </th>
+                <td>
+                    <div class="input-group max20rem">
+                        <span class="input-group-prepend"><span class="input-group-text">{Pub.</span></span>
+                        <input type="text" ID="PubInputLoadStr" name="PubInputLoadStr" value="@Model.PubInputLoadStr" class="form-control" @disbaled/>
+                        <span class="input-group-append"><span class="input-group-text">/}</span></span>
+                    </div>
+                    <small class="text-muted">@Resources.L.调用信息提交标签_notice</small>
+                    @*<asp:Label ID="Label3" runat="server" class="rd_red"></asp:Label>*@
+                </td>
+            </tr>
+            <tr id="PubIsTrues">
+                <th>
+                    <strong>@Resources.L.是否需要审核</strong>
+                </th>
+                <td>
+                    @MVCHelper.H_Check("PubIsTrue",Model.PubIsTrue==1, new {@class= "switchChk",value="1" })
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.结束时间</strong>
+                </th>
+                <td>
+                    <input type="text" name="PubEndTime" ID="PubEndTime" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' });" class="form-control max20rem" />
+                    <small class="text-muted">@Resources.L.结束时间_notice</small>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.互动描述</strong>
+                </th>
+                <td>
+                    <textarea ID="Pubinfo" name="Pubinfo" class="form-control max20rem" rows="5">@Model.Pubinfo</textarea>
+                </td>
+            </tr>
+            <tr><td colspan="2" class="text-center" style="background-color:#ddd;"><strong>@Resources.L.投票限制</strong></td></tr>
+            <tr>
+                <th><strong>@Resources.L.身份校验</strong></th>
+                <td>
+
+                    <label>@MVCHelper.H_Check("verify_chk",Model.VerifyMode.Contains("ip"),new {value="ip" })IP @Resources.L.校验</label>
+                    <label>@MVCHelper.H_Check("verify_chk",Model.VerifyMode.Contains("cookie"),new {value="cookie" })Cookie @Resources.L.校验</label>
+                    <label>@MVCHelper.H_Check("verify_chk",Model.VerifyMode.Contains("user"),new {value="user" })@Resources.L.用户校验</label>
+                </td>
+            </tr>
+            <tr>
+                <th><strong>@Resources.L.用户可提交次数</strong></th>
+                <td>
+                    <input type="text" ID="PubIPOneOrMore" class="form-control max20rem" value="@Model.PubIPOneOrMore">
+                    <small>@Resources.L.用户可提交次数_notice</small>
+                </td>
+            </tr>
+            <tr>
+                <th><strong>@Resources.L.隔多久可重复提交</strong></th>
+                <td>
+                    <div class="input-group max20rem">
+                        <input type="text" class="form-control" ID="Interval_T" name="Interval_T" value="@Model.Interval" />
+                        <div class="input-group-append">
+                            <span class="input-group-text">@Resources.L.秒</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr id="DivPuberrmsg">
+                <th><strong>@Resources.L.达到提交次数提示</strong></th>
+                <td><input type="text" name="Puberrmsg" ID="Puberrmsg" class="form-control max20rem" value="@Resources.L.达到次数提示_notice" /></td>
+            </tr>
+            <tr>
+                <th>
+                    <strong>@Resources.L.是否需要验证码</strong>
+                </th>
+                <td>
+                    @MVCHelper.H_Check("PubCode",Model.PubCode==1,new { @class= "switchChk",value="1" })
+                    <small>@Resources.L.是否需要验证码_notice</small>
+                </td>
+            </tr>
+            <tr id="PubLogins">
+                <th>
+                    <strong>@Resources.L.是否需要登录</strong>
+                </th>
+                <td>
+                    @MVCHelper.H_Check("PubLogin", Model.PubLogin == 1,new { @class= "switchChk",value="1" })
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value=@Resources.L.提交 class="btn btn-info" />
+                    <a href="PubManage" class="btn btn-outline-info">@Resources.L.返回</a>
+                </td>
+            </tr>
+        </table>
+        </form>
+        
+        <div style="height:30px;"></div>
+    </div>
+</div>
+@Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex", ""))
+}
+@section script{
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script>
+        $().ready(function () {
+            Tlp_initTemp();
+            EventTypeChange();
+            initPubType($("#PubType input:checked").val());
+        });
+        function initPubType(value) {
+            switch (value) {
+                case "1":
+                    $("#PubShowTypes").show();
+                    break;
+                case "5":
+                    $("#PubOpenComments").hide();
+                    $("#PubOneOrMores").show();
+                    $("#PubIsTrues").show();
+                    $("#PubCodes").hide();
+                    $("#PubLogins").hide();
+                    break;
+                case "7":
+                    $("#starOPTr").show();
+                    break;
+                default:
+                    $("#PubShowTypes").hide();
+                    $("#PubOpenComments").show();
+                    $("#PubOneOrMores").show();
+                    $("#PubIsTrues").show();
+                    $("#PubCodes").show();
+                    $("#PubLogins").show();
+                    $("#starOPTr").hide();
+                    break;
+            }
+        }
+        //绑定互动类型选择事件
+        function EventTypeChange() {
+            $("#PubType input").change(function () {
+                var value = $(this).val();
+                initPubType(value);
+            });
+            $("#PubOneOrMore input").change(function () {
+                initPubOne($(this).val());
+            });
+        }
+        function check(obj) {
+            chkArr1 = $(obj).parent().find(":checkbox[name=CheckBox1]");
+            chkArr2 = $(obj).parent().find(":checkbox[name=CheckBox2]");
+            chkArr3 = $(obj).parent().find(":checkbox[name=CheckBox3]");
+            chkArr4 = $(obj).parent().find(":checkbox[name=CheckBox4]");
+            if (!chkArr2[0].checked && !chkArr3[0].checked && !chkArr4[0].checked) {
+                chkArr1[0].checked = false;
+            }
+            else {
+                chkArr1[0].checked = true;
+            }
+        }
+        function checkAll(obj) {
+            chkArr2 = $(obj).parent().find(":checkbox[name=CheckBox2]");
+            chkArr3 = $(obj).parent().find(":checkbox[name=CheckBox3]");
+            chkArr4 = $(obj).parent().find(":checkbox[name=CheckBox4]");
+            if (!obj.checked) {
+                chkArr2[0].checked = false;
+                chkArr3[0].checked = false;
+                chkArr4[0].checked = false;
+            }
+        }
+        function ShowDiag(url, title) {
+            ShowComDiag(url, title);
+        }
+        function CloseDialog() {
+            CloseComDiag();
+        }
+    </script> 
+    
+       }

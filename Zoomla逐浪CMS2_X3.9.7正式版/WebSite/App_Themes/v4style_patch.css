@@ -1,0 +1,6 @@
+/*这是补丁文件，通过@import引用，如果你看到文件为空说明已经被合并进v4style.scss主文件*/
+/*# sourceMappingURL=V4user_patch.css.map */
+.td_l{width:200px;}
+.pull-right{float:right;}
+.pull-left{float:left;}
+.img_50{max-width:50px;max-height:50px;}

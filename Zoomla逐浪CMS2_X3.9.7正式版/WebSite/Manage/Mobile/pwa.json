@@ -1,0 +1,19 @@
+﻿{
+    "short_name": "@short_name",    
+    "name": "@name",
+    "icons": [
+    {
+        "src": "@icon96",
+        "type": "image/png",
+        "sizes": "96x96"
+    },
+    {
+        "src": "@icon144",
+        "type": "image/png",
+        "sizes": "144x144"
+    }
+       ],
+    "display": "standalone",
+    "background_color":"@background_color",
+    "start_url": "@start_url"
+}

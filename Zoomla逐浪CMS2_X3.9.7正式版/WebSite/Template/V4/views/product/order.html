@@ -1,0 +1,103 @@
+﻿<ion-view cache-view="false">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">生成订单</div>
+</ion-header-bar>
+<ion-content style="background:#f0f2f5;">
+<div class="order_store" ng-repeat="store in storeList track by $index">
+<div class="weui_media_box weui_media_appmsg" ng-repeat="item in store.prodt track by $index">
+<div class="weui_media_hd">
+<img class="weui_media_appmsg_thumb" ng-src="/UploadFiles/{{item.Thumbnails}}" alt="{{item.proname}}" onerror="javascript:this.src='/UploadFiles/nopic.gif';" />
+</div>
+<div class="weui_media_bd">
+<h4 class="weui_media_title">{{item.Proname}}</h4>
+<p class="weui_media_desc">
+<span>x{{item.Pronum}}</span>
+<span style="font-size:1.5em; color:#c00;">{{item.AllMoney | currency:'￥'}}</span>
+</p>
+</div>
+</div>
+<div class="weui_cell">
+<div class="weui_cell_hd"><label class="weui_label" style="font-weight:normal; margin-bottom:0;">运费</label></div>
+<div class="weui_cell_bd weui_cell_primary">
+<select ng-model="store.fareseled" ng-change="fareChange(m)" ng-options="m.Desc for m in store.faredt" class="form-control input-sm"></select>
+</div>
+</div>
+</div>
+
+<div class="order_detail">
+<h5 style="padding:0 15px;">收货地址</h5>
+<div class="weui_cells weui_cells_radio">
+<label class="weui_cell weui_check_label" for="x{{item.ID}}" ng-repeat="item in Address track by $index">
+<div class="weui_cell_bd weui_cell_primary">
+<p>{{item.Provinces}} {{item.Street}}({{item.ReceivName}} 收) {{item.MobileNum}}</p>
+</div>
+<div class="weui_cell_ft">
+<input type="radio" class="weui_check" name="address_rad" id="x{{item.ID}}" value="{{item.ID}}" ng-model="orderMod.receid" />
+<span class="weui_icon_checked"></span>
+</div>
+</label>
+</div>
+
+
+<div class="weui_cells">
+
+<div class="weui_cell">
+<div class="weui_cell_bd weui_cell_primary"><p>数量</p></div>
+<div class="weui_cell_ft">
+<span id="itemnum_span" class="r_red_x" ng-bind="orderMod.count"></span>件商品
+</div>
+</div>
+
+<div class="weui_cell">
+<div class="weui_cell_bd weui_cell_primary"><p>总金额</p></div>
+<div class="weui_cell_ft">
+<span ng-bind="orderMod.money"></span>
+</div>
+</div>
+
+<div class="weui_cell">
+<div class="weui_cell_bd weui_cell_primary"><p>运费</p></div>
+<div class="weui_cell_ft">
+<span id="fare_span" ng-bind="orderMod.fare"></span>
+</div>
+</div>
+
+<div class="weui_cell">
+<div class="weui_cell_bd weui_cell_primary"><p>应付总额</p></div>
+<div class="weui_cell_ft">
+<span ng-bind="orderMod.money"></span>
+</div>
+</div>
+
+</div>
+
+
+<div class="col-xs-12" style="margin-bottom:20px;">
+<button type="button" class="btn btn-danger btn-block" ng-click="sendPay();">前往支付</button>
+<div id="err_div" style="color:red;"></div>
+</div>
+</div>
+
+<div class="weui_loading_toast" ng-hide="paymod.hide">
+<div class="weui_mask_transparent"></div>
+<div class="weui_toast">
+<div class="weui_loading">
+<div class="weui_loading_leaf weui_loading_leaf_0"></div>
+<div class="weui_loading_leaf weui_loading_leaf_1"></div>
+<div class="weui_loading_leaf weui_loading_leaf_2"></div>
+<div class="weui_loading_leaf weui_loading_leaf_3"></div>
+<div class="weui_loading_leaf weui_loading_leaf_4"></div>
+<div class="weui_loading_leaf weui_loading_leaf_5"></div>
+<div class="weui_loading_leaf weui_loading_leaf_6"></div>
+<div class="weui_loading_leaf weui_loading_leaf_7"></div>
+<div class="weui_loading_leaf weui_loading_leaf_8"></div>
+<div class="weui_loading_leaf weui_loading_leaf_9"></div>
+<div class="weui_loading_leaf weui_loading_leaf_10"></div>
+<div class="weui_loading_leaf weui_loading_leaf_11"></div>
+</div>
+<p class="weui_toast_content">生成订单中...</p>
+</div>
+</div>
+</ion-content>
+</ion-view>

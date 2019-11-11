@@ -1,0 +1,269 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    B_Comment cmtBll = new B_Comment();
+    int ItemID = DataConverter.CLng(Request.QueryString["ID"]);
+    M_Node nodeMod=ViewBag.nodeMod;
+    M_UserInfo mu=ViewBag.mu;
+    Layout = "~/Views/Shared/_empty.cshtml";
+}
+@section head{
+<!--<link rel="stylesheet" href="/App_Themes/V4.css" />-->
+@*<script src="/JS/Controls/Emotion.js"></script>*@
+@*<script>
+var InsertSmiley = function (data) {var $text = $(emotion.param);$text.val($text.val() + data.title);}
+</script>*@ 
+<script src="/js/scrolltopcontrol.js"></script>
+<title>发表评论</title>  
+}
+@section content{
+ <div class="container commentfor_body">
+        <div id="Comment">
+			<div id="CommentInput">
+                <div class="card comment_list">
+                    <div class="card-header comment_header">
+                        <ul>
+                            <li><span class="text-success">评论总数：@Model.itemCount</span> (只代表网友观点）</li>
+                        </ul>
+                    </div>
+                    
+                        @Html.Partial("CommentFor_List", Model)
+                    
+                </div>
+                <div class="Assis_Div d-none">
+                    <a class="info" id="setup" title="顶" href="javascript:;" onclick="ContentAssist(1)">
+                        <i class="zi zi_digg"></i>
+                        <span class="gray_9 info_count" id="asscount">@cmtBll.GetUpCount(ItemID, 1)</span>
+                    </a>
+                    <a class="info" id="setdown" title="踩" href="javascript:;" onclick="ContentAssist(-1)">
+                        <i class="zi zi_oppose"></i>
+                        <span class="gray_9 info_count">
+                            @cmtBll.GetUpCount(ItemID, -1)
+                        </span>
+                    </a>
+            </div>
+        </div>
+		
+            <div id="Comment_List">
+			<div style="display: none;" id="loginAlert" onClick="TOlogin();" class="alert alert-info mt-2" role="alert"> 您还没登录，如需发表评论，请先登录！ <a href="/User/Login" class="btn btn-sm btn-outline-info">点击登录</a></div>
+			  @{ nodeMod.CommentType = "1";}
+                @if (nodeMod.CommentType.Equals("0"))
+                {
+                    <div class="alert alert-info" id="nocoment" role="alert">
+                        信息所属栏目评论功能已关闭
+                    </div>
+                }
+                else if (nodeMod.CommentType.Equals("2") && mu.IsNull)
+                {
+                    <div class="alert alert-info" id="nologin" role="alert">
+                        您必须登录才能评论，请点击<a href="javascript:;" onclick="LoginUser()">登录</a>
+                    </div>
+                }
+                else //游客或有权限评论
+                {
+                    <link href="/dist/css/weui.min.css" rel="stylesheet" />
+                    <script src="/dist/js/weui.js"></script>
+                    <div id="comentyes">
+                        @Html.Partial("Comp/MBEditor", new ZoomLa.AppCode.Controls.C_MBEditor()
+                       {
+                           Title = "回复留言",
+                           ValueControlId = "content_sender",
+                           VCodeControlId= "VCodesender",
+                           CallBack = "replyContent('sender');return false;"
+                       })
+                    </div>
+                }
+				
+            </div>
+			
+    	</div>
+    <div id="boxCovers" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 98; background: #b2b2b2;"></div>
+    <div id="popupLogin" style="width: 300px; height: 200px; background: #fff; position: absolute; top: 250px; left: 350px; z-index: 99; border: #33ccff solid 3px; display: none;">
+        <div id="LoginHead" class="ptitle"><span class="pspanl">用户登录</span><span id="lclose" class="pspanr">关闭</span></div>
+    </div>
+    <div id="toComment_box"  class="d-none">
+        <div id="toComment" class="mb-2">
+            <textarea id="content_reply" name="content_reply"   class="form-control msgtext mb-1" placeholder="请输入评论内容" rows="4"></textarea>
+            
+            <div class="input-group reply_vaild" style="margin-bottom:5px;">
+                <input type="text" id="VCodereply" name="VCodereply" placeholder="验证码" maxlength="6" class="form-control" autocomplete="off" style="margin-bottom:0px;min-width:120px;">
+                <span class="input-group-append">
+                    <img id="VCodereply_img" class="codeimg" title="点击刷新验证码" style="height:38px;" src="/Common/ValidateCode.aspx">
+                    <button class="btn btn-info" style="width:150px;" type="button" id="comment_reply" onclick="replyContent('reply')">发布回复</button>
+                </span>
+                
+            </div>
+            <input type="hidden" id="VCodereply_hid" name="VCodereply_hid" />
+            <input type="hidden" name="txtpid" id="txtpid"/>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>   
+}
+@section script{
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_ValidateCode.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script src="/JS/Controls/B_User.js"></script>
+<script>
+    var apiUrl = "@MVCHelper.GetAction("Comment_API",Request)";
+    var ismove = false;
+    $(function () {
+        if (parent && parent.initCommInfo) { parent.initCommInfo($(".Assis_Div").html()); }
+    })
+    function LoginUser() {
+        var url = parent.location.href.replace(location.protocol + "//", "").replace(location.host, "");
+        parent.location.href = "/user/login?ReturnUrl=" + url;
+    }
+    //支持反对操作
+    function Support(obj) {
+		if(mflag){
+        $.post(apiUrl, { action: 'support', id: $(obj).data('id'), flag: $(obj).data('flag'), gid: '@ItemID' }, function (data) {
+            if (data == "-1") { alert("不能重复支持或反对!"); return; }
+            $(obj).parent().find('.support').addClass('gray_9');
+            var val = parseInt($(obj).find(".count").text()) + 1;
+            if (isNaN(val)) { val = 1; }
+            $(obj).find(".count").text(val);
+            $(obj).parent().find('.support').removeAttr("onclick");
+        });
+		}else{
+		//alert("请先登录!");
+		TOlogin();
+		}
+    }
+    //回复操作
+
+    function replyContent(action) {
+		if(mflag){
+        $("#comment_" + action).attr("disabled", "disabled");
+            $("#reinfo_" + action).html("<span class='zi zi_syncalt zi_spin'></span>");
+        var postContent = $("#content_" + action).val().replace(/\n/g, "<br/>");//处理换行
+        if (postContent == "") { alert("内容不能为空"); return false; }
+        var postData = { "action": action,gid:"@ItemID", id: $("#txtpid").val(), content: postContent, VCode_hid: $("#VCode" + action + "_hid").val(), VCode: $("#VCode" + action).val() };
+            $.post(apiUrl, postData, function (data) {
+                console.log(data);
+            switch (data) {
+                case "2":
+                    location = location;
+                    break;
+                case "1":
+                    $("#reinfo_" + action).html("<span class='comm_audited'><span class='zi zi_checkcircle'></span> 感谢回复,编辑正在审核中</span>");
+                    $("#VCode" + action).ValidateCode();
+                    $("#VCode" + action).removeClass('codeok');
+                    $("#VCode" + action).val('');
+                    $("#content_" + action).val('');
+                    location = location;
+                    break;
+                case "-1":
+                    //$("#reinfo_" + action).html("<span style='color:red;'><span class='zi zi_exclamationCircle'></span> 验证码不正确!</span>");
+                    alert("验证码不正确");
+                    $("#comment_" + action).removeAttr('disabled');
+                    break;
+                case "-2":
+                     alert("用户未登录");
+                   // $("#reinfo_" + action).html("未登录!点击[<a href='javascript:;' onclick='parent.checkLogin()'>登录</a>]!");
+                    break;
+                case "-3":
+                   // $("#reinfo_" + action).html("内容不能为空!");
+                      alert("内容不能为空");
+                    $("#comment_" + action).removeAttr('disabled');
+                    break;
+                case "-5":
+                    //$("#reinfo_" + action).html("您已经评论过了!");
+                     alert("您已经评论过了");
+                    break;
+                case "-4":
+                default:
+                    alert("该内容不允许发表评论");
+                    //$("#reinfo_" + action).html("<span style='color:red;'>该内容不允许发表评论!</span>");
+                    $("#comment_" + action).removeAttr('disabled');
+                    break;
+            }
+        })
+		}else{
+//		alert("请先登录!");
+		TOlogin();
+		}
+    }
+    //举报操作
+    function Report(obj) {
+		if(mflag){
+        $.post(apiUrl, { action: "report",gid:"@ItemID", cid: $(obj).data('cid') }, function (data) {
+            if (data == "1") {
+                $(obj).removeAttr('onclick');
+                $(obj).addClass('gray_9');
+                $(obj).text('已举报');
+            }
+        })
+		}else{
+		TOlogin();
+		//alert("请先登录!");
+		}
+    }
+    //顶与踩
+    function ContentAssist(flag) {
+        var idflag = flag == 1 ? "setup" : "setdown";
+        $.post(apiUrl, { action: 'assist', gid: "@ItemID", value: flag }, function (data) {
+            $("#" + idflag).removeAttr("onclick");
+            $("#" + idflag).find(".hand").addClass("gray_c");
+            if (data == "1") {
+                $(".info").css({ color: '#666', });
+                var val = parseInt($("#" + idflag).find(".info_count").text()) + 1;
+                if (isNaN(val)) { val = 1; }
+                $("#" + idflag).find(".info_count").text(val);
+            }
+
+            parent.initCommInfo($(".Assis_Div").html());
+        })
+    }
+    //回复框
+    function showHuiFu(obj, pid) {
+        $("#comment_reply").removeAttr("disabled");
+        $("#reinfo_reply").html("");
+        $("#VCodereply").ValidateCode();
+        $("#txtpid").val(pid);
+        $("#toComment").appendTo($(obj).parent());
+    }
+    function LoginSuccess() {
+        history.go(0);
+    }
+    //统计评论数量
+    function upMaxLength() {
+        $("#maxcount_span").text(4000 - $("#content_sender").val().length);
+    }
+	
+	//输入框
+	$("#content_sender").focus(function(){  
+		$(this).animate({height:"220px"});
+	});  
+	$("#content_sender").blur(function(){  
+		$(this).animate({height:"120px"});
+	});
+
+var mflag;
+var buser = new B_User();//会员ajax登录状态需要结合JS/Controls/B_User.js引用同步生效
+buser.IsLogged(function(data,flag){
+	mflag = flag;
+	if(flag){
+//		console.log("已登录");
+//		console.log(flag);
+	}
+	else{
+//		console.log("未登录");
+		$("#loginAlert").show();
+//		console.log(flag);
+	}
+});
+
+function TOlogin(){
+window.location.href = "//"+window.location.host+"/User/Login?ReturnUrl="+window.location.pathname+window.location.search;
+}
+
+
+
+</script>  
+}

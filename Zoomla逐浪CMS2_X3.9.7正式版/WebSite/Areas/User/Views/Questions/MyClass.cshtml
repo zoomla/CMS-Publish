@@ -1,0 +1,24 @@
+﻿@{
+    
+}
+@section head{
+    <title>我的班级</title>    
+}
+@section content{
+<div id="pageflag" data-nav="edu" data-ban="ke"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="@Url.Action("Default","")">用户中心</a></li>
+	<li class="breadcrumb-item">我的班级</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+
+</div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(3).addClass("active");
+</script>
+}

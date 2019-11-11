@@ -1,0 +1,33 @@
+﻿@using ZoomLa.BLL
+@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@functions{
+  
+}
+@{ 
+    string id = "txt_" + Model.fieldMod.FieldName;
+    string value = "", value_src = "";
+    if (Model.GeneralID > 0)
+    {
+        string tbname = DataConvert.CStr(DBCenter.ExecuteScala("ZL_Model", "TableName", "ModelID=" + Model.fieldMod.ModelID));
+        value = Model.GetValue();
+        value_src = DataConvert.CStr(DBCenter.ExecuteScala(tbname, Model.fieldMod.FieldName + "_src", "ID=" + Model.valueDR["ID"]));
+    }
+}
+<style type="text/css">
+.mb_body .mb_submit_wrap{display:none;}
+.mb_body .card-header{display:none;}
+</style>
+<link href="/dist/css/weui.min.css" rel="stylesheet" />
+<script src="/dist/js/weui.js"></script>
+<script src="/JS/ZL_ValidateCode.js"></script>
+@Html.Partial("Comp/MBEditor", new ZoomLa.AppCode.Controls.C_MBEditor()
+{
+    Title = Model.fieldMod.FieldAlias,
+    ValueControlId = id,
+    ShowVCode = false,
+    On_Change = "mbeditor.updateValue();",
+    Content = value_src
+})

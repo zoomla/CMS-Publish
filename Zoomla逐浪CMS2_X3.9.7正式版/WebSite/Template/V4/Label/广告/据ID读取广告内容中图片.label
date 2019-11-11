@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>325</LabelID>
+    <LabelName>据ID读取广告内容中图片</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>广告</LabelCate>
+    <LabelDesc />
+    <LabelParam>IDs,,1,广告ID|order,asc$desc,3,Order顺序|ShowNum,1,1,调用信息数</LabelParam>
+    <LabelTable>ZL_Advertisement</LabelTable>
+    <LabelField>ImgUrl</LabelField>
+    <LabelWhere>ADID=@IDs</LabelWhere>
+    <LabelOrder>ADID @order</LabelOrder>
+    <LabelContent>{Repeate}{Field="ImgUrl"/}{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>参数判断</Modeltypeinfo>
+    <addroot />
+    <setroot>等于</setroot>
+    <Modelvalue>1</Modelvalue>
+    <Valueroot>{Field="UserID"/}</Valueroot>
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <EmptyContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_User","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

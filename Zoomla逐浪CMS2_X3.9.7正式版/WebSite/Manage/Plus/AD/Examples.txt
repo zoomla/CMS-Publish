@@ -1,0 +1,35 @@
+﻿1.页面引用vue.min.js
+2.修改页面html
+  2.1:最外层统一改为banner_wrap
+  2.2:页面上暂只支持一个banner
+3.加入js引用拷贝
+
+//---------背景绑定
+v-bind:style="{backgroundImage:'url(' + model.image + ')'}"
+<div class="well_slogan" v-bind:style="{backgroundImage:'url(' + model.image + ')'}">
+//--------滑动门
+<div id="banner_wrap" style="min-height:500px;" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li v-for="item in list" data-target="#banner_wrap" :data-slide-to="item.index" v-bind:class="{'active':item.index==0}"></li>
+    </ol>
+    <div class="carousel-inner">
+        <div class="carousel-item" v-for="item in list" v-bind:class="{'active':item.index==0}">
+            <div class="container">
+                <a class="item_c" :href="item.link" target="_blank"><img style="width:100%;height:100%;" :src="item.image" v-bind:alt="item.desc"></a>
+                <div class="carousel-caption">
+                    <h2 v-text="item.text"></h2>
+                    <p v-text="item.text2"></p>
+                    <p><a class="btn btn-lg btn-info" :href="item.link" role="button" v-text="item.text3"></a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a class="carousel-control-prev" href="#banner_wrap" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="fa fa-chevron-left"></span>
+    </a>
+    <a class="carousel-control-next" href="#banner_wrap" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="fa fa-chevron-right"></span>
+    </a>
+</div>

@@ -1,0 +1,48 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+    <title>常用客户管理</title>    
+}
+@section content{
+<div id="pageflag" data-nav="group" data-ban="ConstPassen"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+	<li class="breadcrumb-item active">客户管理<a href="AddConstPassen?FieldName=Person_Add">[添加客户]</a></li>
+</ol>
+</nav>
+</div>
+<div class="container u_cnt btn_green">
+    <ul class="nav nav-tabs" id="type_ul">
+        <li class="nav-item" data-id="2" ><a class="nav-link" href="ConstPassen?type=2">所有客户</a></li>
+        <li class="nav-item" data-id="0" ><a class="nav-link" href="ConstPassen?type=0">个人客户</a></li>
+        <li class="nav-item" data-id="1"> <a class="nav-link" href="ConstPassen?type=1">企业客户</a></li>
+    </ul>
+
+   
+
+
+    @Html.Partial("ConstPassen_List",Model)
+    <div>
+        <input type="button" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'client_del', confirm: '确定要批量移除吗' });" />
+        <input type="button" value="导出Excel" onclick="ZLHelper.ToExcelByID();" class="btn btn-outline-info" />
+    </div>
+</div>
+}
+@section script{
+<script src="/JS/Label/ZLHelper.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        $(function () {
+            $(".nav-item").each(function () {
+                if ($(this).data("id") == "@ZoomLa.Common.DataConverter.CLng(Request["type"])")
+                {
+                    $(this).find("a").addClass("active");
+                }
+            });
+        })
+    </script>
+}

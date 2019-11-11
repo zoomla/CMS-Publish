@@ -1,0 +1,76 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Model
+@using ZoomLa.Model.Shop
+@model ZoomLa.Model.M_Product
+@{
+    B_Product proBll = new B_Product();
+    M_Node nodeMod = new B_Node().SelReturnModel(Model.Nodeid);
+    M_Store_Info storeMod = new B_Store_Info().SelReturnModel(Model.ID);
+    if (storeMod == null || Model.UserShopID == 0) { storeMod = new M_Store_Info() { Title = "自营商品" }; }
+}
+@section head{<title>@Resources.L.商品信息</title>}
+@section content{
+@(MvcHtmlString.Create(Call.SetBread(new Bread[] {
+    new Bread("{manage}",Resources.L.工作台),
+    new Bread("ProductManage",Resources.L.商城管理),
+    new Bread("ProductManage?NodeID="+Model.Nodeid,Resources.L.商品管理),
+    new Bread() {url="", text="商品预览"+"<div style='position: absolute;right: 10px;top: 12px;' class='pull-right'> <a href='/Shop/"+Model.ID+".aspx' target='_blank' title='前台浏览'><span class='zi zi_eye'></span></a><span onclick='editnode("+nodeMod.NodeID+",'配置本节点');' class='zi zi_cog' title='配置本节点' style='cursor:pointer;margin-left:5px;'></span></div>",addon= "" }}
+    )))
+
+
+
+<div class="list_choice" style="width:100%;">
+        <table class="table table-striped table-bordered">
+            <tbody>
+                <tr><th class="w12rem_lg">@Resources.L.所属栏目</th><td>@nodeMod.NodeName</td></tr>
+                <tr><th>@Resources.L.商品图片</th><td><img src="@(ZoomLa.Common.function.GetImgUrl(Model.Thumbnails))" onerror="shownopic(this);" class="img_50"/></td></tr>
+                <tr><th>@Resources.L.商品 ID</th><td>@(Model.ID)</td></tr>
+                <tr><th>@Resources.L.商品编号</th><td>@(Model.ProCode)</td></tr>
+                <tr><th>@Resources.L.商品名称</th><td>@(Model.Proname)</td></tr>
+                <tr><th>@Resources.L.所属店铺</th><td>@storeMod.Title</td></tr>
+                <tr>
+                    <th>@Resources.L.当前零售价</th>
+                    <td>@(Model.LinPrice.ToString("F2"))</td>
+                </tr>
+                <tr>
+                    <th>@Resources.L.属性设置</th>
+                    <td>@MvcHtmlString.Create(proBll.ShowProAttr(Model))</td>
+                </tr>
+                <tr>
+                    <th>
+			        <td class="text-center" style="line-height: 25px;">
+				        <a href="@(Call.PathAdmin("Product/AddProduct?id="+Model.ID))" class="btn btn-outline-info">@Resources.L.重新修改</a>
+                        <a href="@(Call.PathAdmin("Product/AddProduct?ModelID="+Model.ModelID+"&NodeID="+Model.Nodeid))" class="btn btn-outline-info">@Resources.L.继续添加</a>
+                        <a href="@(Call.PathAdmin("Shop/ProductManage.aspx?NodeID="+Model.Nodeid))" class="btn btn-outline-info">@Resources.L.管理商品</a>
+                        <a href="@(Call.PathAdmin("Shop/ShowProduct.aspx?ID="+Model.ID))" class="btn btn-outline-info">@Resources.L.后台预览</a>
+                        <a href="/Shop/@(Model.ID).aspx" target="_blank" class="btn btn-outline-info">@Resources.L.前台预览</a>
+			        </td>
+		        </tr>
+            </tbody>
+        </table>
+    </div>    
+    }
+@section script{
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script type="text/javascript">
+        var userdiag = new ZL_Dialog();
+        function opentitle(url, title) {
+            userdiag.title = title;
+            userdiag.url = url;
+            userdiag.ShowModal();
+        }
+        function editnode(NodeID) {
+            var answer = confirm("该栏目未绑定模板，是否立即绑定");
+            if (answer == false) {
+                return false;
+            }
+            else {
+                open_page(NodeID, "Node/EditNode.aspx?NodeID=");
+            }
+        }
+        function closdlg() {
+            Dialog.close();
+        }
+    </script>    
+}

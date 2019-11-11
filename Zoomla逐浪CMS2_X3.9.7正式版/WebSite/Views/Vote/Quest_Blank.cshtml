@@ -1,0 +1,21 @@
+﻿@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@model ZoomLa.Model.Design.M_Design_Question
+@{
+    JObject json = JsonConvert.DeserializeObject<JObject>(Model.QFlag);
+    string type = json["type"].ToString();
+    string regex = json["regex"].ToString();
+    //---------------------------
+    string id = "q" + Model.ID;
+    string onclick = regex == "date" ? "onclick=\"WdatePicker({ dateFmt: 'yyyy/MM/dd' });\"" : "";
+}
+@switch (type)
+{
+    case "text":
+        <input type="text" style="overflow: auto;width:62%;height:30px;" class="inputtext @regex" name="@id" id="@id" @(MvcHtmlString.Create(onclick)) />
+        break;
+    case "textarea":
+    default:
+        <textarea style="overflow: auto;width:62%;height:110px;" class="inputtext" name="@id" id="@id"></textarea>
+        break;
+}

@@ -1,0 +1,13 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link href="/App_Themes/V4user.css?version=@(ZoomLa.BLL.BLLCommon.Version_JS)" rel="stylesheet"/>
+@RenderSection("head")
+</head>
+<body>
+@RenderSection("content")
+@RenderSection("script")
+</body>
+</html>

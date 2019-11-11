@@ -1,0 +1,439 @@
+﻿{ZL.Source id="节点栏目信息数据源"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="节点栏目信息数据源" FD="NodeName" page="0"/}_{$SiteName/}</title>
+<meta name="Keywords" content="{SField sid="节点栏目信息数据源" FD="Meta_Keywords" page="0"/}" />
+<meta name="description" content="{SField sid="节点栏目信息数据源" FD="Meta_Description" page="0"/}" />
+{ZL:Boot4()/}
+<link href="/dist/css/animate.min.css" rel="stylesheet"/>
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<script src="/dist/js/trianglify.min.js"></script>
+<script src="/js/scrolltopcontrol.js"></script>
+<script src="/JS/Controls/B_User.js"></script>
+<script src="{$CssDir/}js/server.js"></script>
+</head>
+<body id="wrapper">
+<header>
+<nav class="navbar navbar-expand-sm navbar-dark" id="home_nav"> <a class="navbar-brand" href="/"><img src="{$LogoUrl/}" alt="{$SiteName/}" id="logos" /></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+  <div class="collapse navbar-collapse justify-content-md-center" id="navbarsExample03">
+<ul class="navbar-nav home_top_nav">
+<li class="nav-item"><a class="nav-link" href="/">首页</a></li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeLinkUrl(1)/}">资讯门户</a></li>
+<li class="nav-item active"><a class="nav-link" href="{ZL:GetNodeLinkUrl(2)/}" target="_blank">线上商城</a></li>
+<li class="nav-item"><a class="nav-link" href="/office" target="_blank">办公平台</a></li>
+<li class="nav-item"><a class="nav-link" href="/Index" target="_blank">社区贴吧</a></li>
+<li class="nav-item"><a class="nav-link" href="/Plugins/markdown/" target="_blank">Markdown</a></li>
+<li class="nav-item dropdown">
+<a class="nav-link" href="#" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true"><i class="zi zi_squareDown"></i></a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+{ZL.Label id="蓝色经典_顶部节点列表" ParentID="0" ShowNum="7" /}
+</div>
+</li>
+<li class="nav-item"><a class="nav-link" href="javascript:;" onClick="isSearch();"><i class="zi zi_search"></i></a></li>
+<li class="nav-item dropdown nav_user">
+<a class="nav-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+<i class="zi zi_user"></i><span class="caret"></span>
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+<a class="dropdown-item" href="/User/">用户登录</a>
+<a class="dropdown-item" href="/User/Register">注册会员</a>
+<a class="dropdown-item d-none" href="/User/Info/UserInfo">注册信息</a>
+<a class="dropdown-item d-none" href="/User/User/LogOut">安全退出</a>
+</div>
+</li>
+<li class="nav-item"><a class="nav-link" href="{ZL:GetNodeListUrl(1)/}" target="_blank"><i class="zi zi_wheelchair"></i>无障碍</a></li>
+</ul>
+<ul class="home_search">
+<form action="/Search/SearchList">
+<i class="zi zi_search"></i>
+<input type="text" class="form-control" placeholder="输入关键字，回车查询" name="keyword" />
+<a onClick="isClose();" href="javascript:;"><i class="zi zi_times"></i></a>
+</form>
+</ul>
+</div>
+<div class="homeNavBar">
+ <a href="#menu-toggle" id="menu-toggle" onclick="slidebarBind();"><i class="zi z01-icon106"></i></a>
+</div>
+</nav>
+</header>
+<!--header end-->
+
+<div id="sidebar-wrapper">
+<div class="sidebar_close"><a href="#menu-toggle-out"  id="menu-toggle-out"><i class="zi z01-icon107"></i></a></div>
+<h6><i class="zi z01-icon125"></i></h6>
+<p>逐浪-中文排名第一的dotNET 高端CMS！<br/>面向移动与办公提供丰富的应用功能&#x2193;</p>
+<ul class="sidebar-nav">
+<li><a href="/plat/"><img src="{$CssDir/}images/home_pic15.jpg" alt="能力办公" /></a><span>事务中心</span></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic13.jpg" alt="目标控制" /></a><span>目标控制</span></li>
+<li><a href="/plat/blog"><img src="{$CssDir/}images/home_pic4.jpg" alt="日程管理"  /></a><span>日程管理</span></li>
+<li><a href="/plat/"><img src="{$CssDir/}images/home_pic11.jpg" alt="客户资源" /></a><span>客户资源</span></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic18.jpg" alt="办公审批" /></a><span>办公审批</span></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic17.jpg" alt="企业百科" /></a><span>企业百科</span></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic16.jpg" alt="内部邮箱" /></a><span>内部邮箱</span></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic21.jpg" alt="日志博客" /></a><span>日志博客</span></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic12.jpg" alt="时间线" /></a><span>时间线</span></li>
+</ul>
+<div class="sidebar_ico">
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi zi_tmWeixin" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi zi_tmQq" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi z01-icon220" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi z01-icon224" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="ziu zi_tmWeibo" aria-hidden="true"></i></a>
+</div>
+</div>
+<!-- Sidebar end -->
+
+
+<div class="shop_banner" id="svgbg">
+<div ></div>
+<h1>时尚卖场电商平台</h1>
+</div>
+
+<div class="shop_nlist">
+<div class="container ">
+<div class="row">
+<div class="col-sm-2 shop_nlistBar">
+<h2><i class="zi zi_shoppingbag" aria-hidden="true"></i> 商品分类</h2>
+<ul>
+<li><a href="{ZL:GetNodeLinkUrl(75)/}">时尚特色</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(129)/}">日常用品</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(130)/}">手机数码</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(131)/}">体育用品</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(132)/}">服装首饰</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(133)/}">营养美食</a></li>
+</ul>
+<h3>颜色分类</h3>
+<div class="shop_nlistBarColor">
+<ul>
+	<li><a href=""><span style="background: rgba(234,227,211,1.00)"></span>Beige</a></li>
+	<li><a href=""><span style="background: rgb(34, 34, 34);"></span>Black</a></li>
+	<li><a href=""><span style="background: rgb(110, 140, 213);"></span>Blue</a></li>
+	<li><a href=""><span style="background: rgb(245, 96, 96);"></span>Brown</a></li>
+	<li><a href=""><span style="background: rgb(68, 194, 141);"></span>Green</a></li>
+	<li><a href=""><span style="background: rgb(153, 153, 153);"></span>Grey</a></li>
+	<li><a href=""><span style="background: rgb(247, 152, 88);"></span>Orange</a></li>
+	<li><a href=""><span style="background: rgb(178, 126, 248);"></span>Purple</a></li>
+	<li><a href=""><span style="background: rgb(245, 96, 96);"></span>Red</a></li>
+	<li><a href=""><span style="background: rgb(255, 255, 255);"></span>White</a></li>
+</ul>        
+</div>
+<h3>规格筛选</h3>
+<div class="shop_nlistBarSize">
+<ul>
+	<li><a href="#"><span></span>XS</a></li>
+	<li><a href="#"><span></span>S</a></li>
+	<li><a href="#"><span></span>M</a></li>
+	<li><a href="#"><span></span>L</a></li>
+	<li><a href="#"><span></span>XL</a></li>
+	<li><a href="#"><span></span>XXL</a></li>
+</ul>        
+</div>	
+</div>
+<div class="col-sm-10 shop_nlistCon">
+<ul>
+{ZL.Label id="服装城列表抽取" NodeID="132" ShowNum="9" /}
+</ul>
+</div>
+</div>
+
+
+
+</div>
+</div>
+<!--shop_nlist end-->
+
+
+<!--店铺-->
+<div class="shop_store_list">
+<div class="container">
+<div class="row">
+{ZL.Label id="商城店铺列表_不分页" ShowNum="2" TitleNum="50" /}
+</div>
+</div>
+</div>
+
+<div class="shop_ad" style="margin-top:1em;">
+<div class="shop_ad_t">
+<div class="media">
+<div class="media-body media-middle">
+<h4 class="media-heading">动力逐浪</h4>
+<p>在线云建站  微信3分极速场景</p>
+<p>微调查微相册全搞定   不用代码也能做开发</p>
+<p>http://v.z01.com</p>
+<a href="http://v.z01.com" target="_blank">免费体验</a>
+</div>
+<a href="#">
+<img class="media-object ml-3" src="{$CssDir/}images/Big_Micro.jpg" alt="{$SiteName/}"/>
+</a>
+</div>
+</div>
+</div>
+
+<div class="shop_list">
+<div class="container">
+<div class="list-group" id="NodeID75"><h3>时尚特色<a href="{ZL:GetNodeLinkUrl(75)/}"><i class="zi zi_plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="75" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID132"><h3>服饰首饰<a href="{ZL:GetNodeLinkUrl(132)/}"><i class="zi zi_plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="132" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID129"><h3>日常用品<a href="{ZL:GetNodeLinkUrl(129)/}"><i class="zi zi_plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="129" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID131"><h3>体育用品<a href="{ZL:GetNodeLinkUrl(131)/}"><i class="zi zi_plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap" >
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="131" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+<div class="list-group" id="NodeID130"><h3>手机数码<a href="{ZL:GetNodeLinkUrl(130)/}"><i class="zi zi_plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="130" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+
+<div class="list-group" id="NodeID133"><h3>营养美食<a href="{ZL:GetNodeLinkUrl(133)/}"><i class="zi zi-plus"></i></a></h3></div>
+<div class="row">
+<div class="shop_img">
+<ul class="list-unstyled d-flex flex-wrap">
+{ZL.Label id="商城普通商品标签_不分页列表V4" NodeID="133" TitleNum="30" ShowNum="4" ClassName="col-lg-3 col-md-3 col-sm-3 col-12" /}
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<section class="home_quict">
+<div class="container">
+<div class="row">
+<div class="col home_quict_l">
+<div class="row">
+<div class="col-6 col-sm-3">
+<a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank"><i class="zi zi_video"></i></a>
+<span><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank">视频</a></span>
+</div>
+<div class="col-6 col-sm-3">
+<a href="{ZL:GetNodeLinkUrl(2)/}" target="_blank"><i class="zi zi_shoppingcart"></i></a>
+<span><a href="{ZL:GetNodeLinkUrl(2)/}" target="_blank">商城</a></span>
+</div>
+<div class="col-6 col-sm-3">
+<h3><a href="/Office" target="_blank"><i class="zi zi_cloud"></i></a></h3>
+<p><a href="/Office" target="_blank">办公</a></p>
+</div>
+<div class="col-6 col-sm-3">
+<h3><a href="/Dai/" target="_blank"><i class="zi z01-icon030"></i></a></h3>
+<p><a href="/Dai/" target="_blank">试戴</a></p>
+</div>
+</div>
+</div>
+<div class="col home_quict_r">
+<div class="row">
+<div class="col-6 col-sm-3">
+<h3><a href="http://pano.z01.com/" target="_blank"><i class="zi zi_binoculars"></i></a></h3>
+<p><a href="http://pano.z01.com/" target="_blank">全景</a></p>
+</div>
+<div class="col-6 col-sm-3">
+<h3><a href="/User/Exam/QuestionManage" target="_blank"><i class="zi zi_shoppingcart"></i></a></h3>
+<p><a href="/User/Exam/QuestionManage" target="_blank">组卷</a></p>
+</div>
+<div class="col-6 col-sm-3">
+<h3><a href="/Plat/Blog/" target="_blank"><i class="zi z01-icon212"></i></a></h3>
+<p><a href="/admin/Site/SiteConfig.aspx" target="_blank">站群</a></p>
+</div>
+<div class="col-6 col-sm-3">
+<h3><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank"><i class="zi zi_music"></i></a></h3>
+<p><a href="{ZL:GetNodeLinkUrl(86)/}" target="_blank">音乐</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!--home_quict ned-->
+
+<div class="container"><img class="img-fluid" src="{$CssDir/}images/home_bottombg.jpg" alt="" /></div>
+
+<footer>
+<div class="container">
+<div class="row">
+<div class="col-md-4 foot_l">
+<h5>关于我们</h5>
+<p>逐浪软件致力提供高品质的WEB内核产品，<br/>提升中国站长与开发者的应用水平。
+</p>
+<a href="{ZL:GetInfoUrl(20)/}" class="btn btn-outline-light btn-sm">浏览详情</a>
+
+<p>
+<a href="http://www.miitbeiang.gov.cn" target="_blank" >沪ICP备201820528号</a>
+<a href="{$ManageDir/}login" target="_blank">管理登录</a>
+</p>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi zi_tmWeixin" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi zi_tmQq" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi z01-icon220" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi z01-icon224" aria-hidden="true"></i></a>
+<a href="//weibo.com/zoomla" target="_blank"><i class="zi zi_tmWeibo" aria-hidden="true"></i></a>
+</div>
+<div class="col-md-2">
+<h5>功能导航</h5>
+<ul>
+<li><a href="/guest/" target="_blank">留言反馈</a></li>
+<li><a href="/baike" target="_blank">站长百科</a></li>
+<li><a href="/dai/" target="_blank">真人试戴</a></li> 
+<li><a href="/Plugins/Camera.aspx" target="_blank">在线拍照</a></li> 
+<li><a href="{ZL:GetNodeLinkUrl(106)/}" target="_blank">快速帮助</a></li>
+</ul>
+</div>
+<div class="col-md-2">
+<h5>快速链接</h5>
+<ul>
+<li><a href="{ZL:GetInfoUrl(22)/}" target="_blank">法律声明</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(77)/}" target="_blank">帮助中心</a></li>
+<li><a href="{ZL:GetInfoUrl(21)/}" target="_blank">联系我们</a></li>
+<li><a href="{ZL:GetNodeLinkUrl(106)/}" target="_blank">网站地图</a></li>
+<li><a href="/Tools/" target="_blank">维护工具</a></li>
+</ul>
+</div>
+<div class="col-md-3 footShow">
+<h5>精彩提示</h5>
+<ul>
+<li><a href="/plat/"><img src="{$CssDir/}images/home_pic15.jpg" alt="事务中心"/></a></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic13.jpg" alt="目标控制"/></a></li>
+<li><a href="/plat/blog"><img src="{$CssDir/}images/home_pic4.jpg" alt="日程管理"/></a></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic11.jpg" alt="客户资源"/></a></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic18.jpg" alt="办公审批"/></a></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic17.jpg" alt="企业百科"/></a></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic16.jpg" alt="内部邮箱"/></a></li>
+<li><a href="/office"><img src="{$CssDir/}images/home_pic21.jpg" alt="日志博客"/></a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="copyright">
+{$Copyright/}
+</div>
+</footer>
+<div class="kefu">
+<ul>
+<li><a href="tel:021-50391046"><span>联系我们</span><i class="zi zi_phone"></i></a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=184886758&site=qq&menu=yes" target="_blank"><span>在线客服</span><i class="zi zi_tmQq"></i></a></li>
+<li class="kefu_wechat"><a href="javascript:;"><span><img src="{$CssDir/}images/Big_Micro.jpg" alt="微信二维码" /></span><i class="zi zi_tmWeixin"></i></a></li>
+<li><a href="/Guest" target="_blank"><span>留言咨询</span><i class="zi z01-icon053"></i></a></li>
+<li class="kefu_qrcode"><a href="javascript:;"><span><img src="#" alt="微信二维码" />扫码分享到手机阅读</span><i class="zi zi_qrcode"></i></a></li>
+</ul>
+</div>
+<script>
+var IO=document.getElementById('home_nav'),Y=IO,H=0,IE6;
+IE6=window.ActiveXObject&&!window.XMLHttpRequest;
+while(Y){H+=Y.offsetTop;Y=Y.offsetParent};
+if(IE6)
+    IO.style.cssText="position:absolute;top:expression(this.fix?(document"+
+        ".documentElement.scrollTop-(this.javascript||"+H+")):0)";
+window.onscroll=function (){
+    var d=document,s=Math.max(d.documentElement.scrollTop,document.body.scrollTop);
+     if(s>H&&IO.fix||s<=H&&!IO.fix)return;
+    if(!IE6){IO.style.position=IO.fix?"":"fixed";IO.style.background=IO.fix?"":"rgba(54, 149, 76, 0.8)";IO.style.boxShadow=IO.fix?"":"0 5px 5px 0 rgba(50, 50, 50, 0.5)";}
+    IO.fix=!IO.fix;
+    
+};
+
+var buser = new B_User();//会员ajax登录状态需要结合JS/Controls/B_User.js引用同步生效
+buser.IsLogged(function(data,flag){
+	if(flag)
+	{
+		data=JSON.parse(data);
+		//$(".nav_user>a").html(data.UserName/*+"的会员中心"*/);
+		$(".nav_user .dropdown-menu a:nth-child(1)").html("会员中心");
+		$(".nav_user .dropdown-menu a:nth-child(2)").remove();
+		$(".nav_user .dropdown-menu .d-none").addClass("d-block");
+		$(".nav_user .fa-user").addClass("text-warning");
+	}
+});
+
+ //右则bar开关器
+$("#menu-toggle").click(function(e) {
+e.preventDefault();
+$("#wrapper").toggleClass("toggled");
+});
+$("#menu-toggle-out").click(function(e) {
+e.preventDefault();
+$("#wrapper").removeClass("toggled");
+});
+
+
+//右侧bar点击空白关
+function stopBubble(e) {
+	if (e && e.stopPropagation) {
+		e.stopPropagation();  //w3c
+	} else {
+		window.event.cancelBubble = true; //IE
+	}
+};
+function slidebarBind() {
+    if (!$("#wrapper").hasClass("toggled")) { document.onclick = null; }
+    //-----------------------
+	setTimeout(function () {
+		document.onclick = function () {
+			console.log($("#wrapper").hasClass("toggled"));
+			if ($("#wrapper").hasClass("toggled")) {
+				$("#menu-toggle-out").click();
+				document.onclick = null;
+			}
+		}
+	},100);
+}
+$(function () {
+	$("#sidebar-wrapper").click(function (e) {
+		stopBubble(e);
+	});
+})
+
+
+
+/*显示搜索框*/
+function iSearch(){
+	if($(".home_search").is(":hidden")){
+		$(".home_search").fadeIn(250);
+	}else{
+		$(".home_search").fadeOut(250);
+	}
+};
+
+//智能背景画布
+var pattern = Trianglify({
+	width: window.innerWidth,
+	height:1980,
+	x_colors: "Greens"
+});
+var canvas = pattern.svg();
+canvas.style.position = "absolute";
+canvas.style.top = 0;
+canvas.style.left = 0;
+//canvas.style.height = 760;
+document.getElementById("svgbg").appendChild(canvas);
+</script>
+</body>
+</html>

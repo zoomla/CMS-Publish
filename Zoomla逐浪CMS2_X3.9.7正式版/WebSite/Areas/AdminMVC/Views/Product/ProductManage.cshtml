@@ -1,0 +1,311 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model
+@using ZoomLa.Model.Content
+@using ZoomLa.AppCode.Controls
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_Node nodeBll = new B_Node();
+    B_Model modBll = new B_Model();
+    public int NodeID {get { return DataConverter.CLng(Request.QueryString["NodeID"]); } }
+    public string StoreID { get { return DataConverter.CStr(Request.QueryString["StoreID"]); } }
+    public string addBtns = "";
+    public string nodeName = "全部商品";
+    public string itemName = "";
+    public int firstModelID = 0;
+    public void PageLoad()
+    {
+        string result = "";
+        M_Node nodeMod = null;
+        if (NodeID > 0)
+        {
+            nodeMod = nodeBll.SelReturnModel(NodeID);
+            nodeName = nodeMod.NodeName;
+            string tlp = " <div class='btn-group'><button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>{0}管理<span class='caret'></span></button><ul class='dropdown-menu' role='menu'><li><a href='AddProduct?ModelID={1}&NodeID={2}'>添加{0}</a></li><li><a href='javascript:;' onclick='ShowImport();'>导入{0}</a></li></ul></div>";
+            string[] modArr = nodeMod.ContentModel.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < modArr.Length; i++)
+            {
+                M_ModelInfo model = modBll.SelReturnModel(DataConverter.CLng(modArr[i]));
+                if (model == null || model.IsNull) { continue; }
+                string itemName = string.IsNullOrEmpty(model.ItemName) ? model.ModelName : model.ItemName;
+                //第一个模型,支持导入导出
+                if (firstModelID < 1)
+                {
+                    itemName = model.ItemName;
+                    firstModelID = model.ModelID;
+                }
+                result += string.Format(tlp, itemName, modArr[i], NodeID);
+            }
+        }
+        addBtns = result;
+    }
+
+        }
+@{
+    PageLoad();
+    }
+    @section head{<title>@Resources.L.商品管理</title>}
+    @section content{
+<style type="text/css">
+.popover {max-width:270px !important;}
+.popover-body{width:270px;}
+.popover.fade.bs-popover-left{width: 170px;}
+.popover.fade.bs-popover-left .popover-body{height: 160px;}
+</style>
+<div id="BreadDiv" class="container-fluid mysite">
+<div class="row">
+    <ol id="BreadNav" class="breadcrumb fixed-top">
+        <li class="breadcrumb-item"><a href='@Call.PathAdmin("I/Main.aspx")'>@Resources.L.工作台</a></li>
+        <li class="breadcrumb-item"><a href='ProductManage'>@Resources.L.商品列表</a></li>
+        <li class='breadcrumb-item active'><a href='@Request.RawUrl'>@nodeName</a></li>
+        <div class="pull-right ml-auto">
+            <span>
+                <span onclick="showstore(this);" class="zi zi_thead" title="@Resources.L.按店铺筛选" > </span>
+                <a href="/Class_@(NodeID<=0?2:NodeID)/Default.aspx" target="_blank" title="@Resources.L.前台浏览"> <i class="zi zi_eye" zico="眼睛"></i></a>
+                <i onclick="opentitle('@NodeID','配置本节点');" class="zi zi_cog deploy_icon" title="@Resources.L.配置本节点" ></i>
+            </span>
+        </div>
+    </ol>
+	</div>
+	</div>
+    <div class="clearfix list_choice"></div>
+    <div class="alert alert-secondary shop_operation" id="commodity_cz" style="width:100%;">
+        @Resources.L.商品操作 ：@MvcHtmlString.Create(addBtns)
+        <div id="help" class="pull-right text-center">
+            <span>@Resources.L.商品数 ：</span><span>@Model.itemCount</span>
+            <a href="javascript::" id="sel_btn"><i class="zi zi_search" zico="搜索"></i></a>
+        </div>
+        <div id="sel_box" class="m_sel_box" style="width:100%;">
+            <div class="input-group" style="display:flex;">
+                <select id="stype_dp" class="form-control mvcparam" style="width:120px;">
+                    <option value="-100" label="@Resources.L.全部店铺"></option>
+                    <option value="0" label="@Resources.L.仅商城"></option>
+                    <option value="-1" label="@Resources.L.仅店铺"></option>
+                </select>
+                <select id="istrue_dp" class="form-control mvcparam" style="width:120px;">
+                    <option value="" label="@Resources.L.已审核_未审核"></option>
+                    <option value="1" label="@Resources.L.已审核"></option>
+                    <option value="0" label="@Resources.L.未审核"></option>
+                </select>
+                <select id="issale_dp" class="form-control mvcparam" style="width:120px;">
+                    <option value="" label="@Resources.L.销售_停售"></option>
+                    <option value="0" label="@Resources.L.销售中"></option>
+                    <option value="1" label="@Resources.L.已停售"></option>
+                </select>
+                <input type="text" id="proname" class="form-control mvcparam" placeholder="@Resources.L.商品名称" />
+                <input type="text" id="adduser" class="form-control mvcparam" placeholder="@Resources.L.录入者名" />
+                <input type="text" id="storeid" class="form-control mvcparam" placeholder="@Resources.L.店铺 ID" value="@StoreID"/>
+                <span class="input-group-append">
+                    <input type="button" onclick="mvcpage.load();" ID="Search_Btn" value="@Resources.L.搜索" class="btn btn-outline-secondary"/>
+                </span>
+            </div>
+            <input type="hidden" id="NodeID" value="@NodeID"/>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function ShowImport() {
+            $("#divImp").show("middle");
+    }
+    </script>
+    @if (firstModelID > 0)
+    {
+        
+            <div id="divImp" class="divline">
+                @Resources.L.导入商城 ：<input type="file" name="tlp_up" class="form-control"/>
+                <input type="submit" value="@Resources.L.导入" class="Btn btn-outline-primary"/>
+                <a href="ProductImportTlp?ModelID=@(firstModelID)" target="_blank">
+                    <span style="color: #0E529D;">@Resources.L.下载 @(nodeName)@Resources.L.的 @(itemName) @Resources.L.模型CSV导入模板</span>
+                </a>@Resources.L.导入商城_notice
+            </div>
+    }
+    
+	<div class="table-responsive-md" style="width:100%;" id="EGV_Table">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th class="w1rem"></th>
+                    <th class="w1rem">ID</th>
+                    <th style="width:90px;">@Resources.L.商品图片</th>
+                    <th>@Resources.L.商品名称</th>
+                    <th>@Resources.L.录入者</th>
+                    <th>@Resources.L.单位</th>
+                    <th>@Resources.L.库存</th>
+                    <th>@Resources.L.价格</th>
+                    <th>@Resources.L.类型</th>
+                    <th>@Resources.L.商品属性</th>
+                    <th>@Resources.L.销售中</th>
+                    <th>@Resources.L.状态</th>
+                    <th>@Resources.L.操作</th>
+                </tr>
+            </thead>
+             @Html.Partial("Product_List")
+            </table>
+
+    </div>
+
+    <div class="container-fluid pr-0">
+    <div class="row sysRow">
+		<div class="input-group d-flex flex-wrap ml-2">
+        <span class="input-group-append d-flex flex-wrap">
+			<input type="button" value="@Resources.L.允许销售" onclick="product.bat('sales');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.设为热卖" onclick="product.bat('hot');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.设为精品" onclick="product.bat('best');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.设为新品" onclick="product.bat('new');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.批量删除" onclick="product.bat('recycle','确定要移入回收站吗');" class="btn btn-outline-info"/>
+            <input type="button" value="@Resources.L.停止销售" onclick="product.bat('unsales');" class="btn btn-outline-info" />
+			<input type="button" value="@Resources.L.取消热卖" onclick="product.bat('unhot');"class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.取消精品" onclick="product.bat('unbest');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.取消新品" onclick="product.bat('unnew');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.批量移动" onclick="showMove();"  class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.批量审核" onclick="product.bat('audit');" class="btn btn-outline-info" />
+            <input type="button" value="@Resources.L.取消审核" onclick="product.bat('unaudit');" class="btn btn-outline-info" />
+            <button type="button" onclick="addToSpecial()" class="btn btn-outline-info">@Resources.L.添加到专题</button>
+            <button type="button" onclick="sort_show();" class="btn btn-outline-primary">@Resources.L.商品排序</button>
+        </span>
+    	</div>
+        <div>
+            <strong>@Resources.L.商品属性中的各项含义 ：</strong>
+                <span class="text-primary">@Resources.L.精</span>---- @Resources.L.推荐精品 ， 
+                <span class="text-danger">@Resources.L.热</span>---- @Resources.L.热门商品 ， 
+                <span class="text-success">@Resources.L.新</span>---- @Resources.L.推荐新品 ， 
+                <span class="text-primary">@Resources.L.图</span>---- @Resources.L.有商品缩略图 ， 
+        </div>
+    </div>
+	</div>
+    <asp:HiddenField ID="ModelID_Hid" runat="server" />
+    <div runat="server" id="GroupPro_L" style="display: none;">
+    </div>
+    
+
+}
+@section script{
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Modal/shopbll.js"></script>
+    <script>
+        $(function () {
+            $("#store_@(StoreID)").addClass("active");
+            
+        });
+        function showMove() {
+            var ids = "";
+            $("input[name=idchk]:checked").each(function () { ids += this.value + ","; });
+            ShowComDiag("@(Call.PathAdmin("Shop/ProductMove.aspx?id="))"+ids, "商品移动");
+        }
+        function sort_show() {
+            var ids = "";
+            $("input[name=idchk]").each(function () {
+                ids += this.value + ",";
+            });
+            ShowComDiag("@Call.PathAdmin("Common/Sort.aspx")?tbname=product&ids=" + ids, "商品排序");
+        }
+        function sort_callback() { $("#mybind_btn").click(); }
+        function addToSpecial() {
+            var ids = "";
+            $("input[name='idchk']:checked").each(function () {
+                ids += this.value + ",";
+            });
+            if (ZL_Regex.isEmpty(ids)) { alert("未选择商品"); return false; }
+            location = siteconf.path + "Content/AddToSpecial.aspx?cate=1&id=" + ids;
+        }
+        var diag = new ZL_Dialog();
+        function opentitle(nid, title) {
+            if (!nid || nid == 0) alert("尚未选择节点");
+            else {
+                var url = "@Call.PathAdmin("Content/Node/EditNode.aspx")?NodeID=" + nid;
+                diag.url = url;
+                diag.title = title;
+                diag.ShowModal();
+            }
+        }
+        $("#sel_btn").click(function (e) {
+            if ($("#sel_box").css("display") == "none") {
+                $(this).addClass("active");
+                $("#sel_box").slideDown(300);
+            }
+            else {
+                $(this).removeClass("active");
+                $("#sel_box").slideUp(200);
+            }
+        });
+        var product = {};
+        product.init = function () {
+            $(".grouppro_btn").popover({
+                animation: true, html: true, trigger: "manual", placement: 'right', title: "商品分组 <a href='javascript:;' class='popClose' title='关闭' onclick='pop.close(this);'><i class='zi zi_times'></a>",
+                content: function () {
+                    var id = "#sgp_" + $(this).data("pid");
+                    return $(id).html();
+                }
+            }).click(function () {
+                var $this = $(this);
+                $(".grouppro_btn").not(this).popover("hide");
+                $this.popover("show");
+            });
+        }
+        product.bat = function (a, msg) {
+            if (msg && !confirm(msg)) { return false; }
+            mvcpage.bat({ url: 'Product_API?action=' + a });
+        }
+        product.init();
+
+        function showStock(id) {
+            var url = "/AdminMVC/Product/StockAdd?ProID=" + id;
+            comdiag.maxbtn = false;
+            comdiag.ShowModal(url, "库存管理");
+        }
+        function showsuit(id) {
+            var url = "/common/comp/SuitPro.aspx?id=" + id
+            comdiag.maxbtn = false;
+            comdiag.width = 600;
+            comdiag.reload = true;
+            comdiag.ShowModal(url, "促销组合");
+        }
+        function showBindUser(id) {
+            var url = "Addon/ShowProBindUser.aspx?proid=" + id;
+            comdiag.maxbtn = false;
+            comdiag.width = 600;
+            comdiag.reload = true;
+            comdiag.ShowModal(url, "特选商品");
+        }
+        var pop = { href: '' };
+        pop.close = function (btn) {
+            var id = $(btn).closest(".popover").attr("id");
+            $("#" + id).popover("hide");
+        }
+
+        function ShowPopover(obj) {
+            $(".popbox").hide();
+            $(obj).find(".popover").show();
+        }
+        $(".hidePopover").click(function () {
+            $(this).parent(".popbox").hide();
+            $(".popbox").hide();
+        })
+
+        //店铺筛选
+        $(".store_btn").click(function () {
+            location.href = "ProductManage.aspx?storeid=" + $(this).data("storeid");
+        });
+        function showstore(btn) {
+            var $this = $(btn);
+            if ($("#store_list").css("display") == "none") {
+                $this.removeClass("fa-caret-right").addClass("fa-caret-down");
+                $("#store_list").slideDown(300);
+            }
+            else {
+                $this.removeClass("fa-caret-down").addClass("fa-caret-right");
+                $("#store_list").slideUp(200);
+            }
+        }
+        //下拉菜单
+        $("#commodity_cz .btn-group li").addClass("dropdown-item");
+
+        //冒泡
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+
+        })
+
+    </script> 
+}

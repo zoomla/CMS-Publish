@@ -1,0 +1,28 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@foreach (DataRow dr in Model.fieldDT.Rows)
+{
+    Model.fieldMod = new M_ModelField().GetModelFromReader(dr);
+    <div style=""><strong>@Model.fieldMod.FieldAlias</strong></div>
+    <div style="padding-bottom:5px;border-bottom:1px solid #ddd;">
+        @switch (Model.fieldMod.FieldType)
+        {
+            case "Images":
+            case "MultiPicType":
+                 @Html.Partial("Fields/View_Images", Model);
+                break;
+            case "PicType":
+            case "autothumb":
+            case "CameraType":
+            case "SwfFileUpload":
+                @Html.Partial("Fields/View_Default", Model);
+                break;
+            default:
+                @Html.Partial("Fields/View_Default", Model);
+                break;
+        }
+        <div class="clearfix"></div>
+    </div>
+}

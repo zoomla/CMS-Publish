@@ -1,0 +1,44 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@model ZoomLa.BLL.Shop.F_Order_Sale
+@{
+    DataTable paymentDT = B_Shop_SaleReport.SelPayment(Model);
+    DataTable dayDT = B_Shop_SaleReport.SumByDay(paymentDT, Model.stime, Model.etime);
+    string totalMoney = DataConverter.CDouble(dayDT.Compute("SUM(total)", "")).ToString("F2");
+}
+@section head{<title>销售记录</title>}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="store"></div>
+    <div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+            <li class="breadcrumb-item"><a href="../UserShop/ProductList">我的店铺</a></li>
+            <li class="breadcrumb-item active">按商品统计</li>
+        </ol>
+	</nav>	
+     @Html.Partial("SaleTopMenu", Model)
+    <table class="table table-bordered table-striped" id="EGV">
+        <tr><td class="td_m">日期</td><td>在线支付</td><td>余额支付</td><td>总计销售</td></tr>
+        @foreach (DataRow dr in dayDT.Rows)
+    {
+            <tr><td>@dr["date"]</td><td>@dr["pay_online"]</td><td>@dr["pay_purse"]</td><td>@dr["total"]</td></tr>
+        }
+    </table>
+    <div style="height:55px;"></div>
+    <div style="position:fixed;bottom:20px;height:45px; width:100%;padding:8px 8px;background-color:rgba(52, 48, 48, 0.33);text-align:center;">
+        <button type="button" class="btn btn-info pull-left" onclick="ZLHelper.ToExcelByID()"><i class="zi zi_fileExcel"></i> 导出Excel</button>
+        <div style="font-size:2rem;line-height:30px;">
+            <span>销售统计：</span><span style="color:#ff0000;">@totalMoney</span>
+        </div>
+    </div>
+    </div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>	
+}
+@section script{
+
+}

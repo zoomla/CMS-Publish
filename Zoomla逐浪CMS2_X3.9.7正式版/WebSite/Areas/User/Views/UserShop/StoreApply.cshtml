@@ -1,0 +1,67 @@
+﻿@using ZoomLa.BLL
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.AppCode.Controls
+@using System.Data
+@model ZoomLa.Model.M_CommonData
+@{
+    
+    DataTable styleDt = ViewBag.styleDt;
+}
+@section head{
+<title>我的店铺</title>
+<script type="text/javascript" charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div>
+<nav aria-label="breadcrumb" role="navigation" class="container">
+  <ol class="breadcrumb">
+	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item active">店铺申请</li>
+  </ol>
+</nav>
+<main class="container u_Sapply">
+	@{Html.BeginForm("Apply_Add", "UserShop");}
+	<ul class="fd_body">
+		<li class="fd_item text-center">申请开通店铺</li>
+		<li class="fd_item">
+			<div class="fd_item_head"><div class="fd_alias">商铺名称</div><span class="fd_item_req">*</span></div>
+			<div class="fd_item_field">
+				<input type="text" name="store_t" class="form-control m715-50 required" value="@Model.Title" />
+			</div>
+		</li>
+		<li class="fd_item">
+			<div class="fd_item_head"><div class="fd_alias">商铺类型</div><span class="fd_item_req">*</span></div>
+			<div class="fd_item_field">
+				@Html.DropDownList("model_dp", ViewBag.moddp as SelectList, new { @class = "form-control text_md" })
+			</div>
+		</li>
+		<li class="fd_item">
+			<div class="fd_item_head"><div class="fd_alias">商铺样式</div><span class="fd_item_req">*</span></div>
+			<div class="fd_item_field">
+				@Html.Partial("C_TemplateView", new C_TemplateView(styleDt))
+				<div class="clearfix"></div>
+			</div>
+		</li>
+		@Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(Model.ModelID, Model.NodeID, new ModelConfig() { Source = ModelConfig.SType.Admin }, Model.GeneralID))
+	</ul>
+	<div class="text-center">
+		<input type="submit" class="btn btn-info" value="信息提交" />
+		<a href="@Url.Action("","Info")" class="btn btn-outline-info">返回</a>
+	</div>
+	@{Html.EndForm();}
+</main>
+}
+@section script{
+<script src="/js/Common.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/js/ZL_Content.js"></script>
+<script>
+	$(function () {
+		$("form").validate();
+		//导航处理
+		$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+	})
+</script>
+}

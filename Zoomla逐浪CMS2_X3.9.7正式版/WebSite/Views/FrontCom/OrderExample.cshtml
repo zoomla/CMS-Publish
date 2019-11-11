@@ -1,0 +1,41 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.BLL.Helper
+@model ZoomLa.Model.M_UserInfo
+@{
+    Layout = "~/Views/Shared/_empty.cshtml";
+    //要提交的类型
+    string type = Request.QueryString["type"];
+}
+@section head{<title>表单提交示例</title>}
+@section content{
+    @switch (type)
+    {
+        case "fast"://快速订单
+            <form id="form" name="form" method="post" action="/Cart/FastOrder.aspx">
+                <table class="table table-bordered">
+                    <tr><td style="width:120px;">商品页网址</td><td><input type="text" id="ProUrl" name="ProUrl"></td></tr>
+                    <tr><td>商品名称</td><td><input type="text" value="商品名称" id="Proname" name="Proname" /></td></tr>
+                    <tr><td>来源卖家</td><td><input type="text" value="来源卖家" id="ProSeller" name="ProSeller" /></td></tr>
+                    <tr>
+                        <td>商品价格</td>
+                        <td>
+                            <input type="text" value="100" id="Price" name="Price" onKeyUp="value=value.replace(/[^\d\.]/g,'')" />
+                            不包括国内运费,国内运费会在结算时一并计算
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>商品数量</td>
+                        <td><input type="text" value="3" id="Pronum" name="Pronum" onKeyUp="value=value.replace(/[^\d\.]/g,'')" />您要购买商品的数量</td>
+                    </tr>
+                    <tr><td>您的备注</td><td><input type="text" value="红色,请于XX之前发货" id="Proinfo" name="Proinfo" /></td></tr>
+                    <tr><td>手机号码</td><td><input type="text" id="Phone" name="Phone" /></td></tr>
+                    <tr><td>商品属性</td><td><input type="text" id="Attribute" name="Attribute" /></td></tr>
+                    <tr><td></td><td><input type="submit" name="button" id="button" value="提交" class="btn btn-info"/></td></tr>
+                </table>
+                <input type="hidden" value="1" id="ProClass" name="ProClass" />
+            </form>
+            break;
+    }
+
+}
+@section script{}

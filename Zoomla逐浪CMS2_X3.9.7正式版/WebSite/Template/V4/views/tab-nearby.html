@@ -1,0 +1,26 @@
+<ion-view view-title="附近">
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()" ui-sref="tab.dash"></button>
+<div class="title title-center header-item">附近</div>
+</ion-header-bar>
+<ion-content>
+<ion-refresher on-refresh="pulldown.refresh();" pulling-text="松开加载最新" refreshing-text="正在努力加载..." refreshing-icon="ion-loading-b"></ion-refresher>
+<div class="list nearby_list">
+<div class="item item-thumbnail-left" ng-repeat="item in userlist">
+<img ng-src="{{item.salt}}" alt="{{item.username}}" onerror="javascript:this.src='/Images/userface/noface.gif';" />
+<h2>{{item.username}} <span class="pull-right">0.02km | {{item.lastlogintime | date:"MM-dd"}}</span></h2>
+<div class="nearby_list_t">
+<span>{{usergroup[item.groupid-1]}}</span>
+<span>LV14</span>
+<div class="clearfix"></div>
+</div>
+<div class="nearby_list_b">
+<a href="#"><i class="ion ion-person-add"></i></a>
+<a href="#"><i class="ion ion-chatboxes"></i></a>
+</div>
+</div>
+</div>
+
+<ion-infinite-scroll ng-if="pullup.canbeload" on-infinite="pullup.load();" distance="1%"></ion-infinite-scroll>
+</ion-content>
+</ion-view>

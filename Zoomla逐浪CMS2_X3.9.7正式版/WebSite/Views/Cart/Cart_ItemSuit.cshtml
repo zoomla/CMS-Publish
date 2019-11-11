@@ -1,0 +1,63 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@model ZoomLaCMS.Models.Cart.VM_Cart
+@{ 
+    B_Product proBll = new B_Product();
+    DataRow dr = Model.dr;
+    DataTable proDT = null;
+    try
+    {
+        proBll.Suit_GetProduct(DataConverter.CStr(dr["procontent"]), DataConverter.CLng(dr["Pronum"]));
+    }
+    catch { proDT = new DataTable(); }
+}
+<tbody id="suit_wrap_@dr["ID"]">
+    <tr data-id="@dr["ID"]" class="cart_item">
+        <td scope="col" class="posit_r">
+            <input type="checkbox" name="prochk" data-store="@dr["StoreID"]" checked="checked" value="@dr["ID"]" />
+            <div class="line_vertical"></div>
+        </td>
+        <td scope="col"><strong>【套装】</strong>@dr["ProName"]</td>
+        <td scope="col">@Model.GetPrice(dr)</td>
+        <td scope="col" class="pronum_td" colspan="2">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend" onclick="cart.suit.setnum('@dr["ID"]','+');">
+                    <span class="input-group-text"><i class="zi zi_minus"></i></span>
+                </div>
+                <input type="text" class="form-control pronum_text" id="pronum_@dr["ID"]" value="@dr["Pronum"]" autocomplete="off" onblur="cart.suit.setnum('@dr["ID"]',this.value);">
+                <div class="input-group-append" onclick="cart.suit.setnum('@dr["ID"]','-');">
+                    <span class="input-group-text"><i class="zi zi_plus"></i></span>
+                </div>
+            </div>
+        </td>
+        <td scope="col" class=""><span id="trprice_@dr["ID"]" class="trprice">@Model.GetPrice(dr)</span></td>
+        <td scope="col" class="">
+            <a href="javascript:;" class="grayremind remove_cart" onclick="cart.del('@dr["ID"]');">删除</a>
+        </td>
+    </tr>
+    @foreach (DataRow pro in proDT.Rows)
+    {
+        <tr class="suit_item">
+            <td class="posit_r">
+                <span class="line_circle"></span>
+                <div class="line_vertical"></div>
+            </td>
+            <td>
+                <a href="@Model.GetShopUrl(pro)" target="_blank" title="浏览商品">
+                    <img src="@Model.GetImgUrl(pro["Thumbnails"])" onerror="shownopic(this);" class="preimg_l cart_Ting" />
+                </a>
+
+            </td>
+            <td class="coatShop_title"><a href="@Model.GetShopUrl(pro)" target="_blank" title="浏览商品">@pro["ProName"]</a></td>
+            <td class="tdline move_d_none suit_item_price">@Convert.ToDouble(pro["LinPrice"]).ToString("F2")</td>
+            <td class="tdline text-center">
+                <span class="suit_item_num">@pro["suitnum"]</span>@(pro["ProUnit"])/套 X<span class="suit_item_pronum">@pro["Pronum"]</span>
+            </td>
+            <td class="tdline move_d_none"></td>
+            <td class="tdline suit_item_total">@(Convert.ToDouble(pro["LinPrice"])*Convert.ToInt32(pro["Pronum"])).ToString("F2")</td>
+            <td class="tdline">
+            </td>
+        </tr>
+    }
+</tbody>

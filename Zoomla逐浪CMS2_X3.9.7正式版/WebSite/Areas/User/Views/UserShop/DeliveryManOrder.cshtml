@@ -1,0 +1,31 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    
+}
+@section head{
+    <title>订单结算</title>
+}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+	 <li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="ProductList">我的店铺</a></li>
+	<li class="breadcrumb-item">订单结清</li>
+</ol>
+</nav>
+</div>
+<div class="container">
+    @Html.Partial("DeliveryManOrder_List")
+</div>
+<script>
+$(function(){
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+})
+</script>
+}
+@section script{
+
+}

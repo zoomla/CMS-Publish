@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="ZoomLaCMS.Plugins.Markdown.Default" MasterPageFile="~/Common/Master/Empty.master" ValidateRequest="false"%>

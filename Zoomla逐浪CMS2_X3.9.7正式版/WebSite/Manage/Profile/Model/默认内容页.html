@@ -1,0 +1,23 @@
+﻿{ZL.Source id="@LabelName0" /}<!DOCTYPEHTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{SField sid="@LabelName0" FD="Title" page="0"/}</title>
+{ZL:Boot4()/}
+<meta name="Keywords" content="{SField sid="@LabelName0" FD="Tagkey" page="0" /}">
+{ZL:GetCSS(2,0)/}
+<script src="/js/scrolltopcontrol.js"></script>
+<style>
+.top{ min-height: 16vh; background: rgba(63,157,216,0.6);text-align:center;}
+h1{ padding-top: 7vh; font-size:1.4rem;}
+</style>
+</head>
+<body>
+<div class="top"><h1>模板内容放这里,字段采用数据源调出，下方为自动字段调用示范↓<small class="text-muted"><a href="/help.html" target="_blank"><i class="zi zi_infocircle"></i> 快速帮助></a></small></h1>
+</div>
+<div class="container">
+{ZL.Label id="@LabelName2" /} 
+    <!--{  ZL.Label id="新模型内容解析_自动获得所有字段内容值" /}--> 
+</div>    
+</body>
+</html>

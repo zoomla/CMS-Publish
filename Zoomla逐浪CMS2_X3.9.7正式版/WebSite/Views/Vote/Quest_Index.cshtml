@@ -1,0 +1,23 @@
+﻿@using System.Data
+@using ZoomLa.Model.Design
+@model System.Data.DataTable
+@{
+    int index = 0;
+}
+
+@foreach (DataRow dr in Model.Rows)
+{
+    index++;
+    M_Design_Question questMod = new M_Design_Question().GetModelFromReader(dr);
+    string info = JsonHelper.GetJson(new string[] { "id", "qtype", "required", "index" }, new object[] { questMod.ID, questMod.QType, questMod.Required, index });
+    <li class="quest_wrap" data-info="@info">
+        <div class="quest_title">
+            @(index+ "、"+questMod.QTitle)
+            @if (questMod.Required) {<span style="color:red;margin-left:5px;font-weight:normal;">*</span> }
+        </div>
+        <div class="quest_cont">
+            @MvcHtmlString.Create(questMod.QContent)
+        </div>
+        @Html.Partial("Quest_" + questMod.QType, questMod)
+    </li>
+}

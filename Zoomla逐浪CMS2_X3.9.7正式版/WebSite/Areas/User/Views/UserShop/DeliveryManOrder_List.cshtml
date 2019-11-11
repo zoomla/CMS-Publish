@@ -1,0 +1,36 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using System.Data
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@{
+    Model.cols = 8;
+}
+<table id="EGV" class="table table-bordered table-striped">
+    <tr>
+        <td class="td_s"></td>
+        <td>ID</td>
+        <td>店铺</td>
+        <td>订单号</td>
+        <td>客户名称</td>
+        <td>已支付金额</td>
+        <td>下单时间</td>
+        <td>操作</td>
+    </tr>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td>@dr["StoreName"]</td>
+            <td>@dr["OrderNo"]</td>
+            <td>@dr["Rename"]</td>
+            <td>@Convert.ToDouble(dr["Receivablesamount"]).ToString("F2")</td>
+            <td>@DateHelper.ToDate(dr["AddTime"])</td>
+            <td>
+                <a href="/BU/Money/OrderSettle.aspx?ID=@dr["ID"]" class="btn btn-primary" >结算</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page", Model)
+</table>

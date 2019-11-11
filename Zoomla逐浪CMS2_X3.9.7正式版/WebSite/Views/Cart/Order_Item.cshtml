@@ -1,0 +1,31 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model ZoomLaCMS.Models.Cart.VM_CartOrder
+@{
+    DataRow dr = Model.dr;
+ }
+<tr>
+    <td class="text-left">
+        <div class="pull-left">
+            <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品">
+                <img src="@(function.GetImgUrl(dr["Thumbnails"]))" onerror="shownopic(this);" class="preimg_m" />
+            </a>
+        </div>
+
+    </td>
+    <td>
+        <div class="tdtext shop_ddcon text-left">
+            <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品"><span>@dr["ProName"]</span></a>
+            <p class="grayremind">@Model.GetAddition(dr)</p>
+        </div>
+        <div>
+            @Html.Partial("Comp/Cart_Present", dr)
+        </div>
+    </td>
+    <td class="tdtext">
+        <i class="zi zi_yensign">@Convert.ToDouble(dr["AllMoney"]).ToString("F2")</i>
+    </td>
+    <td class="tdtext text-danger">@Model.GetDisCount(dr)</td>
+    <td class="tdtext">x @dr["Pronum"]</td>
+    <td class="tdtext cartStock move_d_none">@Model.GetStockStatus(dr)</td>
+</tr>

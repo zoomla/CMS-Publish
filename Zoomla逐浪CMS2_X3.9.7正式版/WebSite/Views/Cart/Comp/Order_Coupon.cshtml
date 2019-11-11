@@ -1,0 +1,114 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@model ZoomLaCMS.Models.Cart.VM_CartOrder
+@functions{
+    B_Arrive avBll = new B_Arrive();
+    B_User buser = new B_User();
+    B_Cart cartBll = new B_Cart();
+    public string Arrive_GetMoneyRegion(DataRow dr) { return avBll.GetMoneyRegion(DataConvert.CDouble(dr["MinAmount"]), DataConvert.CDouble(dr["MaxAMount"])); }
+}
+@{
+    //根据商品+金额,计算出可用的优惠券,目标ashx也需要验证
+    //仅供订单页使用
+
+    M_UserInfo mu = Model.mu;
+    double allmoney = DataConvert.CDouble(Request["allmoney"]);
+    string ids = DataConvert.CStr(Request.QueryString["ids"]);
+    //------用户有哪些未使用的优惠券
+    DataTable avdt = avBll.U_Sel(mu.UserID, -100, 1);
+    DataTable avdt_enable = null;
+    DataTable avdt_disable = null;
+    DataTable cartdt = null;
+    if (avdt.Rows.Count < 1) {  return; }
+    else
+    {
+        avdt.Columns.Add("enable", typeof(int));//优惠券是否有效 1:有效
+        avdt.Columns.Add("err", typeof(string));//不能使用的原因
+        cartdt = cartBll.SelByCartID(B_Cart.GetCartID(), mu.UserID, -100, ids);
+        //---------------------------------------Logical
+        for (int i = 0; i < avdt.Rows.Count; i++)
+        {
+            DataRow dr = avdt.Rows[i];
+            M_Arrive avMod = new M_Arrive().GetModelFromReader(dr);
+            double money = allmoney;
+            M_Arrive_Result retMod = avBll.U_CheckArrive(avMod, mu.UserID, cartdt, money);
+            dr["enable"] = retMod.enabled ? 1 : 0;
+            dr["err"] = retMod.err;
+        }
+        avdt.DefaultView.RowFilter = "enable='1'";
+        //function.WriteErrMsg(avdt.DefaultView.ToTable().Rows.Count.ToString());
+        avdt_enable = avdt.DefaultView.ToTable();
+        avdt.DefaultView.RowFilter = "enable='0'";
+        avdt_disable = avdt.DefaultView.ToTable();
+    }
+
+
+ }
+<div id="arrive_div" class="extenddiv">
+<input type="hidden" id="Arrive_Hid" name="Arrive_Hid" />
+@if (avdt.Rows.Count < 1)
+{
+    <div id="arrive_empty_div">
+        <div class="alert alert-info">没有可用的优惠券</div>
+    </div>
+}
+else
+{
+    <div id="arrive_data_div">
+        <ul id="arrive_active_ul" class="list-unstyled arrive_o">
+
+            @foreach (DataRow dr in avdt_enable.Rows)
+            {
+                <li class="item" data-flow="@dr["flow"]">
+                    <div class="c_top"></div>
+                    <div class="detail">
+                        <div class="c_msg">
+                            <div class="c_price">
+                                <i class="zi zi_yensign"></i>@DataConvert.CLng(dr["AMount"])
+                                <span class="c_limit">@(Arrive_GetMoneyRegion(dr))</span>
+                            </div>
+                            <div class="c_time">@("有效期至" + DataConvert.CDate(dr["EndTime"]).ToString("yyyy-MM-dd")) )</div>
+                        </div>
+                        <div class="c_type">
+                            <span>[@(avBll.GetTypeStr(dr))]</span>
+                            <span class="pull-right">@dr["ArriveName"]</span>
+                        </div>
+                    </div>
+                    <div class="info"></div>
+                    <span class="c_choose"></span>
+                </li>
+            }
+
+            <li class="clearfix"></li>
+        </ul>
+        <hr />
+        <ul class="list-unstyled arrive_o">
+            @foreach (DataRow dr in avdt_disable.Rows)
+            {
+                <li class="item disable">
+                    <div class="c_top"></div>
+                    <div class="detail">
+                        <div class="c_msg">
+                            <div class="c_price">
+                                <i class="zi zi_yensign"></i>@DataConvert.CLng(dr["AMount"])
+                                <span class="c_limit">@Arrive_GetMoneyRegion(dr)</span>
+                            </div>
+                            <div class="c_time">@("有效期至" + DataConvert.CDate(dr["EndTime"]).ToString("yyyy-MM-dd"))</div>
+                        </div>
+                        <div class="c_type"><span>[@(avBll.GetTypeStr(dr))]</span></div>
+                        <div class="r_gray margin_t5"><i class="zi zi_exclamationcircle"></i> @dr["err"]</div>
+                    </div>
+                    <div class="info"></div>
+                    <span class="c_choose"></span>
+                </li>
+            }
+                    
+            <li class="clearfix"></li>
+        </ul>
+    </div>
+}
+
+</div>

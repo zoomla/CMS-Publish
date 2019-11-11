@@ -1,0 +1,37 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.Model
+@model ZoomLa.Model.M_IServerReply
+@{ 
+    Layout = "/Areas/User/Views/Shared/_empty.cshtml";
+    B_IServer isBll = new B_IServer();
+    M_IServer isMod = isBll.SelReturnModel(Model.QuestionId);
+}
+@section head{
+<title>回复问题</title>
+<script src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+@section content{
+<form method="post" action="@MVCHelper.GetAction("QuestionReply_Add",Request)">
+    <div style="min-height:600px;">
+        <table class="table table-bordered table-striped">
+            <tr><td class="td_m">问题</td><td>@isMod.Title</td></tr>
+            <tr><td colspan="2"><textarea style="height:300px;" TextMode="MultiLine" ID="Content_T" name="Content_T">@Model.Content</textarea></td></tr>
+            <tr style="display:none;">
+                <td>附件</td>
+                <td>
+                    <input type="button" id="upfile_btn" class="btn btn-primary" value="选择文件" />
+                    <div style="margin-top: 10px;" id="uploader" class="uploader">
+                        <ul class="filelist"></ul>
+                    </div>
+                    <input type="hidden" ID="Attach_Hid" name="Attach_Hid" value="@Model.Path"/>
+                </td>
+            </tr>
+            <tr><td></td><td><input type="submit" value="保存信息" class="btn btn-info" /></td></tr>
+        </table>
+    </div>
+</form>    
+}
+@section script{
+ @MvcHtmlString.Create(Call.GetUEditor("Content_T",2))
+}

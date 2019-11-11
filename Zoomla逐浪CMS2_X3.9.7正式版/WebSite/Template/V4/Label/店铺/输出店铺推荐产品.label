@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>120</LabelID>
+    <LabelName>输出店铺推荐产品</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>店铺</LabelCate>
+    <LabelDesc />
+    <LabelParam>TitleNum,25,1,名称长|ShowNum,10,1,显示数</LabelParam>
+    <LabelTable>ZL_Commodities</LabelTable>
+    <LabelField>ID,LinPrice,Proname,Thumbnails,ShiPrice,AddUser</LabelField>
+    <LabelWhere>Sales=1 And istrue=1 And isbest=1 And Recycler=0 And UserShopID&gt;0</LabelWhere>
+    <LabelOrder>AddTime DESC</LabelOrder>
+    <LabelContent>{Repeate}
+&lt;li  class="col-lg-3 col-md-3 col-sm-6 col-xs-12"&gt;
+&lt;a href="{ZL:GetShopUrl({Field="ID"/})/}" title="{Field="Proname"/}"&gt;
+&lt;img src="{ZL:GetPicUrl({Field="Thumbnails"/})/}" alt="{Field="Proname"/}" class="img-responsive img-thumbnail" onerror="javascript:this.src='/UploadFiles/nopic.gif';" /&gt;
+&lt;/a&gt;
+&lt;p style="font-size:0.89rem;"&gt;&lt;strong&gt;&lt;a  href="{ZL:GetShopUrl({Field="ID"/})/}" title="{Field="Proname"/}"&gt;{ZL:CutText({Field="Proname"/},@TitleNum,)/}&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+零售价：&lt;strong&gt;￥{ZL:GetMoney({Field="LinPrice"/},2,1)/}&lt;/strong&gt;&lt;br /&gt; 市场价：&lt;span class="throught"&gt;￥{ZL:GetMoney({Field="ShiPrice"/},2,1)/}&lt;/span&gt;
+&lt;p&gt;
+&lt;/li&gt;{/Repeate} </LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue>0</Modelvalue>
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Commodities","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

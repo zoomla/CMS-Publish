@@ -1,0 +1,105 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Model.Client
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.BLL
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Client
+@using Newtonsoft.Json
+@model ZoomLa.Model.Client.M_CRMS_Client
+@{
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    DataTable ctypeDT = attrBll.Sel("ctype");
+}
+@section head{
+    <title>常用客户管理</title>
+}
+@section content{
+    <div id="pageflag" data-nav="group" data-ban="ConstPassen"></div>
+    <div class="container">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a title="会员中心" href="/User/Default">会员中心</a></li>
+                <li class="breadcrumb-item active">客户管理</li>
+                <li class="breadcrumb-item">客户信息</li>
+            </ol>
+        </nav>
+        <form method="post" action="@MVCHelper.GetAction("Client_Add",Request)">
+            <table class="table table-bordered table-striped">
+                        <tr>
+                            <th class="td_m">客户类型</th>
+                            <td colspan="3">
+                                @MVCHelper.H_Checks("ClientType", ctypeDT, "value", "value", Model.ClientType)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="width:10%;">客户名称 <span class="text-danger">*</span></th>
+                            <td style="width:40%;">@Html.TextBoxFor(m => m.ClientName, new { @class = "form-control max20rem required" })</td>
+                            <th style="width:10%;">联系电话 <span class="text-danger">*</span></th>
+                            <td style="width:40%;">
+                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control max20rem required mobile" })
+                                <small class="text-muted">手机或座机号码,座机格式:010-1234567</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>省份</th>
+                            <td>
+                                <div class="input-group" style="width:400px;">
+                                    <select id="Province" name="Province" class="form-control"></select>
+                                    <select id="City" name="City" class="form-control"></select>
+                                    <select id="County" name="County" class="form-control"></select>
+                                </div>
+                            </td>
+                            <th>详细地址</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>客户级别</th>
+                            <td>
+                                @Html.DropDownListFor(m => m.ClientLevel,
+                       MVCHelper.ToSelectList("重点客户|普通客户|非优先客户".Split('|'), "重点客户|普通客户|非优先客户".Split('|'), Model.ClientLevel),
+                       new { @class = "form-control max20rem disabled" })
+                            </td>
+                            <th>行业</th>
+                            <td>@Html.TextBoxFor(m => m.ClientClass, new { @class = "form-control max20rem" })</td>
+                        </tr>
+                        <tr>
+                            <th>邮政编码</th>
+                            <td>@Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control max20rem digits", maxlength = 6 })</td>
+                            <th>传真</th>
+                            <td>@Html.TextBoxFor(m => m.Fax, new { @class = "form-control max20rem" })</td>
+                        </tr>
+                        <tr>
+                            <th>公司网址</th>
+                            <td>@Html.TextBoxFor(m => m.WebSiteUrl, new { @class = "form-control max20rem url" })</td>
+                            <th>微博</th>
+                            <td>@Html.TextBoxFor(m => m.MicroBlogUrl, new { @class = "form-control max20rem url" })</td>
+                        </tr>
+                        <tr><th>备注</th><td colspan="3">@Html.TextAreaFor(m => m.Remind, new { @class = "form-control" })</td></tr>
+                        <tr><td colspan="4" class="text-center">
+                            <input type="submit" value="保存信息" class="btn btn-info"/>
+                            </td></tr>
+                    </table>
+        </form>
+    </div>
+    
+}
+@section script{
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_Array.js?v=1"></script>
+<script src="/JS/Controls/ZL_PCC.js?v=1"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Content.js?v=20160514"></script>
+<script src="/dist/vue/vue.js"></script>
+   <script>
+       $(function () {
+           $("form").validate();
+           var pcc = new ZL_PCC("Province", "City", "County");
+           if ("@Model.ID" != "0") {
+               pcc.SetDef("@Model.Province", "@Model.City", "@Model.County");
+           }
+           pcc.ProvinceInit();
+       });
+    </script> 
+}

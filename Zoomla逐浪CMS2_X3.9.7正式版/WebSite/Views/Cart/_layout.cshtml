@@ -1,0 +1,97 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@{ 
+    ZoomLa.Model.M_UserInfo mu = new ZoomLa.BLL.B_User().GetLogin();
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    @Html.Partial("_layout_assets")
+    <link href="/App_Themes/v4User.css" rel="stylesheet" />
+    @RenderSection("head")
+    <style type="text/css">
+        .r_red{color:#ff6a00;}
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand fixed-top cartTop">
+    <a href="/" class="navbar-brand"><img src="@(Call.LogoUrl)" alt="@Call.SiteName" /><i class="zi zi_home"></i></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#cartNav" aria-controls="cartNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+    <div class="collapse navbar-collapse" id="cartNav">
+        <div class="form-inline cart_seatch my-2 my-md-0 ml-auto">
+            <div class="input-group ml-auto skey_div">
+                <div class="input-group-append">
+                    <button class="btn my-2 my-sm-0 cart_seatchbtn" type="submit" onclick="skey();"><i class="zi zi_search"></i></button>
+                </div>
+                <input type="text" id="skey_t" class="form-control" placeholder="全站检索" data-enter="0">
+                <div class="input-group-append">
+                    <span class="input-group-text"><i onClick="cartIsClose()" class="zi zi_times"></i></span>
+                </div>
+            </div>
+        </div>
+        @if (mu == null || mu.IsNull)
+        {        
+             <ul class="navbar-nav m-0" id="nologin_div">
+                <li class="nav-item"><a class="nav-link c_secrchzbtn" href="javascript:;" onclick="cartIsSearch();"><i class="zi zi_search"></i></a></li>
+                <li class="nav-item"><a href="/User/Login" id="login_a" class="nav-link">登录</a></li>
+                <li class="nav-item"><a href="/User/Register" class="nav-link" target="_blank">注册</a></li>
+            </ul>
+
+        }
+        else
+        {  
+            <ul class="navbar-nav m-0" id="logged_div">
+            <li class="nav-item"><a class="nav-link c_secrchzbtn" href="javascript:;" onclick="cartIsSearch();"><i class="zi zi_search"></i></a></li>
+            <li class="nav-item"><a href="/User/" class="nav-link" id="logged_a">@mu.UserName</a></li>
+            <li class="nav-item"><a href="/User/Order/OrderList" target="_blank" class="nav-link">我的订单</a></li>
+            <li class="nav-item"><a href="/User/User/Logout" class="nav-link"><i class="zi zi_signoutalt cartu_out" aria-hidden="true"></i></a></li>
+        </ul>
+
+        }
+
+    </div>
+</nav>
+
+<div class="" id="cart_body">
+    @RenderSection("content")
+</div>
+<div style="height: 30px;"></div>
+
+<div class="d-none d-md-block cart_site_bottom container">
+        <p>
+            Powered by &copy;
+            <script>
+                var year = "";
+                mydate = new Date();
+                myyear = mydate.getYear();
+                year = (myyear > 200) ? myyear : 1900 + myyear;
+                document.write(year);
+            </script>
+            @(Call.SiteName) BY @(ZoomLa.Components.SiteConfig.SiteInfo.Webmaster)
+        </p>
+    </div>
+
+<footer class="fixed-bottom cord_footer">
+<ul class="d-flex justify-content-around">
+	<li><a  href="/"><i class="zi zi_home" aria-hidden="true"></i><span>首页</span></a></li>
+	<li><a  href="/Cart/Cart.aspx?ProClass=1"><i class="zi zi_shoppingcart" aria-hidden="true"></i><span>购物车</span></a></li>
+	<li><a  href="/User/Order/OrderList"><i class="zi zi_tag" aria-hidden="true"></i><span>订单</span></a></li>
+	<li><a  href="/user"><i class="zi zi_user" aria-hidden="true"></i><span>会员中心</span></a></li>
+</ul>
+</footer>
+@RenderSection("script")
+<script>
+/*显示搜索框*/
+function cartIsSearch(){
+    $(".skey_div").css("opacity","1").css("z-index","1").css("right","20%").css("top","0").css("width",window.innerWidth/3);
+    $(".skey_div .form-control").focus();
+}
+/*关闭搜索框*/
+function cartIsClose(){
+    $(".skey_div").css("opacity","0").css("z-index","-1").css("right","-1em");
+    $(".home_top_nav").fadeIn(1000);
+}
+</script>
+     
+</body>
+</html>

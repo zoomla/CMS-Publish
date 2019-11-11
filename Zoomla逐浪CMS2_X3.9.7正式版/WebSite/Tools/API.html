@@ -1,0 +1,584 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>移动数据接口生成器(API调用示例）</title>
+<link rel="stylesheet" href="../dist/css/bootstrap4.min.css" />
+<link rel="stylesheet" href="../dist/css/zico.min.css" />
+<link rel="stylesheet" href="../App_Themes/V4style.css?Version=20180316" />
+<script src="../JS/jquery.min.js"></script>
+<script src="//code.z01.com/JS/APIHelper.js"></script>
+<script src="//code.z01.com/JS/Controls/B_User.js"></script>
+<script src="//code.z01.com/JS/ZL_ValidateCode.js"></script>
+<script src="../dist/js/bootstrap4.min.js"></script>
+</head>
+<body class="bg-transparent">
+<header class="home_header fixed-top" id="home_header">
+<div class="container">
+<nav class="navbar navbar-expand-sm navbar-dark pl-0"> <a class="navbar-brand API_title" href="../../help.html">服务导航</a>
+  <button class="navbar-toggler" type="button" id="top_pwabtn" data-toggle="collapse" data-target="#top_nav" aria-controls="top_nav" aria-expanded="false" aria-label="Toggle navigation"> 
+  <i class="zi zi_bars text-muted"></i></button>
+  <div class="collapse navbar-collapse top_nav" id="top_nav">
+    <ul class="navbar-nav mr-auto text-center Tools_nav_l">
+      <li class="nav-item"><i class="zi zi_times nav_close_btn" aria-hidden="true"></i>
+	  <a class="nav-link" href="../../help.html">快速帮助 <span class="sr-only">(current)</span></a> </li>
+      <li class="nav-item"> <a class="nav-link" href="../tools/">站长工具</a> </li>
+      <li class="nav-item active"> <a class="nav-link" href="/Tools/API.html">移动API</a> </li>
+    </ul>
+
+	<form class="form-inline" role="search" action="/Search/SearchList" method="get" target="_blank">
+	<div class="form-group Tools_searchbox mt-1">
+	<input name="KeyWord" class="form-control mr-sm-2 searchs_input" id="searchs_input" type="text" placeholder="搜索线上支持">
+	<button class="btn my-2 my-sm-0" type="submit" style="background:none; margin-left:-3rem; color:#ff9d00;" ><i class="zi zi_search" ></i></button>
+	</div>
+	<ul class="navbar-nav ml-auto text-center Tools_nav_r">
+	  <li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">开发资源</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown04">
+        <a class="dropdown-item" href="//ico.z01.com/">zico</a>
+		<a class="dropdown-item" href="//www.ziti163.com/webfont/">Webfont</a>
+        <a class="dropdown-item" href="//v.ziti163.com/">在线做字</a>
+        <a class="dropdown-item" href="//code.z01.com/v4/">Bootstrap 中文站</a>
+        <a class="dropdown-item" href="//code.z01.com/Sass/">Sass语言</a>
+        <a class="dropdown-item" href="//code.z01.com/Emmet/">Emmet语法</a>
+        <a class="dropdown-item" href="//www.z01.com/tool/" target="_blank">IIS站长工具</a>
+        <a class="dropdown-item" href="//ad.z01.com/" target="_blank">广告源码</a>
+        <a class="dropdown-item" href="//v.z01.com/mb/" target="_blank">免费模板</a>
+        <a class="dropdown-item" href="//v.z01.com/" target="_blank">H5移动创作</a>
+        <a class="dropdown-item" href="//www.z01.com/help/web/3234.shtml" target="_blank">Flexbox布局</a>
+		</div>
+      </li>
+      <li class="nav-item"> <a class="nav-link" href="//bbs.z01.com" target="_blank">社区</a> </li>
+    </ul>
+	</form>
+  </div>
+</nav>
+</div>
+</header>
+
+<div class="Tools_banner">
+	<div class="container">
+		<div class="API_banner_main">
+		<h1>数据接口生成工具</h1>
+		<p class="lead">快速生成各类数据接口包括移动JsonP等格式</p>
+<!--		<hr class="my-4">-->
+		<a href="/admin/" class="btn btn-sm btn-info mb-1"> 进入后台</a>
+		<a href="//help.z01.com" class="btn btn-sm btn-info mb-1">使用手册</a>
+		<a href="//code.z01.com/v4/" class="btn btn-sm btn-info mb-1">Bootstrap中文站</a>
+		<a href="//code.z01.com/v4/layout/grid.html" class="btn btn-sm btn-info mb-1"> 栅格系统</a>
+		<a href="//ico.z01.com" class="btn btn-sm btn-info mb-1">zico图标</a>
+		<a href="//www.ziti163.com/uni/" class="btn btn-sm btn-info mb-1">Unicode全球字符集</a>
+		</div>
+	</div>
+</div>
+	<main class="Tools_api_main">
+    <form id="apiform" method="post">
+      <div class="container">
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#tab2" data-toggle="tab">代码生成</a></li>
+                <li class="nav-item"><a class="nav-link" href="#tab0" data-toggle="tab">JsonP跨域</a></li>
+                <li class="nav-item"><a class="nav-link" href="#tab1" data-toggle="tab">用户AJAX</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="tab0" class="tab-pane">
+                   <div class="card mb-2">
+                        <div class="card-header">根据作者,节点等筛选文章</div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered">
+                               <tr><td>文章标题</td><td>创建时间</td><td>作者</td></tr>
+                               <tbody id="art_tbody"></tbody>
+                            </table>
+                            <textarea class="codetext" id="art_text"></textarea>
+                        </div>
+                    </div>
+                   <div class="card mb-2">
+                       <div class="card-header">获取栏目推荐文章</div>
+                       <div class="card-body">
+                          <table class="table table-striped table-bordered">
+                             <tr><td>文章标题</td><td>创建时间</td><td>作者</td></tr>
+                             <tbody id="tops_tbody"></tbody>
+                           </table>
+                           <textarea class="codetext" id="tops_text"></textarea>
+                       </div>
+                   </div>
+                   <div class="card mb-2">
+                        <div class="card-header">获取指定用户的收藏</div>
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered">
+                                <tr><td>标题</td><td>链接</td><td>备注</td></tr>
+                                <tr><td colspan="3">该用户无数据</td></tr>
+                            </table>
+                            <textarea class="codetext" id="selfav_text"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div id="tab1" class="tab-pane">
+                    <div class="card mb-2">
+                       <div class="card-header">用户登录,获取,退出</div>
+                       <div class="card-body">
+                             <div class="uinfo_body">
+                                   <table id="uinfo_table" class="table table-bordered table-striped sys_table" style="display:none;"></table> 
+                             </div>
+                             <div>
+                                  <ul class="list-unstyled loginul">
+                                        <li class="input-group">
+                                            <span class="input-group-prepend"><span class="input-group-text"><i class="zi zi_user"></i></span></span>
+                                            <input type="text" id="uname_t" class="form-control text_max" placeholder="用户名"/>
+                                        </li>
+                                        <li class="input-group">
+                                            <span class="input-group-prepend"><span class="input-group-text"><i class="zi zi_key"></i></span></span>
+                                            <input type="password" id="passwd_t" class="form-control text_max" placeholder="密码"  autocomplete="off"/>
+                                        </li>
+                                        <li id="code_li" class="code_li">
+                                            <input type="text" id="VCode" placeholder="验证码" maxlength="6" class="form-control text_x"/>
+                                            <img id="VCode_img" class="VCode_img" title="点击刷新验证码"/>
+                                            <input type="hidden" id="VCode_hid" name="VCode_hid" />
+                                        </li>
+                                        <li><input type="button" onclick="Login();" value="登录" class="btn btn-info w-100" /></li>
+                                    </ul> 
+                             </div>
+                             <textarea class="codetext" id="buser_text"></textarea> 
+                        </div>
+                </div>
+            </div>
+                <div id="tab2" class="tab-pane active">
+                    <div class="card mb-2">
+                        <div class="card-header">JsonP调用代码生成器</div>
+                        <div class="card-body">
+                            <div>
+                                <table class="table table-bordered sys_table">
+                                    <tr>
+                                        <th class="w12rem_lg">跨域数据接口</th>
+                                        <td>
+                                            <label><input type="radio" data-type="content" value="GetArticles" name="action_rad"/>获取文章</label>
+                                            <label><input type="radio" data-type="content" value="GetTops" name="action_rad" />获取推荐文章</label>
+                                            <label><input type="radio" data-type="content" value="GetCustom" name="action_rad" />自定义接口</label>
+                                            <label><input type="radio" data-type="content" value="SelFavour" name="action_rad" />获取用户收藏</label>
+                                        </td>
+                                    </tr>
+                                    <tr><th>本站用户接口</th><td>
+                                            <label><input type="radio" data-type="user" value="IsLogged" name="action_rad" />获取当前登录用户信息</label>
+                                            <label><input type="radio" data-type="user" value="Login" name="action_rad" />用户登录</label>
+                                            <label><input type="radio" data-type="user" value="Logout" name="action_rad" />用户退出</label>
+                                    </td></tr>
+                                    <!--content仅在内容API下显示,user:仅在用户API下显示-->
+                                    <tr>
+									<th>来源网站</th>
+									<td>
+									  <input type="text" id="url_t" placeholder="以http://开始的网址" value="https://demo.z01.com" class="form-control max20rem"  aria-label="Recipient's username">
+										<small class="text-muted">示例:http://demo.z01.com</small>
+									  </td>
+									</tr>
+                                    <tr><th>Key</th>
+									<td>
+									  <input type="text" id="key_t"  class="form-control max20rem"  aria-label="Recipient's username" >
+									  <small class="text-muted">如未分配,可为空</small>
+									</td></tr>
+                                    <tr class="param Login"><th>用户名</th><td>
+									<div class="input-group mb-3">
+									  <input type="text" id="ex_uname_t" class="form-control max20rem"  value="admin" >
+									</div>
+									</td></tr>
+                                    <tr class="param Login"><th>密码</th><td><input type="text" class="form-control max20rem" id="ex_pwd_t" /></td></tr>
+                                    <tr class="param content"><th>节点ID</th><td><input type="text" id="nid_t" value="0" class="num form-control max20rem" /></td></tr>
+                                    <tr class="param content"><th>每页数据数</th><td><input type="text" id="psize_t" value="10" class="num form-control max20rem" /></td></tr>
+                                    <tr class="param content"><th>第几页</th><td><input type="text" id="cpage_t" value="1" class="num form-control max20rem" />
+									<small class="text-muted">如为1,则取第1*psize条数据</small>
+									</td></tr>
+                                    <tr class="param GetCustom"><th>调用名</th><td><input type="text" id="alias_t" value="myapi" class="form-control max20rem" /><span>自定义开放的接口名称</span></td></tr>
+                                    <tr class="param GetCustom"><th>参数</th><td><textarea id="params_t" class="form-control  ">{"Inputer":"admin","title":"测试"}</textarea>
+									<small class="text-muted">接口开放的参数,Json格式,参数名:参数值</small></td></tr>
+                                    <tr class="param SelFavour"><th>用户ID</th><td><input type="text" id="uid_t" value="1" class="num form-control max20rem" /></td></tr>
+                                    <tr class="param GetArticles"><th>作者名</th><td><input type="text" id="author_t" class="form-control max20rem" /><small class="text-muted">如不需要筛选,则为空</small></td></tr>
+                                    <tr class="param GetArticles">
+                                        <th>时间排序</th>
+                                        <td>
+                                            <select id="order_dp">
+                                                <option value="desc">desc</option>
+                                                <option value="asc">asc</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr><th>操作</th><td>
+                                        <input type="button" class="btn btn-outline-info mb-1" value="生成JS" onclick="CreateJS();" />
+                                        <input type="button" class="btn btn-outline-info mb-1" value="执行JS" onclick="ExecuteJS();"  />
+                                        <input type="button" class="btn btn-outline-info mb-1" value="查看返回数据" onclick="ViewResult();" />
+                                        </td></tr>
+                                </table>
+                            </div>
+                            <div>
+                                <textarea id="code_text" class="codetext"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+      </div>
+<!--
+    <div style="display:none;">
+        <table id="art_tlp" class="table table-striped table-bordered">
+            <tr><td>文章标题</td><td>创建时间</td><td>作者</td></tr>
+            <tbody id="art_tbody"></tbody>
+        </table>
+        </div>
+-->
+    <script>
+        //注意同名控件参数的互相影响造成,带,号上传
+        $(function () {
+            var proto = location.href.split('://')[0];
+            var host = location.href.split('://')[1].split('/')[0];
+            $("#url_t").val(proto + "://" + host + "/");
+            $("#buser_text").val($("#buser")[0].innerHTML);
+            $("#tops_text").val($("#GetTops")[0].innerHTML);
+            $("#art_text").val($("#GetArticles")[0].innerHTML);
+            $("#selfav_text").val($("#SelFavour")[0].innerHTML);
+            IsLogged();
+            GetTops(0, 6);
+            GetArticles(0, 10, 1, "", "desc");
+            $("[name=action_rad]").click(function () {
+                SelAction(this);
+            });
+            $("[name=action_rad]")[0].click();
+            InitData();
+        })
+        //初始化自定义参数数据
+        function InitData() {
+            if (GetParam("params")) {
+                var paramarr = JSON.parse(decodeURIComponent(GetParam("params")));
+                var paramstr = "";
+                for (var i = 0; i < paramarr.length; i++) {//解析参数格式为{"ParamName":"ParamValue"}
+                    paramstr += '"' + paramarr[i].name + '":"' + paramarr[i].defval + '",';
+                }
+                if (paramstr != "")
+                    paramstr = paramstr.substr(0, paramstr.length - 1);
+                $("#params_t").text("{" + paramstr + "}");
+                $("#alias_t").val(GetParam("alias"));
+                $("[name='action_rad'][value='GetCustom']").click();
+            }
+        }
+        //根据所选API接口,显示不同的信息
+        function SelAction(obj) {
+            var css = "." + obj.value;
+            var type = "." + $(obj).data("type");//content|user
+            $(".param").hide();
+            $(".param" + css).show();
+            $(".param" + type).show();
+        }
+        //根据选项生成JS
+        function CreateJS() {
+            var paramMod = GetParamMod();
+            switch (paramMod.type) {
+                case "content":
+                    CreateContentJS(paramMod);
+                    break;
+                case "user":
+                    CreateUserJS(paramMod);
+                    break;
+                default:
+                    alert("接口类型出错");
+                    break;
+            }
+        }
+        function CreateUserJS(paramMod) {
+            var html = "",func="";
+            var jshtml = AddRef("http://code.z01.com/JS/jquery-1.11.1.min.js");
+            jshtml += AddRef("http://code.z01.com/JS/Controls/B_User.js");
+            jshtml += AddRef("http://code.z01.com/JS/APIHelper.js");
+            switch (paramMod.action) {
+                case "IsLogged":
+                    html = 'buser.IsLogged(function (model) {if (model && model != "-1") {alert(model);}else{alert("未登录");}});\r';
+                    break;
+                case "Login":
+                    html ='buser.Login({ name: "' + paramMod.uname + '", pwd:"' + paramMod.upwd + '"}, function (data) {\r'
+                        + 'if (data == -1) { alert("用户名或密码错误"); }\r'
+                        + 'else if (data == -10) { alert("用户名或密码错误"); }\r'
+                        + 'else if (data == -2) {alert("验证码错误"); }\r'
+                        + 'else { alert("登录成功:"+data); }\r'
+                        + '});\r';
+                    break;
+                case "Logout":
+                    html = 'buser.Logout(function () { alert("退出成功");});\r';
+                    break;
+                default:
+                    alert("选定接口不存在");
+                    break;
+            }
+            html = '\rvar buser = new B_User();\r' + html;
+            html = jshtml + "<script>" + html + func + "</" + "script>";
+            $("#code_text").val(html);
+        }
+        function CreateContentJS(paramMod) {
+            //脚本html,模板html,调用方法html
+            var html = "", tlp, func;
+            var jshtml = AddRef("http://code.z01.com/JS/jquery-1.11.1.min.js");
+            jshtml += AddRef("http://code.z01.com/JS/APIHelper.js");
+            switch (paramMod.action) {
+                case "GetArticles":
+                    html += $("#GetArticles")[0].innerHTML;
+                    tlp = document.getElementById("art_tlp").outerHTML + "\r";
+                    func = '\rGetArticles(' + paramMod.nid + ', ' + paramMod.psize + ', ' + paramMod.cpage + ', "' + paramMod.author + '", "' + paramMod.order + '");\r';
+                    break;
+                case "GetTops":
+                    html += $("#GetTops")[0].innerHTML;
+                    tlp = document.getElementById("art_tlp").outerHTML + "\r";
+                    func = '\rGetTops(' + paramMod.nid + ', ' + paramMod.psize + ');\r';
+                    break;
+                case "SelFavour":
+                    html += $("#SelFavour")[0].innerHTML;
+                    tlp = document.getElementById("art_tlp").outerHTML + "\r";
+                    func = '\rSelFavour("' + paramMod.key + '",' + paramMod.uid + ',' + paramMod.psize + ', ' + paramMod.cpage + ');\r';
+                    break;
+                case "GetCustom":
+                    //无法确定返回模板,直接输出值
+                    if (paramMod.alias == "") { alert("调用名称不能为空"); return; }
+                    html += $("#GetCustom")[0].innerHTML;
+                    tlp = document.getElementById("art_tlp").outerHTML + "\r";
+                    func = '\rGetCustom("' + paramMod.key + '","' + paramMod.alias + '",' + paramMod.params + ',' + paramMod.psize + ', ' + paramMod.cpage + ');\r';
+                    break;
+                default:
+                    alert("选定接口不存在");
+                    break;
+            }
+            html = '\rvar server = "' +GetServerUrl() + '"\r' + html;
+            html = jshtml + tlp + "<script>" + html + func + "</" + "script>";
+            $("#code_text").val(html);
+        }
+        //执行text中的JS与Html
+        function ExecuteJS() {
+            var html = $("#code_text").val();
+            if (html == "") { alert("请先生成JS"); return false; }
+            var winname = window.open('', "_blank", '');
+            winname.document.open('text/html', 'replace');
+            winname.opener = null;
+            winname.document.write(html);
+            winname.document.close();
+        }
+        function ViewResult() {
+            server = GetServerUrl();
+            var model = GetParamMod();
+            if (model.type == "user") { alert("该接口无跨域返回结果"); return false;}
+            if (model.action == "") { alert("尚未选定接口"); return false; }
+            var action = "action=" + model.action + "&key=" + model.key + "&psize=" + model.psize + "&cpage=" + model.cpage;
+            var url = server + "?" + action;
+            BuildForm(url, model.list);
+            //window.open(url);
+        }
+        function GetParamMod() {
+            var model = {};
+            model.action = $("[name=action_rad]:checked").val();//
+            model.type = $("[name=action_rad]:checked").data("type");
+            model.key = $("#key_t").val();//
+            model.nid = $("#nid_t").val();
+            model.uname = $("#ex_uname_t").val();
+            model.upwd = $("#ex_pwd_t").val();
+            model.psize = $("#psize_t").val();//
+            model.cpage = $("#cpage_t").val();//
+            model.uid = $("#uid_t").val();
+            model.author = $("#author_t").val();
+            model.order = $("#order_dp").val();
+            model.alias = $("#alias_t").val();
+            model.params = $("#params_t").val();
+            //用于build_form
+            model.list = [];
+            model.list.push({ name: "nid", value: model.nid });
+            model.list.push({ name: "uname", value: model.alias });
+            model.list.push({ name: "upwd", value: model.uid });
+            model.list.push({ name: "author", value: model.author });
+            model.list.push({ name: "order", value: model.order });
+            model.list.push({ name: "alias", value: model.alias });
+            model.list.push({ name: "params", value: model.params });
+            return model;
+        }
+        function AddRef(url)
+        {
+            return "<script src=\"" + url + "\">" + "</" + "script>\r";
+        }
+        function BuildForm(url, list) {//name,value
+            var $div = $("#build_div"); $div.html("");
+            $div.append('<form id="build_form" method="post" target="_blank" action="' + url + '"></form>');
+            $form = $("#build_form");
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].name == "params") {
+                    //对Json作特殊处理
+                    var model = JSON.parse(list[i].value);
+                    for (key in model) {
+                        $form.append('<input type="hidden" name="' + key + '" value="' + model[key] + '" />');
+                    }
+                }
+                else {
+                    $form.append('<input type="hidden" name="' + list[i].name + '" value="' + list[i].value + '" />');
+                }
+            }
+            $form.submit();
+        }
+        //获取当前服务器链接
+        function GetServerUrl() {
+            var url = $("#url_t").val();
+            url = url.replace(/ /g, "");
+            if (url.lastIndexOf("/") != (url.length-1)) { url = url + "/"; }
+            url += "API/Center.ashx";
+            return url;
+        }
+        var server = GetServerUrl();
+
+        //获取url参数(暂时放这里)
+        function GetParam(paramName) {
+            paramValue = "";
+            isFound = false;
+            if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+                arrSource = decodeURI(this.location.search).substring(1, this.location.search.length).split("&");
+                i = 0;
+                while (i < arrSource.length && !isFound) {
+                    if (arrSource[i].indexOf("=") > 0) {
+                        if (arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase()) {
+                            paramValue = arrSource[i].split("=")[1];
+                            isFound = true;
+                        }
+                    }
+                    i++;
+                }
+            }
+            return paramValue;
+        }
+    </script>
+    <script id="buser">
+        var buser = new B_User();
+        //用户登录
+        function Login() {
+            var loginMod = { name: $("#uname_t").val(), pwd: $("#passwd_t").val(), key: $("#VCode_hid").val(), code: $("#VCode").val() };
+            buser.Login(loginMod, function (data) {
+                if (data == -1) { alert("用户名或密码错误"); }
+                else if (data == -10) { EnableCode(); alert("用户名或密码错误"); }
+                else if (data == -2) { EnableCode(); alert("验证码错误"); }
+                else { IsLogged(data); }
+            });
+        }
+        //检测用户是否登录,如果登录,返回用户模型json
+        function IsLogged() {
+            buser.IsLogged(function (model) {if (model && model != "-1") {ShowUInfo(model);}});
+        }
+        //用户AJAX退出
+        function Logout() { buser.Logout(function () { location = location; }); }
+        //
+        function EnableCode() {
+            if ($("#code_li").is(":hidden")) {
+                $("#code_li").show();
+                $("#VCode_img").click();
+                $("#VCode").ValidateCode();
+            }
+        }
+        //将模型中的信息,输出为表格
+        function ShowUInfo(model) {
+            if (typeof (model) == "string") { model = JSON.parse(model); }
+            var $table = $("#uinfo_table");
+            //自动替换模板中同名参数,示例:@UserName
+            var tlp = '<tr><th class="w12rem_lg">头像：</th><td><img src="@UserFace" class="img_3rem" onerror="this.src=\'/UploadFiles/nopic.svg\'" /></td></tr>'
+            + '<tr><th>用户名：</th><td>@UserName</td></tr>'
+            + '<tr><th>真名：</th><td>@UserName</td></tr>'
+            + '<tr><th>昵称：</th><td>@HoneyName</td></tr>'
+            + '<tr><th>虚拟币：</th><td>余额：@Purse,银币：@Sicon,积分：@Point</td></tr>'
+            + '<tr><th>操作：</th><td><input type="button" class="btn btn-outline-info" value="退出登录" onclick="Logout();" /></td>';
+            var html = JsonHelper.FillData(tlp, model);
+            $table.html(html);
+            $table.show();
+        }
+    </script>
+    <script id="GetTops">
+        /**
+        * 获取指定栏目的推荐文章,nid=0则取全站,默认6条
+        * @param { Int } nid 栏目节点ID
+        * @example
+        * GetTops(0, 6);
+        */
+        function GetTops(nid, psize) {
+            GetData("action=GetTops&nid=" + nid + "&psize=" + psize, function (list) {
+                var tlp = '<tr><td>@title</td><td>@createtime</td><td>@inputer</td></tr>';
+                var html = JsonHelper.FillData(tlp, list);
+                $("#tops_tbody").html(html);
+            });
+        }
+        </script>
+    <script id="GetArticles">
+        /**
+            * 根据作者,节点等筛选文章,未指定节点,则筛选全站普通文章数据
+            * @param { Int } nid 栏目节点ID
+            * @param { Int } psize 每页信息数,默认10
+            * @param { Int } cpage 当前分页,默认1
+            * @param { String } author 作者名称,可为空
+            * @param { String } order 按时间排序方式,默认desc,desc|asc
+            * @example
+            * GetArticles(0, 10, 1, "", "desc");
+            */
+        function GetArticles(nid, psize, cpage, author, order) {
+            var action = "action=GetArticles&nid=" + nid + "&psize=" + psize + "&cpage=" + cpage + "&author=" + author + "&order=" + order;
+            GetData(action, function (list) {
+                var tlp = '<tr><td>@title</td><td>@createtime</td><td>@inputer</td></tr>';
+                var html = JsonHelper.FillData(tlp, list);
+                $("#art_tbody").html(html);
+            });
+        }
+    </script>
+    <script id="SelFavour">
+        /**
+         * 获取指定用户收藏的内容,问答等信息
+         * @param { String } 管理员为你分配的key字符串
+         * @param { Int } uid 需要操作的用户ID
+         * @example
+         * SelFavour("mykey", 1, 1, 10,1);
+         */
+        function SelFavour(key, uid, psize, cpage) {
+            var action = "action=SelFavour&uid=" + uid + "&key=" + key + "&psize=" + psize + "&cpage=" + cpage;
+            GetData(action, function () {
+                var tlp = '<tr><td>@title</td><td>@createtime</td><td>@inputer</td></tr>';
+                var html = JsonHelper.FillData(tlp, list);
+                $("#art_tbody").html(html);
+            });
+        }
+    </script>
+    <script id="GetCustom">
+        /**
+            * 读取后台开放的表与字段
+            * @param { String } key   管理员分配给你的key,可为空
+            * @param { String } alias 管理员分配的调用名
+            * @param { Json } params需要传递的参数与值
+            * @example
+            * GetCustom("key","alias",{Author:"admin",Title:"测试"},10,1);
+            */
+        function GetCustom(key, alias, params, psize, cpage) {
+            var action = "action=GetCustom&key=" + key + "&alias=" + alias + "&psize=" + psize + "&cpage=" + cpage;
+            GetData(action, function (list) {
+                var tlp = '<tr><td>@title</td><td>@createtime</td><td>@inputer</td></tr>';
+                var html = JsonHelper.FillData(tlp, list);
+                $("#art_tbody").html(html);
+            }, params);
+        }
+    </script>
+    </form>
+	</main>
+    <div id="build_div"></div>
+	<script>
+	$(function(){
+	$("#home_header").find("[data-target='#top_nav']").click(
+	function(){
+	if($("#home_header").find("[data-target='#top_nav']").attr("aria-expanded")=="false"){
+	$("#home_header").find(".navbar-collapse").animate({right:"0"},100);
+	}else{
+	$("#home_header").find(".navbar-collapse").animate({right:"-200px"},100);
+	}
+	})
+
+	$(".nav_close_btn").click(function(){
+	$("#top_pwabtn").click()
+	})
+	})
+	
+	$("#searchs_input").focus(function(){  
+            $(this).animate({width:"20rem"});
+        });  
+	$("#searchs_input").blur(function(){  
+		$(this).animate({width:"10rem"});
+	}); 
+	</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+﻿@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Components
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+    string value = Model.GetValue();
+    string Name = Model.fieldMod.FieldName;
+    string imgSrc = function.GetImgUrl(value);
+    FieldModel fieldMod = new FieldModel(Model.fieldMod.Content);
+    string addon = Model.config.Source == ModelConfig.SType.UserRegister ? "&action=reg" : "";
+}
+@*@MvcHtmlString.Create(GetPicType())*@
+<div>
+    <div>
+        <img id='Img_@Name' src='@imgSrc' class='preview_img' width='150' height='100' onclick='PopImage("popImg","txt_@Name",500, 400);' onerror="this.src='/UploadFiles/nopic.svg';" title='点击查看大图'>
+    </div>
+    <div class="input-group mb-3" style="margin-top:5px;">
+        <input type="text" class="form-control m50rem_50 @(Model.fieldMod.IsNotNull?"required":"")" value="@value" name="txt_@Name" id="txt_@Name">
+        <span class="input-group-append field_img_btns">
+            <a href='javascript:;' onclick="GetCutpic('@Name','@function.GetRandomString(5)')" class='input-group-text'><i class=‘zi zi_pencilalt’ zico=‘笔黑’></i> 图片修改</a>
+            @if (fieldMod.GetValBool("SelUPFile"))
+            {<a href='javascript:;' onclick="SelectUppic({name:'@Name'})" title='在线选取' class='input-group-text'><i class='zi zi_fileGraph' zico='图片文件'></i> 在线选取</a>}
+        </span>
+    </div>
+	
+	
+	
+</div>
+<div style="margin-top:5px;"><iframe class="field_img_frame" id="Upload_@Name" src="/Common/ContentFile.aspx?ModelID=@Model.ModelID&FieldName=@(Name + addon)" style='border:none;width:100%;height:30px;' scrolling="no"></iframe></div>
+<div id='popImg' style='display:none;'>
+    <div class='ptitle'><span onclick='javascript: document.getElementById("popImg").style.visibility = "hidden";' title='Close' class='ViewPicClo'> &#x00D7; </span>预览图片  </div>
+    <div id='divImage'><img id='imgView' src='#' alt='预览的图片' onload='AutoSetSize(this, 490, 360);' /></div>
+</div>

@@ -1,0 +1,10 @@
+﻿(function () {
+    new Vue({
+        el: "#banner_wrap",
+        data: {
+            list: @list,
+            model:@model,
+        }
+    });
+    /*@date*/
+})(); 

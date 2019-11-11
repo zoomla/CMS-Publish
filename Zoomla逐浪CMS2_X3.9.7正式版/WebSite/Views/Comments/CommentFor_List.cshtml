@@ -1,0 +1,119 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    M_UserInfo mu = new B_User().GetLogin();
+    public string GetUserName(DataRow dr)
+    {
+        string uname = DataConverter.CStr(dr["UserName"]);
+        return string.IsNullOrEmpty(uname) ? "匿名" : uname;
+    }
+    public string GetReport(DataRow dr)
+    {
+        if (DataConverter.CStr(dr["ReprotIDS"]).IndexOf("," + mu.UserID + ",") > -1)
+            return "<span class='comm_btns gray_9'>已举报</span>";
+        else
+            return "<span class='comm_btns' onclick='Report(this)' data-cid='" + dr["CommentID"] + "'><i class='zi zi_handLeft' aria-hidden='true'></i> 举报</span>";
+    }
+    //显示内容?
+    public MvcHtmlString ShowContent(DataRow dr)
+    {
+        string temphtml = "<div class='clearfix'></div><div class='replybody'>{5}<h5>{0}{1}：<!--<span class='comm-date'>@Level</span>--></h5>"
+                                       + "<p class='list-group-item-text'>{4}</p><div  class='text-right comment_isbtn comment_isbtn2'>"
+                                       + "<span class='comm_btns support' data-id='{6}' data-flag='1' onclick='Support(this)'><i class='zi zi_digg'></i> 支持(<span class='count'>{7}</span>)</span>"
+                                       + "<span class='comm_btns support' data-id='{6}' data-flag='0' onclick='Support(this)'><i class='zi zi_oppose'></i> 反对(<span class='count'>{8}</span>)</span>{3}"
+                                       + "<span class='comm_btns' onclick='showHuiFu(this,{6})'><i class='zi zi_comment'></i> 回复</span></div></div>";
+        int level = 0;
+        string html = SelChildComment(Model.dt, dr, temphtml, ref level);
+        return MvcHtmlString.Create(html);
+    }
+    private string SelChildComment(DataTable dt, DataRow dr, string temp, ref int level)
+    {
+        string str = "";
+        dt.DefaultView.RowFilter = ""; dt = dt.DefaultView.ToTable();
+        dt.DefaultView.RowFilter = "CommentID=" + dr["pid"];
+        foreach (DataRow item in dt.DefaultView.ToTable().Rows)
+        {
+            string content = Convert.ToInt32(item["Audited"]) == 1 ? item["Contents"].ToString() : "<span class='comm_audited'><span class='zi zi_checkcircle'></span>感谢回复,编辑正在审核中</span>";
+            content = content.Replace("\"", "");
+            str = string.Format(temp, "", item["UserName"].ToString(), GetPK(item["PKS"].ToString())
+                                , GetReport(dr), content, SelChildComment(dt, item, temp, ref level)
+                                , item["CommentID"], item["AgreeCount"], item["DontCount"]);
+            str = str.Replace("@Level", (++level).ToString());
+        }
+        return str;
+    }
+    public string GetPK(string pk)
+    {
+        if (DataConverter.CBool(pk))
+        {
+            return "我支持";
+        }
+        else
+        {
+            return "我反对";
+        }
+    }
+    public string GetContent(DataRow dr)
+    {
+        if (!DataConverter.CBool(dr["Audited"].ToString()))
+        {
+            return "已开启评论审核功能,待审核通过后即可显示";
+        }
+        else
+        {
+            string content = DataConverter.CStr(dr["Contents"]).Replace("\"", "");
+            //解析表情
+            return content;
+        }
+    }
+}
+@{
+    Model.cols = 10;
+    Model.page_wrap_start = "<li style='width:100%' class='text-center margin_t10'>";
+    Model.page_wrap_end = "</li>";
+    //string uids = ZoomLa.BLL.Helper.StrHelper.GetIDSFromDT(Model.dt, "UserID");
+    //if (string.IsNullOrEmpty(uids)) { uids = "0"; }
+    //DataTable wxuserDT = ZoomLa.SQLDAL.DBCenter.SelWithField("ZL_WX_UserView", "UserID,HeadImgUrl,Name,OpenID", "UserID IN (" + uids + ")");
+    //Model.dt.Columns.Add(new DataColumn("wxname", typeof(string)));
+    //for (int i = 0; i < Model.dt.Rows.Count; i++)
+    //{
+    //    DataRow dr = Model.dt.Rows[i];
+    //    DataRow[] drs = wxuserDT.Select("UserID=" + dr["UserID"]);
+    //    if (drs.Length < 1)
+    //    {
+    //        dr["wxname"] = dr["honeyname"];
+    //    }
+    //    else
+    //    {
+    //        dr["wxname"] = drs[0]["name"];
+    //    }
+    //}
+}
+<ul id="EGV" class="list-group con_comment" style="width: 100%; padding: 0;">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <li class="list-group-item" style="width: 100%;">
+		<div class="comment_tx d-flex"><img src="@dr["UserFace"]" onerror="shownoface(this);" />
+		<span class="padding_r2px"><span class="text-warning">@dr["Layer"]</span> 楼</span>
+		<span class="gray_9"> <span class="text-warning ml-2"> @GetUserName(dr)</span>:</span>
+        <h5 class="list-group-item-heading ml-auto">
+          <span class="comm-date">@dr["CommentTime"]</span>
+        </h5></div>
+        <p class="list-group-item-text">
+            <span>@ShowContent(dr)</span>
+        </p>
+        <div class="pl_content">@MvcHtmlString.Create(GetContent(dr))</div>
+        <div class="text-right comment_func comment_isbtn comment_isbtn1">
+            <span class="comm_btns support" data-id="@dr["commentid"]" data-flag="1" onclick="Support(this)"><i class='zi zi_digg'></i> 支持(<span class="count">@dr["AgreeCount"]</span>)</span>
+            <span class="comm_btns support" data-id="@dr["commentid"]" data-flag="-1" onclick="Support(this)"><i class='zi zi_oppose'></i> 反对(<span class="count">@dr["DontCount"]</span>)</span>
+            @MvcHtmlString.Create(GetReport(dr))
+            <span class="comm_btns" onclick='showHuiFu(this,@dr["commentID"])'><i class='zi zi_comment'></i> 回复</span>
+        </div>
+    </li>
+}
+@Html.Partial("_page2",Model)
+</ul>
+@*@if(Model.pageCount>1){}*@

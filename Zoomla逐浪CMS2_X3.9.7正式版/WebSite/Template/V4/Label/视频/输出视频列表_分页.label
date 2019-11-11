@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>162</LabelID>
+    <LabelName>输出视频列表_分页</LabelName>
+    <LabelType>4</LabelType>
+    <LabelCate>视频</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,86,1,节点ID|TitieNum,30,1,标题长度|ShowNum,10,1,调用数</LabelParam>
+    <LabelTable>ZL_CommonModel left join ZL_C_video on ZL_CommonModel.ItemID=ZL_C_video.ID</LabelTable>
+    <LabelField>ZL_CommonModel.GeneralID,ZL_CommonModel.NodeID,ZL_CommonModel.Title,ZL_C_video.pic,ZL_C_video.synopsis</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID)  and status=99</LabelWhere>
+    <LabelOrder>ZL_CommonModel.CreateTime DESC</LabelOrder>
+    <LabelContent>&lt;ul&gt;
+ {Repeate} &lt;li&gt;
+
+    &lt;a  href="{ZL:GetInfoUrl({Field="GeneralID"/})/}"&gt;
+      &lt;img   src="{ZL:GetPicUrl({Field="pic"/})/}" alt="{Field="Title"/}" class="img-thumbnail"&gt;
+    &lt;/a&gt;
+    &lt;a  href="{ZL:GetInfoUrl({Field="GeneralID"/})/}"&gt; {ZL:CutText({Field="Title"/},@TitieNum,)/} &lt;/a&gt;
+  &lt;/li&gt;{/Repeate}
+&lt;div class="clearfix"&gt;&lt;/div&gt;
+&lt;/ul&gt;
+ {ZL.Page id="大图标响应式列表分页v4"/}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>计数判断</Modeltypeinfo>
+    <addroot>循环计算</addroot>
+    <setroot>等于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_C_video"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

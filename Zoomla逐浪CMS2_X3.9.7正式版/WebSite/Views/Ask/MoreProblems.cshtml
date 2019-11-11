@@ -1,0 +1,34 @@
+﻿@using ZoomLaCMS.Models.Ask
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Views/Shared/_ask.cshtml";
+    VM_AskInfo vmask = new VM_AskInfo();
+}
+@section head{
+<title>问题列表-@(Call.SiteName)问答</title>
+}
+@section content{
+<nav class="container baike_miannav">
+    <ol class="breadcrumb">
+        <li>您的位置：<a href="/">网站首页</a></li>
+        <li><a href="/Ask">问答中心</a></li>
+        <li class="active">搜索列表</li>
+    </ol>
+</nav>
+
+<div class="container">
+    @Html.Action("commonview")
+</div>
+<div class="container">
+    <div class="ask_Resolved">
+        <div class="ask_Resolved_t">问题列表</div>
+        <div class="ask_Resolved_c">
+            <div class="ask_Resolved_cr">
+                @Html.Partial("MoreProblems_List",Model)
+            </div>
+        </div>
+    </div>
+</div>
+}
+@section script{    
+}

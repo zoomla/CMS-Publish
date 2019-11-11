@@ -1,0 +1,32 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Shop
+@model ZoomLa.BLL.Shop.F_Order_Sale
+@{
+    DataTable saleDT = B_Shop_SaleReport.SelByProduct(Model);
+}
+@section head{
+    <title>销售记录</title>
+}
+@section content{
+    <div id="pageflag" data-nav="shop" data-ban="store"></div>
+    <div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+            <li class="breadcrumb-item"><a href="../UserShop/ProductList">我的店铺</a></li>
+            <li class="breadcrumb-item active">按商品统计</li>
+        </ol>
+	</nav>	
+        @Html.Partial("SaleTopMenu", Model)
+        @Html.Partial("SaleByProduct_List", saleDT)
+    </div>
+<script>
+//导航处理
+	$("#usernav1 ul li").removeClass("active").siblings().eq(2).addClass("active");
+</script>
+}
+@section script{
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Label/ZLHelper.js"></script>
+}

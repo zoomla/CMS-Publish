@@ -1,0 +1,56 @@
+﻿@model ZoomLa.Model.M_PayPlat
+
+@section head{ <title>微信支付</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+    new Bread("/{manage}/Main.aspx","工作台"),
+    new Bread(Call.PathAdmin("Pay/PayPlat"),"支付平台"),
+    new Bread() {url=Request.RawUrl, text="PC端微信支付",addon="" }}
+    )
+	<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive-md">
+        <form method="post" action="WechatPlat_Submit">
+            <table class="table table-striped table-bordered table-hover sys_table">
+                <tr>
+                    <th scope="col" class="w12rem_lg">APPID</th>
+                    <td scope="col">
+                        @Html.TextBoxFor(m => m.APPID, new { @class = "form-control max20rem required" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>Secret</th>
+                    <td>
+                        @Html.TextBoxFor(m => m.Secret, new { @class = "form-control max20rem required" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>商户号</th>
+                    <td>
+                        @Html.TextBoxFor(m => m.AccountID, new { @class = "form-control max20rem required" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>商户密钥</th>
+                    <td>
+                        @Html.TextBoxFor(m => m.MD5Key, new { @class = "form-control max20rem required" })
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="submit" ID="Save_B" class="btn btn-info" value="保存信息" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+    }
+@section script{
+   <script>
+        function ReClear() {
+            $('.max20rem').val('');
+        }
+        $("form").validate();
+    </script> 
+    }

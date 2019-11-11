@@ -1,0 +1,24 @@
+<ion-view>
+<ion-header-bar class="bar-calm bar bar-header" align-title="center">
+<button class="button icon ion-chevron-left" ng-click="$ionicGoBack()"></button>
+<div class="title title-center header-item">{{nodename}}</div>
+</ion-header-bar>
+<ion-content>
+<div class="news_cont_t">
+<h1>{{article.title}}</h1>
+<p>
+<span><i class="ion ion-person"></i> {{article.author}}</span>
+<span><i class="ion ion-clock"></i> {{article.createtime | date:"yyyy-MM-dd HH:mm:ss"}}</span>
+<span><i class="ion ion-ios-eye"></i> {{article.hits}}</span>
+</p>
+</div>
+<div class="video_cont_t">
+<video ng-src="{{article.url}}" controls width="100%"></video>
+</div>
+<div class="news_cont_c" ng-bind-html="article.content"></div>
+<div class="h48"></div>
+<style>
+.bar.bar-calm { background-image:none; border-color:#11c1f3;}
+</style>
+</ion-content>
+</ion-view>

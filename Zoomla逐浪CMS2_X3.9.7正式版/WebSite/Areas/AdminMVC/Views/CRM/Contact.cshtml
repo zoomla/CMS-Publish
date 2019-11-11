@@ -1,0 +1,33 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>@Resources.L.联系人</title>}
+@{
+Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+}
+@section content{
+<div class="w-100">
+    <ol id="navWrap" class="breadcrumb navbar-fixed-top">
+    <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main.aspx">@Resources.L.工作台</a></li>
+    <li class="breadcrumb-item"><a href="ClientList">@Resources.L.客户列表</a></li>
+    <li class="breadcrumb-item">
+        <a href="@MvcHtmlString.Create(Request.RawUrl)">@Resources.L.联系人列表</a>
+        [<a href="javascript:;" onclick="ShowComDiag('ContactAdd','联系人管理');">@Resources.L.添加联系人</a>]
+        [<a href="javascript:;" onclick="ShowComDiag('ContactImport', '导入联系人');">@Resources.L.导入联系人</a>]
+    </li>
+</ol>
+   @Html.Partial("Contact_List",Model)
+<div>
+    <input type="button" value="@Resources.L.批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'contact_del', confirm: '确定要批量移除吗' });" />
+    <input type="button" value="@Resources.L.Excel导出" onclick="ZLHelper.ToExcelByID();" class="btn btn-outline-info" />
+</div>
+</div>
+     }
+@section script{
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Label/ZLHelper.js"></script>
+<script>
+    function ContactAddSuccess() {
+        mvcpage.load({ url: "contact", target: "EGV" });
+        CloseComDiag();
+    }
+</script>
+    }

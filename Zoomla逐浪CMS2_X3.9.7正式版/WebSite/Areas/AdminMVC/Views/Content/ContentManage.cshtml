@@ -1,0 +1,279 @@
+﻿@using ZoomLa.Model
+@model ZoomLaCMS.Models.Content.VM_ContentManage
+@functions {
+
+}
+@{
+    Layout = "~/Areas/AdminMVC/Views/Shared/_layTop.cshtml";
+    string adminPath = CustomerPageAction.customPath2;
+}
+@section head{
+<title>@Resources.L.内容管理</title>
+<style type="text/css">
+.popover {max-width:500px !important;}
+.popover-body{width:500px;}
+</style>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol id="BreadNav" class="breadcrumb fixed-top">
+                <li class="breadcrumb-item"><a href="@(adminPath)Main.aspx">@Resources.L.工作台</a></li>
+                <li class="breadcrumb-item"><a href="ContentManage">@Resources.L.内容管理</a></li>
+                <li class="breadcrumb-item active"><a href="ContentManage" title="@(Model.nodeMod.NodeName)">@(Model.nodeMod.NodeName)</a></li>
+                <div class="pull-right1 ml-auto">
+                    <span>
+                        <a href="@(adminPath)Content/SchedTask.aspx" title="@Resources.L.查看计划任务">
+                            <span class="zi zi_clock text-success"></span>
+                        </a>
+                        @if (Model.NodeID > 0)
+                        {
+                            <a href="/Class_@Model.NodeID/Default.aspx" target="_blank" title="@Resources.L.前台浏览">
+                                <i class="zi zi_eye"></i>
+                            </a>
+                            <span onclick="opentitle('@(adminPath)content/Node/EditNode.aspx?NodeID=@(Model.NodeID)','配置本节点');" class="zi zi_cog" title="@Resources.L.配置本节点" style="cursor:pointer;"></span>
+                        }
+                    </span>
+                </div>
+            </ol>
+        </div>
+    </div>
+	
+
+    <div class="opion_header">
+        @Resources.L.内容操作：@MvcHtmlString.Create(Model.GetAddHtml())
+        @if (Model.nodeMod.NodeID > 0)
+    {
+            <span class="pull-right visible-xs visible-sm" id="m_span"><input type="button" class="btn btn-success m_modal" onclick="opentitle('@(adminPath)/Content/Node/EditNode.aspx?NodeID=@Model.NodeID',' 配置本节点')" value="节点选择" /></span>
+        }
+        <span class="pull-right count">
+            @Resources.L.文章数：@Model.Count_WZS
+            @Resources.L.点击数：@Model.Count_DJS
+        </span>
+    </div>
+    <form id="imp_form" method="post" enctype="multipart/form-data" action="@MVCHelper.GetAction("ContentManage_Import",Request)" onsubmit="return ImportExcel();">
+        <div id="divImp" class="Imp_div">
+            选择CSV导入源：<input type="file" id="fileImp" name="fileImp" class="fileImp" accept=".xls,.xlsx,.csv" />
+            <input type="submit" class="btn btn-default" id="upoffice_btn" value="导入" />
+            @*<asp:Button ID="btnCurrentImport" CssClass="btn btn-default" runat="server" OnClick="btnCurrentImport_Click" OnClientClick="if(document.getElementById('fileImp').value.length==0){alert('请选择Excel(CSV)文件,可下载模板!');return false};" Text="导入"/>*@
+            <span class="red">*</span> <a id="downimp" href=""><span id="downspan" class="Down"></span></a>(下载后用EXCEL打开从第二行开始按规范填写并保存即可)
+            <input type="hidden" id="ModelID_H" name="ModelID" />
+        </div>
+    </form>
+    <form method="post" id="form1" class="container-fluid p-0 mr5px">
+	
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#tab" data-toggle="tab" onclick="ShowTabs('')">@Resources.L.所有内容</a></li>
+            @*<li class="nav-item"><a class="nav-link" href="#tab5" data-toggle="tab" onclick="ShowTabs(5)">@Resources.L.工作流审批</a></li>*@
+            <li class="nav-item"><a class="nav-link" href="#tab-3" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Draft)')">@Resources.L.草稿</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab0" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.UnAudit)')">@Resources.L.待审核</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab99" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Audited)')">@Resources.L.已审核</a></li>
+            <li class="nav-item active"><a class="nav-link" href="#tab-1" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Reject)')">@Resources.L.退稿</a></li>
+        </ul>
+        <div id="condiv">
+            @Html.Partial("ContentManage_List", Model)
+        </div>
+        <div class="text-left panel_footers">
+            <input type="button" class="btn btn-outline-danger" value="@Resources.L.批量删除" onclick="mvcpage.bat({ url: 'ContentManage_Del', confirm: '确定要移入回收站吗'});" />
+            <input type="button" class="btn btn-outline-info" value="@Resources.L.定时发布" onclick="$('#timeReDiv').show();"/>
+            <input type="button" class="btn btn-outline-info" value="@Resources.L.推荐" onclick="mvcpage.bat({ url: 'ContentManage_Elite', data: {elite:1}});" />
+            <input type="button" class="btn btn-outline-danger" value="@Resources.L.取消推荐" onclick="mvcpage.bat({ url: 'ContentManage_Elite', data: {elite:0} })" />
+            <input type="button" class="btn btn-outline-info " value="@Resources.L.移动" onclick="batMove();" />
+            <input type="button" class="btn btn-outline-info " value="@Resources.L.添加到专题" onclick="batSpecial();" />
+            @*<input type="button" class="btn btn-outline-info " value="@Resources.L.批量修改" />*@
+            <input type="button" class="btn btn-outline-danger " value="@Resources.L.退稿" onclick="batStatus('@((int)ZLEnum.ConStatus.Reject)')" />
+            <input type="button" class="btn btn-outline-info " value="@Resources.L.审核通过" onclick="batStatus('@((int)ZLEnum.ConStatus.Audited)');" />
+            <input type="button" class="btn btn-outline-danger " value="@Resources.L.取消审核" onclick="batStatus('@((int)ZLEnum.ConStatus.UnAudit)')" />
+            <input type="button" class="btn btn-outline-info " value="@Resources.L.推送内容" onclick="batPush();" />
+            <input type="button" class="btn btn-outline-info " value="@Resources.L.Excel导出" onclick="ToExcel();" />
+            <input type="button" class="btn btn-outline-info" value="@Resources.L.内容排序" onclick="sort_show();" />
+        </div>
+        <div id="timeReDiv" class="execute_time">
+                <table class="table table-bordered">
+                    <tr>
+                        <td class="td_m"><strong>@Resources.L.执行时间 ：</strong></td>
+                        <td><input type="text" id="timeReBTime" class="form-control text_300 margin-l5" name="timeReBTime" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' });" /></td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Resources.L.操作 ：</strong></td>
+                        <td>
+                            <button type="button" id="timeReConfBtn" class="btn btn-group" onclick="if (scheCheck()) { mvcpage.post({ url: 'ContentManage_TimeRelease', data: { ids: mvcpage.help.getchk('idchk'), retime: $('#timeReBTime').val() }, callback: 'timere_cback' }); };" >创建任务</button>
+                            <input type="button" value="@Resources.L.取消" onclick="closeDiv()" class="btn btn-group" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        <input type="hidden" class="mvcparam" data-type="json" value="@(Model.filter.ToJson())" />
+    </form>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script>
+        function closeDiv() { $("#timeReDiv").css("display", "none"); }
+        function scheCheck() {
+            var time = Date.parse($("#timeReBTime").val());
+            var now = new Date();
+            if (time < now) { alert("执行时间无效"); return false; }
+            var len = $("input[name=idchk]:checked").length;
+            if (len < 1) { alert("未选择文章"); return false; }
+            return true;
+        }
+        function timere_cback(data,result) {
+            if (result == 1) { alert('添加成功'); }
+            else { alert(result); }
+        }
+        $(function () {
+            if ("@Request["status"]") {
+                $("li a[href='#tab@(Request["status"])']").parent().find("a").addClass("active").parent().siblings("li").find("a").removeClass("active");
+            } else { $("li a[href='#tab']").parent().addClass("active"); }
+            $(".precode").hover(function () {
+                $(this).closest("td").find(".popover").show();
+            }, function () {
+                $(this).closest("td").find(".popover").hide();
+            });
+        });
+    function sort_show() {
+        var ids = "";
+        $("input[name=idchk]").each(function () {
+            ids += this.value + ",";
+        });
+        ShowComDiag("@(CustomerPageAction.customPath2+ "Common/Sort.aspx")?tbname=commonmodel&ids="+ids,"内容排序");
+    }
+    function sort_callback() { mvcpage.load({ page: 'reload' }); CloseComDiag(); }
+        function MoveItem(obj, direct) {
+            var $curtr = $(obj).closest("tr");
+            var $tarTr = null;
+            switch (direct) {
+                case "up":
+                    $tarTr = $curtr.prev("tr");
+                    if ($tarTr.length < 1 || $tarTr.data("gid") == undefined) { console.log("无目标行,不处理"); return; }
+                    $curtr.after($tarTr);
+                    break;
+                case "down":
+                    $tarTr = $curtr.next("tr");
+                    if ($tarTr.length < 1 || $tarTr.data("gid") == undefined) { console.log("无目标行,不处理"); return; }
+                    $tarTr.after($curtr);
+                    break;
+            }
+            var opts = { action: "move", "direct": direct, curid: $curtr.data("gid"), tarid: $tarTr.data("gid") };
+            $.post("ContentManage_API", opts, function (data) { });
+        }
+        function ShowDesk() {
+            var ifr = $("#page_ifr")[0];
+            window.location = ifr.contentWindow.location;
+        }
+        function ShowTabs(status) {
+            location.href = 'ContentManage?NodeID=@Model.NodeID&status=' + status;
+        }
+        function opentitle(url, title) {
+            diag.title = title;
+            diag.url = url;
+            diag.reload = true;
+            diag.ShowModal();
+			//$("#BigOpion").hide();
+			$("#BigOpion").addClass("ml-0")
+        }
+
+        var diag = new ZL_Dialog();
+        function ShowPopover(obj) {
+			$(".popbox").hide();
+            $(obj).find(".popover").show();
+			
+        }
+		$(".hidePopover").click(function(){
+		$(this).parent(".popbox").hide();
+		$(".popbox").hide();
+		})
+		
+		
+        document.onkeyup = function GetKeyCode() {
+            if (event.keyCode == 46) {
+                $("#btnDeleteAll").trigger("click");
+            }
+        }
+        function IsSelectedId() {
+            var checkArr = $("input[type=checkbox][name=idchk]:checked");
+            if (checkArr.length > 0)
+                return true
+            else
+                return false;
+        }
+        function ImportExcel() {
+            if ($("#fileImp").val() == "") { alert("请先下载模板,再上传数据文件导入"); return false; }
+            return true;
+        }
+        function showimp(itemname, modelid) {
+            $("#ModelID_H").val(modelid);
+            $("#downimp").attr("href", "Import_ToTemplate?ModelID=" + modelid);
+            $("#downspan").html("下载[@Model.nodeMod.NodeName]的" + itemname + "模型CSV导入模板");
+            $("#divImp").show();
+        }
+        //-----页面功能
+        function batMove() {
+            var ids = mvcpage.help.getchk("idchk");
+            if (checkIDS()) { location = "@(adminPath)Content/ContentMove.aspx?id=" + ids; }
+        } 
+        function batSpecial() {
+            var ids = mvcpage.help.getchk("idchk");
+            if (checkIDS()) { location = "@(adminPath)Content/AddToSpecial.aspx?id=" + ids; }
+        }
+        function batPush() {
+            if (checkIDS()) { ShowSelNode(); }
+
+        }
+        function batStatus(status) {
+            if (checkIDS()) {
+                mvcpage.bat({ url: 'ContentManage_Status', data: { "status": status } });
+            }
+        }
+        function checkIDS() {
+            var ids = mvcpage.help.getchk("idchk");
+            if (ZL_Regex.isEmpty(ids)) { alert("未选中内容"); return false; }
+            else { return true; }
+        }
+        function ToExcel() {
+            var $form = $('<form method="post" action="ContentManage_ToExcel" target="_blank" id="form2">');
+            var filter = mvcpage.help.getPageFilter({ target: "EGV" });
+            for (var key in filter) {
+                $form.append('<input type="hidden" name="' + key + '" value="' + filter[key] + '" />');
+            }
+            $("body").append($form);//兼容 IE
+            $("#form2").submit();
+            $("#form2").remove();
+        }
+        //-----内容推送
+        function ShowSelNode() {
+            comdiag.maxbtn = false;
+            ShowComDiag("/Common/NodeList.aspx?Source=content", "<input type='button' value='确定推送' onclick='SurePush();' class='btn btn-info'>请选择需推送的节点");
+        }
+        function SurePush() {
+            var content = comdiag.iframe.contentWindow;
+            content.SureFunc();
+        }
+        //pushcon,要推送的节点列表,页面pval
+        function PageCallBack(action, vals, pval) {
+            var nids = "", ids = "";
+            for (var i = 0; i < vals.length; i++) {
+                nids += vals[i].nodeid + ",";
+            }
+            $("input[name='idchk']:checked").each(function () {
+                ids += this.value + ",";
+            });
+            ids = StrHelper.trim(ids);
+            nids = StrHelper.trim(nids);
+            if (ZL_Regex.isEmpty(nids)) { alert("未选择需要推送的节点"); return false; }
+            else {
+                var mask = new ZL_Dialog();
+                mask.ShowMask("正在推送文章中");
+                $.post("Content_Push", { "ids": ids, "nodes": nids }, function (data) {
+                    if (data == "1") { mask.CloseModal(); comdiag.CloseModal(); }
+                    else { alert(data); }
+                });
+            }
+        }
+		//下拉菜单
+		$(".dropdown-menu li").addClass("dropdown-item");
+    </script>
+}

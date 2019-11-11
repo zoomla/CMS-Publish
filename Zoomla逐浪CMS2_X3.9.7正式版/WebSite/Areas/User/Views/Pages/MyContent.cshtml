@@ -1,0 +1,46 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Layout = "~/Areas/User/Views/Shared/_empty.cshtml";
+}
+@section head{
+    <title>黄页内容</title>
+}
+@section content{
+	<div class="row">
+    <div class="input-group col-md-6">
+        <select class="form-control">
+            <option value="0">按标题查找</option>
+            <option value="1">按ID查找</option>
+        </select>
+        <input type="text" class="form-control text_md mvcparam" id="skey" name="skey" />
+        <div class="input-group-prepend">
+            <input type="button" class="input-group-text" value="搜索" onclick="mvcpage.load();" />
+        </div>
+    </div>
+	<div class="col-md-6 text-right">
+        @MvcHtmlString.Create(ViewBag.addhtml)
+		@*<a class="btn btn-outline-info" href="MyContent?NodeID=@ViewBag.NodeID&status=-2"><i class="zi zi_trashalt" zico="垃圾箱竖条"></i></a>*@
+	</div>
+	</div>
+<div class="margin_t5 table-responsive" style="margin-top:5px;">
+    @Html.Partial("MyContent_List", Model)
+</div>
+<div class="margin_t5">
+    @{
+        if (ViewBag.Status.Equals("-2"))
+        {
+            <input type="button" value="批量还原" class="btn btn-outline-info" onclick="mvcpage.bat({url: 'content_recover' });" />
+        }
+        else
+        {
+            <input type="button" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'content_del', confirm: '确定要批量移除吗' });" />
+        }
+    }
+</div>
+<div style="display:none;">
+    <input type="hidden" id="status" value="@ViewBag.Status" class="mvcparam" />
+    <input type="hidden" id="nodeid" value="@ViewBag.NodeID" class="mvcparam" />
+</div>
+}
+@section script{
+}

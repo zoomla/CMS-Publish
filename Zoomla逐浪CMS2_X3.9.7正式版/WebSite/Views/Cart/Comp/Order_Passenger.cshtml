@@ -1,0 +1,17 @@
+﻿@using System.Data
+@model ZoomLaCMS.Models.Cart.VM_CartOrder
+@{
+   
+ }
+<p><a href="javascript:;" onclick="$('#userlist_div').toggle();" title="显示顾客详情"><i class="zi zi_users"></i> 顾客与联系人列表</a></p>
+<div id="userlist_div" class="extenddiv" style="display:block;">
+	<table class="table table-bordered">
+		<tr>
+			<td class="td_m">姓名</td><td>证件号</td><td>手机</td>
+		</tr>
+        @foreach (var item in Model.Guest)
+        {
+            <tr><td>@item.Name</td><td>@item.CertCode</td><td>@item.Mobile</td></tr>
+        }
+	</table>
+</div>

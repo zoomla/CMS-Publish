@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="FontToImg.aspx.cs" Inherits="ZoomLaCMS.Common.Label.FontToImg" EnableViewState="false" %>

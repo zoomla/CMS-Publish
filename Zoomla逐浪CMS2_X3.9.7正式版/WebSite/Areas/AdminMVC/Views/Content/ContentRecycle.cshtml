@@ -1,0 +1,48 @@
+﻿@using ZoomLa.Model
+@model ZoomLaCMS.Models.Content.VM_ContentManage
+@{
+    string apiUrl = "ContentManage_API?action=";
+ }
+@section head{<title>@Resources.L.内容回收站</title>}
+@section content{
+<style type="text/css">
+.nav-tabs{display:none;}
+</style>
+@MvcHtmlString.Create(Call.SetBread(new Bread[] {
+new Bread("{main}",Resources.L.工作台),
+new Bread(Call.PathAdmin("Content/ContentManage"),Resources.L.内容管理),
+new Bread(Request.RawUrl,Resources.L.回收站)
+}))
+
+<div class="list_choice" style="width:100%;">
+    <form method="post" id="form1">
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#tab" data-toggle="tab" onclick="ShowTabs('')">@Resources.L.所有内容</a></li>
+            @*<li class="nav-item"><a class="nav-link" href="#tab5" data-toggle="tab" onclick="ShowTabs(5)">工作流审批</a></li>*@
+            <li class="nav-item"><a class="nav-link" href="#tab-3" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Draft)')">@Resources.L.草稿</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab0" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.UnAudit)')">@Resources.L.待审核</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab99" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Audited)')">@Resources.L.已审核</a></li>
+            <li class="nav-item active"><a class="nav-link" href="#tab-1" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Reject)')">@Resources.L.退稿</a></li>
+        </ul>
+        <div id="condiv">
+            @Html.Partial("ContentManage_List", Model)
+        </div>
+        <div style="margin-top:10px;">
+            <input type="button" ID="btnClear" class="btn btn-outline-danger mb-1" value="@Resources.L.彻底删除选中" onclick="mvcpage.bat({ url:'@(apiUrl+"del")', confirm: '数据删除后不可恢复，确认要删除选中项？' });" />
+            <input type="button" ID="btnRevert" class="btn btn-outline-info mb-1" value="@Resources.L.还原选中" onclick="mvcpage.bat({url:'@(apiUrl+"recover")',confirm:'确定要还原吗'});" />
+            <input type="button" ID="btnClearAll" class="btn btn-outline-danger mb-1" value="@Resources.L.清空回收站" onclick="mvcpage.del({url:'@(apiUrl+"clear")',confirm:'确实要清空回收站吗'})" />
+        </div>
+        <input type="hidden" class="mvcparam" data-type="json" value="@(Model.filter.ToJson())" />
+    </form>
+</div>
+
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>    
+<script>
+function ShowPopover() { }
+</script>    
+}
