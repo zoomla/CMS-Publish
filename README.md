@@ -21,12 +21,13 @@
 
 
 
-官方程序包信息：
-原基于.NET 4.0架构的，于x3.9.7为止，不再面向非商业用户提供更新。
-全面转为dotNET core框架内核。
-190101：发布基于dot NET core 2.0的Zoomla!逐浪CMS v8.0.1
-191110：发布基于dot NET core 3.0的Zoomla!逐浪CMS v8.1.2
-更多信息请访问www.z01.com
+- 官方程序包信息：
+- 原基于.NET 4.0架构的，于x3.9.7为止，不再面向非商业用户提供更新。
+- 全面转为dotNET core框架内核。
+- 190101：发布基于dot NET core 2.0的Zoomla!逐浪CMS v8.0.1
+- 191110：发布基于dot NET core 3.0的Zoomla!逐浪CMS v8.1.2
+
+- 更多信息请访问www.z01.com
 
 
 
