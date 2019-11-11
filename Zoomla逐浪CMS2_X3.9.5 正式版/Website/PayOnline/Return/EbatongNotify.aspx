@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EbatongNotify.aspx.cs" Inherits="ZoomLaCMS.PayOnline.Return.EbatongNotify" %>

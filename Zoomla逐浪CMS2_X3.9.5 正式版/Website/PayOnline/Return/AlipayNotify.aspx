@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AlipayNotify.aspx.cs" Inherits="ZoomLaCMS.PayOnline.Return.AlipayNotify" EnableViewStateMac="false"  %>

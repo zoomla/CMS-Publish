@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="WxPayReturn.aspx.cs" Inherits="ZoomLaCMS.PayOnline.Return.WxPayReturn" %>

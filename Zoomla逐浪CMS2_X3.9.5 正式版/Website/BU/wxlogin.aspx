@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="wxlogin.aspx.cs" Inherits="ZoomLaCMS.BU.wxlogin" %>

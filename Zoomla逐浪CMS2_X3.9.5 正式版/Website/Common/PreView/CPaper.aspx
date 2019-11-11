@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CPaper.aspx.cs" Inherits="ZoomLaCMS.Common.PreView.CPaper" %>

@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ECPSSNotfy.aspx.cs" Inherits="ZoomLaCMS.PayOnline.Return.ECPSSNotfy" %>

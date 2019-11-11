@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DownFile.aspx.cs" Inherits="ZoomLaCMS.Plat.Doc.DownFile" %>

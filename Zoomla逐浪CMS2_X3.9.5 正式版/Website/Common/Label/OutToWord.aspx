@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="OutToWord.aspx.cs" Inherits="ZoomLaCMS.Common.Label.OutToWord" EnableViewStateMac="false" ValidateRequest="false"  %>

@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="MoBaoReturn.aspx.cs" Inherits="ZoomLaCMS.PayOnline.Return.MoBaoReturn" %>

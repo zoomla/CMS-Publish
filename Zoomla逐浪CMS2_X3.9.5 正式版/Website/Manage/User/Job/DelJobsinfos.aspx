@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="DelJobsinfos.aspx.cs" Inherits="ZoomLaCMS.Manage.User.DelJobsinfos" MasterPageFile="~/Manage/I/Default.master"%>

@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="SelProduct.aspx.cs" Inherits="ZoomLaCMS.Common.Dialog.SelProduct" %>

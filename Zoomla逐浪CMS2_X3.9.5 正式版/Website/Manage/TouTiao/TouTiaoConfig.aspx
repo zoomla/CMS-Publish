@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="TouTiaoConfig.aspx.cs" Inherits="ZoomLaCMS.Manage.TouTiao.TouTiaoConfig" %>

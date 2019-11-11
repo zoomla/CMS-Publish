@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="mbview.aspx.cs" Inherits="ZoomLaCMS.Design.album.mbview" %>
