@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>{SField sid="常规商品数据源" FD="Proname" page="0"/}_{$SiteName/}</title>
-<meta name="Keywords" content="{SField sid="常规商品数据源" FD="Meta_Keywords" page="0"/}" />
-<meta name="description" content="{SField sid="常规商品数据源" FD="Meta_Description" page="0"/}" />
+<meta name="Keywords" content="" />
+<meta name="description" content="" />
 {ZL:Boot4()/}
 <link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
 <script type="text/javascript" src="{$CssDir/}js/jquery.imagezoom.min.js"></script>
@@ -128,11 +128,15 @@ if(jsonstr.length>0)
 <div class="tab-pane active" id="home">{SField sid="常规商品数据源" FD="Procontent" page="0"/} </div>
 </div>
 <!--右 --> 
-<div class="iframe_comm" id="iframe_comm" hidden>
+<div class="iframe_comm" id="iframe_comm">
 <iframe id="comm_ifr" scrolling="no" onload="IfrAutoHeight();" src='/User/Order/ShareList?ProID={SField sid="常规商品数据源" FD="ID" page="0"/}' style="width:100%;" align="middle" frameborder="0"></iframe>
 <script>
 	function commentAnchor() { $("html,body").animate({ scrollTop: $("#iframe_comm").offset().top - 100 }, 300); }
-	function IfrAutoHeight() { var $ifr = $("#comm_ifr"); $ifr.height($ifr.contents().height()); }
+    function IfrAutoHeight() {
+        var $ifr = $("#comm_ifr");
+        $ifr.height($ifr.contents().height());
+    }
+ 
 </script>
 </div>
 
@@ -310,8 +314,8 @@ $(document).ready(function(){
 });
 
 //商品加入购物车
-    Product.proid={SField sid="常规商品数据源" FD="ID" page="0"/};
-    Product.init();
+Product.proid={SField sid="常规商品数据源" FD="ID" page="0"/};
+Product.init();
 </script>
 </body>
 </html>

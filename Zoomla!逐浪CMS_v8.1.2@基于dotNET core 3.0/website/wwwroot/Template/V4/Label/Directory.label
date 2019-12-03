@@ -1074,6 +1074,12 @@
     <LabelType>4</LabelType>
     <LabelCate>全站通用</LabelCate>
   </Table>
+    <Table>
+    <LabelID>195</LabelID>
+    <LabelName>Bootstrap轮滚Carousel组件_指定节点下推荐图片</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>广告</LabelCate>
+  </Table>
   <Table>
     <LabelID>252</LabelID>
     <LabelName>前端样式版本号</LabelName>

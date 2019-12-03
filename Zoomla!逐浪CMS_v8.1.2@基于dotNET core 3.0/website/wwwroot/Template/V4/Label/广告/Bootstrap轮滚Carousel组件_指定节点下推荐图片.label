@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>195</LabelID>
+    <LabelName>Bootstrap轮滚Carousel组件_指定节点下推荐图片</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>广告</LabelCate>
+    <LabelDesc>结合JS使用：
+$().ready(function(e) {
+    $(".item_1").addClass("active");
+});</LabelDesc>
+    <LabelParam>NodeID,1,1,节点ID|TitleNum,30,1,标题长度|Order,asc$desc,3,排序方法|ShowNum,5,1,调用信息数</LabelParam>
+    <LabelTable>ZL_CommonModel</LabelTable>
+    <LabelField>GeneralID,Title,TopImg</LabelField>
+    <LabelWhere>(nodeid in(select nodeid from ZL_Node where 
+(ParentID in (select NodeID from ZL_Node where ParentID=@NodeID)) 
+or nodeid in (select NodeID from ZL_Node where ParentID=@NodeID)
+or NodeID=@NodeID) ) and status=99 and TopImg&lt;&gt;'' and EliteLevel=1 and ModelID=2</LabelWhere>
+    <LabelOrder>ZL_CommonModel.CreateTime @Order</LabelOrder>
+    <LabelContent>{Repeate}&lt;div class="carousel-item item_{ZL:jsq}"&gt;&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}"&gt;
+  &lt;img src="{ZL:GetPicUrl({Field="TopImg"/})/}" alt="{Field="Title"/}"&gt;&lt;/a&gt; 
+  &lt;div class="carousel-caption"&gt;
+    &lt;p&gt;{ZL:CutText({Field="Title"/},@TitleNum,..)/}&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo />
+    <addroot>循环</addroot>
+    <setroot />
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <EmptyContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>
