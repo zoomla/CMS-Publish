@@ -1,0 +1,147 @@
+﻿@using System.Web
+@using System.Data
+@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+<div v-show="step==2">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow table-responsive-md">
+            <table class="table table-striped table-bordered sys_table">
+                <tr>
+                    <td class="spacingtitle text-center" colspan="2">第三步：参数设定</td>
+                </tr>
+                <tr>
+                    <th class="w12rem_lg">参数管理</th>
+                    <td>
+                        <table class="table table-striped table-bordered" style="text-align: center">
+                            <tr>
+                                <td class="td_m">排序</td>
+                                <td class="td_m">参数名称 </td>
+                                <td class="max20rem">默认值 </td>
+                                <td class="max20rem">参数类型 </td>
+                                <td>参数说明 </td>
+                                <td class="td_m"><a href="javascript:;" class="btn btn-info btn-sm" v-on:click="param.add()"><i class="zi zi_plus"></i> 添加参数</a></td>
+                            </tr>
+                            <tr v-for="item in param.dt">
+                                <td>
+                                    <a href="javascript:;" class="btn btn-info btn-sm" v-on:click="param.move(item,'up');"><i class="zi zi_forUp"></i></a>
+                                    <a href="javascript:;" class="btn btn-info btn-sm" v-on:click="param.move(item,'down');"><i class="zi zi_forDown"></i></a>
+                                </td>
+                                <td class="text-center"><input type="text" class="form-control" v-model="item.ParamName" placeholder="参数名称" /></td>
+                                <td class="text-center"><input type="text" class="form-control" v-model="item.ParamValue" placeholder="默认值" /></td>
+                                <td class="text-center">
+                                    <select class="form-control" v-model="item.ParamType">
+                                        <option Value="1">普通参数</option>
+                                        <option Value="2">页面参数</option>
+                                        <option Value="3">单选参数</option>
+                                        <option Value="4">多选参数</option>
+                                    </select>
+                                </td>
+                                <td class="text-center"><input type="text" class="form-control" v-model="item.ParamDesc" placeholder="参数说明" /></td>
+                                <td class="text-center">
+                                    <a href="javascript:;" class="btn btn-danger btn-sm" v-on:click="param.del(item)"><i class="zi zi_trash" title="删除" style="font-size:18px;"></i></a>
+                                </td>
+                            </tr>
+                        </table>
+                        <input type="hidden" ID="Param_Hid" name="Param_Hid" v-model="param.toStr()"/>
+                        <div class="alert alert-info" style="margin-top:3px;">
+                            <div>1.单选&多选默认值格式：选项一$选项二$选项三</div>
+                            <div>2.页面参数是从用户访问的地址栏中读值,会自动进行SQL参数化处理,可在[查询条件]与[标签内容]中使用，参数传值应同名避免安全注入，其中id|infoid||nodeid为内置参数。</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>参数[可拖放]</th>
+                    <td>
+                        <div id="plist" class="plist">
+                          <div v-for="item in param.dt" class='spanfixdiv1' draggable='true' ondragstart='pdrag(event);' v-bind:code="'@@'+item.ParamName">@@{{item.ParamName}}</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>查询条件</th>
+                    <td>
+                        <div class="input-group fielddiv" style="max-width:800px;">
+                            <select ID="Where_Join_DP" name="Where_Join_DP" class="form-control" style="border-right:none;width:80px;">
+                                <option value="AND">AND</option>
+                                <option value="OR">OR</option>
+                            </select>
+                            <select ID="Where_Table_DP" name="Where_Table_DP" class="form-control" style="border-right:none;width:100px;" v-model="where_table">
+                                <option Value="1">主表</option>
+                                <option Value="2">从表</option>
+                            </select>
+                            <div class="field_wrap">
+                                <select id="Where_Field_DP" name="Where_Field_DP" class="form-control">
+                                    <option v-for="item in  getFields('where')" :value="item.Name">{{ item.Name }}</option>
+                                </select>
+                            </div>
+
+                            <select ID="Where_OPCode_DP" name="Where_OPCode_DP" class="form-control" style="border-right:none;width:100px;">
+                                <option value="0">等于</option>
+                                <option value="1">大于</option>
+                                <option value="2">小于</option>
+                                <option value="3">大于等于</option>
+                                <option value="4">小于等于</option>
+                                <option value="5">不等于</option>
+                                <option value="6">在</option>
+                                <option value="7">象</option>
+                                <option value="8">不在</option>
+                            </select>
+                            <input type="text" ID="Where_Value_T" nmae="Where_Value_T" class="form-control" style="border-right:none;width:150px;" />
+                            <span class="input-group-append">
+                                <input type="button" ID="Where_Btn" class="btn btn-info" value="添加查询条件" v-on:click="updateWhereSql()"/>
+                            </span>
+                        </div>
+                        <textarea ID="Where_T" name="Where_T" class="form-control" style="max-width:800px; margin-top:10px;height:100px;">@Model.labelMod.LabelWhere</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th>字段排序</th>
+                    <td>
+                        <div class="fielddiv" style="max-width:800px;">
+                            <div class="input-group">
+                                <select ID="Order_Table_DP" name="Order_Table_DP" class="form-control" style="border-right:none;width:100px;" v-model="order_table">
+                                    <option Value="1">主表</option>
+                                    <option Value="2">从表</option>
+                                </select>
+                                <div class="field_wrap">
+                                    <select id="Order_Field_DP" name="Order_Field_DP" class="form-control">
+                                        <option v-for="item in getFields('order')" :value="item.Name">{{ item.Name }}</option>
+                                    </select>
+                                </div>
+                                <select ID="Order_DP" name="Order_DP" class="form-control" style="border-right:none;width:100px;">
+                                    <option Value="DESC">降序</option>
+                                    <option Value="ASC">升序</option>
+                                </select>
+                                <span class="input-group-append">
+                                    <input type="button" ID="Order_Btn" class="btn btn-info" value="添加排序字段" v-on:click="updateOrderSql()"/>
+                                </span>
+                            </div>
+                            <textarea ID="Order_T" name="Order_T" class="form-control" style=" margin-top:10px;max-height:50px;" rows="7">@Model.labelMod.LabelOrder</textarea>
+                            <br />
+                            <small class="text-muted">(提示：当标签为分页标签时,字段排序不能为空)</small>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>数据数目</th>
+                    <td><input type="text" ID="LabelCount" name="LabelCount" class="form-control max20rem" value="@Model.labelMod.LabelCount" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="text-center">
+                        @Html.DropDownList("Step_DP", MVCHelper.ToSelectList(Model.stepDT, "name", "id", "2"), new { @class = "form-control w12rem_lg", @style = "display:inline-block;", onchange = "app.changeStep(this.value);" })
+                        @Html.Partial("LabelSql_Btns")
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div style="margin-top:5px;">
+        <ul class="disc">
+            <li>支持中文名定义参数,参数可以在前台模板中传递数值。</li>
+            <li>支持采用页面采数传递信息。</li>
+            <li>参数可自由拖放到查询条件、排序规则、数据条目等位置。</li>
+            <li>参数支持普通参数、页面参数、单选参数、多选参数四种模式，其中单选参数与多选参数的值以$符号切割，如：华东$华南$华西$华北。</li>
+            <li>查询条件支持嵌入T-sql语法规则，例如一条查询指定节点下的二级数据规则，可设定条件：NodeID in (select NodeID from ZL_Node where ParentID=@@NodeID) or NodeID=@@NodeID,当然也可以采用更高效的父节点属性查询：NodeID=@@NodeID or FirstNodeID=@@NodeID（注@NodeID为节点变量）。</li>
+        </ul>
+    </div>
+    <img src="/UploadFiles/nopic.svg" style="display:none;" onload="" />
+</div>

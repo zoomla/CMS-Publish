@@ -1,0 +1,433 @@
+﻿@using ZoomLa.Components
+@using ZoomLa.Model.CreateJS
+@using ZoomLa.BLL.Content
+@functions{
+    B_Node nodeBll = new B_Node();
+    B_Spec spBll = new B_Spec();
+    VM_Create vm = new VM_Create();
+}
+@{
+    //----------常规逻辑
+    string createTip = "";
+    bool createBtn = true;
+    switch (SiteConfig.SiteOption.IndexEx)
+    {
+        case "0":
+            createTip = ""+@Html.Raw(L.当前首页格式为HTML)+"";
+            break;
+        case "1":
+            createTip = ""+@Html.Raw(L.当前首页格式为HTM)+"";
+            break;
+        case "2":
+            createTip = ""+@Html.Raw(L.当前首页格式为SHTML)+"";
+            break;
+        case "3":
+            createTip = ""+@Html.Raw(L.设置生成静态页面)+"" + "<a href='" + Call.PathAdmin("Config/SiteOption") + "' style='margin-left:5px;' class='btn btn-outline-info'>"+@L.前往设置+">></a>";
+            createBtn = false;
+            break;
+    }
+    //-----------------------------
+    DataTable dt = nodeBll.GetNodeChildList(0);
+    dt.DefaultView.RowFilter = "NodeType IN(1)";
+    DataTable nodeDT = dt.DefaultView.ToTable();
+    dt.DefaultView.RowFilter = "NodeType IN(2)";
+    DataTable spageDT=dt.DefaultView.ToTable();
+    DataTable specDT =  spBll.SelAsNode();
+    //NodeRPT.DataSource = dt.DefaultView.ToTable();
+    //NodeRPT.DataBind();
+
+    //DataTable spageDT = dt.DefaultView.ToTable();
+    //SPageRPT.DataSource = spageDT;
+    //SPageRPT.DataBind();
+    //SpecRPT.DataSource = spBll.SelAsNode();
+    //SpecRPT.DataBind();
+    //计划任务
+    //DataTable schDT = null;// 
+    ////scheBll.SelByTaskType(M_Content_ScheTask.TaskTypeEnum.Release);
+    //if (schDT != null && schDT.Rows.Count > 0)
+    //{
+    //    scheMod = scheMod.GetModelFromDR(schDT.Rows[0]);
+    //    scheTime_T.Text = scheMod.ExecuteTime2.ToString("HH:mm");
+    //}
+
+}
+@section head{<title>@L.发布管理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("ContentManage",L.内容管理),
+        new Bread() {url=Context.Request.RawUrl(), text=L.生成发布,addon="" }})
+    <form id="form1" method="post" action="Create_Submit">
+        <div class="Creat_tips list_choice">
+            <div class="alert alert-info alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h5>@L.提示：</h5>
+                <p>
+                        <span class='zi zi_exclamationTriangle text-danger'></span>
+                        <label>@MvcHtmlString.Create(createTip)</label>
+                        @if (createBtn)
+                        {
+                            <button type="button" ID="btnCreate" class="btn btn-info btn-sm" onclick="Create.submit('@(M_Release.RType.Index)');">@L.发布主页 >></button>
+                        }
+                </p>
+                <p>
+                    @L.对应栏目页需在<a class="text-primary" href="@Call.PathAdmin("Config/SiteInfo")">[@L.系统设置 ]</a>-<a class="text-primary" href="@Call.PathAdmin("Content/Node/NodeManage")">[@L.节点管理]</a>@L.对相应节点生成选项进行设置<br />
+                    @L.发布内容页
+                </p>
+            </div>
+        </div>
+        <!--top生成内容页-->
+        <div>
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#Tab1" data-toggle="tab">@L.快速发布</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab" onclick="ShowMenu('node');">@L.栏目</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab" onclick="ShowMenu('content');">@L.内容</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tab4" data-toggle="tab">@L.单页</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tab5" data-toggle="tab">@L.专题</a></li>
+            </ul>
+            <div class="tab-content container-fluid pr-0">
+                <div class="tab-pane active row sysRow" id="Tab1">
+                    <table class="table table-bordered table-hover sys_table">
+                        <tr><td colspan="2" class="text-center"><strong>@L.快速发布</strong></td></tr>
+                        <tr>
+                            <th class="w12rem_lg">@L.发布最新内容</th>
+                            <td>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@L.篇</span>
+                                    </div>
+                                    <input type="text" ID="txtNewsCount" name="txtNewsCount" class="form-control max20rem num" placeholder="@L.请输入数量" value="10" />
+                                    <div class="input-group-append">
+                                        <input type="button" ID="btnNewsCount" value="@L.发布最新" class="btn btn-outline-info" onclick="if(CheckNum('txtNewsCount')) { Create.submit('@(M_Release.RType.Newest)'); }" />
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.按照ID发布</th>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" ID="txtIdStart" name="txtIdStart" class="form-control max20rem num" placeholder="@L.开始ID" />
+                                    <input type="text" ID="txtIdEnd" name="txtIdEnd" class="form-control max20rem num" placeholder="@L.结束ID选填" />
+                                    <span class="input-group-append">
+                                        <input type="submit" ID="btnCreateId" value="@L.开始发布" class="btn btn-outline-info" onclick="if (CheckNum('txtIdStart')) { Create.submit('@(M_Release.RType.IDRegion)'); }" />
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.按照日期发布</th>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" ID="STime_T" name="STime_T" class="form-control max20rem" onclick="WdatePicker();" placeholder="@L.开始时间" />
+                                    <input type="text" ID="ETime_T" name="ETime_T" class="form-control max20rem" onclick="WdatePicker();" placeholder="@L.结束时间" />
+                                    <span class="input-group-append">
+                                        <input type="button" ID="RDate_Btn" value="@L.开始发布" class="btn btn-outline-info" onclick="if (CheckEmpty()) { Create.submit('@(M_Release.RType.DateRegion)'); }" />
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <th>定时发布首页</th>
+                            <td>
+                                <div class="input-group">
+                                    <select id="scheTime_Sel" name="scheTime_Sel" class="form-control max20rem">
+                                        <option value="0">每天</option>
+                                    </select>
+                                    <asp:TextBox runat="server" ID="scheTime_T" class="form-control max20rem" onfocus="WdatePicker({dateFmt: 'HH:mm', minDate: '0:00:00', maxDate: '25:00:00' })" />
+                                    <asp:TextBox runat="server" ID="scheTime_T2" class="form-control max20rem" Visible="false" />
+                                    <span class="input-group-append">
+                                        <asp:Button runat="server" ID="scheSure_Btn" value="保存" OnClick="scheSure_Btn_Click" onclick="return ValidData();" class="btn btn-outline-info" ValidationGroup="sch" />
+                                        <a href="SchedTask" class="btn btn-outline-info">任务管理</a>
+                                    </span>
+                                </div>*@
+                        <tr>
+                            <td class="text-right">@L.发布所有：</td>
+                            <td><input type="button" ID="btnNewsContent" value="@L.发布所有内容" class="btn btn-outline-info" onclick="return confirm('@L.确定要将所有内容页生成Html吗?');" /></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="alert alert-info">
+                                    <span><strong>@L.注意：</strong></span>
+                                    <ul>
+                                        <li>@L.CreateHC_note1</li>
+                                        <li>@L.CreateHC_note2</li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="tab-pane row sysRow" id="Tab2">
+                    <table id="EGV" class="table table-striped table-bordered table-hover" style="margin-bottom:45px;">
+                        <tr class="menu_item menu_node text-center"><td colspan="5"><strong>@L.发布栏目首页与列表页</strong></td></tr>
+                        <tr class="menu_item menu_content text-center"><td colspan="5"><strong>@L.发布选定栏目的内容页</strong></td></tr>
+                        <tr>
+                            <td class="td_s"><label class="filltd"><input type="checkbox" onclick="selectAllByName(this, 'nodechk');" /></label></td>
+                            <td class="td_s">ID</td>
+                            <td style="width: 40%;">@L.节点名称</td>
+                            <td class="td_m">@L.节点类型</td>
+                            <td class="td_l">@L.操作</td>
+                        </tr>
+                                @foreach (DataRow dr in nodeDT.Rows)
+                                {
+                                    <tr data-layer="1" data-id="@dr["NodeID"]" data-pid="0" title="单击打开|收缩">
+                                    <td><label class="filltd"><input type="checkbox" name="nodechk" value="@dr["NodeID"]" /></label></td>
+                                    <td>@dr["NodeID"]</td>
+                                    <td data-child="@dr["ChildCount"]" onclick="ShowChild(this);">@vm.ShowIcon(dr)</td>
+                                    <td>@vm.GetNodeType(dr)</td>
+                                    <td>
+                                        @vm.GetOper(dr)
+                                        <a href="@("?CType=node&NodeID="+dr["NodeID"])" class="menu_item menu_node">@L.生成节点</a>
+                                        <a href="@("?CType=content&NodeID="+dr["NodeID"])" class="menu_item menu_content"> @L.生成内容</a>
+                                    </td>
+                                </tr>
+                                }
+                                
+                    </table>
+                    <div class="Conent_fix menu_item menu_node">
+                        <input type="button" ID="btnCreateColumn"  value="@L.发布选定栏目" class="btn btn-info" onclick="if (CheckNode()) { Create.submit('@M_Release.RType.NodeIDS'); }" />
+                        <input type="button" ID="btnCreateColumnAll"  value="@L.发布所有栏目" class="btn btn-info" onclick="Create.submit('@M_Release.RType.ALLNode','@Html.Raw(L.确定要发布所有栏目吗)?')" />
+                    </div>
+                    <div class="Conent_fix menu_item menu_content">
+                        <input type="button" value="开始发布内容" class="btn btn-info" onclick="if (CheckNode()) { Create.submit('@M_Release.RType.ByNodeIDS'); }" />
+                        <input type="button" value="发布所有内容" class="btn btn-info" onclick="Create.submit('@M_Release.RType.ALL','@Html.Raw(L.确定要发布栏目下的所有内容吗)?');" />
+                    </div>
+                    <!--end发布栏目-->
+                </div>
+                <div class="tab-pane row sysRow" id="Tab4">
+                    <table class="table table-striped table-bordered table-hover">
+                        <tr class="text-center"><td colspan="5"><strong>@L.发布单页</strong></td></tr>
+                        <tr>
+                            <td class="td_s"><label class="filltd"><input type="checkbox" onclick="selectAllByName(this, 'spagechk');" /></label></td>
+                            <td class="td_s">ID</td>
+                            <td style="width: 40%;">@L.节点名称</td>
+                            <td>@L.节点类型</td>
+                            <td class="td_l">@L.操作</td>
+                        </tr>
+                        @foreach (DataRow dr in spageDT.Rows)
+                        {
+                            <tr title="单击打开|收缩">
+                                <td><label class="filltd"><input type="checkbox" name="spagechk" value="@dr["NodeID"]" /></label></td>
+                                <td>@dr["NodeID"]</td>
+                                <td>@vm.ShowIcon(dr)</td>
+                                <td>@vm.GetNodeType(dr)</td>
+                                <td>
+                                    @vm.GetOper(dr)
+                                    <a href="@("?CType=spage&NodeID="+dr["NodeID"])">@L.生成</a>
+                                </td>
+                            </tr>
+                        }
+
+                    </table>
+                    <div class="Conent_fix">
+                        <input type="button" value="@L.开始发布" class="btn btn-info mr-3" onclick="if (CheckSPage()) { Create.submit('@M_Release.RType.SPage'); }" />
+                        <input type="button" value="@L.发布所有单页" class="btn btn-info" onclick="Create.submit('@M_Release.RType.ALLSPage','@Html.Raw(L.确定要发布所有单页吗)');"/>
+                    </div>
+                </div>
+                <div class="tab-pane row sysRow" id="Tab5">
+                    <table class="table table-striped table-bordered table-hover">
+                        <tr class="text-center"><td colspan="5"><strong>@L.发布专题</strong></td></tr>
+                        <tr>
+                            <td class="td_s"><label class="filltd"><input type="checkbox" onclick="selectAllByName(this, 'spchk');" /></label></td>
+                            <td class="td_s">ID</td>
+                            <td style="width: 40%;">@L.节点名称</td>
+                            <td>@L.节点类型</td>
+                            <td>@L.操作</td>
+                        </tr>
+                        @foreach (DataRow dr in specDT.Rows)
+                        {
+                            <tr title="单击打开|收缩">
+                                <td><label class="filltd"><input type="checkbox" name="spchk" value="@dr["NodeID"]" /></label></td>
+                                <td>@dr["NodeID"]</td>
+                                <td>@vm.ShowIcon(dr)</td>
+                                <td>@L.专题</td>
+                                <td>
+                                    @vm.GetOper(dr)
+                                    <a href="@("?CType=spec&NodeID="+dr["NodeID"])">@L.生成</a>
+                                </td>
+                            </tr>
+                        }
+
+                    </table>
+                    <div class="Conent_fix">
+                        <input type="button" ID="btnCreateSpeacil" value="@L.发布选定专题" class="btn btn-info" onclick="Create.submit('@(M_Release.RType.Special)');" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+}
+@section script{
+    <script src="/JS/DatePicker/WdatePicker.js"></script>
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script src="/JS/ZL_Regex.js"></script>
+    <script>
+        var childTlp = '<tr data-layer="@@Layer" data-id="@@NodeID" data-pid="@@ParentID"><td><label class="filltd"><input type="checkbox" name="nodechk" value="@@NodeID"/></label></td>'
+            + '<td>@@NodeID</td><td onclick="ShowChild(this);" data-child="@@ChildCount">@@LayerHtml@@icon</td>'
+            + '<td><fun>GetNodeType(@@NodeType);</fun></td>'
+            + '<td>@@oper <fun>GetCStr(@@NodeType,@@NodeID)</fun></td></tr>';
+        //第一次点击时加载,以后点击时显示子级
+        function ShowChild(obj) {
+            if ($(obj).data("child") < 1)//无子级直接返回
+            {
+                obj.onclick = null;
+                return false;
+            }
+            $tr = $(obj).closest("tr");
+            $.post("", { nid: $tr.data("id") }, function (data) {
+                if (data != "" && data != "[]") {
+                    data = JSON.parse(data);
+                    var html = ReplaceTlp(childTlp, $tr.data("layer"), data);
+                    obj.onclick = function () { ToggleChild(obj); }
+                    $tr.after(html);
+                    $tr.find("[data-type=icon]").attr("class", "zi zi_folderOpen");
+                    //用于内容与栏目
+                    if ($(".menu_node").is(":visible")) { ShowMenu("node"); }
+                    else if ($(".menu_content").is(":visible")) { ShowMenu("content"); }
+                }
+            });
+        }
+        //确定是要显示还是隐藏
+        function ToggleChild(obj) {
+            $tr = $(obj).closest("tr");
+            var id = $tr.data("id");
+            $trs = $("#EGV tr[data-pid=" + id + "]");
+            if ($trs.length < 1) return;
+            var flag = $trs.is(":visible");
+            if (flag) {
+                HideByPid(id);
+                $tr.find("[data-type=icon]").attr("class", "zi zi_folders");
+            }//隐藏的话递归
+            else {
+                $trs.show();
+                $tr.find("[data-type=icon]").attr("class", "zi zi_folderOpen");
+            }
+        }
+        //true隐藏,false显示
+        function HideByPid(pid) {
+            $trs = $("#EGV tr[data-pid=" + pid + "]");
+            if (!$trs || $trs.length < 1) return;//不存在,或下再无子级时跳出递归
+            for (var i = 0; i < $trs.length; i++) {
+                HideByPid($($trs[i]).data("id"));
+            }
+            $("#EGV tr[data-pid=" + pid + "]").hide();
+        }
+        //附加数据
+        function ReplaceTlp(tlp, layer, list) {
+            var layerTlp = "<img src='/Images/TreeLineImages/tree_line4.gif' />";
+            var layerhtml = "";
+            for (var i = 0; i < layer; i++) {
+                layerhtml += layerTlp;
+            }
+            tlp = tlp.replace("@@LayerHtml", layerhtml).replace("@@Layer", ++layer);
+            //替换模板
+            return JsonHelper.FillData(tlp, list);
+        }
+        function GetNodeType(nodetype) {
+            switch (parseInt(nodetype)) {
+                case 0:
+                    return "@Html.Raw(L.根节点)";
+                case 1:
+                    return "@Html.Raw(L.栏目节点)";
+                case 2:
+                    return "@Html.Raw(L.单页节点)";
+                case 3:
+                    return "@Html.Raw(L.外部链接)";
+                default:
+                    return "";
+            }
+        }
+        //返回生成字符串
+        function GetCStr(nodeType, nodeID) {
+            //有内容和栏目两种选项
+            var html = "";
+            switch (nodeType) {
+                case 2:
+                    html = '<a href="?CType=spage&NodeID=' + nodeID + '">@Html.Raw(L.生成)</a>';
+                    break;
+                case 10:
+                    type = "spec";
+                    html = '<a href="?CType=spec&NodeID=' + nodeID + '">@Html.Raw(L.生成)</a>';
+                    break;
+                default://栏目和内容生成
+                    html = '<a href="?CType=node&NodeID=' + nodeID + '" class="menu_item menu_node">@Html.Raw(L.生成节点)</a>';
+                    html += '<a href="?CType=content&NodeID=' + nodeID + '" class="menu_item menu_content">@Html.Raw(L.生成内容)</a>';
+                    break;
+            }
+            return html;
+        }
+    </script>
+    <script>
+        var Create = {
+            submit: function (cmd, msg) {
+                if (msg && !confirm(msg)) { return false; }
+                var $form = $("#form1");
+                $form.attr("action", $form.attr("action") + "?cmd=" + cmd);
+                console.log($form.attr("action"));
+                $form.submit();
+            }
+        };
+        $(function () {
+            ZL_Regex.B_Num(".num");
+        })
+        function CheckEmpty() {
+            if (ZL_Regex.isEmpty($("#STime_T").val()) || ZL_Regex.isEmpty($("#ETime_T").val())) {
+                alert("@Html.Raw(L.开始与结束时间不能为空)"); return false;
+            }
+            return true;
+        }
+        function CheckNum(id) {
+            var val = parseInt($("#" + id).val());
+            if (ZL_Regex.isInt(val) && val > 0) {
+                console.log("true");
+                return true;
+            }            console.log("false");
+            alert("@Html.Raw(L.输入的数值不正确)");
+
+            return false;
+        }
+        function ShowMenu(menu) {
+            switch (menu) {
+                case "node":
+                    break;
+                case "content":
+                    break;
+            }
+            $(".menu_item").hide();
+            $(".menu_" + menu).show();
+        }
+        function CheckNode() {
+            if ($("[name=nodechk]:checked").length < 1) {
+                alert("@Html.Raw(L.尚未选定需要生成的栏目)");
+                return false;
+            }
+            return true;
+        }
+        function CheckSPage() {
+            if ($("[name=spagechk]:checked").length < 1) {
+                alert("@Html.Raw(L.尚未选定需要生成的单页)");
+                return false;
+            }
+            return true;
+        }
+        function ValidData() {
+            var result = false;
+            var val = "";
+            flag = $("#scheTime_Sel").val();
+            switch (flag) {
+                case "0":
+                    val = $("#scheTime_T").val().trim();
+                    break;
+                case "1":
+                    val = $("#scheTime_T2").val().trim();
+                    break;
+            }
+            if (val && val != "") result = true;
+            else
+                alert("@Html.Raw(L.时间不能为空)");
+            return result;
+        }
+    </script>
+}

@@ -1,0 +1,81 @@
+﻿@model ZoomLa.Model.User.M_Structure
+@functions{
+    public string ShowManage(DataRow dr)
+    {
+        string uidStr = "," + dr["UserID"] + ",";
+        return ("," + Model.ManagerIDS + ",").Contains(uidStr) ? ComRE.Icon_OK : "";
+    }
+
+}
+@{
+    B_User buser = new B_User(Context);
+    int structId = DataConverter.CLng(Context.Request.GetParam("id"));
+    string apiUrl = "Struct_API?sid=" + structId + "&action=";
+    DataTable dt = buser.SelectUserByIds(Model.UserIDS);
+    if (dt == null) { dt = new DataTable(); }
+}
+@section head{<title>部门成员列表</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread("StructList","组织结构"),
+    new Bread(Context.Request.RawUrl(),"组织成员")
+    })
+<div class="list_choice">
+    <div class="input-group">
+        <input type="text" class="form-control" id="skey" placeholder="请输入用户名" />
+        <span class="input-group-append">
+            <input type="button" value="搜索" class="btn btn-info" onclick="mvcpage.load();" />
+            <input type="button" value="增加成员" class="btn btn-info" onclick='ShowComDiag("/Common/SelUser#user", "选择用户");' />
+        </span>
+    </div>
+    <input type="hidden" ID="user_hid" name="user_hid" />
+    @*<asp:Button runat="server" ID="Sure_Btn" OnClick="Sure_Btn_Click" style="display:none;" />*@
+    <table class="table-striped table-bordered table" style="margin-top:5px;">
+        <thead>
+            <tr>
+                <th class="td_xs"></th>
+                <th class="td_s">ID</th>
+                <th>用户名</th>
+                <th>真实名称</th>
+                <th>昵称</th>
+                <th>管理员</th>
+                <th class="td_m">操作</th>
+            </tr>
+        </thead>
+
+        @foreach (DataRow dr in dt.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["UserID"]" /></td>
+                <td>@dr["UserID"]</td>
+                <td><a href="../User/UserInfo?id=@dr["UserID"]">@dr["UserName"]</a></td>
+                <td>@dr["TrueName"]</td>
+                <td>@dr["HoneyName"]</td>
+                <td>@MvcHtmlString.Create(ShowManage(dr))</td>
+                <td>
+                    <a href="javascript:;" onclick="mvcpage.del({ url: '@(apiUrl+"member_del")', ids: '@dr["UserID"]', confirm: '确定要将该用户移出组织吗', after: function () { location = location; } })" class="btn btn-danger btn-sm"><i class="zi zi_trash"></i></a>
+                </td>
+            </tr>
+        }
+    </table>
+    <div style="margin-top:5px;">
+        <button type="button" class="btn btn-outline-info" onclick="mvcpage.bat({url:'@(apiUrl+"member_del")',confirm:'确定要移除吗', after: function () { location = location; }});">批量移除</button>
+        <button type="button" ID="SetM_Btn" class="btn btn-outline-info" onclick="mvcpage.bat({url:'@(apiUrl+"member_setm")', after: function () { location = location; }})">设为管理员</button>
+        <button type="button" ID="UnSetM_Btn" class="btn btn-outline-info" onclick="mvcpage.bat({url:'@(apiUrl+"member_unsetm")', after: function () { location = location; }})">取消管理员</button>
+    </div>
+</div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/js/Controls/ZL_Array.js"></script>
+    <script>
+        user.hook["user"] = function (list, select) {
+            var ids = list.GetIDS("UserID");
+            $.post("Struct_API?action=member_add", { "ids": ids,sid:"@Model.ID" }, function () {
+                location = location;
+            })
+            CloseComDiag();
+        }
+    </script>
+}

@@ -1,0 +1,272 @@
+﻿@section head{ 
+<title>@L.自定义订单状态</title>
+<link href="/Plugins/ColorPicker/css/colorpicker.css" rel="stylesheet" />
+<script src="/Plugins/ColorPicker/colorpicker.js"></script>
+
+}
+@section content{ 
+    @Call.SetBread(new Bread[] {
+     new Bread("{admin}"),
+    new Bread("SiteInfo",@L.网站配置),
+    new Bread() {url="", text=@L.订单管理,addon="" }})
+ 
+        <div class="list_choice">
+            <ul class="nav nav-tabs " role="tablist">
+                <li class="nav-item active" role="presentation"><a class="nav-link active show" href="#orderstatus" aria-controls="orderstatus" role="tab" data-toggle="tab">@L.订单状态</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="#ExpStatus" aria-controls="ExpStatus" role="tab" data-toggle="tab">@L.物流状态</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="#PayStatus" aria-controls="PayStatus" role="tab" data-toggle="tab">@L.支付状态</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" href="#PayType" aria-controls="PayType" role="tab" data-toggle="tab">@L.支付方式</a></li>
+            </ul>
+            <form method="post" action="SetOrderStatus_Submit">
+            <div class="tab-content col-12 table_box setorderstatus">
+                <div role="tabpanel" class="tab-pane active" id="orderstatus">
+                    <table class="table table-bordered table-hover margin_t5">
+                        <thead>
+                            <tr>
+                                <th class="td_m w12rem_lg">@L.订单状态</th>
+                                <th class="td_s w12rem_lg">@L.状态码</th>
+                                <th class="td_l">@L.编辑状态</th>
+                                <th>@L.预览效果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.正常订单</span></td>
+                                <td>0</td>
+                                <td class="d-inline-flex"><input type="text" ID="OrderNormal_T" name="OrderNormal_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.Normal)" data-text="正常订单" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            @*<%--
+                            <tr>
+                                <td class="text-center"><span class="gray_9">已确认</span></td>
+                                <td>1</td>
+                                <td>
+                                    <input type="text" ID="OrderSured_T" data-text="已确认" class="form-control text_md colortext"/>
+                                </td>
+                                <td></td>
+                            </tr>--%>*@
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.处理中</span></td>
+                                <td>2</td>
+                                <td class="d-inline-flex"><input type="text" ID="OrderDealIng_T" name="OrderDealIng_T" value="@OrderConfig.GetOrderStatus(2)"  data-text="处理中" class="form-control text_md colortext" /></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.订单完结</span></td>
+                                <td>99</td>
+                                <td class="d-inline-flex"><input type="text" ID="OrderFinish_T" name="OrderFinish_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.OrderFinish)" data-text="订单完结" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            @*<%--
+                            <tr>
+                                <td class="text-center"><span class="gray_9">已分成</span></td>
+                                <td>100</td>
+                                <td><input type="text" ID="UnitFinish_T" data-text="已分成" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>--%>*@
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.申请退款</span></td>
+                                <td>-1</td>
+                                <td class="d-inline-flex"><input type="text" ID="DrawBack_T" name="DrawBack_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.DrawBack)" data-text="申请退款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.拒绝退款</span></td>
+                                <td>-2</td>
+                                <td class="d-inline-flex"><input type="text" ID="UnDrawBack_T" name="UnDrawBack_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.UnDrawBack)" data-text="拒绝退款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.确认退款</span></td>
+                                <td>-3</td>
+                                <td class="d-inline-flex"><input type="text" ID="CheckDrawBack_T" name="CheckDrawBack_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.CheckDrawBack)" data-text="确认退款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.取消订单</span></td>
+                                <td>-5</td>
+                                <td class="d-inline-flex"><input type="text" ID="CancelOrder_T" name="CancelOrder_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.CancelOrder)" data-text="取消订单" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.已删除</span></td>
+                                <td>-99</td>
+                                <td class="d-inline-flex"><input type="text" ID="Recycle_T" name="Recycle_T" value="@OrderConfig.GetOrderStatus((int)M_OrderList.StatusEnum.Recycle)" data-text="已删除" class="form-control text_md colortext"></input></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="ExpStatus">
+                    <table class="table table-bordered table-hover margin_t5">
+                        <thead>
+                            <tr>
+                                <th class="td_m w12rem_lg">@L.物流状态</th>
+                                <th class="td_s w12rem_lg">@L.状态码</th>
+                                <th class="td_l">@L.编辑状态</th>
+                                <th>@L.预览效果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.等待配送</span></td>
+                                <td>0</td>
+                                <td class="d-inline-flex"><input type="text" ID="UnDelivery_T" name="UnDelivery_T" value="@OrderConfig.GetExpStatus(0)" data-text="等待配送" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.已配送</span></td>
+                                <td>1</td>
+                                <td class="d-inline-flex"><input type="text" ID="Delivery_T" name="Delivery_T" value="@OrderConfig.GetExpStatus(1)" data-text="已配送" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.已签收</span></td>
+                                <td>2</td>
+                                <td class="d-inline-flex"><input type="text" ID="Signed_T" name="Signed_T" value="@OrderConfig.GetExpStatus(2)" data-text="已签收" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.拒签收</span></td>
+                                <td>-1</td>
+                                <td class="d-inline-flex"><input type="text" ID="UnSiged_T" name="UnSiged_T" value="@OrderConfig.GetExpStatus(-1)" data-text="拒签收" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="PayStatus">
+                    <table class="table table-bordered table-hover margin_t5">
+                        <thead>
+                            <tr>
+                                <th class="td_m w12rem_lg">@L.支付状态</th>
+                                <th class="td_s w12rem_lg">@L.状态码</th>
+                                <th class="td_l">@L.编辑状态</th>
+                                <th>@L.预览效果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.未付款</span></td>
+                                <td>0</td>
+                                <td class="d-inline-flex"><input type="text" ID="NoPay_T" name="NoPay_T" value="@OrderConfig.GetPayStatus((int)M_OrderList.PayEnum.NoPay)" data-text="未付款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.已付款</span></td>
+                                <td>1</td>
+                                <td class="d-inline-flex"><input type="text" ID="HasPayed_T" name="HasPayed_T" value="@OrderConfig.GetPayStatus((int)M_OrderList.PayEnum.HasPayed)" data-text="已付款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.申请退款</span></td>
+                                <td>-1</td>
+                                <td class="d-inline-flex"><input type="text" ID="RequestRefund_T" name="RequestRefund_T" value="@OrderConfig.GetPayStatus((int)M_OrderList.PayEnum.RequestRefund)" data-text="申请退款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.已退款</span></td>
+                                <td>-2</td>
+                                <td class="d-inline-flex"><input type="text" ID="Refunded_T" name="Refunded_T" value="@OrderConfig.GetPayStatus((int)M_OrderList.PayEnum.Refunded)" data-text="已退款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.确认收款</span></td>
+                                <td>10</td>
+                                <td class="d-inline-flex"><input type="text" ID="SurePayed_T" name="SurePayed_T" value="@OrderConfig.GetPayStatus((int)M_OrderList.PayEnum.SurePayed)" data-text="确认收款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="PayType">
+                    <table class="table table-bordered table-hover margin_t5">
+                        <thead>
+                            <tr>
+                                <th class="td_m w12rem_lg">@L.支付状态</th>
+                                <th class="td_s w12rem_lg">@L.状态码</th>
+                                <th class="td_l">@L.编辑状态</th>
+                                <th>@L.预览效果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.普通</span></td>
+                                <td>0</td>
+                                <td class="d-inline-flex"><input type="text" ID="PayNormal_T" name="PayNormal_T" value="@OrderConfig.GetPayType((int)M_OrderList.PayTypeEnum.Normal)" data-text="普通" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.预付款</span></td>
+                                <td>1</td>
+                                <td class="d-inline-flex"><input type="text" ID="PrePay_T" name="PrePay_T" value="@OrderConfig.GetPayType((int)M_OrderList.PayTypeEnum.PrePay)" data-text="预付款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span class="gray_9">@L.代收款</span></td>
+                                <td>2</td>
+                                <td class="d-inline-flex"><input type="text" ID="HelpReceive_T" name="HelpReceive_T" value="@OrderConfig.GetPayType((int)M_OrderList.PayTypeEnum.HelpReceive)" data-text="代收款" class="form-control text_md colortext"/></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="alert alert-info" role="alert"> <span class="zi zi_infocircle"></span>@L.预付款使用值 </div>
+                </div>
+                <div class="text-center">
+                    <input type="submit" ID="SaveConfig_Btn" class="btn btn-outline-info" value="@L.保存配置" />
+                </div>
+            </div>
+                </form>
+        </div>
+    
+}
+@section script{ 
+ <script>
+        $(function () {
+            InitSelColor();
+            InitPreText();
+        });
+        var CurColor;//当前颜色选择器
+        //初始化颜色选择器
+        function InitSelColor() {
+            $('.colortext').each(function () {
+                $(this).parent().append(' <a href="javascript:;" class="selcolor" title="颜色选择"><span class="zi zi_fonts"></span></a>');
+            });
+            $('.selcolor').ColorPicker({
+                color: '#0000ff',
+                onShow: function (colpkr) {
+                    CurColor = this;
+                    $(colpkr).fadeIn(500);
+                    return false;
+                },
+                onHide: function (colpkr) {
+                    $(colpkr).fadeOut(500);
+                    return false;
+                },
+                onChange: function (hsb, hex, rgb) {
+                    $(CurColor).css('color', '#' + hex);
+                },
+                onSubmit: function (hsb, hex, rgb) {
+                    var $textobj = $(CurColor).prev();
+                    var value = '<span style="color:#' + hex + '">' + $textobj.data("text") + '</span>';
+                    $textobj.val(value);
+                    PreTextColor($textobj[0]);
+                }
+            });
+        }
+        //初始化预览效果
+        function InitPreText() {
+            $('.colortext').each(function () {
+                PreTextColor(this);
+            });
+            $(".colortext").blur(function () {
+                PreTextColor(this);
+            });
+        }
+        //预览
+        function PreTextColor(textobj) {
+            $(textobj).parent().next().html($(textobj).val());
+        }
+    </script>
+
+}

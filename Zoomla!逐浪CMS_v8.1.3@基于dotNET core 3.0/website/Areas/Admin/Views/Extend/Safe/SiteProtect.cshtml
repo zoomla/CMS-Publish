@@ -1,0 +1,35 @@
+﻿@{ 
+    string pageName = ""+@L.攻击保护+"";
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),L.安全中心),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+<form method="post" action="@MVCHelper.GetAction("SiteProtect_Submit",Context.Request)">
+    <div class="list_choice">
+        <table class="table table-bordered">
+            <tr><td class="td_l">@L.SQL防注入</td>
+            <td><input type="checkbox" class="switchChk" value="1" checked="checked" disabled="disabled"/><div>@L.检测地址栏与表单传参</div></td></tr>
+            <tr><td>@L.上传文件检测</td>
+            <td><input type="checkbox" class="switchChk" value="1" checked="checked" disabled="disabled"/><div>@L.检测上传</div></td></tr>
+            <tr><td>@L.连接字符串加密</td>
+            <td><input type="checkbox" class="switchChk" value="1" checked="checked" disabled="disabled"/><div>@L.加密数据库连接字符串</div></td></tr>
+            <tr><td>@L.网站安全日志</td>
+            <td><input type="checkbox" class="switchChk" value="1" checked="checked" disabled="disabled"/><div>@L.记录网站安全信息</div></td></tr>
+            <tr><td>@L.敏感词检测</td><td>
+                 @MVCHelper.H_Checks("models_chk", new string[] { ""+@L.内容+"", ""+@L.贴吧+"", ""+@L.留言+"", ""+@L.问答+"", ""+@L.百科+"" }, new string[] { "content","bar","guest","ask","baike" },SiteConfig.SiteOption.Safe_ContentCheck_Models)
+                <div><small>@L.未选中的模块</small></div>
+                </td></tr>
+            <tr><td></td><td>
+                <input type="submit" class="btn btn-info" value="@L.保存配置"/></td></tr>
+        </table>
+    </div>
+</form>
+}
+@section script{ 
+<link href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/dist/js/bootstrap-switch.js"></script>
+}

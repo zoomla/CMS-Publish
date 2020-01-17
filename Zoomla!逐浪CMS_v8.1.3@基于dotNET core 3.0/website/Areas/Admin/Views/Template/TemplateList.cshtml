@@ -1,0 +1,44 @@
+﻿@{ 
+    Layout = "_empty";
+
+}
+@section head{<title>选择模板</title> }
+
+@section content{
+<div style="height:350px;overflow-y:auto;">
+@Html.Partial("C_FileBrower",new C_FileBrower() {
+BaseDir=SiteConfig.SiteOption.TemplateDir.TrimEnd('/') + "/",
+Dir_Hide="Label|views|style|System|images|thumbnail",
+Ext_Show="html|htm|shtml"
+})
+    </div>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">文件名称</span>
+        </div>
+        <input type="text" id="fname_t" class="form-control max20rem" />
+        <div class="input-group-append">
+            <input type="button" id="BtnSubmit" class="btn btn-info" value="确定" onclick="SureSel()" />
+            @*<input type="button" id="BtnCancel" class="btn btn-info" value="关闭" onclick="closeDiag()" />*@
+        </div>
+    </div>
+    
+    }
+@section script{ 
+    <script>
+    var fb = {
+        choose: function (path) { $("#fname_t").val(path); }
+    };
+    function SureSel() {
+        var name = "@Context.Request.Query["OpenerText"]";
+        var val = document.getElementById('fname_t').value;
+        parent.Tlp_SetValByName(name, val);
+        closeDiag();
+    }
+    function closeDiag() {
+        if (parent.CloseDiag) { parent.CloseDiag(); }
+        if (parent.CloseComDiag) { parent.CloseComDiag(); }
+    }
+</script>
+
+}

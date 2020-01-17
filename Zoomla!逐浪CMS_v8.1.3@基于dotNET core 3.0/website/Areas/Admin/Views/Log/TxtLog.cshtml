@@ -1,0 +1,53 @@
+﻿@model System.Data.DataTable
+@functions{
+    private string LogType { get { return Context.Request.Query["LogType"]; } }
+    private string GetLogStr()
+    {
+        switch (LogType)
+        {
+            case "safe":
+                return ""+@L.安全日志+"";
+            case "fileup":
+                return ""+@L.上传日志+"";
+            case "exception":
+                return ""+@L.异常日志+"";
+            case "labelex":
+                return ""+@L.标签异常日志+"";
+            case "alogin":
+                return ""+@L.管理登录日志+"";
+            default:
+                return ""+@L.未知日志+"";
+        }
+    }
+    }
+@section head{<title>@L.日志查看</title> }
+@section content{
+	  @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread() {url=Context.Request.RawUrl(), text=GetLogStr(),addon="" }})
+	<div class="list_choice">
+        <table class="table table-bordered table-striped">
+            <thead><tr><td>@L.文件名</td><td>@L.起始时间</td><td>@L.结束时间</td><td>@L.日志大小</td><td>@L.操作</td></tr></thead>
+       
+     @foreach (DataRow dr in Model.Rows)
+     {
+         string fname = HttpUtility.UrlEncode(DataConverter.CStr(dr["name"]));
+         <tr>
+             <td><a href="javascript:;" onclick="ShowComDiag('TxtLogContent?LogType=@LogType&fname=@(fname)','日志内容');">@dr["Name"]</a></td>
+             <td>@dr["CreateTime"]</td>
+             <td>@dr["LastWriteTime"]</td>
+             <td>@dr["ExSize"]</td>
+             <td>
+                 <a href="javascript:;" onclick="ShowComDiag('TxtLogContent?LogType=@LogType&fname=@(fname)', '日志内容');"><i class="zi zi_eye"></i> @L.浏览</a>
+                 <a href="TxtLog_Down?LogType=@LogType&fname=@(fname)"><i class="zi zi_download"></i> @L.下载</a>
+             </td>
+         </tr>
+     }
+     </table>
+	</div>
+
+ }
+@section script{ 
+
+
+}

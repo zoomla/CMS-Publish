@@ -1,0 +1,134 @@
+﻿@model ZoomLa.Model.Auth.M_ARoleAuth
+@{
+    //B_ARoleAuth.AuthCheckEx(ZLEnum.Auth.user, "admin");
+    M_RoleInfo roleMod = ViewBag.roleMod;
+}
+@section head{<title>@L.用户角色权限</title> }
+@section content{ 
+
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Call.PA("User/Role/UserRole"),L.角色管理),
+new Bread(Context.Request.RawUrl(),"("+@L.权限管理+") ["+roleMod.RoleName+"]")
+})
+<form method="post" action="@MVCHelper.GetAction("ARoleAuth_Submit",Context.Request)">
+<div class="container-fluid pr-0">
+<div class="row sysRow list_choice w-100 table-responsive-md">
+<div class="w-100" ng-app="app" ng-controller="appCtrl">
+    <div class="modelItem w-100" ng-repeat="model in auth.list track by $index">
+        <div class="modelName">
+            <span ng-click="chkModeItem(model);" title="选择全部" style="cursor:pointer;">
+                <span style="width:55px;display:inline-block;">
+                    <i class="{{model.icon}}"></i>
+                    <span ng-bind="model.n"></span>
+                </span>
+                <i class="zi zi_checkcircle" style="color: #0094ff;" ng-show="isAllChk(model)"></i>
+                <i class="zi zi_dotcircle" ng-hide="isAllChk(model)"></i>
+            </span>
+        </div>
+        <ul class="authUL">
+            <li class="authItem" ng-class="{'check':item.checked}" ng-repeat="item in model.list track by $index" ng-click="chkAuthItem(item);">
+                <div class="wrap">
+                    <i class="zi zi_checkcircle" style="color:#0094ff;" ng-show="item.checked"></i>
+                    <i class="zi zi_dotcircle" ng-hide="item.checked"></i>
+                    <input type="checkbox" name="{{model.pre}}_authChk" value="{{item.v}}" style="display:none;" ng-checked="item.checked"/>
+                    <span>{{item.n}}</span>
+                </div>
+            </li>
+        </ul>
+        <div class="clearfix" style="border-bottom:1px solid #ddd;margin-bottom:5px;"></div>
+    </div>
+
+    
+</div>
+<div class="text-center w-100">
+    <input type="submit" ID="Save_Btn" value="@L.保存信息" class="btn btn-info"/>
+    <a href="ARole" class="btn btn-outline-info">@L.返回列表</a>
+</div>
+</div>
+</div>
+
+</form>
+}
+@section script{ 
+<script src="/JS/Plugs/angular.min.js"></script>
+<script type="text/javascript">
+    //manage==基本
+    angular.module("app", []).controller("appCtrl", function ($scope) {
+        $scope.auth = { list: [] };
+        $scope.auth.get = function (modelName) {
+            var model = null;
+            for (var i = 0; i < $scope.auth.list.length; i++) {
+                if ($scope.auth.list[i].n == modelName) { model = $scope.auth.list[i]; break; }
+            }
+            return model;
+        }
+        $scope.auth.fill = function (modelName, auths,list) {
+            var model = $scope.auth.get(modelName);
+            var isExist = function (v, auths) {
+                if (!auths || auths.replace == ",") { return false; }
+                else if (auths.indexOf(v) > -1) { return true; }
+                else { return false; }
+            }
+            for (var i = 0; i < list.length; i++) {
+                //list[i].v = auth.pre + "_" + list[i].v;
+                list[i].checked = isExist(list[i].v, auths);
+            }
+            model.list = list;
+        }
+        $scope.auth.list = [
+            { n: "内容", pre: "content", list: [], icon: "zi zi_pencilalt" },
+            { n: "商城", pre: "shop", list: [], icon: "zi zi_shoppingbag" },
+            { n: "黄页", pre: "page", list: [], icon: "zi zi_leaf" },
+            { n: "教育", pre: "exam", list: [], icon: "zi zi_book" },
+            { n: "办公", pre: "office", list: [], icon: "zi zi_envelope" },
+            //{ n: "其它", pre: "other", list: [], icon: "zi zi_codebranch" }
+        ];
+        //权限粒度暂时只到功能模块,不到页面与按钮
+        $scope.auth.fill("内容","@Html.Raw(Model.content)", [
+            { n: "内容管理", v: "manage" },
+            { n: "内容添加", v: "add" },
+            { n: "内容删除", v: "del" },
+            { n: "回收站", v: "recycle" }
+        ]);
+        $scope.auth.fill("商城", "@Html.Raw(Model.shop)", [
+              { n: "商品管理", v: "product" },
+              { n: "库存管理", v: "stock" },
+              { n: "订单管理", v: "order" },
+              { n: "销售统计", v: "sales" },
+              { n: "店铺管理", v: "store" }
+        ]);
+        $scope.auth.fill("黄页","@Html.Raw(Model.page)", [
+         { n: "黄页管理", v: "manage" }
+        ]);
+        $scope.auth.fill("教育","@Html.Raw(Model.exam)", [
+          { n: "试卷管理", v: "paper" },
+          { n: "班级管理", v: "class" },
+          { n: "财务管理", v: "pay" },
+          { n: "组卷测试", v: "pay" },
+        ]);
+        $scope.auth.fill("办公","@Html.Raw(Model.office)", [
+         { n: "云盘", v: "cloud" },
+         { n: "项目管理", v: "project" }
+        ]);
+        //------------------
+        $scope.chkAuthItem = function (item) {
+            item.checked = !item.checked;
+        }
+        $scope.chkModeItem = function (item) {
+            var flag = !$scope.isAllChk(item);//取反
+            item.list.forEach(function (item, index, list) {
+                item.checked = flag;
+            })
+        }
+        //模型下的权限是否全部选择了
+        $scope.isAllChk = function (item) {
+            var flag = true;
+            for (var i = 0; i < item.list.length; i++) {
+                if (item.list[i].checked == false) { flag = false; break; }
+            }
+            return flag;
+        }
+    });
+</script>
+}

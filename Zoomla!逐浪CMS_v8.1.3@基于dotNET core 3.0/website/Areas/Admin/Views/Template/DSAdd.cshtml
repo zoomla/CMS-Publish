@@ -1,0 +1,109 @@
+﻿@model ZoomLa.Model.Content.M_DataSource
+@{
+   @if (Model.ID < 1) { Model.ConnectionString = "Data Source=(local);Initial Catalog=test;User ID=test;Password=test"; }
+}
+@section head{<title>数据源管理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),			
+		new Bread("DSList","数据源列表"),		
+        new Bread() {url=Context.Request.RawUrl(), text="数据源信息",addon="" }}
+		)
+    
+<form method="post" action="@MVCHelper.GetAction("DSAdd_Submit",Context.Request)">
+<div class="list_choice">
+<table class="table table-striped table-bordered table-hover sys_table">
+    <tr>
+        <th class="w12rem_lg">名称</th>
+        <td>
+            <input type="text" ID="DSName" name="DSName" class="form-control max20rem required" value="@Model.DSName" />
+        </td>
+    </tr>
+    <tr>
+        <th>类型</th>
+        <td>
+            <select ID="Type_DP" name="Type_DP" class="form-control max20rem" onchange="changeType()">
+                <option value="mssql">SQL数据库</option>
+                <option value="mysql">MYSQL数据库</option>
+                <option value="oracle">Oracle数据库</option>
+                @*<option value="access">Access数据库</option>*@
+                <option value="excel">Excel</option>
+            </select>
+            <script>
+                $("#Type_DP").val("@Model.Type");
+                function changeType()
+                {
+                    var result = "";
+                    switch ($("#Type_DP").val()) {
+                        case "mssql":
+                            result = "Data Source=(local);Initial Catalog=test;User ID=test;Password=test";
+                            break;
+                        case "mysql":
+                            result = "Data Source=;Provider=Microsoft.JET.OLEDB.4.0;";
+                            break;
+                        case "oracle":
+                            result = "Data Source=;User Id=;Password=;Integrated Security=no;";
+                            break;
+                        case "access":
+                            result = "/access/test.mdb";
+                            break;
+                        case "xml":
+                            result = "/xml/test.xml";
+                            break;
+                        case "excel":
+                            result = "/test.xlsx";
+                            break;
+                        default:
+                            break;
+                    }
+                    $("#DBConnectText").val(result);
+                }
+            </script>
+        </td>
+    </tr>
+        <tr>
+        <th>连接字符串</th>
+        <td>
+            <input type="text" ID="DBConnectText" name="DBConnectText" class="form-control required" value="@Model.ConnectionString" />
+        </td>
+    </tr>
+    <tr>
+        <th>备注</th>
+        <td>
+            <textarea ID="Remind_T" name="Remind_T" class="form-control" rows="3">@Model.Remind</textarea>
+            <div class="alert alert-info">
+                <div>1.Excel作为外部数据源,不支持连接查询,不支持复杂筛选机制</div>
+                <div>2.</div>
+            </div>
+        </td>
+    </tr>
+    <tr><th>测试结果</th><td id="TestResult_L"></td></tr>
+    <tr>
+        <th>操作</th>
+        <td>
+            <input type="button" ID="Test_Btn" class="btn btn-outline-info" value="测试连接" onclick="testConnect();"/>
+            <input type="submit" ID="Save_Btn" class="btn btn-outline-info" value="保存连接" />
+            <a href="DSList" class="btn btn-outline-info">返回列表</a>
+        </td>
+    </tr>
+</table>
+</div>
+</form>
+}
+@section script{
+<script>
+    function testConnect() {
+        comdiag.ShowMask("正在测试连接...");
+        $.post("DBList_API?action=test", {"type":$("#Type_DP").val(),"DBConnectText":$("#DBConnectText").val()}, function (data) {
+            var ret = APIResult.getModel(data);
+            if (APIResult.isok(ret)) {
+                $("#TestResult_L").html("<span style='color:green;'>测试连接成功</span>");
+            }
+            else {
+                 $("#TestResult_L").html("<span style='color:red;'>测试连接失败："+ret.retmsg+"</span>");
+            }
+            comdiag.CloseModal();
+        })
+    }
+</script>
+}

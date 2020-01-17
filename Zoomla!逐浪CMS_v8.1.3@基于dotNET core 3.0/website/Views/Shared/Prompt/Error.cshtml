@@ -1,0 +1,40 @@
+﻿@model ErrorViewModel
+@using ZoomLaCMS.Resources;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section head{
+<link rel="stylesheet" href="/dist/css/animate.min.css"/>
+<link href="/theme/css/v4style.css" rel="stylesheet" />
+<title>@L.错误提示</title>
+}
+@section content{
+<div class="container animated sysTips_prompt">
+    <div class="col-sm-6 offset-sm-3">
+        <div class="card">
+            <div class="card-header"><i class="zi zi_bulbLine" aria-hidden="true"></i> @(L.错误的请求) </div>
+            <div class="card-body text-center">
+                <h5 class="card-title"></h5>
+                <p class="card-text">@MvcHtmlString.Create(Model.Message)</p>
+                <div class="card-text"><a href="javascript:;" onclick="goBack();" class="btn btn-info" style="color:#fff;" id="back_btn"><i class="zi zi_reply"></i> @L.返回上一页 </a></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+@section script{
+<script>
+    var returnUrl = "@Model.ReturnUrl";
+    if (returnUrl || history.length > 1) {
+
+    }
+    else { document.getElementById("back_btn").innerText = "@Html.Raw(L.返回首页)"; }
+    function goBack() {
+        if (returnUrl) { location = returnUrl; }
+        else if (history.length > 1) { history.go(-1); }
+        else { location = "/"; }
+    }
+</script>
+}

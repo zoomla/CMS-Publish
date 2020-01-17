@@ -1,0 +1,26 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+  protected string GetType(int type)
+        {
+            switch (type)
+            {
+                case 1:
+                    return "普通信件";
+                case 2:
+                    return "邀请函";
+                case 3:
+                    return "明信片";
+                default:
+                    return "普通信件";
+            }
+        }
+}
+
+@section head{<title>@L.邮件模板</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread() {url="", text=L.邮件模板,addon="<a href='MailTlpAdd'> ["+L.创建邮件模板+"]</a>" }}
+)
+    <div class="list_choice">@Html.Partial(MVCHelper.ViewDir_Admin+"User/Mail/MailTlp_List.cshtml")</div>
+}

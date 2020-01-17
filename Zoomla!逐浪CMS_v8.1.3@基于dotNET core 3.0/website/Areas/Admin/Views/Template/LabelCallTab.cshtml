@@ -1,0 +1,40 @@
+﻿@using System.Data
+@using ZoomLa.BLL.SYS
+@model ZoomLa.Model.M_Label
+@{
+    B_Label labelBll = new B_Label();
+    B_FunLabel bfun = new B_FunLabel();
+    DataTable cateDT = labelBll.GetLabelCateListXML();
+    DataTable fieldDT = labelBll.GetSourceLabelXML();
+}
+@section head{<title>@L.标签助手</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("/{manage}/Config/SiteInfo",L.系统设置),
+new Bread("LabelManage",L.标签管理),
+new Bread() {url="", text=L.标签调用,addon="" }}
+)
+    <div class="list_choice" id="labeldiv">
+
+        <div class="container-fluid pr-0">
+            @Html.Partial("Comp/LabelComp",new C_Model() { })
+        </div>
+    </div>
+}
+@section script{
+    <script src="/Plugins/CodeMirror/mode/htmlmixed.js"></script>
+    <script src="/Plugins/CodeMirror/mode/css.js"></script>
+
+    <style>
+        .modal-sm { max-width: 500px; width: 50%; }
+        /*.modal-lg { width: 1100px; }*/
+    </style>
+    @if (!string.IsNullOrEmpty(Model.LabelName))
+    {
+        <script>
+        cit2("@Model.LabelType", "@Html.Raw(Model.LabelName)");
+        </script>
+    }
+
+}
+

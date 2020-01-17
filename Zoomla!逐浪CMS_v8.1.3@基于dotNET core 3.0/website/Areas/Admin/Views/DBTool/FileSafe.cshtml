@@ -1,0 +1,97 @@
+﻿@using Newtonsoft.Json
+@using System.Text.RegularExpressions
+@using ZoomLaCMS.Areas.Admin.Controllers.Extend
+@functions{
+    public IHtmlContent ShowResult(int result)
+    {
+        string html = "";
+        switch (result)
+        {
+            case 1:
+                html = "<span style='color:blue;'>"+@Html.Raw(L.新增)+"</span>";
+                break;
+            case -1:
+                html = "<span style='color:orange;'>"+@Html.Raw(L.已修改)+"</span>";
+                break;
+            case -2:
+                html = "<span style='color:red;'>"+@Html.Raw(L.已移除)+"</span>";
+                break;
+            default:
+                html = result.ToString();
+                break;
+        }
+        return MvcHtmlString.Create(html);
+    }
+    public string PToV(string path)
+    {
+
+        string dir = AppDomain.CurrentDomain.BaseDirectory;
+        //调试时
+        if (dir.Contains(@"\bin\")) { dir =  Regex.Split(dir,Regex.Escape(@"\bin\"))[0]; }
+        path = path.Replace(dir, "");
+        path= function.PToV(path);
+        if (!path.StartsWith("/")) { path = "/" + path; }
+        return path;
+    }
+}
+@{ 
+
+    List<DBToolController.FileFlag> result = ViewBag.result;
+}
+@section head{<title>@L.页面安全</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("FileSafe",L.页面安全)
+})
+<div class="alert alert-info list_choice" >
+    <div><i class="zi zi_laba"></i> @L.请先建立或更新文件标识 [@(ShowResult(1))][@(ShowResult(-1))][@(ShowResult(-2))]@L.的文件</div>
+    <div style="padding-left:22px;">@L.文件标识忽略上传目录</div>
+    <div style="display:flex;">
+    <form method="post" action="FileSafe_CreateFlag" style="margin-right:20px;text-align:right;" id="form_create">
+        <input type="submit" class="btn btn-info" value="@L.建立文件标识" onclick="beginCreate();" />
+    </form>
+    <form method="post" action="FileSafe_CheckTamper" style="text-align:left;" id="form_check">
+        <input type="submit" class="btn btn-info" value="@L.文件安全检测" onclick="beginCheck();"/>
+    </form>
+</div>
+</div>
+<div style="margin-top:5px;">
+@if (result!= null)
+{
+    if (result.Count < 1)
+    {
+        <div class="alert alert-info">@L.文件安全检测通过</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+            <thead><tr><th style="width:150px;">@L.校验结果</th><th>@L.文件路径</th></tr></thead>
+            @foreach (DBToolController.FileFlag item in result)
+            {
+                <tr>
+                    <td>@ShowResult(item.result)</td>
+                    <td>@PToV(item.path)</td>
+                </tr>
+            }
+        </table>
+    }
+    
+}
+</div>
+}
+@section script{
+  <script>
+      function beginCreate() {
+          if (!confirm('@Html.Raw(L.确定要生成全站页面标识吗)!')) { return false; }
+          comdiag.ShowMask("@Html.Raw(L.正在处理中)...");
+          $("#form_create").submit();
+      }
+      function beginCheck() {
+          if (!confirm('@Html.Raw(L.确定要开始检索全站页面吗)!')) { return false; }
+          comdiag.ShowMask("@Html.Raw(L.正在处理中)...");
+          $("#form_create").submit();
+      }
+  </script>
+
+}

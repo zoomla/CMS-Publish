@@ -1,0 +1,44 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string ShowTGLink()
+    {
+        M_UserInfo mu = ViewBag.mu;
+        string url = SiteConfig.SiteInfo.SiteUrl + "/User/Register?ParentUserID=" + mu.UserID;
+        return url;
+    }
+}
+@{}
+@section head{<title>我的推广</title> }
+@section content{
+
+<div class="container">
+        <div id="pageflag" data-nav="home" data-ban="UserInfo"></div>
+
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+		<li class="breadcrumb-item"><a href="@Url.Action("userinfo","info")">账户管理</a></li>
+		<li class="breadcrumb-item active">注册信息</li>
+	</ol>
+	</nav>
+    <div class="input-group">
+        <input type="text" class="form-control" id="tglink" value="@ShowTGLink()"/>
+        <span class="input-group-append"><button type="button" class="btn btn-info" id="copy_btn"><i class="zi zi_copy"></i> 复制推广链接</button></span>
+    </div>
+ @Html.Partial("MyTG_List")
+</div>
+            
+   
+ }
+@section script{
+<style type="text/css">
+#user_ul{list-style-type:none;margin-top:5px;}
+#user_ul li{display:flex;padding:8px;border-bottom:1px solid #ddd;}
+#user_ul li .face{width:60px;height:60px;border-radius:50%;}
+#user_ul li .name{display:inline-block;min-width:100px;}
+#user_ul li .badge{background-color:#ff6a00;padding:5px;color:#fff;border-radius:5px;font-weight:normal;font-size:12px;margin-right:5px;}
+</style>
+<script>
+    new ClipboardJS('#copy_btn', { text: function () { return $("#tglink").val(); }});
+</script>
+ }

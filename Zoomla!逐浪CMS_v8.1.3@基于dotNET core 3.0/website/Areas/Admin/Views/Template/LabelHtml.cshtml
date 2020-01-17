@@ -1,0 +1,232 @@
+﻿@using System.Data
+@using System.Web
+@using ZoomLa.Model
+@using ZoomLa.BLL.SYS
+@using ZoomLa.Common
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Helper
+@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+@{
+    B_Label labelBll = new B_Label();
+    string bread = "添加新标签";
+    ViewBag.cateDT = new B_Label().GetLabelCateListXML();
+
+    if (!string.IsNullOrEmpty(Model.labelMod.LabelName))
+    {
+        bread =Model.labelMod.LabelName;
+    }
+}
+@section head{
+    <link rel="stylesheet" href="/Plugins/CodeMirror/lib/codemirror.css">
+    <link rel="stylesheet" href="/Plugins/CodeMirror/theme/eclipse.css">
+    <script src="/Plugins/CodeMirror/lib/codemirror.js"></script>
+    <script src="/Plugins/CodeMirror/mode/xml.js"></script>
+    <script src="/Plugins/CodeMirror/mode/javascript/javascript.js"></script>
+    <script src="/Plugins/CodeMirror/addon/selection/active-line.js"></script>
+    <script src="/Plugins/CodeMirror/addon/edit/matchbrackets.js"></script>
+    <script src="/Plugins/CodeMirror/mode/htmlmixed.js"></script>
+    <script src="/Plugins/CodeMirror/mode/css.js"></script>
+    <script src="/Plugins/Third/bootstrap-select/js/bootstrap-select.js"></script>
+    <link href="/Plugins/Third/bootstrap-select/css/bootstrap-select.css" rel="stylesheet" />
+    <style type="text/css">
+        .opname { position: absolute; width: 100px; font-weight: bolder; }
+        .field_wrap { width: 150px; display: inline-block; position: relative; border: 1px solid #ddd; border-right: none; }
+        .editor { width: 100%; max-width: 100%; height: 530px; }
+        #label_left { width: 420px; height: 536px; max-width: 450px; overflow-y: auto; padding: 0px; text-align: center; float: left; }
+        #label_right { padding: 0px; margin-left: 425px; border-left: 1px solid #ddd; }
+        .labelhtml_no { display: none; }
+    </style>
+    <title>静态标签</title>
+}
+@section content{
+@Call.SetBread(new Bread[] { 
+new Bread("{admin}"),
+new Bread("LabelManage","标签管理"),
+new Bread(Context.Request.RawUrl(),bread)
+
+})
+    <form method="post" id="form1">
+        <div style="display:none;">
+            <input type="submit" ID="Save_Btn" name="Save_Btn" Text="保存" v-on:click="save();" />
+        </div>
+        <div class="list_choice" id="app">
+            @Html.Partial("LabelSql_0", Model)
+            @Html.Partial("LabelSql_3", Model)
+        </div>
+    </form>
+}
+@section script{
+    <script src="/js/Plugs/base64.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/Controls/ZL_Dialog.js"></script>
+    <script src="/js/Controls/ZL_Array.js"></script>
+    <script src="/Plugins/CodeMirror/LabelCall.js?v=12"></script>
+    <script src="/dist/vue/vue.js"></script>
+    <script src="/js/Modal/APIResult.js"></script>
+    <script src="/js/jquery.form.js"></script>
+    <script>
+
+        var app = new Vue({
+            el: "#app",
+            created:function(){
+            },
+            methods: {
+                //保存标签
+                save: function () {
+                    //检测各个参数是否正常填写
+                    var ref = this;
+                    $("#ds_hid").val(JSON.stringify(ref.model.DataSourceType));
+                    //$("#form1").submit();
+                    labelEditor.save();
+                    $("#form1").ajaxSubmit({
+                        url: "@MVCHelper.GetAction("LabelHtml_Save",Context.Request)", success: function (data) {
+                            var model=APIResult.getModel(data);
+                            if(APIResult.isok(model)){
+                                var labelId=$("#labelId_hid").val();
+                                if (labelId == "0") { cmsAlert("标签保存成功,即将返回列表页", function () { location = "LabelManage"; });}
+                                else{ cmsAlert("标签修改成功");}
+
+                            }
+                            else{cmsAlert("保存失败:"+model.retmsg);}
+                        }
+                    });
+                },
+                changeStep: function (step) {
+                    this.step = step;
+                    this.stepCallBack();
+                },
+                next: function () {
+                    this.step=3;
+                    this.stepCallBack();
+                },
+                pre: function () {
+                    this.step=0;
+                },
+                stepCallBack: function () {
+                    if (this.step == "3" && this.step3_inited == false) {
+                        setTimeout(function () { editor.setValue($("#textContent").val()); }, 100);
+                        this.step3_inited = true;
+                    }
+                    if(this.step=="3")
+                    {
+
+                    }
+
+                },
+                cancel: function () {
+                    if (!confirm("确定要退出编辑吗?")) { return false; }
+                    location = "LabelManage";
+                }
+            },
+            data: {
+                step: 0,
+                step3_inited: false,//初始化次编辑器
+                //标签模型
+                model: @Html.Raw(JsonConvert.SerializeObject(Model.labelMod,new JsonSerializerSettings() {ContractResolver =new LimitPropsContractResolver(new string[] {"Content","FalseContent","EmptyContent" }, false) })),
+                //参数相关操作
+                param: {
+                    newMod: function () {
+                        return { ParamName: "", ParamValue: "", ParamType: "1", ParamDesc: "", Param: "" };
+                    },
+                    add: function () {
+                        var ref = this;
+                        var model = ref.newMod();
+                        ref.dt.push(model);
+                    },
+                    del: function (item) {
+                        var ref = this;
+                        for (var i = 0; i < ref.dt.length; i++) {
+                            if (ref.dt[i] == item) { ref.dt.splice(i, 1);  }
+                        }
+                    },
+                    //将参数字符串转换为json数组
+                    toDT: function (paramStr) {
+                        var ref = this;
+                        var paramArr = paramStr.split('|');
+                        var list = [];
+                        for (var i = 0; i < paramArr.length; i++) {
+                            var model = ref.newMod();
+                            model.ParamName = paramArr[i].split(',')[0];
+                            model.ParamValue = paramArr[i].split(',')[1];
+                            model.ParamType = paramArr[i].split(',')[2];
+                            model.ParamDesc = paramArr[i].split(',')[3];
+                            model.Param = paramArr[i].split(',')[4];
+                            list.push(model);
+                        }
+                        return list;
+                    },
+                    //用于保存
+                    toStr: function () {
+                        //mid,0,1,地图ID|width,480,1,地图宽度|Height,320,1,地图高度
+                        //name,value,type,desc
+                        var ref = this;
+                        var paramStr = "";
+                        if(!ref||!ref.dt||ref.dt.length<1){return "[]";}
+                        for (var i = 0; i < ref.dt.length; i++) {
+                            var model=ref.dt[i];
+                            paramStr+=model.ParamName+","+model.ParamValue+","+model.ParamType+","+model.ParamDesc+"|";
+                        }
+                        if(paramStr.length>0){paramStr=paramStr.substr(0,paramStr.length-1);}
+                        return paramStr;
+                    },
+                    dt: [],
+                },
+                fields1: [],
+                fields2: []
+            }
+        });
+    </script>
+    <script>
+        //LabelCall调用
+        var diag = new ZL_Dialog();
+        function opentitle(url, title) {
+            diag.url = url;
+            diag.title = title;
+            diag.ShowModal();
+        }
+        function closeCuModal() {
+            diagLabel.CloseModal();
+        }
+        //新增Div参数块,拥有绑定功能
+        function pdrag(ev) {
+            var code = $(ev.target ? ev.target : ev.srcElement).attr("code");
+            ev.dataTransfer.setData("Text", code);
+        }
+        function VoteCheck() {
+            var validator = $("#form1").validate({ meta: "validate" });
+            return validator.form();
+        }
+        function changecate(obj) {
+            var $text = $("#LabelCate_T");
+            $text.val($(obj).val());
+        }
+        function saveEditor() {
+            labelEditor.save();
+            return true;
+        }
+        var base64 = Base64;
+        //===================================
+
+        var labelEditor = {
+            current: "Content_T",
+            load: function (dom, id) {
+                var ref = this;
+                if (id == ref.current) {  }
+                else { $("#" + ref.current).val(editor.getValue()); }
+                $(dom).closest(".nav-tabs").find("a").removeClass("active");
+                $(dom).addClass("active");
+                //---------------------
+                ref.current = id;
+                $("#textContent").val($("#" + id).val());
+                editor.setValue($("#" + id).val());
+            },
+            save: function () {
+                var ref = this;
+                $("#" + ref.current).val(editor.getValue());
+            }
+        };
+    </script>
+
+}

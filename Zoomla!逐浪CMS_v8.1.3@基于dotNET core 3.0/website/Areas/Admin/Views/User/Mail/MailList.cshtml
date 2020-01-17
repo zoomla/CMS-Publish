@@ -1,0 +1,11 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>@L.EMail发送列表</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url="",text=L.发送日志,addon=" [<a href='MailSend'><i class='zi zi_envelope'></i> "+L.发送新邮件+"</a>][<a href='"+Call.PA("Config/MailConfig")+"'><i class='zi zi_cog'></i>("+L.邮箱配置+")</a>]" }
+},"{search}")
+<div class="list_choice">
+@Html.Partial(MVCHelper.ViewDir_Admin+"User/Mail/MailList_List.cshtml")
+</div>
+    }

@@ -1,0 +1,752 @@
+﻿@using ZoomLa.Model.Content
+@using ZoomLa.BLL.Content
+@using System.Data
+@using ZoomLa.Common
+@using ZoomLaCMS.Control
+@model ZoomLa.Model.M_Node
+@functions
+{
+    B_Node nodeBll = new B_Node();
+    B_Model modBll = new B_Model();
+    public string GetTemplate(string mid)
+    {
+        string result = "";
+        string[] arr = Model.ContentModel.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        if (IsInModel(mid, arr))
+        {
+            result = nodeBll.GetModelTemplate(Model.NodeID, DataConverter.CLng(mid));
+            if (string.IsNullOrEmpty(result))
+                result = modBll.SelReturnModel(DataConverter.CLng(mid)).ContentModule;
+        }
+        else
+        {
+            result = modBll.SelReturnModel(DataConverter.CLng(mid)).ContentModule;
+        }
+        return result.Substring(0);
+    }
+    public bool IsInModel(string modelid, string[] array)
+    {
+        bool flag = false;
+        for (int i = 0; i < array.Length; i++)
+        {
+            if (modelid == array[i])
+            {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+    public string GetModelIcon(DataRow dr)
+    {
+        string iconstr = DataConverter.CStr(dr["ItemIcon"]);
+        return StringHelper.GetItemIcon(iconstr);
+    }
+    public string GetChk(string mid)
+    {
+        string result = "";
+        string[] arr = Model.ContentModel.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        if (IsInModel(mid, arr))
+        {
+            result = "<input type=\"checkbox\" id=\"ChkModel\" name=\"ChkModel\" value=\"" + mid + "\" checked />";
+        }
+        else
+        {
+            result = "<input type=\"checkbox\" id=\"ChkModel\" name=\"ChkModel\" value=\"" + mid + "\" />";
+        }
+        return result;
+    }
+}
+@{
+    M_Node parentMod = nodeBll.SelReturnModel(Model.ParentID);
+    DataTable modelDT = modBll.GetList();
+    DataTable groupDT = new B_Group().Sel();
+    DataTable roleDT = new B_Role().Sel();
+    DataTable nrDT = new DataTable();
+    if (Model.NodeID > 0)
+    {
+        nrDT = ZoomLa.SQLDAL.DBCenter.Sel("ZL_Node_Auth", "NodeID=" + Model.NodeID);
+    }
+}
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/dist/js/bootstrap-switch.js"></script>
+<script src="/js/SelectCheckBox.js"></script>
+<script src="/js/Controls/ZL_Array.js"></script>
+<style type="text/css">
+#view_rad label {display:block;}
+</style>
+<!-------------------------------------------------------------------------------------------------->
+<div>
+      <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#Tabs0" data-toggle="tab">@L.基本信息</a><input type="checkbox" class="batch_yes" value="1" name="tab_basic_chk"/></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs1" data-toggle="tab">@L.栏目选项</a><input type="checkbox" class="batch_yes" value="1" name="tab_node_chk"/></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs2" data-toggle="tab">@L.内容收费</a><input type="checkbox" class="batch_yes" value="1" name="tab_money_chk"/></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs3" data-toggle="tab">@L.模板选项</a><input type="checkbox" class="batch_yes" value="1" name="tab_template_chk"/></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs4" data-toggle="tab">@L.生成选项</a><input type="checkbox" class="batch_yes" value="1" name="tab_create_chk"/></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs5" data-toggle="tab">@L.浏览权限</a><input type="checkbox" class="batch_yes" value="1" name="tab_view_chk"/></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs6" data-toggle="tab">@L.操作权限</a><input type="checkbox" class="batch_yes" value="1" name="tab_auth_chk"/></li>
+            </ul>
+      <div class="tab-content col-12 table_box">
+                <div class="co-1 tab-pane active" id="Tabs0">
+                    <table class="table table-striped table-bordered sys_table">
+                        <tbody>
+                            <tr class="batch_no">
+                                <th class="w12rem_lg">@L.所属栏目</th>
+                                <td>@parentMod.NodeName</td>
+                            </tr>
+                            <tr class="batch_no">
+                                <th>@L.栏目名称</th>
+                                <td>
+                                    <input type="text" name="TxtNodeName" ID="TxtNodeName" class="form-control m50rem_50 required" value="@Model.NodeName" />
+                                    <small id="TxtNodeName_sp"></small>
+                                </td>
+                            </tr>
+                            <tr class="batch_no">
+                                <th>
+                                    @L.栏目标识名
+                                </th>
+                                <td>
+                                    <input type="text" name="TxtNodeDir" ID="TxtNodeDir" class="form-control m50rem_50 required" MaxLength="20" value="@Model.NodeDir" />
+                                    <small class="text-muted">@L.目录名规范</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="w12rem_lg">
+                                    @L.栏目图片地址
+                                </th>
+                                <td>
+                                    <input type="text" name="TxtNodePicUrl" ID="TxtNodePicUrl" class="form-control m50rem_50" value="@Model.NodePic" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>
+                                    @L.栏目提示
+                                </th>
+                                <td>
+                                    <textarea name="TxtTips" ID="TxtTips" class="form-control m50rem_50" rows="2">@Model.Tips</textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @L.栏目说明
+                                </th>
+                                <td><textarea name="TxtDescription" ID="TxtDescription" class="form-control m50rem_50" rows="2">@Model.Description</textarea></td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @L.栏目META关键词
+                                </th>
+                                <td>
+                                    <textarea name="TxtMetaKeywords" ID="TxtMetaKeywords" class="form-control m50rem_50" rows="4">@Model.Meta_Keywords</textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.栏目META网页描述</th>
+                                <td>
+                                    <textarea name="TxtMetaDescription" ID="TxtMetaDescription" class="form-control m50rem_50" rows="4">@Model.Meta_Description</textarea>
+                                </td>
+                            </tr>
+                            <tr class="batch_no">
+                                <th>@L.创建人</th>
+                                <td><input type="text" name="CUser_T" ID="CUser_T" class="form-control max20rem" value="@Model.CUName" @Html.Raw(Model.NodeID>0?"readonly='readonly'":"")/></td>
+                            </tr>
+                            <tr>
+                                <th>@L.创建时间</th>
+                                <td><input type="text" name="CDate_T" ID="CDate_T" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' })" class="form-control max20rem" value="@Model.CDate.ToString("yyyy/MM/dd HH:mm")" @Html.Raw(Model.NodeID>0?"readonly='readonly'":"")/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs1">
+                    <table class="table table-striped table-bordered sys_table">
+                        <tbody>
+                            <tr>
+                                <th><strong>@L.栏目类型</strong></th>
+                                <td>@MVCHelper.H_Radios("NodeListType", "内容栏目|商城栏目|店铺栏目".Split('|'), "1|2|5".Split('|'), Model.NodeListType.ToString())</td>
+                            </tr>
+                            <tr>
+                                <th class="w12rem_lg">
+                                    <strong>@L.打开方式</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("RBLOpenType", "原窗口|新窗口|父窗口|全局载入".Split('|'), "_self|_blank|_parent|_top".Split('|'), Model.OpenTypeTrue)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><strong>@L.内容打开方式</strong></th>
+                                <td>
+                                    @MVCHelper.H_Radios("RBLItemOpenType", "原窗口|新窗口".Split('|'), "0|1".Split('|'), Model.ItemOpenType ? "1" : "0")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.点击统计时间</strong>
+                                </th>
+                                <td>
+                                    @Html.DropDownList("ClickTimeout", MVCHelper.ToSelectList("1秒|30秒|1分钟|5分钟|10分钟|半小时|1小时|8小时|24小时".Split('|'), "1|30|60|300|600|1800|3600|28800|86400".Split('|'), Model.ClickTimeout.ToString()), new { @class = "form-control text_md" })
+                                </td>
+                            </tr>
+                            <tr><th>@L.会员投稿状态</th>
+                                <td>@MVCHelper.H_Radios("SiteContentAudit", "已审核|待审核".Split('|'), "99|0".Split('|'), Model.SiteContentAudit.ToString())</td>
+                            </tr>
+                 <tr>
+                    <th><strong>@L.内容防护</strong></th>
+                    <td>@MVCHelper.H_Check("SafeGuard",Model.SafeGuard==1,new {@class="switchChk",value="1" })</td>
+                </tr>
+                <tr>
+                    <th><strong>@L.简洁模式</strong></th>
+                    <td>@MVCHelper.H_Check("Contribute",Model.Contribute==1,new {@class="switchChk",value="1" })</td>
+                </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs2">
+        <table class="table table-striped table-bordered sys_table">
+            <tbody>
+                <tr>
+                    <th class="w12rem_lg">
+                        @L.默认消费积分
+                    </th>
+                    <td>
+						<div class="input-group">
+						<input type="text" ID="ConsumePoint" name="ConsumePoint" class="form-control max20rem" value="@Model.ConsumePoint" />
+						  <div class="input-group-append">
+							<span class="input-group-text">@L.点</span>
+						  </div>
+						</div>
+						<small class="text-muted">@L.阅读内容收费积分</small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @L.重复收费方式
+                    </th>
+                    <td class="sysConsumeType">
+					<div class="btn btn-outline-info"><input type="radio" name="ConsumeType" value="0" /> @L.不重复收费</div>
+					<div class="input-group">
+					  <div class="input-group-prepend">
+						<span class="input-group-text"><input type="radio" name="ConsumeType" value="1"/> @L.距离上次收费隔</span>
+					  </div>
+					  <input type="text" ID="ConsumeTime" name="ConsumeTime" class="form-control" value="@Model.ConsumeTime" />
+					  <div class="input-group-append">
+						<span class="input-group-text">@L.小时重新收费</span>
+					  </div>
+					</div>
+					<div class="input-group">
+					  <div class="input-group-prepend">
+						<span class="input-group-text"><input type="radio" name="ConsumeType" value="2"/> @L.重复阅读此文章</span>
+					  </div>
+					  <input type="text" ID="ConsumeCount" name="ConsumeCount" class="form-control" value="@Model.ConsumeCount" />
+					  <div class="input-group-append">
+						<span class="input-group-text">@L.次后重新收费</span>
+					  </div>
+					</div>                        
+					<div class="btn btn-outline-info"><input type="radio" name="ConsumeType" value="3" /> @L.上述两个条件都满足时重新收费</div><div class="cleafix"></div>
+					<div class="btn btn-outline-info"><input type="radio" name="ConsumeType" value="4" /> @L.上述两者任一个满足时即重收费</div><div class="cleafix"></div>
+					<div class="btn btn-outline-info"><input type="radio" name="ConsumeType" value="5" /> @L.每次阅读重复收费</div><div class="cleafix"></div>
+					<small class="text-muted">@L.会员阅读内容收费方式</small>
+                     <script>$(function () { SetRadVal("ConsumeType","@Model.ConsumeType"); })</script>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @L.分成比例
+                    </th>
+                    <td>
+						<div class="input-group">
+						<input type="text" ID="Shares" name="Shares" class="form-control max20rem" value="@Model.Shares" />
+						  <div class="input-group-append">
+							<span class="input-group-text">%</span>
+						  </div>
+						</div>
+						<small class="text-muted">@L.会员添加栏目分成比例</small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.发布内容收费</th>
+                    <td>
+                        <div class="input-group">
+                            <div class="input-group-append"><span class="input-group-text">@L.余额</span></div>
+                            <input type="text" ID="AddMoney" name="AddMoney" class="form-control" value="@Model.AddMoney"/>
+                            <div class="input-group-append"><span class="input-group-text">@L.银币</span></div>
+                            <input type="text" ID="AddPoint" name="AddPoint" class="form-control" value="@Model.AddPoint"/>
+                            <div class="input-group-append"><span class="input-group-text">@L.积分</span></div>
+                            <input type="text" ID="AddUserExp" name="AddUserExp" class="form-control" value="@Model.AddUserExp"/>
+                        </div>						
+						<small class="text-muted">@L.会员发布内容收取的费用</small>
+                    </td>
+                </tr>
+                 <tr>
+                    <th>@L.下载内容收费</th>
+                    <td>
+						<div class="input-group">
+						<input type="text" ID="DeducUserExp" name="DeducUserExp" class="form-control max20rem" value="@Model.DeducUserExp"/>
+						  <div class="input-group-append">
+							<span class="input-group-text">@L.积分</span>
+						  </div>
+						</div>
+						<small class="text-muted">@L.会员下载内容每次收费</small>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+                <div class="tab-pane" id="Tabs3">
+                    <table class="table table-striped table-bordered sys_table">
+                        <tbody>
+                            <tr>
+                                <th class="w12rem_lg">
+                                    <strong>@L.栏目首页模板</strong>
+                                </th>
+                                <td>
+                                    @Html.Raw(PageCommon.GetTlpDP("IndexTemplate", !string.IsNullOrEmpty(Model.IndexTemplate), "/Class_" + Model.NodeID + "/Default"))
+                                    <input type="hidden" name="IndexTemplate_hid" ID="IndexTemplate_hid" value="@Model.IndexTemplate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.栏目列表页模板</strong>
+                                </th>
+                                <td>
+                                    @Html.Raw(PageCommon.GetTlpDP("ListTemplateFile", !string.IsNullOrEmpty(Model.ListTemplateFile), "/Class_" + Model.NodeID + "/NodePage"))
+                                    <input type="hidden" name="ListTemplateFile_hid" ID="ListTemplateFile_hid" value="@Model.ListTemplateFile" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.最新信息模板</strong>
+                                </th>
+                                <td>
+                                    @Html.Raw(PageCommon.GetTlpDP("LastinfoTemplate", !string.IsNullOrEmpty(Model.LastinfoTemplate), "/Class_" + Model.NodeID + "/NodeNews"))
+                                    <input type="hidden" name="LastinfoTemplate_hid" ID="LastinfoTemplate_hid" value="@Model.LastinfoTemplate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.热门信息模板</strong>
+                                </th>
+                                <td>
+
+                                    @Html.Raw(PageCommon.GetTlpDP("HotinfoTemplate", !string.IsNullOrEmpty(Model.HotinfoTemplate), "/Class_" + Model.NodeID + "/NodeHot"))
+                                    <input type="hidden" name="HotinfoTemplate_hid" ID="HotinfoTemplate_hid" value="@Model.HotinfoTemplate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.推荐信息模板</strong>
+                                </th>
+                                <td>
+                                    @Html.Raw(PageCommon.GetTlpDP("ProposeTemplate", !string.IsNullOrEmpty(Model.ProposeTemplate), "/Class_" + Model.NodeID + "/NodeElite"))
+                                    <input type="hidden" name="ProposeTemplate_hid" ID="ProposeTemplate_hid" value="@Model.ProposeTemplate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.选择内容模型</strong>
+                                </th>
+                                <td>
+                                    <table class="table table-striped table-bordered">
+                                        @foreach (DataRow dr in modelDT.Rows)
+                                        {
+                                            <tr>
+                                                <td class="w12rem_lg node_select">
+                                                    <label>
+                                                        @Html.Raw(GetChk(dr["ModelID"].ToString()))
+                                                        @Html.Raw(GetModelIcon(dr) + " " + dr["ModelName"])
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @Html.Raw(PageCommon.GetTlpDP("ModelTemplate_" + dr["ModelID"]))
+                                                    <input type="hidden" id="ModelTemplate_@dr["ModelID"]_hid" name="ModelTemplate_@dr["ModelID"]" value="@(GetTemplate(dr["ModelID"].ToString()))" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs4">
+                    <table class="table table-striped table-bordered sys_table">
+                        <tbody>
+                            <tr>
+                                <th class="w12rem_lg">
+                                    <strong>@L.列表首页扩展名</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("ListPageHtmlEx_Rad", ".html|.htm|.shtml|不生成静态".Split('|'), "0,1,2,3".Split(','), Model.ListPageHtmlEx.ToString())
+                                    @if (Model.NodeID > 0)
+                                    {
+
+                                        <input type="button" onclick="createHtml();" id="Release_Btn" class="btn btn-info" value="@L.发布该节点" />
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.栏目列表页面扩展名</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("ListPageEx_Rad", ".html|.htm|.shtml|不生成静态".Split('|'), "0,1,2,3".Split(','), Model.ListPageEx.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.最新信息页扩展名</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("LastinfoPageEx_Rad", ".html|.htm|.shtml|不生成静态".Split('|'), "0,1,2,3".Split(','), Model.LastinfoPageEx.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.热门信息页扩展名</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("HotinfoPageEx", ".html|.htm|.shtml|不生成静态".Split('|'), "0,1,2,3".Split(','), Model.HotinfoPageEx.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.推荐信息扩展名</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("ProposePageEx", ".html|.htm|.shtml|不生成静态".Split('|'), "0,1,2,3".Split(','), Model.ProposePageEx.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.内容页扩展名</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("ContentFileEx_Rad", ".html|.htm|.shtml|不生成静态".Split('|'), "0,1,2,3".Split(','), Model.ContentFileEx.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <strong>@L.节点目录生成位置</strong>
+                                </th>
+                                <td>
+                                    @MVCHelper.H_Radios("RBLPosition", "继承父节点目录|根目录下".Split('|'), "1,0".Split(','), Model.HtmlPosition.ToString())
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>
+                                    <strong>@L.内容页文件名规则</strong>
+                                </th>
+                                <td>
+                                    <select name="DDLContentRule" ID="DDLContentRule" class="form-control max20rem">
+                                        <option Value="2">@L.栏目目录ID</option>
+                                        <option Value="0">@L.栏目信息年月日</option>
+                                        <option Value="1">@L.栏目信息年月</option>
+                                        <option Value="3">@L.栏目信息标题</option>
+                                    </select>
+                                    <script>$("#DDLContentRule").val("@Model.ContentPageHtmlRule")</script>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs5">
+                    <table class="table table-striped table-bordered sys_table">
+                        <!--前台权限-->
+                        <tbody>
+                            <tr>
+                                <th class="w12rem_lg">
+                                    @L.栏目浏览配置
+                                </th>
+                                <td id="view_rad">
+                                    @MVCHelper.H_Radios("ViewingLimit_Rad","开放栏目：任何人（包括游客）可以浏览和查看此栏目下的信息|半开放栏目：任何人（包括游客）都可访问列表页。游客不可浏览内容，会员根据栏目权限决定是否可以查看。|认证栏目：会员根据栏目权限决定是否可以浏览列表与内容页。".Split('|')
+                                   ,"open,half,limit".Split(','),Model.Viewinglimit)
+                                    <small class="text-muted">@L.栏目权限为继承关系</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.评论配置</th>
+                                <td>
+                                    <div>
+                                        <span>@L.允许评论：</span>
+                                        @MVCHelper.H_Radios("CommentType", "关闭评论,允许游客,必须登录".Split(','), "0,1,2".Split(','), Model.CommentType)
+                                    </div>
+                                    <div>
+                                        <span>@L.是否审核：</span>
+                                        @MVCHelper.H_Radios("CommentType", "不需要审核,需要审核".Split(','), "0,1".Split(','))
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs6">
+                    <input type="hidden" v-model="updateValue()"/>
+                    <input type="hidden" name="node_role_hid" id="node_role_hid"/>
+                    <input type="hidden" name="node_group_hid" id="node_group_hid"/>
+                    <div class="card card-light" style="margin-top:10px;">
+                        <div class="card-header">@L.管理员角色权限</div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                    <td><label>@L.角色名</label></td>
+                                    <td><label>@L.查看</label></td>
+                                    <td><label>@L.录入</label></td>
+                                    <td><label>@L.审核</label></td>
+                                    <td><label>@L.修改</label></td>
+                                    <td><label>@L.评论管理</label></td>
+                                    </tr>
+                                </thead>
+                                <tr v-for="item in roleDT">
+                                    @*<td><input type="checkbox" @@click.prevent="chkRow(item,$event);"/>{{item.RoleName}}</td>*@
+                                    <td><label><input type="checkbox" :checked="item.rowchk==1" @@click.prevent="chkRow(roleDT,item);"/>{{item.RoleName}}</label></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(roleDT,item,'zview')" :checked="item.zview==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(roleDT,item,'zadd')" :checked="item.zadd==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(roleDT,item,'zaudit')" :checked="item.zaudit==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(roleDT,item,'zedit')" :checked="item.zedit==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(roleDT,item,'zcomment')" :checked="item.zcomment"/></td>
+                                </tr>
+                            </table>
+                           
+                        </div>
+                    </div>
+                    <div class="card card-light" style="margin-top:10px;">
+                        <div class="card-header">@L.用户组权限</div>
+                        <div class="card-body">
+                             <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                    <td><label>@L.会员组</label></td>
+                                    <td><label>@L.查看</label></td>
+                                    <td><label>@L.录入</label></td>
+                                    <td><label>@L.审核</label></td>
+                                    <td><label>@L.修改</label></td>
+                                    <td><label>@L.评论管理</label></td>
+                                    </tr>
+                                </thead>
+                               <tr v-for="item in groupDT">
+                                    @*<td><input type="checkbox" @@click.prevent="chkRow(item,$event);"/>{{item.GroupName}}</td>*@
+                                    <td><label><input type="checkbox" :checked="item.rowchk==1" @@click.prevent="chkRow(groupDT,item);"/>{{item.GroupName}}</label></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(groupDT,item,'zview')" :checked="item.zview==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(groupDT,item,'zadd')" :checked="item.zadd==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(groupDT,item,'zaudit')" :checked="item.zaudit==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(groupDT,item,'zedit')" :checked="item.zedit==1"/></td>
+                                    <td><input type="checkbox" @@click.prevent="chk_set(groupDT,item,'zcomment')" :checked="item.zcomment"/></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                   </div>
+
+                <div class="panel-footer text-center">
+                    <input type="submit" ID="EBtnSubmit" class="btn btn-outline-info" value="@L.保存设置" />
+                    <a href="NodeManage" class="btn btn-outline-info">@L.返回列表</a>
+                </div>
+            </div>
+</div>
+<!-------------------------------------------------------------------------------------------------->
+@Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex", ""))
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script src="/dist/vue/vue.min.js"></script>
+<script src="/js/chinese.js"></script>
+<script src="/js/Controls/ZL_Array.js"></script>
+<script>
+    var authApp= new Vue({
+        el: "#Tabs6",
+        mounted: function () {
+            var ref = this;
+                /*
+                * 1.新建节点时,默认为全权限
+                * 2.修改节点时,默认为无权限(用于规避新建的角色与会员组)
+                * 3.从NodeAuth中读取该角色/会员组对应的权限数据
+                */
+            if ("@Model.NodeID" == "0") {
+                ref.roleDT.forEach(function (item, index) {
+                    item.zadd = 1;
+                    item.zview = 1;
+                    item.zedit = 1;
+                    item.zaudit = 1;
+                    item.zcomment = 1;
+                    item.rowchk = 1;
+                })
+                ref.groupDT.forEach(function (item, index) {
+                    item.zadd = 1;
+                    item.zview = 1;
+                    item.zedit = 1;
+                    item.zaudit = 0;
+                    item.zcomment = 0;
+                    item.rowchk = 0;
+                })
+            }
+            else
+            {
+                    ref.roleDT.forEach(function (item, index) {
+                    item.zadd = 0;
+                    item.zview = 0;
+                    item.zedit = 0;
+                    item.zaudit = 0;
+                    item.zcomment = 0;
+                    item.rowchk =0;
+                })
+                ref.groupDT.forEach(function (item, index) {
+                    item.zadd = 0;
+                    item.zview = 0;
+                    item.zedit = 0;
+                    item.zaudit = 0;
+                    item.zcomment = 0;
+                    item.rowchk = 0;
+                })
+            }
+               
+            if ("@Model.NodeID" != "0") {
+                ref.nrDT.forEach(function (item, index) {
+                    var model = null;
+                    if (item.RoleID > 0) {
+                        model = ref.roleDT.GetByID(item.RoleID, "RoleID");
+                    }
+                    else if (item.GroupID > 0) {
+                        model = ref.groupDT.GetByID(item.GroupID, "GroupID");
+                    }
+                    //将权限赋值
+                    if (model) {
+                        for (var key in model) {
+                            if (key.startsWith("z")) {  model[key] = item[key]; }
+                        }
+                    }
+                })
+            }
+            ref.roleDT.forEach(function (item, index) { Vue.set(ref.roleDT, index, item); })
+            ref.groupDT.forEach(function (item, index) { Vue.set(ref.groupDT, index, item); })
+        },
+        data:{
+            roleDT: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(roleDT.DefaultView.ToTable(true,"RoleID,RoleName".Split(',')))),
+            groupDT: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(groupDT.DefaultView.ToTable(true,"GroupID,GroupName".Split(',')))),
+            nrDT:@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(nrDT)),
+        },
+        methods:{
+            chk_set: function (list, item, key) {
+                var index = list.indexOf(item);
+                item[key] = item[key] == 1 ? 0 : 1;
+                Vue.set(list,index,item);
+            },
+            chkRow: function (list,item) {
+                //console.log(item, event.currentTarget);
+                item.rowchk= (item.rowchk == 1 ? 0 : 1);
+                for (var key in item) {
+                    if (!key.startsWith("z")){ continue; }
+                    item[key] = item.rowchk;
+                }
+                var index = list.indexOf(item);
+                Vue.set(list, index, item);
+            },
+            //newModel: function (source) {
+            //    //将其填充为数据库模型
+            //    var model = [{ "ID": 0, "NodeID": 0, "RoleID": 0, "GroupID": 0, "zview": 1, "zadd": 1, "zedit": 1, "zaudit": 1, "zcomment": 1, "ZType": "" }]
+            //    if(model.RoleID)
+            //},
+            updateValue: function () {
+                var ref = this;
+                $("#node_role_hid").val(JSON.stringify(ref.roleDT));
+                $("#node_group_hid").val(JSON.stringify(ref.groupDT));
+                return "";
+            }
+        }
+    });
+</script>
+<script>
+function setSaveWidth(){
+    //$("#save").width($($(this).attr("href")).width());
+}
+$(function () {
+    $("#GridView1 tr>th:eq(0)").append("<input type=checkbox id='chkThisAll1'/>");
+    $("#Egv tr>th:eq(0)").append("<input type=checkbox id='chkThisAll'/>");
+    $("#chkThisAll").click(function () {
+        CheckAll(this,"chkThisAll",1);
+    });
+    $("#chkThisAll1").click(function () {
+        CheckAll(this,"chkThisAll1",1);
+    });
+    Tlp_initTemp();
+    $("form").validate({});
+})
+var diag=new ZL_Dialog();
+function ShowTList(url){
+    diag.title="@Html.Raw(L.选择模板)";
+    diag.url=url;
+    diag.maxbtn=false;
+    diag.ShowModal();
+}
+function CloseDialog(){
+    diag.CloseModal();
+}
+
+function selectnum() {
+    //parent.document.getElementById("main_right").height = document.body.offsetHeight + 50;
+}
+function CheckAll(obj,id,n){
+    var chkArr;
+    if(n==0)
+        chkArr = $(obj).parent().parent().parent().find("input[type=checkbox][id!=" + id + "]");
+    if(n==1)
+        chkArr = $(obj).parent().parent().parent().parent().find("input[type=checkbox][id!=" + id + "]");
+    for (var i = 0; i < chkArr.length; i++) {
+        chkArr[i].checked = obj.checked;
+
+    }
+}
+function ColChk(name) {
+    obj = event.srcElement;
+    console.log(obj, $('span[data-auth=' + name + '] :checkbox'));
+    $('span[data-auth=' + name + '] :checkbox').each(function () { this.checked = obj.checked; });
+}
+function ChkAll(type) {
+    obj = event.srcElement;
+    if (type == 'admin') { $("#AdminRole_EGV input[type=checkbox]").each(function () { this.checked = obj.checked; }); }
+    if (type == 'group') { $("#GroupAuth_EGV input[type=checkbox]").each(function () { this.checked = obj.checked; }); }
+}
+/*-----------栏目名称与目录-----------*/
+var nameFlag = true, dirFlag = true;
+$(function () {
+    @*$("#TxtNodeName").blur(function () {
+        if (ZL_Regex.isEmpty(this.value)) { $("#TxtNodeName_sp").text("节点名称不能为空"); nameFlag = false; CheckBtn();  }
+        $.post("@(Context.Request.RawUrl())", { action: "nodename", value: $("#TxtNodeName").val() }, function (data) {
+            if (data != M_APIResult.Success) {
+                nameFlag = false;
+                $("#TxtNodeName_sp").text("节点名称重复,请修改节点名称");
+            }
+            else { $("#TxtNodeName_sp").text("*"); nameFlag = true; }
+            CheckBtn();
+        });
+    });
+    $("#TxtNodeDir").blur(function () {
+        if (ZL_Regex.isEmpty(this.value)) { $("#TxtNodeDir_sp").text("栏目名称不能为空"); dirFlag = false; CheckBtn();  }
+        $.post("@(Context.Request.RawUrl())", { action: "nodedir", value: $("#TxtNodeDir").val() }, function (data) {
+            if (data != M_APIResult.Success) {
+                dirFlag = false;
+                $("#TxtNodeDir_sp").text("栏目标识重复,请修改栏目标识");
+            }
+            else { $("#TxtNodeDir_sp").text("*"); dirFlag = true; }
+            CheckBtn();
+        });
+    });*@
+    function CheckBtn()
+    {
+        if (nameFlag == true && dirFlag == true) { $("#EBtnSubmit").removeAttr("disabled"); }
+        else { disBtn("EBtnSubmit"); }
+    }
+    if ("@Model.NodeID" == "0") { BindPY(); }
+
+})
+function BindPY() {
+    $("#TxtNodeName").keyup(function () {
+        Getpy("TxtNodeName", "TxtNodeDir");
+    });
+}
+function createHtml() {
+    var path = "@Call.PA("")";
+    var url = path + "Content/CreateHtmlContent?CType=node&NodeID=@Model.NodeID";
+    comdiag.reload = true;
+    ShowComDiag(url, "@Html.Raw(L.生成发布)");
+}
+</script>

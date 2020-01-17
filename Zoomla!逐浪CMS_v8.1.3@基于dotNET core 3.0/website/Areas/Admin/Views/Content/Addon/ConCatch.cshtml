@@ -1,0 +1,35 @@
+﻿@{ 
+
+}
+@section head{ <title>@L.内容采集</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Call.PA("Content/ContentManage"),L.内容管理),
+new Bread(Context.Request.RawUrl(),L.内容采集)
+})
+<div class="Creat_tips list_choice">
+<div class="alert alert-info alert-dismissible fade show">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<h5>@L.提示：</h5>
+		<strong>
+			<i class='zi zi_exclamationTriangle text-danger'></i>@L.尊重版权法规采集信息
+		</strong>
+	<p>
+		@L.采集系统与采集软件<a href="//www.z01.com/help/tech/3471.shtml" target="_blank">@L.点此下载</a>。<br/>
+		@L.火车头采集协议及规则
+		<div class="btn-group" role="group" aria-label="采集模型下载">
+		  <a href="//www.z01.com/help/tech/3471.shtml" target="_blank" class="btn btn-info">@L.内容模型采集</a>
+		  <a href="//www.z01.com/help/tech/3471.shtml" target="_blank" class="btn btn-secondary">@L.图库模型采集</a>
+		  <a href="//www.z01.com/help/tech/3471.shtml" target="_blank" class="btn btn-danger">@L.下载模型采集</a>
+		</div>	
+	</p>
+	<p><i class="zi zi_click"></i> <a href="//www.z01.com/help/tech/3471.shtml" target="_blank">@L.点此浏览</a>@L.内容采集帮助文档，@L.扩展支持：<a href="//www.z01.com/help/tech/3474.shtml" target="_blank">@L.ET采集器</a>。</p>
+</div>
+ 
+</div>
+
+}
+@section script{ 
+
+}

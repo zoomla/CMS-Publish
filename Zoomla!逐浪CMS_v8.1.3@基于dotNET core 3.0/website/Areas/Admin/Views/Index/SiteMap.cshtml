@@ -1,0 +1,34 @@
+﻿@model System.Data.DataTable
+@functions{
+    public string skey { get { return ViewBag.skey; } }
+    public IHtmlContent ShowTitle(string title)
+    {
+       return MvcHtmlString.Create(StringHelper.SkeyToRed(title,skey));
+    }
+}
+@{
+    int index = 1;
+}
+@section head{ <title>功能搜索</title>}
+@section content{ 
+@Call.SetBread(new Bread[] { 
+new Bread("{admin}"),
+new Bread(Context.Request.RawUrl(),"功能搜索")
+})
+<div class="list_choice">
+    <table class="table table-bordered table-striped">
+        <thead><tr><th style="width:80px;"></th><th>功能名称</th><th>功能链接</th></tr></thead>
+        @foreach(DataRow dr in Model.Rows)
+        {
+          <tr><td>@(index++)</td><td>@ShowTitle(DataConverter.CStr(dr["title"]))</td><td><a href="@dr["Url"]" target="_self">@dr["Url"]</a></td></tr>
+        }
+    </table>
+    @if (Model.Rows.Count < 1)
+    {
+        <div class="alert alert-info" style="margin-top:10px;">未检测到与关键词[<span style="color:red;">@skey</span>]相关的功能</div>
+    }
+</div>
+}
+@section script{ 
+
+}

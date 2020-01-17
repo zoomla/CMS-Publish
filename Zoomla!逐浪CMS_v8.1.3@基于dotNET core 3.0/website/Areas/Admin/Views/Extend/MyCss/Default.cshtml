@@ -1,0 +1,17 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{<title>@L.云CSS设计</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url="Default",text=L.云CSS设计,addon="[<a href='CSSContent'>"+L.新建样式+"</a>]" }
+},"{search}")
+    <div class="table-responsive-md list_choice pr-1">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Extend/MyCSS/Default_List.cshtml")
+    </div>
+}
+@section script{
+
+}

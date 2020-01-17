@@ -1,0 +1,21 @@
+﻿@model ZoomLa.Model.M_Pub
+@{ 
+    DataRow dr = ViewBag.dr;
+}
+@section head{ <title>互动信息</title>}
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("PubsInfoAdd_Submit",Context.Request)">
+    <table class="table table-bordered table-striped">
+        <tr><th class="td_m">标题</th><td><input type="text" class="form-control" name="PubTitle" value="@dr["PubTitle"]"/></td></tr>
+        <tr><th>用户</th><td><input type="text" class="form-control" name="PubUserName" placeholder="请输入用户名" value="@dr["PubUserName"]"/></td></tr>
+        <tr><th>内容</th><td><textarea type="text" class="form-control" rows="3" name="PubContent">@dr["PubContent"]</textarea></td></tr>
+        <tr><th>备注</th><td><textarea type="text" class="form-control" rows="3" name="PubRemind">@dr["PubRemind"]</textarea></td></tr>
+        <tr><th>操作</th><td>
+              <input type="submit" value="保存信息" class="btn btn-info"/>
+            </td></tr>
+    </table>
+</form>
+}
+@section script{ 
+
+}

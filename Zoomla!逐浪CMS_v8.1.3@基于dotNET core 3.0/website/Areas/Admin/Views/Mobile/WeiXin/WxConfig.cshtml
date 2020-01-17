@@ -1,0 +1,90 @@
+﻿@model ZoomLa.Model.M_WX_APPID
+@{
+    if (string.IsNullOrEmpty(Model.ZType)) { Model.ZType = "公众号"; }
+    string token = "";
+    if (Model.ID > 0)
+    {
+        try { token = WxAPI.Code_Get(Model.ID).AccessToken; } catch(Exception ex) { token = ex.Message; }
+    }
+}
+@section head{<title>@L.微信配置</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("WxAppManage",L.微信管理),
+        new Bread() {url="", text=L.微信配置,addon= "" }},
+        Call.GetHelp(109)
+        )
+    <div>
+        <div class=" sysRow list_choice table-responsive-md">
+            <form method="post" action="@MVCHelper.GetAction("WXConfig_Submit",Context.Request)">
+                <table class="table table-bordered table-hover sys_table">
+                    <tr>
+                        <th class="w12rem_lg">@L.别名</th>
+                        <td scope="col">@Html.TextBoxFor(m => m.Alias, new { @class = "form-control max20rem required" })
+                        </td>
+                    </tr>
+                    <tr><th>@L.类型&@L.用途</th><td>
+                        @MVCHelper.H_Radios("ZType",new string[] {""+@L.公众号+"",""+@L.小程序+"",""+@L.手机APP微信支付+"" },new string[] {""+@L.公众号+"",""+@L.小程序+"",""+@L.手机APP+"" },Model.ZType)
+                        </td></tr>
+                    <tr>
+                        <th>@L.微信公众号</th>
+                        <td>@Html.TextBoxFor(m => m.WxNo, new { @class = "form-control max20rem required" })
+                            <small>@L.登录微信管理平台的账号</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@L.原始ID</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.OrginID, new { @class = "form-control max20rem" })
+                            <small>@L.用于自动回复与用户消息处理</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>AppID</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.APPID, new { @class = "form-control max20rem required" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Secret</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.Secret, new { @class = "form-control max20rem required" })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@L.二维码图片</th>
+                        <td>@Html.Partial("C_SFileUP", new C_SFileUP() { ID = "QRCode", SaveType = "admin", Value = Model.QRCode })</td>
+                    </tr>
+                    <tr><th>@L.是否默认</th><td>
+                        @MVCHelper.H_Check("IsDefault",Model.IsDefault==1,new {@class="switchChk",value="1" })
+                        <small style="display:block;">@L.默认的公众号& @L.小程序将接收并处理微信事件</small>
+                        </td></tr>
+                    @if (Model.ID > 0)
+                    {
+                        <tr>
+                            <th>Token</th>
+                            <td>@token</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th>@L.操作</th>
+                        <td>
+                            <input type="submit" ID="Save_Btn" value="@L.保存设置" class="btn btn-info" />
+                            <a href="WxAppManage" class="btn btn-outline-info">@L.返回列表</a>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>@L.注意项:</strong>  @L.AppID与Secret
+        <button class="close" aria-label="Close" type="button" data-dismiss="alert"> <span aria-hidden="true">×</span> </button>
+    </div>
+}
+@section script{
+<link href="~/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-switch.js"></script>
+
+}

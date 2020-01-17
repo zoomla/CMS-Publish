@@ -1,0 +1,46 @@
+﻿@section head{
+    <title>@L.微逐浪</title>
+
+}
+@section content{
+<style type="text/css">
+#pageFrame{position:absolute;top:0px;left:0px; width:100%;height:100%;}
+</style>
+<div class="mobile_broswer container" id="url_wrap">
+    <div class="input-group" style="margin-top:300px;">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">@L.网址</span>
+        </div>
+        <input type="text" name="Url" id="Url" class="form-control" value="http://www.z01.com" onkeydown="return showByEnter();" />
+        <span class="input-group-append">
+            <button type="button" id="submitBtn" class="btn btn-outline-secondary" onclick="showUrl()">GO</button>
+        </span>
+    </div>
+</div>
+<div style="position:absolute;top:30%;left:40%;display:none;" id="wait_wrap"><span id="remind_sp"></span><i class="zi zi_spinner zi_spin" style="font-size:3rem"></i></div>
+
+
+}
+
+@section script{
+
+<script>
+    //http://wei.z01.com/Class_2/NodePage?Url=
+    function showUrl() {
+        var url = $("#Url").val();
+        if (ZL_Regex.isEmpty(url)) { alert("@Html.Raw(L.地址栏不能为空)"); return false; }
+        $("#url_wrap").hide();
+        $("#wait_wrap").show();
+        $("body").append('<iframe id="pageFrame" src="' + "http://wei.z01.com/Class_2/NodePage?Url=" + encodeURI(url) + '" frameborder="0"></iframe>');
+        setTimeout(function () {  $("#wait_wrap").hide();},2000)
+    }
+    function frame_onload() {
+        $("#wait_wrap").hide();
+        $("#pageFrame").show();
+        console.log("onload");
+    }
+    function showByEnter() { console.log(event.keyCode); if (event.keyCode == 13) { showUrl(); return false; } }
+</script>
+
+
+}

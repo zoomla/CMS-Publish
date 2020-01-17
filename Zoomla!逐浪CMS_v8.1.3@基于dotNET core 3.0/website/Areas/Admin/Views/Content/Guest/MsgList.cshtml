@@ -1,0 +1,49 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    int status = DataConverter.CLng(Context.Request.GetParam("s"),-100);
+    int cateId = ViewBag.CateID;
+    string apiUrl = "Msg_API?action=";
+    string baseUrl = "MsgList?CateID=" + cateId+"&parentId="+ViewBag.parentId ;
+
+    string view = ViewBag.viewDir + "Msg_List.cshtml";
+    M_GuestBookCate cateMod = new B_GuestBookCate().SelReturnModel(cateId);
+    if (cateMod == null||cateMod.IsNull) { cateMod = new M_GuestBookCate(); }
+ }
+@section head{<title>@L.留言列表</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("CateList",@L.留言分类),
+new Bread(baseUrl,""+@L.留言列表+" ["+cateMod.CateName+"]")
+},"{search}")
+
+<div class="list_choice">
+    <ul class="nav nav-tabs list_choice" role="tablist">
+        <li class="nav-item"><a id="a-100" class="nav-link" href="@(baseUrl)&s=-100">@L.全部留言</a></li>
+        <li class="nav-item"><a id="a0" class="nav-link" href="@(baseUrl)&s=@((int)ZLEnum.ConStatus.UnAudit)">@L.待审核</a></li>
+        <li class="nav-item"><a id="a99" class="nav-link" href="@(baseUrl)&s=@((int)ZLEnum.ConStatus.Audited)">@L.已审核</a></li>
+        <li class="nav-item"><a id="a-2" class="nav-link" href="@(baseUrl)&s=@((int)ZLEnum.ConStatus.Recycle)">@L.回收站</a></li>
+    </ul>
+    @Html.Partial(view)
+</div>
+<div>
+    @if (status!=(int)ZLEnum.ConStatus.Recycle)
+    {
+        <input type="button" ID="btndelete" class="btn btn-outline-danger" onclick="mvcpage.bat({url:'@(apiUrl + "recycle")',confirm:'@L.确定要删除选中的项目吗'})" value="@L.批量删除" OnClick="btndelete_Click" />
+        <input type="button" ID="btnAdudit" class="btn btn-outline-info" value="@L.审核通过" onclick="mvcpage.bat({url:'@(apiUrl + "audit")'});" />
+        <input type="button" ID="btnAdudit" class="btn btn-outline-info" value="@L.取消审核" onclick="mvcpage.bat({url:'@(apiUrl + "unaudit")'});" />
+    }
+    else
+    {
+        <input type="button" ID="Rel_B" class="btn btn-outline-info" value="@L.批量还原" onclick="mvcpage.bat({url:'@(apiUrl+"recover")'});" />
+        <input type="button" ID="Del_B" class="btn btn-outline-danger" value="@L.彻底删除" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除选中的项目吗'});" />
+    }
+</div>
+
+}
+@section script{ 
+<script>
+    $(function () { $("#a@(status)").addClass("active"); })
+</script>
+
+}

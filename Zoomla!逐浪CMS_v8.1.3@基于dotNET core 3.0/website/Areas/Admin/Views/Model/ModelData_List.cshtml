@@ -1,0 +1,53 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public DataTable FieldDT{get{return ViewBag.FieldDT;}}
+    public string Ignores { get { return ViewBag.Ignores; } }
+
+
+    //true则忽略不显示
+    public bool IsIgnoreField(string columnName)
+    {
+        string[] ignores = Ignores.Split(',');
+        if (ignores.Length < 1) { return false; }
+        string result = ignores.FirstOrDefault(p => p.ToLower().Equals(columnName.ToLower()));
+        return !string.IsNullOrEmpty(result);
+    }
+    public string GetFieldAlias(string columName)
+    {
+        DataRow[] drs = FieldDT.Select("FieldName='" + columName + "'");
+        if (drs.Length > 0) { return drs[0]["FieldAlias"].ToString(); }
+        else { return columName; }
+    }
+    public IHtmlContent ShowItemHtml(DataRow dr)
+    {
+        string html = "";
+        string tlp = "<td>{0}</td>";
+        foreach (DataColumn dc in dr.Table.Columns)
+        {
+            if (IsIgnoreField(dc.ColumnName)) { continue; }
+            //不输出ignore的行
+            html += string.Format(tlp, HttpUtility.HtmlEncode(dr[dc.ColumnName]));
+        }
+        return MvcHtmlString.Create(html);
+    }
+
+}
+
+<table class="table table-bordered table-striped" id="EGV">
+    <tr id="head_tr">
+        <th class="w1rem"></th>
+        @foreach (DataColumn dc in Model.dt.Columns)
+        {
+            if (IsIgnoreField(dc.ColumnName)) { continue; }
+            <th> @GetFieldAlias(dc.ColumnName)</th>
+        }
+    </tr>
+  @foreach (DataRow dr in Model.dt.Rows)
+  {
+     <tr>
+        <td><input type="checkbox" name="idchk" /></td>
+         @ShowItemHtml(dr)
+    </tr> 
+  }
+@Html.Partial("_page")
+</table>

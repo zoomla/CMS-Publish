@@ -1,0 +1,57 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.SQLDAL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    M_Pub pubMod = ViewBag.pubMod;
+    string apiUrl = "PubInfo_API?PubID=" + Context.Request.GetParam("PubID") + "&action=";
+    DataTable FieldDT = ViewBag.fieldDT;
+}
+@section head{<title>@(pubMod.PubName)信息管理</title>}
+@section content{
+<ol id="BreadNav" class="breadcrumb fixed-top">
+    <li class="breadcrumb-item"><a href="@Call.PathAdmin("Main")">工作台</a></li>
+    <li class="breadcrumb-item"><a href="PubManage">互动模块管理</a></li>
+    <li class="breadcrumb-item"><a href="@Context.Request.RawUrl()">@pubMod.PubName</a></li>
+    <div id="help" class="float-right text-center"><a href="javascript:;" id="sel_btn" class="help_btn" onclick="selbox.toggle();"><i class="zi zi_search"></i></a> <a onClick="location=location;" href="javascript:;"><i class="zi zi_redoalt"></i><a/></div>
+    <div id="sel_box" class="" style="height:80px;">
+        <div class="input-group">
+            @Html.DropDownList("skey_dp",MVCHelper.ToSelectList(FieldDT, "FieldAlias", "FieldName"),new {@class= "form-control max20rem mvcparam" })
+            <input type="text" id="skey" class="form-control mvcparam max20rem" placeholder="请输入关键词" onkeypress="selbox.search();" />
+            <span class="input-group-append">
+                <button type="button" class="btn btn-outline-secondary" onclick="mvcpage.load();"><i class="zi zi_search"></i></button>
+            </span>
+        </div>
+    </div>
+</ol>
+<ul class="nav nav-tabs list_choice">
+    <li class="nav-item" id="li_-100"><a class="nav-link" href="PubsInfo?PubID=@(pubMod.Pubid)" onclick="ShowTabs(0,1)">所有信息</a></li>
+    <li class="nav-item" id="li_0"><a class="nav-link" href="PubsInfo?PubID=@(pubMod.Pubid)&status=0">待审核信息</a></li>
+    <li class="nav-item" id="li_1"><a class="nav-link" href="PubsInfo?PubID=@(pubMod.Pubid)&status=1">已审核信息</a></li>
+</ul>
+<div>
+@Html.Partial(MVCHelper.ViewDir_Admin_Pub+"Pubsinfo_List.cshtml")
+</div>
+<div>
+    <button type="button" class="btn btn-outline-info mb-1" onclick="mvcpage.bat({ url: '@(apiUrl+"del")', confirm: '确定要批量移除吗', after: 'reload' });">批量删除</button>
+    <button type="button" class="btn btn-outline-info mb-1" onclick="mvcpage.bat({ url: '@(apiUrl+"audit")', confirm: '确定要批量审核吗', after: 'reload' });">批量审核</button>
+    <button type="button" class="btn btn-outline-danger mb-1" onclick="mvcpage.bat({ url: '@(apiUrl+"cancel")', confirm: '确定要取消审核吗', after: 'reload' });">批量取消审核</button>
+    <button type="button" class="btn btn-outline-info mb-1"   onclick="ZLHelper.OutToExcel()">导出Excel</button>
+</div>   
+    }
+@section script{
+<script src="/JS/Label/ZLHelper.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+    $(function () {
+        $("#page_td").attr("colspan", $("#head_tr td").length - 1);
+        $("#li_@(ViewBag.status)").find("a").addClass("active");
+        $("#chkAll").click(function () {
+                selectAllByName(this, "idchk");
+            });
+    })
+    function mybind() { mvcpage.load(); CloseComDiag(); }
+</script>    
+    }

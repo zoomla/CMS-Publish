@@ -1,0 +1,90 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model
+@using ZoomLa.SQLDAL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_ModelField fieldBll = new B_ModelField();
+    DataTable FieldDT
+    {
+        get
+        {
+            return ViewBag.fieldDT;
+        }
+    }
+    M_Pub pubMod { get { return ViewBag.pubMod; } }
+    //true则忽略不显示
+    public bool IsIgnoreField(string columnName)
+    {
+        //默认不显示的字段
+        string[] Ignores = "ID,Pubstart,Pubupid,PubUserID,PubContentid,PubInputer,Parentid,Optimal,Mood,PubAddon,PubRemind".Split(',');
+
+        string result = Ignores.FirstOrDefault(p => p.ToLower().Equals(columnName.ToLower()));
+        if (!string.IsNullOrEmpty(result)) { return true; }
+        if (pubMod.FieldsHide.Contains(columnName)) { return true; }
+         //附增不显示的字段
+        if (ZoomLa.BLL.Helper.StrHelper.IDS_IsContain(pubMod.FieldsHide, columnName)) { return true; }
+        return false;
+    }
+
+    public string GetFieldAlias(string columName)
+    {
+        DataRow[] drs = FieldDT.Select("FieldName='" + columName + "'");
+        if (drs.Length > 0) { return drs[0]["FieldAlias"].ToString(); }
+        else { return columName; }
+    }
+    public string ShowStatus(DataRow dr)
+    {
+        int status = DataConvert.CLng(dr["PubStart"]);
+        if (status == 1 || status == 99)
+            return "<span style='color:blue'>已审核</span>";
+        else
+            return "未审核";
+    }
+}
+@{ 
+    int PubID = DataConvert.CLng(Context.Request.GetParam("PubID"));
+    string apiUrl = "PubInfo_API?PubID="+PubID+"&action=";
+
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <tr id="head_tr">
+        <td class="excel_no td_xs"></td>
+        <td class="td_s">ID</td>
+        <td class="td_m">状态</td>
+        @foreach (DataColumn dc in Model.dt.Columns)
+        {
+            if (IsIgnoreField(dc.ColumnName)) { continue; }
+            <td> @(GetFieldAlias(dc.ColumnName))</td>
+        }
+                <td class="td_l">备注</td>
+        <td class="excel_no" style="width:220px;">操作</td>
+    </tr>
+
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td class="excel_no"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td>@MvcHtmlString.Create(ShowStatus(dr))</td>
+            @foreach (DataColumn dc in dr.Table.Columns)
+            {
+                if (!IsIgnoreField(dc.ColumnName))
+                {
+                    <td>@HttpUtility.HtmlEncode(dr[dc.ColumnName])</td>
+                }
+            }
+            <td>@dr["PubRemind"]<a href="javascript:;" onclick="ShowComDiag('PubsInfoAdd?ID=@dr["ID"]&PubID=@PubID');"> <i class="zi zi_pencilalt"></i></a></td>
+            <td class="excel_no">
+                @*<a href="EditPub?Pubid=<%# PubID %>&ID=<%#Eval("ID") %>" class="option_style"><i class="zi zi_pencilalt"></i></a>
+                <a href="AddPub?Pubid=<%#PubID%>&Parentid=<%#Eval(" ID") %>" class="option_style"><i class="zi zi_reply" title="回复"></i>回复</a>*@
+                @**@
+                
+                <a href="PubsInfo?Pubid=@PubID&ParentID=@dr["ID"]"><i class="zi zi_eye"></i>查看回复</a>
+                <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',ids:'@dr["ID"]',confirm:'确定要删除吗'});"><i class="zi zi_trashalt"></i></a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")       
+</table>

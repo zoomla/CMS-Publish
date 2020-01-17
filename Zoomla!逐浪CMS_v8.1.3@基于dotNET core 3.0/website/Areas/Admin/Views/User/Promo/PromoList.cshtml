@@ -1,0 +1,36 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+      
+
+}
+@section head{<title>@L.推广列表</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("PromoList",@L.推广信息)
+})
+    <div class="input-group list_choice">
+        <select id="mode_dp" class="form-control mvcparam">
+            <option value="">全部用户</option>
+            <option value="only_tg">仅显示有推广的用户</option>
+        </select>
+        <input type="text" id="uids" class="form-control mvcparam" placeholder="@L.用户ID,@L.示例:1,2,3"/>
+        <input type="text" id="skey" class="form-control mvcparam" placeholder="@L.用户名" />
+        <input type="text" id="sdate" class="form-control mvcparam" placeholder="起始时间" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });"/>
+        <input type="text" id="edate" class="form-control mvcparam" placeholder="结束时间" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });"/>
+        <span class="input-group-append">
+            <button type="button" ID="Search_Btn" class="btn btn-outline-secondary" onclick="mvcpage.load();"><i class="zi zi_search"></i></button>
+        </span>
+    </div>
+    <div style="margin-top:5px;">
+      @Html.Partial(MVCHelper.ViewDir_Admin + "User/Promo/PromoList_List.cshtml")
+                <div class="alert alert-info" role="alert"><i class="zi zi_lightbulb" zico="灯泡黑"></i>@L.推广代码格式：/User/Register?ParentUserID=@L.用户ID</div>
+    </div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="~/js/DatePicker/WdatePicker.js"></script>
+<style type="text/css">
+.allchk_l{display:none;}
+</style>    
+}

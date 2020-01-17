@@ -1,0 +1,33 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+<table class="table table-bordered" id="EGV">
+<thead><tr>
+    <th></th>
+    <th>@L.名称</th>
+    <th>@L.类型</th>
+    <th>@L.连接字符串</th>
+    <th>@L.创建时间</th>
+    <th>@L.创建者</th>
+    <th>@L.备注</th>
+    <th>@L.操作</th>
+    </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["DSName"]</td>
+            <td>@dr["Type"]</td>
+            <td>@dr["ConnectionString"]</td>
+            <td>@dr["CreateTime"]</td>
+            <td>@dr["CreateMan"]</td>
+            <td>@dr["Remind"]</td>
+            <td>
+                 <a href="DSAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+                 <a href="javascript:;" onclick="mvcpage.del({url:'DBList_API?action=del',confirm:'@Html.Raw(L.确定要删除吗)',ids:'@dr["ID"]'});"><i class="zi zi_trashalt"></i>@L.删除</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

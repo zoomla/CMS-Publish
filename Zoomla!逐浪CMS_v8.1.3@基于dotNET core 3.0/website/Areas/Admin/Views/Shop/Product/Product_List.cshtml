@@ -1,0 +1,196 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Shop
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public int NodeID { get { return DataConverter.CLng(Context.Request.GetParam("NodeID")); } }
+    public string formatnewstype(DataRow dr)
+    {
+        int newtype = DataConverter.CLng(dr["ProClass"]);
+        string restring = "";
+        if (newtype == 2)
+        {
+            restring = "<span color='red'>特价</span>";
+        }
+        else if (newtype == 3)
+        {
+            restring = "<span color='blue'>积分商品</span>";
+        }
+        if (DataConverter.CLng(dr["IsTrue"])!=1)
+        {
+            restring = "<span color=\"#999999\">待审核</span>";
+        }
+        if (DataConverter.CLng(dr["Recycler"]) == 0)
+        {
+            restring = "<span color=\"blue\">正常</span>";
+        }
+        else
+        {
+            restring = "<span color=\"#999999\">已删除</span>";
+        }
+        return restring;
+    }
+    public string getproimg(DataRow dr)
+    {
+        return function.GetImgUrl(dr["Thumbnails"]);
+    }
+    public string GetStatus(DataRow dr)
+    {
+        return DataConverter.CLng(dr["istrue"]) == 1 ? "已审核" : "未审核";
+    }
+    public string GetPrice(DataRow dr)
+    {
+        //return OrderHelper.GetPriceStr(Convert.ToDouble(Eval("LinPrice")), Eval("LinPrice_Json").ToString());
+        return Convert.ToDouble(dr["LinPrice"]).ToString("f2");
+    }
+    public string GetProAttr(DataRow dr)
+    {
+        string html = "";
+        html += Convert.ToInt32(dr["isbest"]) == 1 ? "<span style='color:blue;margin-left:5px;'>精</span>" : "";
+        html += Convert.ToInt32(dr["ishot"]) == 1 ? "<span style='color:red;margin-left:5px;'>热</span>" : "";
+        html += Convert.ToInt32(dr["isnew"]) == 1 ? "<span style='color:green;margin-left:5px;'>新</span>" : "";
+        html += Convert.ToInt32(dr["Largess"]) == 1 ? "<span style='color:#99CC00;margin-left:5px;'>特</span>" : "";
+        return html;
+    }
+    public string GetNode(DataRow dr)
+    {
+        string result = "";
+        if (NodeID == 0 || NodeID != DataConverter.CLng(dr["NodeID"]))
+        {
+            result = "[<a href='?NodeID=" + dr["NodeID"] + "'>" + dr["NodeName"] + "</a>] ";
+        }
+        return result;
+    }
+    public string GetGroupPro(DataRow dr)
+    {
+        string html = "";
+        if (DataConverter.CLng(dr["ParentID"]) > 0)
+        {
+            html += " <button type=\"button\" class=\"btn btn-s pro_btn btn-sm grouppro_btn\" data-pid=\"" + dr["ParentID"] + "\">单品组合</button>";
+        }
+        if (DataConverter.CLng(dr["Class"]) == 2)
+        {
+            html += " <button type=\"button\" class=\"btn btn-s pro_btn btn-sm suitpro_btn\" onclick=\"showsuit(" + dr["ID"] + ")\">促销组合</button>";
+        }
+        return html;
+    }
+    public string ShowStoreName(DataRow dr)
+    {
+        string name = DataConverter.CStr(dr["StoreName"]);
+        return string.IsNullOrEmpty(name) ? "自营商城" : name;
+    }
+    public IHtmlContent ShowStockNum(DataRow dr)
+    {
+        string str = "";
+        int stock = DataConverter.CLng(dr["stock"]);
+        int stockDown = DataConverter.CLng(dr["StockDown"]);
+        if (stock <= stockDown)
+        {
+            str = "<font color=red>" + stock + " [警]</font>";
+        }
+        else
+        {
+            str = stock.ToString();
+        }
+        return MvcHtmlString.Create(str);
+    }
+        }
+@{ 
+    string apiUrl = "Product_API?action=";
+
+    }
+<tbody id="EGV">
+@foreach (DataRow dr in Model.dt.Rows)
+{
+  <tr>
+            <td class="excel_no"><input type="checkbox" name="idchk" value='@dr["id"]' /></td>
+            <td>@dr["ID"]</td>
+            <td class="excel_no">
+                <a href="ShowProduct?id=@dr["id"]">
+                    <img src="@getproimg(dr)" class="img_3rem" onerror="shownopic(this);" />
+                </a>
+            </td>
+            <td>
+                <div>
+                    @MvcHtmlString.Create(GetNode(dr))
+                    <a href="@(DataConverter.CLng(dr["Class"])==2?Call.PathAdmin("Arrive/SuitProAdd?id="+dr["ID"]):"ProductShow?ID="+dr["ID"])" title="后台预览">@dr["ProName"]</a>
+                </div>
+                @*<div class="Ctitle sys_userPopver" onmouseover="ShowPopover(this)">
+                    <div class="popover bs-popover-right popbox">
+                        <div class="arrow"></div>
+                        <h3 class="popover-header">商品概览<a href="javasvript:;" class="hidePopover"><i class="zi zi_times" zico="错号粗黑"></i></a></h3>
+                        <div class="popover-body">
+                            <table>
+                                <tr>
+                                    <td scope="col" class="text-right">发布者：</td>
+                                    <td scope="col">@dr["AddUser"]</td>
+                                </tr>
+                                <tr>
+                                    <td scope="col">发布时间：</td>
+                                    <td scope="col">@dr["AddTime"]</td>
+                                </tr>
+                                <tr>
+                                    <td scope="col">所在店铺：</td>
+                                    <td scope="col">@ShowStoreName(dr)</td>
+                                </tr>
+                                <tr>
+                                    <td scope="col" colspan="2" class="text-right">
+                                        <a onclick="mvcpage.del({url:'@(apiUrl+"refresh")',ids:'@dr["ID"]'});"><i class="zi zi_redoalt" zico="重做标识"></i>刷新</a>
+                                        @if (DataConverter.CLng(dr["IsTrue"]) == 1)
+                                        {
+                                            <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"unaudit")',ids:'@dr["id"]'});">取消审核</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"audit")',ids:'@dr["id"]'});">审核</a>
+                                        }
+                                        @if (DataConverter.CLng(dr["Sales"]) == 1)
+                                        {
+                                            <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"unsales")',ids:'@dr["id"]'});">停售</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"sales")',ids:'@dr["id"]'});">取消停售</a>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>*@
+            </td>
+            <td>@dr["AddUser"]</td>
+            <td>@dr["ProUnit"]</td>
+            <td><a onclick="showStock(@dr["ID"]);" title="库存管理">@ShowStockNum(dr)</a></td>
+            <td>@GetPrice(dr)</td>
+            <td>@MvcHtmlString.Create(formatnewstype(dr))</td>
+            <td>@MvcHtmlString.Create(GetProAttr(dr))</td>
+            <td class="excel_no">@MvcHtmlString.Create(DataConverter.CLng(dr["Sales"])==1?ComRE.Icon_OK:ComRE.Icon_Error)</td>
+            <td>@GetStatus(dr) </td>
+            <td class="excel_no">
+                <a href="@(DataConverter.CLng(dr["Class"])==2?Call.PathAdmin("Arrive/SuitProAdd?id="+dr["id"]):"AddProduct?id="+dr["id"])"><i class="zi zi_pencilalt" title="编辑"></i>编辑</a>
+                @if (DataConverter.CLng(dr["Recycler"]) == 1)
+                {
+                    <a href="javascritp:;" onclick="mvcpage.del({ids:'@dr["ID"]', url:'@(apiUrl+"del")',confirm:'确定要删除吗'})"><i class="zi zi_trashalt" title="删除"></i></a>
+                }
+                else
+                {
+                    @*<a href='ProductShow?id=@dr["ID"]' title="预览"><i class="zi zi_eye"></i></a>*@
+                     <a href="@("/User/Order/ShareList?ProID="+dr["ID"]+"&mode=admin")" target="_blank" title="评论管理"><i class="zi zi_comment"></i>评论</a>
+                    <a href="@OrderHelper.GetShopUrl(dr["UserShopID"],dr["ID"])" target="_blank" title="浏览"><i class="zi zi_globe" zico="全球"></i>浏览</a>
+                    <a href="javascript:;" onclick="showStock(@dr["ID"]);"><i class="zi zi_warehouse" zico="仓库黑"></i>库存</a>
+                    @*<button type="button" class="btn btn-link sys_precode_btn" data-toggle="tooltip" data-html="true" title="<div class='sys_precode'><img src='/common/common.ashx?url=<%Call.Label(" {$SiteURL/}"); %>/shop/<%# Eval("ID") %>'/><div>"><i class="zi zi_qrcode" zico="二维码"></i></button>*@
+                    <a href="javascritp:;" onclick="mvcpage.del({ids:'@dr["ID"]', url:'@(apiUrl+"recycle")',confirm:'@L.确定要移入回收站吗'})"><i class="zi zi_trashalt" title="删除"></i></a>
+                }
+
+            </td>
+        </tr>
+}
+@Html.Partial("_page")           
+</tbody>
+<script>
+    $(function () {
+        iCheckInit("#EGV_Table input[type=checkbox]");
+    })
+</script>

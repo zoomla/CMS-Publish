@@ -1,0 +1,90 @@
+﻿@{ 
+
+ 
+
+}
+@section head{<title>@L.邮件参数配置</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("SiteInfo",L.系统设置),
+        new Bread() {url="", text=L.邮件参数,addon="" }},
+		Call.GetHelp(5)
+		) 
+    
+<div class="container-fluid pr-0">
+<div class="row sysRow list_choice">
+<form method="post" action="MailConfig_Submit">
+<table class="table table-bordered table-hover  sys_table">
+	<tr>
+	  <th class="w12rem_lg" scope="row">@L.发件邮箱</th>
+	  <td><input type="text" ID="MailName_T" name="MailName_T" class="form-control" value="@SiteConfig.MailConfig.MailServerUserName"/></td>
+	</tr>
+	<tr><th scope="row">@L.邮箱密码</th><td><input type="password" ID="MailPwd_T" name="MailPwd_T" class="form-control " value="@SiteConfig.MailConfig.MailServerPassWord"/></td></tr>
+	<tr >
+	  <th scope="row">@L.发送邮件服务器</th>
+	<td>
+		<div class="input-group">
+			<input type="text" ID="SMTP_T" name="SMTP_T" class="form-control" value="@SiteConfig.MailConfig.MailServer"/>
+			<div id="smtp_btns" class="input-group-append">
+				<input type="button" class="btn btn-outline-info" data-value="smtp.exmail.qq.com" value="@L.QQ企业邮箱">
+				<input type="button" class="btn btn-outline-info" data-value="smtp.live.com" value="Live">
+				<input type="button" class="btn btn-outline-info" data-value="smtp.gmail.com" value="Gmail">
+				<input type="button" class="btn btn-outline-info" data-value="smtp.163.com" value="163">
+				<input type="button" class="btn btn-outline-info" data-value="smtp.sina.cn" value="@L.新浪">
+				<input type="button" class="btn btn-outline-info" data-value="smtp.139.com" value="139">
+			</div>
+		</div>
+	</td>
+	</tr>
+	<tr>
+	  <th scope="row">@L.邮件协议</th>
+	  <td>
+		  <div class="input-group ">
+			  <input type="text" ID="MailPort_T" name="MailPort_T" class="form-control " value="@SiteConfig.MailConfig.Port"/>
+			  <div id="port_btns" class="input-group-append">
+				  <input type="button" class="btn btn-outline-info" data-value="25" value="SMTP(25)" />
+				  <input type="button" class="btn btn-outline-info" data-value="465" value="SSL(465)" />
+			  </div>
+		  </div>
+	  </td>
+	</tr>
+   @*<%-- <tr >
+	  <th scope="row">身份验证方式</th>
+	  <td><asp:RadioButton ID="RadioButton1" GroupName="AuthenticationType"/>
+		无<br />
+		<asp:RadioButton ID="RadioButton2" GroupName="AuthenticationType"/>
+		基本<br />
+		如果您的电子邮件服务器要求在发送电子邮件时显式传入用户名和密码，请选择此选项。 <br />
+		<span class="float-left" style="line-height:32px;">发件人的用户名：</span>
+		<asp:TextBox ID="TextBox5" Columns="30" class="form-control float-left" Width="200" />
+		<div class="clearfix"></div>
+		<span class="float-left" style="line-height:32px;">发件人的密&nbsp;&nbsp;&nbsp;码：</span>
+		<asp:TextBox ID="TextBox6" TextMode="Password" Width="200" Columns="30" class="form-control"/>
+		<asp:RadioButton ID="RadioButton3" GroupName="AuthenticationType" />
+		NTLM (Windows 身份验证) <br/>
+		如果您的电子邮件服务器位于局域网上，并且您使用 Windows 凭据连接到该服务器，请选择此选项。 </td>
+	</tr>--%>*@
+	<tr >
+	  <th scope="row">@L.系统邮件接收地址</th>
+	  <td>
+		  <input type="text" ID="TextBox4" name="TextBox4" class="form-control " value="@SiteConfig.MailConfig.MailServerList"/>
+		  <small class="text-muted">@L.用于接收系统运行</small>
+	  </td>
+	</tr>
+	<tr><td></td><td><input type="submit" ID="Save_Btn" Text="保存设置" OnClick="Save_Btn_Click" class="btn btn-outline-info" /></td></tr>
+</table>
+</form>
+</div>
+</div>
+
+ }
+@section script{ 
+    <script>
+        $(function () {
+            $("#smtp_btns .btn").click(function () { $("#SMTP_T").val($(this).data("value")); });
+            $("#port_btns .btn").click(function () { $("#MailPort_T").val($(this).data("value")); });
+        })
+    </script>
+
+}

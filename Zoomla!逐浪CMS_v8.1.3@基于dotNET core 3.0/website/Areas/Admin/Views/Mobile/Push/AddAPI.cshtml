@@ -1,0 +1,34 @@
+﻿@model ZoomLa.Model.Mobile.M_Mobile_PushAPI
+@section head{<title>@L.API设置</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("APIList",L.API列表),
+        new Bread() {url=Context.Request.RawUrl(), text=L.API信息,addon="" }}
+		)
+<form method="post" action="@MVCHelper.GetAction("AddAPI_Submit",Context.Request)">
+    <div class="list_choice">
+        <table class="table table-bordered table-striped sys_table">
+            <tr>
+                <th class="w12rem_lg">@L.APP名称</th>
+                <td>
+                    <input type="text" ID="Alias_T" name="Alias_T" class="form-control max20rem" maxlength="50" />
+                </td>
+            </tr>
+            <tr>
+                <th>Key</th>
+                <td>
+                    <input type="text" ID="APPKey_T" name="APPKey_T" class="form-control m50rem_50" />
+                </td>
+            </tr>
+            <tr>
+                <th>Secret</th>
+                <td>
+                    <input type="text" ID="APPSecret_T" name="APPSecret_T" class="form-control m50rem_50" />
+                </td>
+            </tr>
+            <tr><td></td><td><input type="submit" ID="Save_Btn" Text="保存" OnClick="Save_Btn_Click" class="btn btn-outline-info"></asp:Button></td></tr>
+        </table>
+    </div>
+</form>
+}

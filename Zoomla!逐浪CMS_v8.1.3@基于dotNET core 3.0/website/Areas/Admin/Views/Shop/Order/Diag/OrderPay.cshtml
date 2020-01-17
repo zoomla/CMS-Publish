@@ -1,0 +1,62 @@
+﻿@model ZoomLa.Model.M_OrderList
+@{
+    B_Payment payBll = new B_Payment();
+    B_PayPlat platBll = new B_PayPlat();
+
+    DataTable platDT = platBll.GetPayPlatListAll(0);
+    M_Payment payMod = payBll.SelModelByOrder(Model);
+    if (payMod == null) { payMod = new M_Payment(); }
+
+}
+@section head{
+<title>订单支付</title>
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<style> 
+    #Plat_RBT tr td { padding-left:5px; } 
+    #BreadDiv{display:none;}
+    #navHolder{display:none;}
+</style>
+}
+@section content{
+<form method="post" action="@MVCHelper.GetAction("OrderPay_Submit",Context.Request)">
+    <table class="table table-bordered table-hover">
+        <tr>
+            <td class="td_m">订单编号:</td>
+            <td>@Model.OrderNo</td>
+        </tr>
+        <tr>
+            <td>支付方式:</td>
+            <td>
+                @foreach (DataRow dr in platDT.Rows)
+                {
+                    <label><input name="Plat_RBT" type="radio" value="@dr["PayPlatID"]"/>@dr["PayPlatName"]</label>
+                }
+               <label><input name="Plat_RBT" type="radio" value="Purse"/>余额支付</label>
+               <label><input name="Plat_RBT" type="radio" value="SilverCoin"/>银币支付</label>
+               <label><input name="Plat_RBT" type="radio" value="Score"/>积分支付</label>
+            </td>
+        </tr>
+        <tr><td>优惠金额:</td>
+            <td><input type="text" ID="ArriveMoney_T" name="ArriveMoney_T"  class="form-control text_x required" value="@payMod.ArriveMoney.ToString("F2")"/></td></tr>
+        <tr>
+            <td>支付金额:</td>
+            <td><input type="text" class="form-control text_x required" ID="Money_T" name="Money_T" value="@payMod.MoneyReal.ToString("F2")"/></td>
+        </tr>
+        <tr>
+            <td>同步扣除</td>
+            <td>
+                <input id="SyncDeduct_Chk" name="SyncDeduct_Chk" type="checkbox" checked="checked" value="1" class="switchChk" /><span style="color:green;">*仅在虚拟币支付下生效,同步扣除用户虚拟币</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" class="btn btn-info" onclick="return confirm('确定修改为已支付吗');" value="确认支付" />
+            </td>
+        </tr>
+    </table>
+</form>
+}
+@section script{
+<script src="/dist/js/bootstrap-switch.js"></script>
+}

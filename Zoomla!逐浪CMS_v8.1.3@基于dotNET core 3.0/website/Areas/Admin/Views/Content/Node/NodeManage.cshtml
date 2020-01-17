@@ -1,0 +1,454 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model.Content
+@using ZoomLa.SQLDAL
+@using Newtonsoft.Json
+@{
+    string nodeDir = CustomerPageAction.customPath2+"Content/Node/";
+    B_Node nodeBll = new B_Node();
+    DataTable modelDT = DBCenter.SelWithField("ZL_Model", "ModelID,ModelName,ItemIcon");
+    DataTable dt = nodeBll.SelForShowAll(0, true);
+    DataRow dr = dt.NewRow();//根节点
+    dr["NodeID"] = 0;
+    dr["NodeType"] = (int)NodeEnum.Root;
+    dr["NodeName"] = Call.SiteName;
+    dr["NodeDir"] = "root";
+    dr["Depth"] = 0;
+    dr["ItemCount"] = dt.Compute("SUM(ItemCount)", "ParentID=0");
+    dr["ChildCount"] = dt.Rows.Count;
+    dr["isShow"] = 1;
+    dr["isOpen"] = 1;
+    dt.Rows.InsertAt(dr, 0);
+
+    int showFlag = ZoomLa.Common.DataConverter.CStr(Context.Request.GetParam("action")).Equals("showall") ? 1 : 0;
+    for (int i = 1; i < dt.Rows.Count; i++)
+    {
+        dt.Rows[i]["isShow"] = showFlag;
+        dt.Rows[i]["isOpen"] = showFlag;
+    }
+}
+@section head{<title>@L.节点管理</title>}
+@section content{
+@(Call.SetBread(new Bread[] {
+new Bread("/{manage}/Main",L.工作台),
+new Bread("/{manage}/Config/SiteInfo",L.系统设置),
+new Bread(){
+url="NodeManage",
+text=L.节点管理,
+addon="<li class='breadcrumb-item'><a class='dropdown-toggle' data-toggle='dropdown' href='#' role='button' aria-haspopup='true' aria-expanded='false'>"+@L.便捷操作+"</a><div class='dropdown-menu'><a class='dropdown-item' href='NodeManage?action=showall'>+"+@L.展开所有节点+"</a>"
++"<a class='dropdown-item' href=\'NodeManage\' >-"+@L.收缩所有节点+"</a>"
++"<a class='dropdown-item' href=\'javascript:void(0)\' onclick=\'emptynode()\'>x"+@L.删除所有节点+"</a>"
++"<a class='dropdown-item' href=\""+Call.PathAdmin("Extend/DBTool/EmptyData")+"\">*"+@L.初始全站数据+"</a></div></li>"
+}}, "<a title='回收站' href='"+CustomerPageAction.customPath2+"Content/Node/NodeRecycle' style='position:absolute;right:20px;'>[<i class='zi zi_trashalt'></i> "+@L.节点回收站+"]</a>"
+))
+<div class="container-fluid pr-0 sysNodemanage" id="app" onselect="return false;">
+    <div class="row sysRow table-responsive-md">
+        <table class="table table-hover table-bordered nodelist_div list_choice">
+            <tr class="gridtitle text-center">
+                <th scope="row" class="w1rem"></th>
+                <td class="td _s text-center"><strong>ID</strong></td>
+                <td><strong>@L.节点名称</strong></td>
+                <td class="td_m"><strong>@L.节点类型</strong></td>
+                <td class="td_m"><strong>@L.文章数量</strong></td>
+                <td><strong>@L.创建时间</strong></td>
+                <td><strong>@L.操作</strong></td>
+            </tr>
+            <tr v-for="item in nodes" v-show="isShow(item)" @@dblclick="toggleChild(item)">
+                <td><input type="checkbox" v-bind:value="item.NodeID" class="idchk"/></td>
+                <td class="text-center" v-text="item.NodeID"></td>
+                <td>
+                    <span v-html="showNodeDepth(item)"></span>
+                    <span v-html="showNodeIcon(item)"></span>
+                    <span v-html="showNodeName(item)"></span>
+                    <span v-if="item.ChildCount>0&&item.NodeID!=0">
+                        <a href="javascript:;" v-on:click="showChild(item);" v-show="item.isOpen==0" title="显示子栏目"><i style="font-size:18px;" class="zi zi_circleRights"></i></a>
+                        <a href="javascript:;" v-on:click="hideChild(item);" v-show="item.isOpen==1" title="隐藏子栏目"><i style="font-size:18px;" class="zi zi_circleDowns"></i></a>
+                    </span>
+                </td>
+                <td v-text="showNodeType(item)"></td>
+                <td v-text="item.ItemCount"></td>
+                <td v-text="showCDate(item)"></td>
+                <td v-html="showNodeBtns(item)"></td>
+            </tr>
+        </table>
+        <div style="padding-left:10px;">
+            <input type="button" value="@L.批量删除" class="btn btn-danger" v-on:click="delByIds" />
+        </div>
+    
+    </div>
+</div>
+}
+@section script{
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script src="/dist/vue/vue.js"></script>
+    <script>
+        var conLinkUrl = "@Call.PA("Content/ContentManage?NodeID=")";
+        //日期过滤 IE不兼容?
+        Vue.filter("date",function(value){
+            if(value&&value.replace)
+            {
+                value=value.replace("T"," ");
+                value=value.substr(0,value.length-3);
+            }
+            return value;
+        })
+        var app = new Vue({
+            el: "#app",
+            methods: {
+                showNodeType: function (item) {
+                    switch (parseInt(item.NodeType)) {
+                        case 0:
+                            return "@Html.Raw(L.根节点)";
+                        case 1:
+                            return "@Html.Raw(L.栏目节点)";
+                        case 2:
+                            return "@Html.Raw(L.单页节点)";
+                        case 3:
+                            return "@Html.Raw(L.外部链接)";
+                        default:
+                            return "@Html.Raw(L.未知栏目类型)";
+                    }
+                },
+                showCDate:function(item){
+                    if(item.CDate==null){return "";}
+                    return (item.CDate+"").split('T')[0];
+                },
+                showNodeDepth:function(item){
+                    var outstr = "";
+                    var Depth = parseInt(item.Depth);
+                    if (Depth > 0) {
+                        for (i = 1; i <= Depth - 1; i++) {
+                            outstr = outstr + "<a href='" + conLinkUrl + item.NodeID + "'><img src='/Images/TreeLineImages/tree_line4.gif' border='0' width='19' height='20' title='浏览内容管理' /></a>";
+                        }
+                        outstr = outstr + "<a href='" + conLinkUrl + item.NodeID + "'><img src='/Images/TreeLineImages/t.gif' border='0' title='浏览内容管理' /></a>";
+                    }
+                    return outstr;
+                },
+                showNodeIcon:function(item){
+  
+                    var ref=this;
+                    var outstr = "";
+                    var nodeDir = "[" + item.NodeDir + "]";
+                    var nodetype = item.NodeType+"";
+                    var NodeName = item.NodeName;
+                    var NodeID = item.NodeID;
+                    var childCount = parseInt(item.ChildCount);
+                    //--------------根据所绑定的模型和类型,显示模型图标
+                    function getIconByModels(models)
+                    {
+                        var icon="";
+                        if(!models||models==","||models==null){}
+                        else
+                        {
+                            var modArr=models.split(',');
+                            for (var i = 0; i < modArr.length; i++) {
+                                var modInfo=ref.getModelById(modArr[i]);
+                                if(!modInfo||!modInfo.ItemIcon){continue;}
+                                else{icon=modInfo.ItemIcon;break;}
+                            }
+                        }
+                        if(!icon){icon=getIconByNodeType();}
+                        return icon;
+                    }
+                    function getIconByNodeType()
+                    {
+                        var icon="";
+                        switch (nodetype)
+                        {
+                            case "@((int)NodeEnum.Root)":
+                            case "@((int)NodeEnum.Node)"://普通栏目节点与根节点
+                                if (childCount > 0)//如果有子节点
+                                {
+                                    icon=(item.isOpen==1?"zi zi_folderOpen":"zi zi_folders");
+                                }
+                                else {
+                                    icon='zi zi_file';
+                                }
+                                break;
+                            case "@((int)NodeEnum.SPage)"://单页
+                                icon="zi zi_file";
+                                break;
+                            case "@((int)NodeEnum.OuterLink)"://外部链接
+                                icon="zi zi_link";
+                                break;
+                        }
+                        return icon;
+                    }
+                    var icon=getIconByModels(item.ContentModel);
+                    //--------------
+                    switch (nodetype)
+                    {
+                        case "@((int)NodeEnum.Root)":
+                        case "@((int)NodeEnum.Node)"://普通栏目节点与根节点
+                            if (childCount > 0)//如果有子节点
+                            {
+                                outstr =  '<a href="@Call.PathAdmin("Content/ContentManage?NodeID=")'+ NodeID +'"><span data-type="icon" class="'+icon+'" title="浏览内容管理"></span></a>';
+                            }
+                            else {
+                                outstr =  "<a href='@Call.PathAdmin("Content/ContentManage?NodeID=")"+ NodeID + "'><span class='"+icon+"' title='浏览内容管理'></span></a>";
+                            }
+                            break;
+                        case "@((int)NodeEnum.SPage)"://单页
+                            outstr ="<a href='" + conLinkUrl + NodeID + "'><span class='"+icon+"' title='浏览内容管理'></span></a>";
+                            break;
+                        case "@((int)NodeEnum.OuterLink)"://外部链接
+                            outstr ="<a href='" + conLinkUrl + NodeID + "'><i class='"+icon+"' title='浏览内容管理'></i></a>";
+                            break;
+                    }
+                    return outstr;
+                },
+                showNodeName: function (item) {
+                    var outstr = "";
+                    var nodeDir = "[" + item.NodeDir + "]";
+                    var nodetype = item.NodeType+"";
+                    var NodeName = item.NodeName;
+                    var NodeID = item.NodeID;
+                    //--------------
+                    switch (nodetype)
+                    {
+                        case "@((int)NodeEnum.Root)":
+                        case "@((int)NodeEnum.Node)"://普通栏目节点与根节点
+                            if (NodeID == 0) {
+                                outstr =  "<span>" + NodeName + nodeDir + "</span>";
+                            }
+                            else {
+                                outstr =  "<span><a href='@(nodeDir)NodeAdd?id=" + NodeID + "'>" + NodeName + nodeDir + "</a></span>";
+                            }
+                            break;
+                        case "@((int)NodeEnum.SPage)"://单页
+                            outstr = "<span><a href='@(nodeDir)SPageAdd?id=" + NodeID + "'>" + NodeName + nodeDir + "</a></span>";
+                            break;
+                        case "@((int)NodeEnum.OuterLink)"://外部链接
+                            outstr = "<span><a href='@(nodeDir)OutLinkAdd?id=" + NodeID + "'>" + NodeName + "</a></span>";
+                            break;
+                    }
+                    return outstr;
+                },
+                //显示操作按钮
+                showNodeBtns: function (item) {
+                    var NodeID = parseInt(item.NodeID);
+                    var NodeType = item.NodeType+"";
+                    var ChildCount = parseInt(item.ChildCount);
+                    var outstr = "", viewHtml = "";
+                    function Link_GetUrl(nid, page) {
+                        return "/Class_" + nid + "/" + page + "";
+                    }
+                    function Link_ShowHtml(indexUrl, nid, views) {
+                        if (ZL_Regex.isEmpty(indexUrl) && views.length < 1) { return ""; }
+                        var html = "<div class=\"btn-group\">";
+                        if (!ZL_Regex.isEmpty(indexUrl)) {
+                            html += "<button type='button' onclick=\"window.open('" + Link_GetUrl(nid, "Default") + "');\"  class=\"btn btn-light btn-sm\" title='浏览首页'><i class='zi zi_globe'></i> @Html.Raw(L.浏览)</button>";
+                        }
+                        if (views.length > 0) {
+                            html += "<button type=\"button\" class=\"btn btn-light btn-sm dropdown-toggle dropdown-toggle-split\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">";
+                            html += "<span class=\"sr-only\">Toggle Dropdown</span>";
+                            html += "</button>";
+                            html += "<div class=\"dropdown-menu\">";
+                            //190130,加上首页
+                            if(!ZL_Regex.isEmpty(indexUrl)){views.unshift("@Html.Raw(L.首页)|Default");}
+                            for (var i = 0; i < views.length; i++) {
+                                var name = views[i].split('|')[0];
+                                var page = views[i].split('|')[1];
+                                html += "<a class=\"dropdown-item\" target=\"_blank\" href=\""+Link_GetUrl(nid, page)+"\">"+name+"</a>";
+                            }
+                           
+                            html += "</div>";
+                        }
+                        html += "</div>";
+                        return html;
+                    }
+                    if (NodeType == "@((int)NodeEnum.Node)" || NodeType == "@((int)NodeEnum.SPage)")
+                    {
+                        var tempcount = 0;//栏目数量
+                        var views = new Array();
+                        if (!ZL_Regex.isEmpty(item.ListTemplateFile)) { views.push("@Html.Raw(L.列表)|NodePage"); tempcount++; }
+                        if (!ZL_Regex.isEmpty(item.LastinfoTemplate)) { views.push("@Html.Raw(L.最新)|NodeNews"); tempcount++; }
+                        if (!ZL_Regex.isEmpty(item.HotinfoTemplate)) { views.push("@Html.Raw(L.热门)|NodeHot"); tempcount++; }
+                        if (!ZL_Regex.isEmpty(item.ProposeTemplate)) { views.push("@Html.Raw(L.推荐)|NodeElite"); tempcount++; }
+                        viewHtml = Link_ShowHtml(item.IndexTemplate, NodeID, views);
+                    }
+                    //-------------------------------------------------
+                    var addLink = "<a href='@(nodeDir)NodeAdd?ParentID=" + NodeID + "' class='option_style'><i class='zi zi_plus' title='添加'></i>@Html.Raw(L.节点)</a>";
+                    var delLink = "<a href='javascript:;' onclick=\"app.del('" + NodeID + "')\" class='option_style'><i class='zi zi_trashalt' title='删除'></i>@Html.Raw(L.删除)</a>";
+                    var createLink = "<a href='javascript:;' onclick='createHtml(" + NodeID + ");' title='生成静态页' class='option_style'><i class='zi zi_play'></i>@Html.Raw(L.生成)</a>";
+                    switch (NodeType) {
+                        case "@((int)NodeEnum.Root)":
+                            outstr = "<a href='@(CustomerPageAction.customPath2)Config/SiteInfo' class='option_style'><i class='zi zi_pencilalt'></i>@Html.Raw(L.修改)</a>";
+                            outstr += addLink + " <a href='@(nodeDir)SPageAdd?ParentID=" + NodeID + "' class='option_style'><i class='zi zi_plus' title='添加'></i>单页</a> <a href='@(nodeDir)OutLinkAdd?ParentID=" + NodeID + "' class='option_style'><i class='zi zi_plus' title='链接'></i>@Html.Raw(L.链接)</a> <a href='javascript:;' data-toggle=\"modal\" data-target=\"#addinfo_div\" onclick='showSort(0)' class='option_style'><i class='zi zi_listol'></i>@Html.Raw(L.排序)</a>";
+                            createLink = "";
+                            break;
+                        case "@((int)NodeEnum.Node)":
+                            outstr = "<a href='@(nodeDir)NodeAdd?id=" + NodeID + "' class='option_style' ><i class='zi zi_pencilalt'></i>@Html.Raw(L.修改)</a> " + addLink + " <a href='@(nodeDir)SPageAdd?ParentID=" + NodeID + "' class='option_style'><i class='zi zi_plus' title='添加'></i>@Html.Raw(L.单页)</a> <a href='@(nodeDir)OutLinkAdd?ParentID=" + NodeID + "' class='option_style'><i class='zi zi_plus' title='链接'></i>@Html.Raw(L.链接)</a> ";
+                            if (ChildCount > 0) {
+                                outstr = outstr + " <a href='javascript:void(0)' onclick='showSort(" + NodeID + ")' class='option_style'><i class='zi zi_listol'></i>@Html.Raw(L.排序)</a>";
+                            }
+                            outstr += delLink;
+                            break;
+                        case "@((int)NodeEnum.SPage)":
+                            outstr = "<a href='@(nodeDir)SPageAdd?ID=" + NodeID + "' class='option_style'><i class='zi zi_pencilalt'></i>@Html.Raw(L.修改)</a>" + delLink;
+                            break;
+                        case "@((int)NodeEnum.OuterLink)":
+                            outstr = "<a href='@(nodeDir)OutLinkAdd?id=" + NodeID + "' class='option_style'><i class='zi zi_pencilalt' title='修改'></i>@Html.Raw(L.修改)</a>" + delLink;
+                            createLink = "";
+                            break;
+
+                    }
+                    outstr += viewHtml;
+                    outstr += createLink;
+                    return outstr;
+                },
+                //双击显示子元素
+                toggleChild:function(item){
+                    if(item.ChildCount<1){}
+                    if(item.isOpen==1){this.hideChild(item);}
+                    else{this.showChild(item);}
+                },
+                //显示子元素
+                showChild: function (item) {
+                    var ref=this;
+                    var nodes=ref.getByPid(item.NodeID);
+                    for (var i = 0; i < nodes.length; i++) {
+                        nodes[i].isShow=1;
+                    }
+                    item.isOpen=1;
+                },
+                hideChild:function(item){
+                    var ref=this;
+                    item.isOpen=0;
+                    var hideByPid=function(pid){
+                        var nodes=ref.getByPid(pid);
+                        if(nodes==null||nodes.length<1){}
+                        for (var i = 0; i < nodes.length; i++) {
+                            hideByPid(nodes[i].NodeID);
+                            nodes[i].isShow=0;
+                            nodes[i].isOpen=0;
+                        }
+                    }
+                    hideByPid(item.NodeID);
+
+                },
+                //是否允许显示该元素
+                isShow:function(item){
+                    var ref=this;
+                    if(Convert.ToInt(item.ParentID,0)==0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return item.isShow==1?true:false;
+                    }
+                },
+                del: function (nid) {
+                    var ref = this;
+                    if (!confirm("@Html.Raw(L.确定删除节点并移入回收站)")) { return false; }
+                    //-----------------------------------
+                    for (var i = 0; i < ref.nodes.length; i++) {
+                        if (ref.nodes[i].NodeID == nid) {
+                            ref.nodes.splice(i, 1);
+                            mvcpage.del({ url: 'Node_API?action=del', ids: nid });
+                            break;
+                        }
+                    }
+                    return true;
+                },
+                //批量删除节点
+                delByIds:function(){
+                    var ids="";
+                    $(".idchk").each(function(){
+                        if(!this.checked){return;}
+                        ids+=this.value+",";
+                    });
+                    if(ids.length>0){ids=ids.substr(0,ids.length-1);}
+                    if(ids==""){alert("@Html.Raw(L.未选择需要删除的节点)");return false;}
+                    if(!confirm("@Html.Raw(L.确定删除节点并移入回收站)")){return false;}
+                    //-------------------
+                    mvcpage.del({ url: 'Node_API?action=del', "ids": ids,"after":function(){location=location;}});
+                },
+                getByNodeId:function(nid){
+                    var ref=this;
+                    for (var i = 0; i < ref.nodes.length; i++) {
+                        if(ref.nodes[i].NodeID==nid){return ref.nodes[i];}
+                    }
+                    return null;
+                },
+                //根据父节点获取节点列表
+                getByPid:function(pid){
+                    var ref=this;
+                    var list=[];
+                    for (var i = 0; i < ref.nodes.length; i++) {
+                        if(ref.nodes[i].ParentID==pid){list.push(ref.nodes[i]);}
+                    }
+                    return list;
+                },
+                getModelById:function(id){
+                    if(!id){return null;}
+                    var ref=this;
+                    for (var i = 0; i < ref.models.length; i++) {
+                        if(ref.models[i].ModelID==id){return ref.models[i];}
+                    }
+                    return null;
+                }
+            },
+            data: {
+                nodes: @Html.Raw(JsonConvert.SerializeObject(dt)),
+                models:@Html.Raw(JsonConvert.SerializeObject(modelDT)),
+
+            }
+
+        });
+        //------------------------------
+        //为了Json序列化，如此处理
+        var data = ["NodeAdd?ID=", "SetNodeOrder?ParentID=", "SetNodeOrder?ParentID=", 'SPageAdd?ID=', "EditOutLink?ID="];
+        function isInt(e) { var t = /^\d+(\d+)?$/gi; return t.exec(e) ? !0 : !1 }
+        var nodediag = new ZL_Dialog();
+        function showSort(nid)
+        {
+            nodediag.maxbtn=false;
+            nodediag.url="@(Call.PathAdmin("Com/Sort"))?tbname=node&pid="+nid;
+            nodediag.ShowModal();
+        }
+        function open_page(NodeID, strURL) {
+            nodediag.maxbtn = false;
+            nodediag.title = "";
+            if (isInt(strURL)) {
+                strURL = data[strURL];
+            }
+            nodediag.url = "@nodeDir"+strURL + NodeID;
+            nodediag.ShowModal();
+        }
+        function editnode(NodeID) {
+            var answer = confirm("@Html.Raw(L.该栏目未绑定模板_是否立即绑定)");
+            if (answer == false) {
+                return false;
+            }
+            else {
+                open_page(NodeID, "@(nodeDir)NodeAdd?ID=");
+            }
+        }
+        function emptynode() {
+            if(!confirm("@Html.Raw(L.删除现有节点并确认)")){return;}
+            $.post("Node_API?action=node_clear",{},function(data){
+                if(data!="1"){alert("@Html.Raw(L.清空失败):"+data);}
+                else{location=location;}
+            })
+        }
+        function delConfirm() {
+            return confirm("@Html.Raw(L.你确定要删除该节点吗)");
+        }
+        function nodechk(obj) {
+            $("input[name='idchk']").each(function () {
+                this.checked = obj.checked;
+            })
+        }
+        function createHtml(nid) {
+            var path = "@CustomerPageAction.customPath2";
+            var url = path + "Content/CreateHtmlContent?CType=node&NodeID=" + nid;
+            comdiag.reload = true;
+            ShowComDiag(url, "@Html.Raw(L.生成发布)");
+        }
+        $("ul.dropdown-menu li").addClass("dropdown-item");
+    </script>
+}

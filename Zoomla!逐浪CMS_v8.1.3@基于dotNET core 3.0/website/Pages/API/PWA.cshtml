@@ -1,0 +1,93 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using System.Collections.Generic;
+@using System.Data;
+@using System.Data.SqlClient;
+@using ZoomLa.BLL;
+@using ZoomLa.BLL.API;
+@using ZoomLa.Common;
+@using ZoomLa.Model;
+@using ZoomLa.Safe;
+@using ZoomLa.SQLDAL;
+@using ZoomLa.Components.PWA;
+@using Newtonsoft.Json;
+@using ZoomLa.BLL.User
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        public string action { get { return GetParam("action"); } }
+        public override int Mid { get { return DataConvert.CLng(GetParam("id")); } }
+        M_APIResult retMod = new M_APIResult(M_APIResult.Failed);
+        public IActionResult OnGet()
+        {
+            return ActionDeal();
+        }
+        public IActionResult OnPost()
+        {
+            return ActionDeal();
+        }
+        //============================================================================================================
+        private IActionResult ActionDeal()
+        {
+            B_Temp tpBll = new B_Temp();
+            M_Temp tpMod = new M_Temp();
+            try
+            {
+                switch (action)
+                {
+                    case "subscribe"://记录客户端信息
+                        {
+
+                            tpMod.UseType = 15;
+                            tpMod.Str1 = GetParam("subscription");
+                            tpMod.Str2 = GetParam("uniqueid");
+                            tpBll.Insert(tpMod);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "sub_push":
+                        {
+                            string subject = @"testSubject";
+                            string publicKey = @"BOEQSjdhorIf8M0XFNlwohK3sTzO9iJwvbYU-fuXRF0tvRpPPMGO6d_gJC_pUQwBT7wD8rKutpNTFHOHN3VqJ0A";
+                            string privateKey = @"TVe_nJlciDOn130gFyFYP8UiGxxWd3QdH6C5axXpSgM";
+
+                            tpMod = tpBll.SelReturnModel(2);
+                            //PushSubscription sub1 = new PushSubscription(@"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6uDLB6", @"BKK18ZjtENC4jdhAAg9OfJacySQiDVcXMamy3SKKy7FwJcI5E0DKO9v4V2Pb8NnAPN4EVdmhO", @"fkJatBBEl...............");
+                            M_PushSubscription sub1 = JsonConvert.DeserializeObject<M_PushSubscription>(tpMod.Str1);
+
+                            //连接不稳定,经常断开
+                            // {"Endpoint":"https://fcm.googleapis.com/fcm/send/efz_TLX_rLU:APA91bE6U0iybLYvv0F3mf6uDLB6","P256DH":"BKK18ZjtENC4jdhAAg9OfJacySQiDVcXMamy3SKKy7FwJcI5E0DKO9v4V2Pb8NnAPN4EVdmhO","Auth":"fkJatBBEl..............."}
+                            PushSubscription subscription = new PushSubscription(sub1.endpoint, sub1.keys.p256dh, sub1.keys.auth);
+
+                            VapidDetails vapidDetails = new VapidDetails(subject, publicKey, privateKey);
+                            //var gcmAPIKey = @"[your key here]";
+
+                            var webPushClient = new WebPushClient();
+                            webPushClient.SendNotification(subscription, "payload", vapidDetails);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex) { retMod.retcode = Failed; retMod.retmsg = ex.Message; }
+            return Content(retMod.ToString());
+        }
+        //	{"endpoint":"","expirationTime":null,"keys":{"p256dh":"","auth":""}}
+        public class M_PushSubscription
+        {
+            public string endpoint = "";
+            public string expirationTime = null;
+            public M_PushSubscription_Keys keys = new M_PushSubscription_Keys();
+        }
+        public class M_PushSubscription_Keys
+        {
+            public string p256dh = "";
+            public string auth = "";
+        }
+    }
+}
+@{ 
+    Layout = null;
+}

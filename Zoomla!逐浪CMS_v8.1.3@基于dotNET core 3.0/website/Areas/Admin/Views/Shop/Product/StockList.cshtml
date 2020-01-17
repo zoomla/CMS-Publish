@@ -1,0 +1,49 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLaCMS.Control
+@{
+    B_Node nodeBll = new B_Node();
+}
+@section head{
+  <title>@L.库存管理</title>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("ProductManage",L.商品管理),
+new Bread(Context.Request.RawUrl(),L.库存管理)
+})
+<div class="container-fluid">
+<div class="row">
+<div class="w-100">
+<div class="list_choice">
+    <div class="mb-2">
+        <div class="input-group">
+            <select class="form-control mvcparam w12rem_lg" id="StockType">
+                <option value="-100">@L.全部</option>
+                <option value="0">@L.入库</option>
+                <option value="1">@L.出库</option>
+            </select>
+            <input type="text" class="form-control w12rem_lg mvcparam" id="proid" placeholder="@L.商品ID"/>
+            <input type="text" class="form-control w12rem_lg mvcparam" id="proname" placeholder="@L.商品名"/>
+            <input type="text" class="form-control w12rem_lg mvcparam" id="adduser" placeholder="@L.录入者"/>
+            <input type="text" class="form-control w12rem_lg mvcparam" id="sdate" placeholder="@L.起始时间" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'edate\')}' });"/>
+            <input type="text" class="form-control w12rem_lg mvcparam" id="edate" placeholder="@L.结束时间" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'sdate\')}' });"/>
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-outline-secondary" onclick="mvcpage.load();"><i class="zi zi_search"></i></button>
+            </span>
+        </div>
+    </div>
+	
+     @Html.Partial("~/Areas/User/Views/UserShop/StockList_List.cshtml", Model)
+	
+</div>
+</div>
+</div>
+</div>
+}
+@section script{
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+}

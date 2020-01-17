@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>336</LabelID>
+    <LabelName>输出父专题下子专题列表</LabelName>
+    <LabelType>4</LabelType>
+    <LabelCate>列表专用</LabelCate>
+    <LabelDesc />
+    <LabelParam>SpecID,1,1,当前专题ID|ulClassName,row,1,列表绑定样式|liClassName,col-md-3 col-6,1,列表绑定样式|ShowNum,10,1,每页显示数|Order,asc$desc,3,排序方法</LabelParam>
+    <LabelTable>ZL_Special</LabelTable>
+    <LabelField>SpecID,SpecName</LabelField>
+    <LabelWhere>pid=@SpecID</LabelWhere>
+    <LabelOrder>SpecID @Order</LabelOrder>
+    <LabelContent>&lt;ul class="@ulClassName"&gt;
+{Repeate}
+&lt;li class="@ClassName"&gt;&lt;a href="{ZL:GetSpecialPage({Field="SpecID"/})/}"&gt;{Field="SpecName"/}&lt;/a&gt;&lt;/li&gt;
+{/Repeate}
+&lt;/ul&gt;
+{ZL.Page/}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo />
+    <addroot>循环计算</addroot>
+    <setroot />
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <EmptyContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_Special","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

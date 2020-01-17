@@ -1,0 +1,225 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Order_API?a=";
+    string BaseUrl = "OrderList?OrderType=" + Context.Request.GetParam("OrderType");
+    OrderCount countMod = ViewBag.countMod;
+    Filter_Order filter = ViewBag.filter;
+    string totalSum = "0";
+    if (Model.dt.Rows.Count > 0) {totalSum= DataConverter.CDouble(Model.dt.Compute("SUM(ordersamount)", "")).ToString("f2"); }
+}
+@section head{<title>@L.订单列表</title>}
+@section content{
+<div id="BreadDiv" class="mysite">
+        <div>
+            <ol id="BreadNav" class="breadcrumb fixed-top">
+                <li class="breadcrumb-item"><a href="@Call.PathAdmin("Product/ProductManage")">@L.商城管理</a></li>
+                <li class="breadcrumb-item"><a href="@Context.Request.RawUrl()">@L.订单列表</a> [<a href="OrderAdd">@L.添加订单</a>]</li>
+                <div id="help" class="float-right text-center"><a href="javascript:;" class="help_btn active" onclick="selbox.toggle(cfg);"><i class="zi zi_search" zico="搜索"></i></a></div>
+                <div id="sel_box">
+                    <div class="input-group">
+                        <input type="text" ID="ProName_T" class="form-control max20rem mvcparam" placeholder="@L.商品名称" />
+                        <input type="text" ID="OrderNo_T" class="form-control max20rem mvcparam" placeholder="@L.订单号" />
+                        <input type="text" ID="ReUser_T" class="form-control max20rem mvcparam"  placeholder="@L.收货人"/>
+                        <input type="text" ID="Mobile_T" class="form-control max20rem mvcparam" placeholder="@L.手机号" ValidType="MobileNumber"  />
+                        <input type="text" ID="UserID_T" class="form-control max20rem mvcparam" placeholder="用户ID 多个用户用,号分隔" value="@filter.uids"/>
+                        <input type="text" ID="ExpSTime_T" class="form-control max20rem mvcparam" placeholder="@L.发货时间起始" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'ExpETime_T\')}'});"/>
+                        <input type="text" ID="ExpETime_T" class="form-control max20rem mvcparam" placeholder="@L.发货时间结束" onclick="WdatePicker({minDate:'#F{$dp.$D(\'ExpSTime_T\')}'});"/>
+						<div class="input-group-append">
+							<span class="input-group-text" title="支持多条件查询"><i class="zi zi_leaf" zico="叶子"></i></span>
+					  </div>
+                        
+                    </div>
+                    <div class="input-group">
+                        <select ID="StoreType_DP" class="form-control max20rem mvcparam">
+                            <option value="all">@L.商城与店铺</option>
+                            <option value="shop">@L.仅商城</option>
+                            <option value="store">@L.仅店铺</option>
+                        </select>
+                        <select ID="SkeyType_DP" class="form-control max20rem mvcparam">
+                            <option value="exp" selected="selected">@L.快递单号</option>
+                            <option value="oid">@L.订单ID</option>
+                        </select>
+                        <input type="text" ID="Skey_T" class="form-control max20rem mvcparam" placeholder="@L.请输入关键词" value="@filter.skey" />
+                        <input type="text" ID="Remind_T" class="form-control max20rem mvcparam" placeholder="@L.订单备注" />
+                        <input type="text" ID="STime_T" class="form-control max20rem mvcparam" placeholder="@L.订单创建起始时间" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'ETime_T\')}'});" />
+                        <input type="text" ID="ETime_T" class="form-control max20rem mvcparam" placeholder="@L.订单创建结束时间" onclick="WdatePicker({minDate:'#F{$dp.$D(\'STime_T\')}'});" />
+						<div class="input-group-append">
+						 <button type="button" ID="Skey_Btn" class="input-group-text btn btn-outline-info" onclick="mvcpage.load();">@L.查询</button>
+					  </div>
+					  <div class="input-group-append">
+						 <button type="button" class="input-group-text btn btn-outline-info" onclick="cleartxt();"><i class="zi zi_redoalt" zico="重做标识"></i>@L.清除查询</button>
+					  </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </ol>
+        </div>
+    </div>
+<div id="maindiv">
+    <ul id="ordernav" class="nav nav-tabs list_choice">
+       <li class="nav-item" data-type="all"><a class="nav-link" href="@BaseUrl">@L.全部订单 (@countMod.all)</a></li>
+       <li class="nav-item" data-type="unpaid"><a class="nav-link" href="@(BaseUrl)&filter=unpaid">@L.待付款 (@countMod.unpaid)</a></li>
+       <li class="nav-item" data-type="prepay"><a class="nav-link" href="@(BaseUrl)&filter=prepay">@L.预付款 (@countMod.prepay)</a></li>
+       <li class="nav-item" data-type="paid"><a class="nav-link" href="@(BaseUrl)&filter=paid">@L.已付款 (@countMod.paid)</a></li>
+       <li class="nav-item" data-type="unexp"><a class="nav-link" href="@(BaseUrl)&filter=unexp">@L.待发货 (@countMod.unexp)</a></li>
+       <li class="nav-item" data-type="exped"><a class="nav-link" href="@(BaseUrl)&filter=exped">@L.已发货 (@countMod.exped)</a></li>
+       <li class="nav-item" data-type="finished"><a class="nav-link" href="@(BaseUrl)&filter=finished">@L.交易完成 (@countMod.finished)</a></li>
+       <li class="nav-item" data-type="unrefund"><a class="nav-link" href="@(BaseUrl)&filter=unrefund">@L.待退款 (@countMod.unrefund)</a></li>
+       <li class="nav-item" data-type="refunded"><a class="nav-link" href="@(BaseUrl)&filter=refunded">@L.退款完成 (@countMod.refunded)</a></li>
+       <li class="nav-item" data-type="recycle"><a class="nav-link" href="@(BaseUrl)&filter=recycle">@L.回收站 (@countMod.recycle)</a></li>
+    </ul>
+    @if (Model.dt.Rows.Count < 1)
+    {
+        <div id="empty_div" class="alert alert-info">@L.没有匹配的订单信息</div>
+    }
+    else
+    {
+        @Html.Partial(MVCHelper.ViewDir_Admin_Order+"Order_List.cshtml")
+    }
+
+  <div style="height:90px;"></div>
+    <div class="opdiv">
+       @*<button type="button" class="btn btn-primary" onclick="OutToExcel();">下载概览</button>*@
+        <a href="Order_Down" target="_blank" class="btn btn-info">@L.下载详单</a>
+        @if (filter.addon.Equals("recycle"))
+        {
+            <div id="op_recycle" style="display: inline-block;">
+                <button type="button" class="btn btn-info"   onclick="mvcpage.bat({url:'@(apiUrl+"recover")'});">@L.批量还原</button>
+                <button type="button" class="btn btn-danger" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.不可恢复性删除),@Html.Raw(L.确定要移除订单吗)?'});">@L.批量删除</button>
+                <button type="button" class="btn btn-danger" onclick="mvcpage.bat({url:'@(apiUrl+"clear")',confirm:'@Html.Raw(L.不可恢复性删除),@Html.Raw(L.确定要移除订单吗)?'});">@L.清空回收站</button>
+            </div>
+        }
+        else
+        {
+            <div id="op_normal" style="display: inline-block;">
+                <button type="button" class="btn btn-info" onclick="mvcpage.bat({url:'@(apiUrl+"sure")',confirm:'@Html.Raw(L.要确认订单吗)?'});">@L.批量确认订单</button>
+                <button type="button" class="btn btn-info" onclick="mvcpage.bat({url:'@(apiUrl+"recycle")',confirm:'@Html.Raw(L.确认要移入回收站吗)'});">@L.批量移除订单</button>
+                <span style="float:right;margin-left:50px;color:#fff;font-size:1.5rem;"><span>金额合计:</span><span style="color:#ff0000;">@totalSum</span></span>
+            </div>
+        }
+
+        @*<div class="float-right mr-5"></div>*@
+    </div>
+</div>
+@*<input type="hidden" id="filter_hid" value="@(Newtonsoft.Json.JsonConvert.SerializeObject(filter))"/>*@
+}
+@section script{
+<script src="/JS/Label/ZLHelper.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+<script>
+    var siteconf = { path: "@(CustomerPageAction.customPath2)" };
+    var cfg = { show: function () { $("#maindiv").css("margin-top", "90px"); console.log("1"); }, hide: function () { $("#maindiv").css("margin-top", "0px"); } }
+    $(function () {
+        var filter = "@(filter.addon)";
+        if (filter == "") { filter = "all"; }
+        $("#ordernav li[data-type=" + filter + "]").find("a").addClass("active");
+        $("#chkAll").click(function () { selectAllByName(this, "idchk"); });
+        //有非空的搜索条件,则不隐藏搜索框
+        $("#sel_box input[type='text']").each(function () {
+            if (!ZL_Regex.isEmpty(this.value)) { selbox.toggle(cfg); return false; }
+        });
+        $("#sel_box input[type='text']").keydown(function (e) {
+            if (e.keyCode == 13) { $("#Skey_Btn").click(); return false; }
+        });
+        $("#StoreType_DP").val("@filter.storeType");
+    })
+    function cleartxt() {
+        $("#BreadNav input[type='text'").val("");
+    }
+    //function OutToExcel() {
+    //    var $html = $(document.getElementById("orderlist").outerHTML);
+    //    $html.find("td").css("border", "1px solid #666");
+    //    $html.find("tr").find("td:first").remove();
+    //    $html.find("#page_tr").remove();
+    //    $html.find("tr:last").remove();
+    //    ZLHelper.OutToExcel($html.html(), '<%=DateTime.Now.ToString("yyyyMMdd")%>订单概览');
+    //}
+    var order = {
+        slideup: function (obj) {
+            var $btn = $(obj).find("i");
+            var $wrap = $(obj).closest(".prolist").find('.prowrap');
+            if ($wrap.is(":visible")) { $wrap.hide(); $btn.removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-right"); }
+            else { $wrap.show(); $btn.removeClass("fa-chevron-circle-right").addClass("fa-chevron-circle-down"); }
+        }
+    };
+    //超出5个商品时显示,点击后加载数据隐藏自身
+    order.showMore = function (btn) {
+        $wrap = $(btn).closest(".prowrap");
+        $wrap.find(".pro_more").removeClass("hidden");
+        $(btn).closest("tr").hide();
+    }
+    order.showSuit = function (cartid) {
+        ShowComDiag("/common/comp/SuitPro_Cart?CartID=" + cartid, "@Html.Raw(L.促销组合)");
+    }
+    var exp = { cache: { "0": { title: "@Html.Raw(L.未发货)", body: "@Html.Raw(L.尚未发货)" } } };
+    //通过API接口,返回json信息(仅用于企业版)
+    exp.get = function (btn, expid) {
+        if (exp.cache[expid]) { $(btn).popover("show");  }
+        $.post("/api/mod/shop_express.ashx?action=get", { "expid": expid }, function (data) {
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) {
+                var expinfo = JSON.parse(model.retmsg);
+                var expmod = { title: expinfo.expcomp + "：  " + expinfo.expno, body: "" };
+                var info = model.result;
+                //--------------------
+                if (info.message != "ok") { alert(info.message);  }
+                var $wrap = $('<div class="exp_wrap"><ul class="exp_ul"></ul></div>');
+                var tlp = '<li><div class="circle"></div><div class="item"><div class="time">@@time</div><div class="context">@@context</div></div></li>';
+                var first = true;
+                $items = JsonHelper.FillItem(tlp, info.data, function ($item, mod) {
+                    if (first == true) { $item.addClass("active"); first = false; }
+                });
+                $wrap.find(".exp_ul").append($items);
+                expmod.body = $wrap
+                exp.cache[expid] = expmod;
+                $(btn).popover("show");
+            }
+            else {
+                exp.cache[expid] = { title: "查询失败", body: model.retmsg }; $(btn).popover("show");
+            }
+        });
+    }
+    //免费接口调用
+    exp.apilink = function (btn, expid) {
+        if (exp.cache[expid]) { $(btn).popover("show");  }
+        $.post("/api/mod/shop_express.ashx?action=apilink", { "expid": expid }, function (data) {
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) {
+                var expinfo = JSON.parse(model.retmsg);
+                var expmod = { title: expinfo.expcomp + "：  " + expinfo.expno, body: "" };
+                //--------------
+                var $wrap = $('<iframe src="' + model.result + '" style="border:none;width:550px;min-height:350px;"/>');
+                expmod.body = $wrap
+                exp.cache[expid] = expmod;
+                $(btn).popover("show");
+            }
+            else {
+                exp.cache[expid] = { title: "查询失败", body: model.retmsg }; $(btn).popover("show");
+            }//post end;
+        })
+    }
+    exp.init = function () {
+        $(".expview_a").popover({
+            animation: true, html: true, trigger: "manual", placement: 'left', title: function () {
+                var expid = $(this).data("expid");
+                var expmod = exp.cache[expid];
+                var wrap = '<div>' + expmod.title + '<button type="button" class="btn btn-sm btn-danger float-right" onclick="$(\'#' + this.id + '\').popover(\'hide\');"><i class="zi zi_times"></i></button></div>';
+                return wrap;
+            },
+            content: function () {
+                var expmod = exp.cache[$(this).data("expid")];
+                return expmod ? expmod.body : "";
+            }
+        });
+    }
+    exp.init();
+</script>    
+}

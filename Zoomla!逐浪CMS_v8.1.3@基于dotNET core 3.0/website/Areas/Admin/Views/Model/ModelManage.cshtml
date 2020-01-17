@@ -1,0 +1,50 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model
+@using System.Data
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public int ModelType { get { return ViewBag.ModelType; } }
+
+}
+@{
+    B_Model bll = new B_Model();
+}
+@section head{<title>@L.模型管理</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("ModelManage?ModelType="+ModelType,L.模型管理),
+new Bread() {url="ModelManage?ModelType="+ModelType, text=bll.GetModelType(ModelType)+ ""+L.管理+" <a href='ModelAdd?ModelType="+ ModelType+"'>["+L.添加模型+"]</a>",addon="" }})
+@Html.CMS_EGV_OrderBy()
+    <div class="container-fluid pr-0 table-responsive-md">
+        <table class="table table-striped table-bordered sysRow list_choice " id="EGV_wrap">
+            <tr>
+                <th class="td_m">@L.操作</th>
+                <th class="td_s"><span class="zlsort" data-field="modelid">ID</span></th>
+                <th>@L.模型名称</th>
+                <th class="td_m">@L.表名</th>
+                <th class="td_m">@L.项目名称</th>
+                <th>@L.模型描述</th>
+            </tr>
+            @Html.Partial("ModelManage_List", Model)
+        </table>
+<div class="mb-5 labelhtml_no"><strong>@L.辅助说明:</strong>@L.可定义各个模型在<a href="../../Extend/DBTool/FSearchConfig">@L.前台搜索展现</a>。</div>	
+</div>
+}
+@section script{
+    <link href="/Plugins/Third/alert/sweetalert.css" rel="stylesheet" />
+    <style>
+        .allchk_l { display: none; }
+    </style>
+    <script src="/Plugins/Third/alert/sweetalert.min.js?v=1"></script>
+    <script>
+    function getinfo(id) {
+        location.href = "ModelAdd?ModelID=" + id + '&ModelType=@(ModelType)';
+    }
+    $(".btn-group .aspNetDisabled").addClass("dropdown-item")
+    </script>
+}

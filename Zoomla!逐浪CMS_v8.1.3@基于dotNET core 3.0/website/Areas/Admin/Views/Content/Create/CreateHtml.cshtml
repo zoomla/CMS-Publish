@@ -1,0 +1,49 @@
+﻿@{ 
+
+}
+@section head{<title>@L.发布操作</title> }
+@section content{
+ @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("ContentManage",L.内容管理),
+        new Bread("CreateHtmlContent",L.生成发布),
+        new Bread() {url="", text=@L.发布结果,addon= "" }}
+        )  
+ <div class="list_choice">
+<div class="text-left">
+    <div class="alert alert-info" style="background: rgba(216, 236, 246, 0.5)">
+       <h5>@L.提示：</h5>
+        <p>
+            <i class="zi zi_check"></i> 成功生成静态-用以提升站点效率!
+            <a href="CreateHtmlContent" class="btn btn-info btn-sm">&lt;返回生成页</a>
+        </p>
+        <p style="border-bottom: 1px dashed #808080;">
+            网站首页的后缀需在<a href="@Call.PathAdmin("Config/SiteInfo")">[系统设置]</a>-<a href="@Call.PathAdmin("Config/SiteInfo")">[网站配置]</a>-<a href="@Call.PathAdmin("Config/SiteOption")">[进阶信息]</a>中进行设置,为不生成静态页<br />
+            对应栏目页需在<a style="color: #428bca;" href="@Call.PathAdmin("Config/SiteInfo")">[系统设置]</a>-<a style="color: #428bca;" href="@Call.PathAdmin("Content/Node/NodeManage")">[节点管理]</a>对相应节点生成选项进行设置,为不生成静态页<br />
+            发布内容页，需对内容所在节点的生成选项的中，对内容页扩展名进行设置，为不生成静态页。
+        </p>
+        <div style="min-height:20rem;overflow-y:auto;" id="infobody">
+            <div id="spindiv" class="text-center"><i class="zi zi_spin zi_spinner zi_2x"></i> 检测生成日志...</div>
+        </div>
+    </div>
+    </div>
+	</div>   
+}
+@section script{ 
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script>
+    $(function () {
+        var tlp = '<div class="item">@@ResultMsg <a href="@@Url" target="_blank">@@Url</a></div>';
+        var inter = setInterval(function () {
+            $.post("", {}, function (data) {
+                if (data == "") { return; }
+                var list = JSON.parse(data);
+                var $items = JsonHelper.FillItem(tlp, list, null);
+                $("#spindiv").before($items);
+                //if (data.indexOf("生成请求处理完成 ") > -1) { $("#spindiv").remove(); clearInterval(inter); }
+            })
+        }, 1500);
+    })
+</script>
+
+}

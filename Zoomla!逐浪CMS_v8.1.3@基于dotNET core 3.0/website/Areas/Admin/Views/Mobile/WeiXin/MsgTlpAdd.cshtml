@@ -1,0 +1,116 @@
+﻿@model ZoomLa.Model.Other.M_WX_MsgTlp
+@using Newtonsoft.Json
+@{ 
+    //DataTable dt = appBll.Sel();
+    //WXAPP_DP.DataSource = dt;
+    //WXAPP_DP.DataBind();
+    string text_content = "";
+    string image_title = "", image_desc = "", image_pic = "", image_url = "";
+    switch (Model.MsgType)
+    {
+        case "text":
+            text_content = Model.MsgContent;
+            break;
+        case "image":
+            {
+                M_WXImgItem itemMod = JsonConvert.DeserializeObject<M_WXImgItem>(Model.MsgContent);
+                image_title = itemMod.Title;
+                image_desc = itemMod.Description;
+                image_pic = itemMod.PicUrl;
+                image_url = itemMod.Url;
+            }
+            break;
+    }
+}
+@section head{ <title>@L.消息模板</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("MsgTlp",L.消息列表),
+        new Bread() {url=Context.Request.RawUrl(), text=L.消息模板,addon="" }}
+		)
+
+<form method="post" action="@MVCHelper.GetAction("MsgTlpAdd_Submit",Context.Request)">
+<small class="list_choice">
+    <table class="table table-striped table-bordered sys_table">
+        @*<tr><th scope="col" class="w12rem_lg">所属公众号</th><td scope="col"><asp:DropDownList runat="server" ID="WXAPP_DP" DataTextField="Alias" DataValueField="ID" class="form-control max20rem"></asp:DropDownList></td></tr>*@
+        <tr><th scope="col">@L.别名</th><td scope="col"><input type="text" ID="Alias_T" name="Alias_T" class="form-control max20rem required" value="@Model.Alias"/></td></tr>
+        <tr>
+            <th>@L.信息类型</th>
+            <td>
+                @*<label><input type="radio" name="msgtype_rad" class="msgtype" value="text" checked="checked" />文字</label>
+                <label><input type="radio" name="msgtype_rad" class="msgtype" value="image" />图片</label>*@
+                @*<label><input type="radio" name="msgtype_rad" class="msgtype" value="html" />多图文</label>*@
+                @MVCHelper.H_Radios("msgtype_rad",new string[] {""+@L.文字+"",""+@L.图片+"" },new string[] {"text","image" },Model.MsgType,"class=\"msgtype\" ")
+                <div class="text-muted" style="font-size:12px;">
+                    <div>@L.文字信息格式@("<a href=\"http://"+@L.链接+"URL\">"+@L.链接名+"</a>")</div>
+                    <div>@L.图片信息</div>
+                    <div>@L.多图文信息</div>
+                </div>
+            </td>
+        </tr>
+        <tbody class="content_tb" id="text_tb">
+            <tr>
+                <th class="w12rem_lg">@L.信息内容</th>
+                <td>
+                    <textarea ID="Content_T" name="Content_T"  class="form-control" style="height: 120px;">@text_content</textarea>
+                </td>
+            </tr>
+        </tbody>
+        <tbody class="content_tb" id="image_tb">
+            <tr>
+                <th>@L.标题</th>
+                <td><input type="text" id="Image_Title_T" name="Image_Title_T" class="form-control" value="@image_title"/></td>
+            </tr>
+            <tr>
+                <th>@L.描述</th>
+                <td><input type="text" id="Image_Desc_T" name="Image_Desc_T" class="form-control " value="@image_desc"/></td>
+            </tr>
+            <tr>
+                <th>@L.图片</th>
+                <td>
+                     @Html.Partial("C_SFileUP",new C_SFileUP() {ID="PicUrl",SaveType="admin",Value=image_pic })
+                    <small style="display:block;">@L.图片链接规格</small>
+                    <small style="display:block;">@L.必须为本站图片：@(SiteConfig.SiteInfo.SiteUrl+"/UploadFiles/nopic.gif")</small>
+                </td>
+            </tr>
+            <tr>
+                <th>链接</th>
+                <td>
+                    <input type="text" ID="Image_Url_T" name="Image_Url_T" class="form-control" placeholder="@L.请输入链接" value="@image_url" />
+                    <div class="rd_green margin_t5">@L.点击图文消息跳转链接</div>
+                </td>
+            </tr>
+        </tbody>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID="Save_Btn" value="@L.保存信息" class="btn btn-info" />
+                <a href="MsgTlp" class="btn btn-outline-info">@L.返回列表</a>
+            </td>
+        </tr>
+    </table>
+</div>
+</form>
+}
+@section script{ 
+<style type="text/css">
+    .content_tb{display:none;}
+</style>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+    $(function () {
+        $(".msgtype").click(function () {
+            if (this.value == "html")
+            {
+             //<%--   if (confirm("页面需要跳转至多图文编辑页,未保存的信息将会丢失")) { location = "MsgsSend.aspx?appid=<%:AppID%>"; }else { return; }--%>
+            }
+            $(".content_tb").hide();
+            $("#" + this.value + "_tb").show();
+        });
+        $(".msgtype:checked").click();
+        $("form").validate({});
+    })
+</script>
+}

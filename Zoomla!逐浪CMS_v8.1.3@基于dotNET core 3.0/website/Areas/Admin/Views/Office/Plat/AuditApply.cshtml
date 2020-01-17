@@ -1,0 +1,45 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    
+}
+@{ 
+    int ZStatus = ViewBag.ZStatus;
+}
+@section head{<title>@L.申请管理</title> }
+@section content{ 
+	@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("/{manage}/Plat/PlatInfoManage",L.能力中心),
+        new Bread("PlatInfoManage",L.信息管理),
+        new Bread() {url=Context.Request.RawUrl(), text=L.申请管理,addon="" }}
+		)
+<div class="list_choice">
+    <ul id="menuul" class="nav nav-tabs">
+    <li class="nav-item" data-s="0"><a class="nav-link" href="AuditApply">@L.未审核</a></li>
+    <li class="nav-item" data-s="99"><a class="nav-link" href="AuditApply?s=99">@L.已同意</a></li>
+    <li class="nav-item" data-s="-1"><a class="nav-link" href="AuditApply?s=-1">@L.已拒绝</a></li>
+</ul>
+<div class="table-responsive-md pr-1">
+@Html.Partial(MVCHelper.ViewDir_Admin+"Office/Plat/AuditApply_List.cshtml")
+</div>
+<div class="mb-3">
+<button type="button" ID="BatAgree_Btn"  onclick="mvcpage.bat({url:'AuditApply_Agree',confirm:'@Html.Raw(L.确定要同意吗)'})"  class="btn btn-outline-info">@L.批量同意</button>
+<button type="button" ID="BatReject_Btn" onclick="mvcpage.bat({url:'AuditApply_Reject',confirm:'@Html.Raw(L.确定要拒绝吗)'})" class="btn btn-outline-danger">@L.批量拒绝</button></div>
+<div class="alert alert-info">@L.自动为用户创建公司与部门</div></div>
+}
+@section script{ 
+<script>
+    $(function () {
+        var s = "@(ZStatus)";
+        var $li = $("#menuul li[data-s='" + s + "']");
+        if ($li.length > 0) { $li.find("a").addClass("active"); }
+        else { $("#menuul li:first").find("a").addClass("active"); }
+    })
+    function subchk(msg) {
+        if ($("input[name='idchk']:checked").length < 1) { alert("@Html.Raw(L.请先选定要操作的数据)"); return false; }
+        if (!confirm(msg)) { return false; }
+        return true;
+    }
+    function showuinfo(uid) { ShowComDiag(""); }
+</script>
+}

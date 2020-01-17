@@ -1,0 +1,63 @@
+﻿@model ZoomLa.Model.Shop.M_Order_Share
+@section head{<title>修改商品评论</title> }
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("ShareEdit_Submit",Context.Request)">
+    <table class="table table-bordered table-hover table-striped shareorder">
+        <tr class="share_tr">
+            <td class="text-right td_m">标题:</td>
+            <td><input type="text" ID="Title_T" name="Title_T" class="form-control text_300" value="@Model.Title"/></td>
+        </tr>
+        <tr class="share_tr">
+            <td class="text-right">评分:</td>
+            <td>
+                @MVCHelper.H_Radios("score","1分,2分,3分,4分,5分".Split(','),"1,2,3,4,5".Split(','),Model.Score.ToString())
+            </td>
+        </tr>
+        <tr>
+            <td  class="text-right td_m">心得:</td>
+            <td><textarea type="text" name="MsgContent_T" ID="MsgContent_T" placeholder="商品是否给力?快分享你的购买心得吧" class="form-control text_300" maxlength="500" rows="5">@Model.MsgContent</textarea></td>
+        </tr>
+        <tr class="share_tr">
+            <td class="text-right">晒单:</td>
+            <td>
+                <input type="button" id="upfile_btn" class="btn btn-info" value="添加图片" />
+                <div style="margin-top: 10px;" id="uploader" class="uploader">
+                    <ul class="filelist"></ul>
+                </div>
+                <input type="hidden" id="Attach_Hid" name="Attach_Hid" />
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID="Edit_Btn" value="保存信息" class="btn btn-primary" />
+            </td>
+        </tr>
+    </table>
+</form>
+}
+@section script{ 
+    <link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+    <script src="/JS/Controls/ZL_Webup.js"></script>
+    <script>
+        $().ready(function () {
+            ZL_Webup.config.json.ashx = "action=OAattach";
+            ZL_Webup.config.json.accept = "img";
+            $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+            var imgs = "@Model.Imgs".split('|');
+            for (var i = 0; i < imgs.length; i++) {
+                if (imgs[i] != "") {
+                    AddAttach({}, { _raw: imgs[i] }, {});
+                }
+            }
+        });
+        function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+        function GoBank() {
+            history.go(-1);
+        }
+        if ("@Model.Pid" != "0") {$(".share_tr").hide();}
+    </script>
+
+
+}
+

@@ -1,0 +1,55 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.BLL.SYS
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_Sys_CSSManage cssBll = new B_Sys_CSSManage();
+    public string ShowZStatus(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["ZStatus"]) == (int)ZLEnum.ConStatus.Reject)
+        {
+            return ComRE.Icon_Ban;
+        }
+        else { return ComRE.Icon_OK; }
+    }
+
+}
+
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>ID</th>
+        <th>@L.样式名称</th>
+        <th>@L.标签引用</th>
+        <th>@L.备注</th>
+        <th>@L.创建时间</th>
+        <th class="td_m">@L.状态</th>
+        <th>@L.操作</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr ondblclick="location = 'CSSContent?ID=@dr["ID"]';">
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td>@dr["Name"]</td>
+            <td>@cssBll.GetLabelQuote(Convert.ToInt32(dr["ID"]))</td>
+            <td>@dr["Remind"]</td>
+            <td>@dr["CDate"]</td>
+            <td>            
+                @if (DataConverter.CLng(dr["ZStatus"]) == -1)
+                {
+                    <a href="javascript:;" onclick="mvcpage.post2('Default_API?action=active',@dr["ID"])"><i class="zi zi_ban"></i> @L.停用</a>
+                }
+                else 
+                {
+                    <a href="javascript:;" onclick="mvcpage.post2('Default_API?action=stop',@dr["ID"])"><i class="zi zi_check"></i> @L.启用</a>
+                }
+               </td>
+            <td>
+                <a href="CSSContent?id=@dr["ID"]"><i class="zi zi_pencilalt" title="创作"></i> @L.创作</a>
+                <a href="CSSDown?ID=@dr["ID"]"  target="_blank"><i class="zi zi_download"></i> @L.下载</a>
+                <a href="javascript:;" onclick="mvcpage.post2('Default_API?action=del',@dr["ID"], {confirm:'@Html.Raw(L.确定要删除吗)'})"><i class="zi zi_trashalt" title="删除"></i></a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

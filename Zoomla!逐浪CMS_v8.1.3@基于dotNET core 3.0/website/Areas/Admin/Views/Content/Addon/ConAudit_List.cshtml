@@ -1,0 +1,39 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.BLL.Content.Flow
+@using ZoomLa.Common
+@functions{
+    public bool ShowBtn(DataRow dr)
+    {
+        int s = DataConverter.CLng(dr["ZStatus"]);
+        return s == 0;
+    }
+
+}
+@{ 
+    string apiUrl = Call.PA("Content/Addon/ConAudit_SJ_API?action=");
+    B_Content_Audit auBll = new B_Content_Audit();
+}
+
+<tbody id="EGV">
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+          <tr>
+            <td><a href="javascript:;" onclick="showContent('@dr["Gid"]');" title="点击预览">@("["+dr["Gid"]+"]"+dr["Title"])</a></td>
+            <td>@auBll.ShowOPName(DataConverter.CStr(dr["Name"])) @dr["SysRemind"]</td>
+            <td>@MvcHtmlString.Create(auBll.ShowStatus(DataConverter.CStr(dr["ZStatus"])))</td>
+            <td>@dr["A_Name"]</td>
+            <td>@dr["A_Date"]</td>
+            <td>@dr["Admin_Name"]</td>
+            <td>@dr["Admin_Date"]</td>
+            <th>
+                @if (ShowBtn(dr))
+                {
+                     <a href="javascript:;" onclick="mvcpage.post2('@(apiUrl+"sure")','@dr["id"]')"   class="btn btn-info btn-sm">@Html.Raw(L.确认)</a>
+                     <a href="javascript:;" onclick="mvcpage.post2('@(apiUrl+"reject")','@dr["id"]')" class="btn btn-danger btn-sm">@Html.Raw(L.拒绝)</a>
+                }
+            </th>
+        </tr>
+    }
+
+    @Html.Partial("_page")
+</tbody>

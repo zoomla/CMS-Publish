@@ -1,0 +1,272 @@
+﻿@using System.Data
+@{
+
+}
+
+@section head{
+<title>@L.字库图标</title>
+<link href="/dist/css/zfont.css" rel="stylesheet" type="text/css">
+
+ }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),			
+        new Bread() {url=Context.Request.RawUrl(), text=""+L.字体图标+"<a href='http://v.ziti163.com' target='_blank' class='reds'> ["+L.在线做字+"]</a>",addon="" }}
+		)
+	<div class="list_choice">
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link active" href="#tab0" data-toggle="tab">WebFont</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab2" data-toggle="tab">zico @L.图标</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active fontWrap container-fluid" id="tab0">
+        <div class="row">
+            @foreach (DataRow dr in XMLDB.ZLFont.Rows)
+            {
+                <div class="col-12 col-md-3">
+                    <div class="@dr["css"] fonts_list w-100">@L.我是@(dr["name"])</div>
+                </div>
+            }
+            <a class="fonts_list p-3 ml-3" href="http://www.ziti163.com/webfont" target="_blank"><div title="更多webfont" class="ZoomlaXSongExtraLight">@L.更多Webfont <i class="zi zi_plusSquare"></i></div></a>
+        </div>
+	</div>
+    <div class="tab-pane" id="tab2">
+        <iframe class="iconifr" src="/lib/html/icon2.html"></iframe>
+    </div>
+</div>
+<div class="modal fade" id="code_modal">
+    <div class="modal-dialog modal-dialog-centered codeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+				<h4 class="modal-title">@L.字体引用</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+			<div class="modal-body">
+<textarea id="codeText" spellcheck="false">
+</textarea>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="icon_modal">
+<div class="modal-dialog modal-dialog-centered iconModal">
+        <div class="modal-content">
+            <div class="modal-header">
+				<div class="modal-title">@L.图标引用</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+			<div class="modal-body">
+			<div class="text-center"><i id="icon_i" class="zi zi_useralt" style="font-size:3em;"></i></div>
+			<div class="text-center" id="icon_t"></div>
+			</div>
+            @*<%--<div class="modal-footer" style="text-align:center;"><input id="icon_btn" type="button" value="复制图标" onclick="" class="btn btn-info" /></div>--%>*@
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+<textarea id="codeTextTlp">
+
+@L.快速一步式网页引用方法（直接在网页中放入下面代码）
+<style>
+    @@import url("https://code.z01.com/Zfonts.css"); /*此行相同页面只需引用一次*/
+    .{name} { font-family: '{name}'; }
+</style>
+<div class="{name}">{text}</div>
+
+
+@L.CSS与HTML分离引用方法
+/*@L.将下面代码放在CSS中*/
+@@import url("Zfont.css");
+.{name}{font-family:'{name}';}
+/*@L.网页中直接引用字体名称：
+<div class="{name}">{text}</div>
+
+</textarea>
+</div>
+</div>
+}
+@section script{ 
+<script src="/Plugins/Ueditor/third-party/zeroclipboard/ZeroClipboard.min.js"></script>
+<script>
+    $(function () {
+        var height=$(window).height()-100;
+        $(".iconifr").css("height", height);
+        $(".fontWrap div").attr("title", "@Html.Raw(L.点击引用字体)");
+        $(".fontWrap div").click(function () {
+            var name = $(this).attr("class");
+            var text = $(this).text();
+            $("#codeText").text($("#codeTextTlp").text().replace(/{name}/g, name).replace(/{text}/g, text));
+            $("#code_modal").modal({});
+        });
+        //---------------------
+        //var client = new ZeroClipboard(document.getElementById("icon_btn"));
+        //client.on("ready", function (readyEvent) {
+        //    client.on('copy', function (e) { client.setText($("#icon_t").text()); });
+        //    client.on("aftercopy", function (event) { alert("复制完成"); });
+        //});
+    })
+    var zlicon = {
+        back: function (icon) {
+            $("#icon_i").attr("class", icon);
+            $("#icon_t").text(icon);
+            $("#icon_modal").modal({});
+        }
+    }
+</script>
+}
+
+
+
+
+@*<body>
+<form method="post" action="./Default" id="form1" enctype="multipart/form-data">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUJMTM3MTk5Njc3ZGQIClAWM15ptdkGL66aTXmMnZzuVB6AwuZw1BaAqlhqWQ==">
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="0E63244D">
+</div>
+
+
+    <nav aria-label="breadcrumb" role="navigation" class="fixed-top"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/Admin/Main">工作台</a> </li><li class="breadcrumb-item active" aria-current="page"><a href="Default">字体图标</a><a href="http://v.ziti163.com" target="_blank" class="reds"> [在线做字]</a> </li></ol></nav>
+	<div class="list_choice">
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link active" href="#tab0" data-toggle="tab">WebFont</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab1" data-toggle="tab">官方图标</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active fontWrap container-fluid" id="tab0">
+	<div class="row" title="点击引用字体">
+        
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXingtiJ fonts_list w-100" title="点击引用字体">我是繁体创意书法</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXingtiJ2 fonts_list w-100" title="点击引用字体">我是简体创意书法</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXingtiJ3 fonts_list w-100" title="点击引用字体">我是书法楷体</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXingtiJ4 fonts_list w-100" title="点击引用字体">我是流行草书</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXingtiJ5 fonts_list w-100" title="点击引用字体">我是米芾草书</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXingtiJ6 fonts_list w-100" title="点击引用字体">我是毛泽东伟人体</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="zFont1 fonts_list w-100" title="点击引用字体">我是逐浪经典粗黑</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="zFont2 fonts_list w-100" title="点击引用字体">我是逐浪时尚钢笔</div>
+			 </div>
+            
+			<div class="col-12 col-md-3" title="点击引用字体">
+                 <div class="ZoomlaXSongExtraLight fonts_list w-100" title="点击引用字体">我是逐浪新宋超细</div>
+			 </div>
+            
+		<a class="fonts_list p-3 ml-3" href="http://www.ziti163.com/webfont" target="_blank"><div title="点击引用字体" class="ZoomlaXSongExtraLight">更多Webfont <i class="zi zi_square"></i></div></a>
+    </div>
+	</div>
+    <div class="tab-pane" id="tab1">
+        <iframe class="iconifr" src="/common/icon2.html" style="height: 540px;"></iframe>
+    </div>
+</div>
+<div class="modal fade" id="code_modal">
+    <div class="modal-dialog modal-dialog-centered codeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+				<h4 class="modal-title">字体引用</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+			<div class="modal-body">
+<textarea id="codeText" spellcheck="false"></textarea>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="icon_modal">
+<div class="modal-dialog modal-dialog-centered iconModal">
+        <div class="modal-content">
+            <div class="modal-header">
+				<div class="modal-title">图标引用</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+			<div class="modal-body">
+			<div class="text-center"><i id="icon_i" class="zi zi_user" style="font-size:3em;"></i></div>
+			<div class="text-center" id="icon_t"></div>
+			</div>
+            
+        </div>
+    </div>
+</div>
+<div style="display:none;">
+<textarea id="codeTextTlp">快速一步式网页引用方法（直接在网页中放入下面代码）
+&lt;style&gt;
+    @@import url("https://code.z01.com/Zfonts.css"); /*此行相同页面只需引用一次*/
+    .{name} { font-family: '{name}'; }
+&lt;/style&gt;
+&lt;div class="{name}"&gt;{text}&lt;/div&gt;
+
+
+CSS与HTML分离引用方法
+/*第一步：将下面代码放在CSS中*/
+@@import url("Zfont.css");
+.{name}{font-family:'{name}';}
+/*第二步：网页中直接引用字体名称，引用方法为：
+&lt;div class="{name}"&gt;{text}&lt;/div&gt;
+
+</textarea>
+</div>
+</div>
+
+<script>
+    var siteconf = {
+        path: "/Admin/",
+        updir: "/uploadfiles/"
+    };
+</script>
+
+<script src="/Plugins/Ueditor/third-party/zeroclipboard/ZeroClipboard.min.js"></script>
+<script>
+    $(function () {
+        var height=$(window).height()-100;
+        $(".iconifr").css("height", height);
+        $(".fontWrap div").attr("title", "点击引用字体");
+        $(".fontWrap div").click(function () {
+            var name = $(this).attr("class");
+            var text = $(this).text();
+            $("#codeText").text($("#codeTextTlp").text().replace(/{name}/g, name).replace(/{text}/g, text));
+            $("#code_modal").modal({});
+        });
+        //---------------------
+        //var client = new ZeroClipboard(document.getElementById("icon_btn"));
+        //client.on("ready", function (readyEvent) {
+        //    client.on('copy', function (e) { client.setText($("#icon_t").text()); });
+        //    client.on("aftercopy", function (event) { alert("复制完成"); });
+        //});
+    })
+    var zlicon = {
+        back: function (icon) {
+            $("#icon_i").attr("class", icon);
+            $("#icon_t").text(icon);
+            $("#icon_modal").modal({});
+        }
+    }
+</script>
+
+</form>
+
+</body>*@
+

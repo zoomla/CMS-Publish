@@ -1,0 +1,19 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    Layout = "_safe";
+}
+@section head {<title>@L.任务队列</title>}
+@section content {
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(),L.任务列表)},"[<a href='TaskAdd'>"+L.添加任务+"</a>]")
+
+<div class="list_choice">
+    @Html.Partial("Task_List")
+    </div>
+
+}
+@section script {
+
+
+}

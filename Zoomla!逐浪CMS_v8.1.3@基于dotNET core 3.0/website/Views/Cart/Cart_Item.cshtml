@@ -1,0 +1,77 @@
+﻿@using System.Data
+@using ZoomLa.Model.Shop
+@using Newtonsoft.Json
+@model ZoomLaCMS.Models.Cart.VM_Cart
+@functions{
+    public string GetProductNumLimitByGroup(DataRow dr, int gid)
+    {
+        //multi,min,max
+        //未登录或尚未归属会员组
+        if (gid < 0) { gid = 1; }
+        int multi = DataConverter.CLng(dr["DownCar"], 1);
+        if (multi < 1) { multi = 1; }
+        int min = 1;
+        int max = -1;
+        if (DataConverter.CLng(dr["DownQuota"]) == 2)
+        {
+            string json = DataConverter.CStr(dr["DownQuota_Json"]);
+            try
+            {
+                DataTable dt = JsonConvert.DeserializeObject<DataTable>(json);
+                DataRow[] drs = dt.Select("gid=" + gid);
+                if (drs.Length > 0) { min = DataConverter.CLng(drs[0]["value"]); }
+            }
+            catch { }
+        }
+        if (DataConverter.CLng(dr["Quota"]) == 2)
+        {
+            string json = DataConverter.CStr(dr["Quota_Json"]);
+            try
+            {
+                DataTable dt = JsonConvert.DeserializeObject<DataTable>(json);
+                DataRow[] drs = dt.Select("gid=" + gid);
+                if (drs.Length > 0) { max = DataConverter.CLng(drs[0]["value"]); }
+            }
+            catch { }
+        }
+        if (min < 1) { min = multi; }
+        if (max == -1) { max = multi * 9999; }
+        return "{\"min\":"+min+",\"max\":"+max+",\"multi\":"+multi+"}";
+    }
+
+}
+@{ 
+    DataRow dr = Model.dr;
+    M_UserInfo mu = new B_User(Context).GetLogin();
+}
+<tr data-id="@dr["ID"]" class="cart_item">
+    <td>
+        <input type="checkbox" name="prochk" data-store="@dr["StoreID"]" checked="checked" value="@dr["ID"]" />
+    </td>
+    <td>
+        <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品">
+            <img src="@Model.GetImgUrl(dr["Thumbnails"])" onerror="shownopic(this);" class="preimg_l cart_Ting" />
+        </a>
+    </td>
+    <td class="coatShop_title" colspan="2">
+        <a href="@Model.GetShopUrl(dr)" target="_blank" title="浏览商品" style="font-size: 12px;">@dr["ProName"]</a>
+        <div class="tdline Price_box">@Model.GetMyPrice(dr)</div>
+        @Html.Partial("Comp/Cart_Present",dr)
+    </td>
+    <td class="pronum_td tdline">
+        <div class="input-group pronum_text" style="display:flex;">
+            <div class="input-group-prepend" onclick="cart.setnum('@dr["ID"]','-');">
+                <span class="input-group-text"><i class="zi zi_minus"></i></span>
+            </div>
+            <input type="text" class="form-control" id="pronum_@dr["ID"]" value="@dr["Pronum"]" autocomplete="off" onblur="cart.suit.setnum('@dr["ID"]',this.value);" data-info='@GetProductNumLimitByGroup(dr,mu.GroupID)'>
+            <div class="input-group-append" onclick="cart.setnum('@dr["ID"]','+');">
+                <span class="input-group-text"><i class="zi zi_plus"></i></span>
+            </div>
+        </div>
+    </td>
+    <td class="tdline move_d_none">@Model.GetStockStatus(dr)</td>
+    <td class="tdline xj_Price move_d_none"><span id="trprice_@dr["ID"]" class="trprice">@Model.GetPrice(dr)</span></td>
+    <td class="tdline">
+        <a href="javascript:;" class="remove_cart btn btn-danger btn-sm" style="color:#fff;" onclick="cart.del('@dr["ID"]');"><i class="zi zi_trash"></i></a>
+    </td>
+</tr>

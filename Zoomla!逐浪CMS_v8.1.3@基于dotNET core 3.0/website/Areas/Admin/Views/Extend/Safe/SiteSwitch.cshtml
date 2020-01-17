@@ -1,0 +1,37 @@
+﻿@{ 
+    string pageName = ""+@Html.Raw(L.站点开关)+"";
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),L.安全中心),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+<form method="post" action="@MVCHelper.GetAction("SiteSwitch_Submit",Context.Request)">
+<div class="list_choice">
+    <div class="card card-info">
+        <div class="card-header"><i class="zi zi_desktop"></i> @L.站点开关配置</div>
+        <div class="card-body">
+             <div>
+                 <label><input type="radio" name="safe_site_switch" value="" checked="checked"/>@L.不限制</label>
+                 <label><input type="radio" name="safe_site_switch" value="all"/>@L.全站关闭</label>
+                 <label><input type="radio" name="safe_site_switch" value="front"/>@L.仅前端关闭</label>
+                 <label><input type="radio" name="safe_site_switch" value="index"/>@L.仅首页警示</label>
+             </div>
+             <div class="alert alert-info">
+                 <div>@L.全站关闭</div>
+                 <div>@L.仅前端关闭</div>
+                 <div>@L.仅首页警示</div>
+             </div>
+        </div>
+        <div class="card-footer">
+             <input type="submit" value="@L.保存配置" class="btn btn-info"/>
+        </div>
+    </div>
+</div>
+</form>
+}
+@section script{ 
+
+}

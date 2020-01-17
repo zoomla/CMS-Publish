@@ -1,0 +1,26 @@
+﻿@model System.Data.DataTable
+@functions{
+
+}
+@{ 
+    string skey = ViewBag.skey;
+}
+@section head{<title>@L.节点搜索</title>}
+@section content{
+ @Call.SetBread( new Bread[] {
+new Bread("{admin}"),
+new Bread("NodeManage",L.节点管理),
+new Bread(){url=Context.Request.RawUrl(), text=L.节点搜索}
+}) 
+
+<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive-md">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Content/Node/NodeSearch_List.cshtml")
+    </div>
+</div>
+
+    }
+@section script{
+    
+    
+    }

@@ -1,0 +1,557 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@using ZoomLa.Model
+@using ZoomLa.Model.Shop
+@using System.Data
+@using Newtonsoft.Json;
+@model ZoomLa.Model.M_OrderList
+@functions{
+    public string EnableBtn(bool flag)
+    {
+        return flag ? "disabled=\"disabled\"" : "";
+    }
+}
+@{
+    B_Payment payBll = new B_Payment();
+    B_Order_Back backBll = new B_Order_Back();
+    B_Order_Exp expBll = new B_Order_Exp();
+    B_Order_Invoice invBll = new B_Order_Invoice();
+    B_User buser = new B_User();
+    B_PayPlat platBll = new B_PayPlat();
+    B_CartPro cpBll = new B_CartPro();
+    M_UserInfo mu = buser.SelReturnModel(Model.Userid);
+    M_Payment payMod = payBll.SelModelByOrder(Model);
+    M_Order_Invoice invMod = invBll.SelModelByOid(Model.id);
+    if (invMod == null) { invMod = new M_Order_Invoice(); }
+    M_Order_Exp expMod = expBll.SelReturnModel(DataConverter.CLng(Model.ExpressNum));
+
+    string baseDir = CustomerPageAction.customPath2 + "Shop/";
+    string expStatus = "";
+    if (expMod == null)
+    {
+        expMod = new M_Order_Exp();
+    }
+    else
+    {
+        expStatus = "(公司：" + expMod.ExpComp + "/单号：" + expMod.ExpNo + ")";
+    }
+    string giveurl = Call.PathAdmin("User/UserExp?UserID=" + Model.Userid + "&orderid=" + Model.id);
+    double orderMoney = Model.Ordersamount - Model.Freight;
+    //需要禁用的按钮
+    string btns = "";
+    if (Model.Paymentstatus == (int)M_OrderList.PayEnum.NoPay)
+    {
+        btns += "Exp_Send_Btn,Pay_Cancel_Btn,";
+    }
+    else
+    {
+        btns += "Pay_Has_Btn,";
+    }
+    switch ((M_OrderList.StatusEnum)Model.OrderStatus)
+    {
+        case M_OrderList.StatusEnum.Normal:
+            break;
+        case M_OrderList.StatusEnum.DrawBack:
+            btns += "Exp_Send_Btn,CompleteOrder_Btn,";
+            //Back_Btn.Visible = true;
+            break;
+        case M_OrderList.StatusEnum.UnDrawBack:
+        case M_OrderList.StatusEnum.CheckDrawBack:
+            btns += "OS_Invoice_Btn,Exp_Send_Btn,CompleteOrder_Btn,";
+            break;
+        case M_OrderList.StatusEnum.OrderFinish:
+            //case M_OrderList.StatusEnum.UnitFinish:
+            btns += "CompleteOrder_Btn,";
+            break;
+        default:
+            break;
+    }
+    if (Model.IsSure == 0)
+    {
+        btns += "OS_NoSure_Btn,";
+    }
+    else { btns += "OS_Sure_Btn,"; }
+    if (Model.Aside == 1)//已作废
+    {
+        btns += "Pay_Has_Btn,OS_Sure_Btn,OS_NoSure_Btn,CompleteOrder_Btn,Exp_ClientSign_Btn,";
+        btns += "OS_Freeze_Btn,OS_Invoice_Btn,OS_Pause_Btn,OS_Aside_Btn,Pay_Cancel_Btn,Refund_B,";
+    }
+    if (Model.Settle == 1)
+    {
+        btns += "OS_Sure_Btn,OS_NoSure_Btn,OS_Aside_Btn,Exp_ClientSign_Btn,OS_Invoice_Btn,OS_Pause_Btn,";
+    }
+    if (Model.Suspended == 0)
+    {
+        btns += "OS_Pusee_No_Btn,";
+    }
+    else
+    {
+        btns += "OS_Pause_Btn,";
+    }
+    //物流
+    switch ((M_OrderList.ExpEnum)Model.StateLogistics)
+    {
+        case M_OrderList.ExpEnum.NoSend:
+            btns += "Exp_Cancel_Btn,Exp_ClientSign_Btn,ExpPrint_B,";
+            break;
+        case M_OrderList.ExpEnum.HasSend:
+            btns += "Exp_Send_Btn,";
+            break;
+        case M_OrderList.ExpEnum.HasReceived:
+            btns += "Exp_Send_Btn,Exp_ClientSign_Btn,";
+            break;
+    }
+    M_Order_Back backMod = new M_Order_Back();
+    if (Model.BackID > 0)
+    {
+        backMod = backBll.SelReturnModel(Model.BackID);
+    }
+    if (payMod!=null&&payMod.Status != (int)M_Payment.PayStatus.NoPay)
+    {
+        btns += "ChangeMoney_Btn,";
+        //ChangeMoney_Btn.Attributes["title"] = "已支付订单不可修改金额";
+    }
+    //-------购物车
+    DataTable cplist = cpBll.GetCartProOrderID(Model.id);
+    List<M_Cart_Contract> modelList = new List<M_Cart_Contract>();
+    //酒店与旅游逻辑
+    if (cplist.Rows.Count > 0 && !string.IsNullOrEmpty(cplist.Rows[0]["Additional"].ToString()))
+    {
+        M_Cart_Travel model = JsonConvert.DeserializeObject<M_Cart_Travel>(cplist.Rows[0]["Additional"].ToString());
+        modelList.AddRange(model.Guest);
+        modelList.AddRange(model.Contract);
+    }
+}
+@section head{<title>@L.订单详情</title>}
+@section content{
+<style type="text/css">
+.infoItem{}
+.infoItem .name{width:80px;display:inline-block;font-weight:bolder;text-align:right;}
+.infoItem .value{}
+</style>
+@(Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Call.PathAdmin("Product/ProductManage"),@L.商品列表),
+new Bread("OrderList",@L.订单管理),
+new Bread() {url=Context.Request.RawUrl(), text=@L.订单详情,addon= "" }}
+))
+<ul class="nav nav-tabs list_choice" role="tablist" style="width:100%;">
+    <li class="nav-item"><a class="nav-link active" href="#OrderState" role="tab" data-toggle="tab">@L.订单状态</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Logistics" role="tab" data-toggle="tab">@L.物流管理</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Financial" role="tab" data-toggle="tab">@L.财务管理</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Selled" role="tab" data-toggle="tab">@L.售后管理</a></li>
+</ul>
+<div class="tab-content" style="width:100%;">
+    <div role="tabpanel" class="tab-pane active table-responsive-md" id="OrderState">
+        <table class="table table-striped table-bordered sys_table">
+            <tr>
+                <td colspan="4" class="text-center" style="font-weight:bolder;">
+                    订 单 信 息（订单编号：@(Model.OrderNo)）
+                </td>
+            </tr>
+            <tr>
+                <td class="">收货人：@Model.Receiver</td>
+                <td>用户名：<a href='javascript:;' onclick='showuinfo(" + mu.UserID + ");' title='查看用户'>@mu.UserName</a></td>
+                <td>下单时间：@Model.AddTime</td>
+                <td>确认订单：@MvcHtmlString.Create(Model.IsSure == 1 ? ComRE.Icon_OK : ComRE.Icon_Error)</td>
+            </tr>
+            <tr>
+                <td>需开发票：@MvcHtmlString.Create(Model.Invoiceneeds == 1 ? ComRE.Icon_OK : ComRE.Icon_Error)</td>
+                <td>已开发票：@MvcHtmlString.Create(Model.Developedvotes == 1 ? ComRE.Icon_OK : ComRE.Icon_Error)</td>
+                <td>付款状态：@MvcHtmlString.Create(Model.Paymentstatus >(int)M_OrderList.PayEnum.NoPay? "<span  style='color:green';>已经汇款</span>": "<span style='color:red;'>等待汇款</span>")</td>
+                <td>物流状态：@MvcHtmlString.Create(OrderHelper.GetExpStatus(Model.StateLogistics)+" "+expStatus)</td>
+            </tr>
+            <tr>
+                <td>订单状态</td>
+                <td colspan="3">
+                    @if (Model.OrderStatus < (int)M_OrderList.StatusEnum.Normal || Model.Aside == 1)
+                    {
+                        @MvcHtmlString.Create(OrderHelper.GetOrderStatus(Model.OrderStatus, Model.Aside, Model.StateLogistics))
+                    }
+                    else
+                    {
+                        int current = 2;
+                        if (Model.OrderStatus >= (int)M_OrderList.StatusEnum.OrderFinish&&Model.StateLogistics==(int)M_OrderList.ExpEnum.HasReceived) { current = 5; }
+                        else if (Model.Paymentstatus >= (int)M_OrderList.PayEnum.HasPayed)
+                        {
+                            current++;
+                            switch (Model.StateLogistics)
+                            {
+                                case (int)M_OrderList.ExpEnum.HasSend:
+                                    current++;
+                                    break;
+                                case (int)M_OrderList.ExpEnum.HasReceived:
+                                    current += 2;
+                                    break;
+                            }
+                        }
+                        <div id="prog_order_div"></div>
+                        <script>
+                            $(function () { $('#prog_order_div').ZLSteps('订单生成,等待用户支付,等待商户发货,等待用户签收,订单完结', @(current)) })
+                        </script>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Logistics">
+        <div class="card">
+            <div class="card-header">物流信息</div>
+            <div class="card-body row ml-0 mr-0">
+                <div class="col-12 col-md-6 table-responsive-md">
+                    <table class="table table-bordered table-striped sys_table">
+                        <tr>
+                            <th scope="col" class="w12rem_lg">收货人姓名</th>
+                            <td scope="col">@Model.Receiver</td>
+                        </tr>
+                        <tr>
+                            <th>收货人地址</th>
+                            <td>@(Model.Shengfen + " " + Model.Jiedao)</td>
+                        </tr>
+                        <tr>
+                            <th>收货人邮箱</th>
+                            <td>@Model.Email</td>
+                        </tr>
+                        <tr>
+                            <th>付款方式</th>
+                            <td>@platBll.GetPayPlatName(payMod)</td>
+                        </tr>
+                        <tr>
+                            <th>发票信息</th>
+                            <td>
+                                    <div class="infoItem"><span class="name">抬头：</span><span class="value">@invMod.InvHead</span></div>
+                                    <div class="infoItem"><span class="name">识别号：</span><span class="value">@invMod.UserCode</span></div>
+                                    <div class="infoItem"><span class="name">类型：</span><span class="value">@invMod.InvClass</span></div>
+                                    <div class="infoItem"><span class="name">明细：</span><span class="value">@invMod.InvContent</span></div>
+                </td>
+                        </tr>
+                    </table>
+                </div>
+        <div class="col-12 col-md-6 table-responsive-md">
+            <table class="table table-bordered table-striped sys_table">
+                        <tr>
+                            <th sclass="w12rem_lg">联系电话：</th>
+                            <td>@Model.Phone</td>
+                        </tr>
+                        <tr>
+                            <th>邮政编码</th>
+                            <td>@Model.ZipCode</td>
+                        </tr>
+                        <tr>
+                            <th>收货人手机</th>
+                            <td>@Model.Mobile</td>
+                        </tr>
+                        <tr>
+                            <th>跟单员</th>
+                            <td>@Model.AddUser</td>
+                        </tr>
+                        <tr>
+                            <th>快递信息</th>
+                            <td>
+                                <div>快递公司：@expMod.ExpComp</div>
+                                <div>快递单号：@(expMod.ExpNo) @if (expMod.ID > 0)
+                                {<a href="http://m.kuaidi100.com/index_all.html?type=@(expMod.ExpComp+"&postid="+expMod.ExpNo+"&callbackurl="+Context.Request.FullUrl())" target="_blank">查看物流信息</a> }</div>
+                            </td>
+                        </tr>
+                           <tr>
+                            <th>缺货处理</th>
+                            <td>
+                                @if (Model.Outstock == 1)
+                                {<span>缺货时，取消此订单</span>}
+                                else
+                                {<span>缺货时，将有货的商品发出，取消无货商品的订购</span>}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>配送时间</th>
+                            <td>@Model.ExpTime</td>
+                        </tr>
+                    </table>
+        </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Financial">
+        <div class="card">
+            <div class="card-header"><span class="zi zi_thlist"></span><span class="m-2">商品信息</span></div>
+            <div class="card-body table-responsive-md">
+                <table class="table table-striped table-bordered">
+                    <tr>
+                        <td class="td_s">ID</td>
+                        <td class="td_m">图片</td>
+                        <td>商品名称</td>
+                        <td class="td_s">单位</td>
+                        <td class="td_m">价格</td>
+                        <td class="td_s">数量</td>
+                        <td class="td_m">金额</td>
+                    </tr>
+                    @foreach (DataRow dr in cplist.Rows)
+                    {
+                        <tr>
+                            <td>@dr["ProID"]</td>
+                            <td>
+                                <img src="@(function.GetImgUrl(dr["Thumbnails"])) " onerror="shownopic(this);" class="img_3rem" />
+                            </td>
+                            <td>
+                                <a href='@OrderHelper.GetShopUrl(0, Convert.ToInt32(dr["ProID"]));' target='_blank'>@dr["proname"]</a>
+                                @if (DataConverter.CLng(dr["PClass"]) == 2)
+                                {<input type='button' value='促销组合' onclick="showSuit(@dr["ID"]);" class='btn btn-info btn-sm'> }
+                            </td>
+                            <td>@dr["Danwei"]</td>
+                            <td>@DataConverter.CDouble(dr["Shijia"]).ToString("F2")</td>
+                            <td>@dr["pronum"]</td>
+                            <td>@DataConverter.CDouble(dr["AllMoney"]).ToString("F2")</td>
+                        </tr>
+                    }
+                            
+                    <tr>
+                        <td colspan="7">
+                            <div class="input-group float-right" style="width:550px;">
+                                
+								<div class="input-group mb-3">
+								  <div class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">运费</span>
+								  </div>
+								  <input type="text" ID="PI_OrderExpMoney_T" class="form-control max20rem" value="@Model.Freight.ToString("F2")"/>
+								  
+								  <div class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">订单</span>
+								  </div>
+								  <input type="text" ID="PI_OrdersMoney_T" class="form-control max20rem" value="@orderMoney.ToString("F2")"/>
+								  <div class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">合计</span>
+								  </div>
+								  <input type="text" ID="PI_OrderTotal_T" class="form-control max20rem" disabled="disabled" value="@Model.Ordersamount.ToString("F2")"/>
+								  <div class="input-group-append">
+									 <input type="button" ID="ChangeMoney_Btn" value="确认修改" class="btn btn-info" OnClick="ChangeMoney_Btn_Click" OnClientClick="return confirm('确定要修改订单和运费金额吗');" />
+								  </div>
+								</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7">
+                            <span>订单金额：</span>
+                            @(orderMoney.ToString("F2"))元
+                            +
+                            <span>运费：</span>
+                            @(Model.Freight.ToString("F2"))元
+                            -
+                            <span>优惠：</span>
+                            @(payMod==null?"":payMod.ArriveMoney.ToString("F2"))元
+                            -
+                            <span>积分：</span>
+                            @(payMod==null?"" : payMod.UsePoint.ToString("F0") + "个(" + payMod.UsePointArrive.ToString("F2") + "元)")
+                            =
+                            <span>需付：</span>
+                            @(payMod==null? Model.Ordersamount.ToString("F2"): payMod.MoneyReal.ToString("F2"))元
+                            (<span>已收金额：</span><span class="rd_red">@Model.Receivablesamount.ToString("F2")</span>元)
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Selled">
+        <div class="card">
+            <div class="card-header" id="msg_tabs">
+                <a href="javascript:;" data-tar="#tab1" class="btn btn-light active"><i class="zi zi_history" zico="历史纪录"></i> 内部记录</a> 
+                <a href="javascript:;" data-tar="#tab2" class="btn btn-light"><i class="zi zi_edit" zico="编辑"></i> 备注留言</a>
+                <a href="javascript:;" data-tar="#tab3" class="btn btn-light"><i class="zi zi_user" zico="用户标志"></i> 客户详情</a>
+            </div>
+            <div class="card-body tab-content" id="msg_content" style="min-height:240px;">
+                <div class="tab-pane active" id="tab1">
+                    @Html.TextAreaFor(m => m.Internalrecords, new { @class = "form-control", style = "height:200px;", placeholder = "内部记录" })
+                </div>
+                <div class="tab-pane" id="tab2">
+                    @Html.TextAreaFor(m => m.Ordermessage, new { @class = "form-control", style = "height:200px;", placeholder = "备注留言" })
+                </div>
+                <div class="tab-pane" id="tab3">
+                    <table class="table table-bordered">
+                    <tr>
+                        <td class="td_m">姓名</td>
+                        <td>证件号</td>
+                        <td>手机</td>
+                    </tr>
+                        @foreach (M_Cart_Contract item in modelList)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.CertCode</td>
+                                <td>@item.Mobile</td>
+                                </tr>
+                        }
+                </table>
+                </div>
+            </div>
+            <div class="card-footer text-center"><input type="button" ID="SaveRemind_Btn" value="保存修改" onclick="saveRemind();" class="btn btn-info" /></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="zi zi_circleLeftBold"></i>  退款申请</div>
+            <div class="card-body">
+                <table class="table table-bordered sys_table">
+                    <tr><th class="w12rem_lg">用户退款理由：</th><td>@backMod.UserRemind</td></tr>
+                    <tr><th>退款处理记录：</th><td>@backMod.AdminRemind</td></tr>
+                    <tr><th>处理结果：</th><td>
+                        @if (backMod.ID > 0) {<span>@backBll.GetZStatus(backMod.ZStatus)</span> }
+                        </td></tr>
+                </table>
+            </div>
+            <div class="card-footer text-center">
+                <input type="button" value="处理退款" onclick="ShowDrawDiag();" class="btn btn-danger" id="Back_Btn"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid pr-0">
+<div class="row sysRow table-responsive-md">
+<table class="table table-striped table-bordered sys_table">
+    <tr>
+        <th scope="col" rowspan="2" class="w12rem_lg">订单流程</th>
+        <td scope="col">
+            <input type="button" ID="OS_Normal_Btn" class="btn btn-outline-danger" value="重启订单" onclick="post('info_normal','确定重启订单吗,订单状态将还原');"/>
+            <input type="button" ID="OS_Sure_Btn" class="btn btn-outline-info" value="确认订单"  onclick="post('sure');"/>
+            <input type="button" ID="CompleteOrder_Btn" class="btn btn-outline-danger" value="完结订单"  onclick="post('info_complete','确定完结订单吗!');"/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="button" ID="OS_NoSure_Btn" class="btn btn-outline-danger mb-1" value="取消确认" onclick="post('sure_no');"/>
+            <input type="button" ID="OS_Pause_Btn" class="btn btn-outline-danger mb-1" value="冻结订单"  onclick="post('info_suspend');" />
+            <input type="button" ID="OS_Pusee_No_Btn" class="btn btn-outline-danger mb-1" value="取消冻结" onclick="post('info_suspend_no');"/>
+            <input type="button" ID="OS_Aside_Btn" class="btn btn-outline-danger mb-1" value="订单作废" @EnableBtn(Model.Aside!=1) onclick="post('info_aside','确定要作废订单吗');"/>
+        </td>
+    </tr>
+    <tr>
+        <th>财务管理</th>
+        <td>
+            <input type="button" ID="Pay_Cancel_Btn" class="btn btn-outline-danger" value="取消支付" onclick="post('info_pay_cancel','确定要变更状态为未支付吗');"/>
+            <button type="button" class="btn btn-outline-info" id="Pay_Has_Btn" onclick="orderpay();" >已经支付</button>
+            <div class="mt-2">
+                <input type="button" id="Refund_B" class="btn btn-outline-info" value="退单返款" onclick="refund()" />
+                <small class="text-muted">（*此操作将本订单的款项以余额的方式存入下单人会员ID中）</small>
+            </div>
+        </td>
+    </tr>
+    <tr><th>物流状态</th><td>
+        <input type="button" class="btn btn-outline-danger" ID="Exp_Cancel_Btn" value="取消发送" onclick="post('exp_cancel','确定要修改发送状态吗')"/>
+        <input type="button" class="btn btn-outline-info" ID="Exp_Send_Btn" value="发送货物" onclick="ShowSendGood();" />
+        <input type="button" class="btn btn-outline-info" ID="Exp_ClientSign_Btn"  value="客户签收" onclick="post('exp_sign','确定已签收吗?');" />
+    </td></tr>
+    <tr>
+        <th>附加操作</th>
+        <td>
+            <a href="@(giveurl + "&type=" + (int)M_UserExpHis.SType.Point)" class="btn btn-outline-info mb-1">赠送积分</a>
+            <a href="@(giveurl + "&type=" + (int)M_UserExpHis.SType.Purse)" class="btn btn-outline-info mb-1">现金返利</a>
+            <input type="button" ID="OS_Invoice_Btn" class="btn btn-outline-info mb-1" value="已开发票" onclick="post('info_invoce');"  />
+            @*<button id="ExpPrint_B" type="button" class="btn btn-outline-info mb-1" onclick="printexp();" >快递打单</button>*@
+            <a href="OrderPrint?id=@Model.id"target="_blank" class="btn btn-outline-info mb-1">打印订单</a>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="5" style="text-align: center; padding-top: 5px;">&nbsp;
+            <input type="button" ID="btnPre" value="上一个订单" OnClick="btnPre_Click" class="btn btn-outline-info" />
+            <input type="button" ID="btnNext" value="下一个订单" OnClick="btnNext_Click" class="btn btn-outline-info" />
+        </td>
+    </tr>
+</table>
+</div>
+</div>    
+    
+}
+@section script{
+<link href="/Plugins/Third/alert/sweetalert.css" rel="stylesheet" />
+<script src="/Plugins/Third/alert/sweetalert.min.js?v=1"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/Controls/Control.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script>
+    var diag = new ZL_Dialog();
+    function precheck() {
+        var val = $("#Back_T").val();
+        if (val == "" || val.length < 5) { alert("理由最少需要5个字符"); return false; }
+        return true;
+    }
+    //发货弹出框(后期改为独立页面)
+    function ShowSendGood() {
+        comdiag.maxbtn = false;
+        comdiag.ShowModal("@(baseDir)Exp/OrderSend?ID=@(Model.id)", "发货操作");
+        return false;
+    }
+    function CloseDiag() {
+        diag.CloseModal();
+        comdiag.CloseModal();
+    }
+    function showuinfo(uid) {
+        var url = siteconf.path + "User/UserInfo?id=" + uid
+        comdiag.maxbtn = false;
+        comdiag.ShowModal(url, "会员信息");
+    }
+    function showtxt(obj) {
+        if (obj.options[obj.selectedIndex].value == "77") {
+            var txt = document.getElementById("kdgs");
+            txt.style.display = "";
+
+        } else {
+            var txt = document.getElementById("kdgs");
+            txt.style.display = "none";
+        }
+    }
+    function ShowDrawDiag() {
+        ShowComDiag("orderback?id=@Model.id", "退款处理");
+    }
+    function RefreshDiv() {
+        v = $("#inter_Text").val();
+        $("#inter_Div").html(v);
+    }
+    $(function () {
+        $("#msg_tabs a").click(function () {
+            $("#msg_tabs a").removeClass("active");
+            $(this).addClass("active");
+            $("#msg_content .tab-pane").removeClass("active");
+            $($(this).data("tar")).addClass("active");
+        });
+        var btns = "@btns".split(',');
+        btns.forEach(function (id) {
+            if (!id) { return; }
+            try { document.getElementById(id).disabled = true; } catch (ex) { console.error("disable btn error",id+"|"+ex.message); }
+        })
+    });
+    function refund() {
+        swal({ title: "退单返款", "text": "该订单收款@(Model.Receivablesamount.ToString("F2"))元,确定要退回用户[@Html.Raw(Model.AddUser)]的余额中吗？", type: "info", showCancelButton: true, 
+            confirmButtonColor: "#DD6B55", 
+            confirmButtonText: "确定", 
+            closeOnConfirm: false }, function () {post("info_refund"); });
+    }
+    function orderpay() {
+        diag.url = "@(baseDir)Order/OrderPay?ID=@(Model.id)";
+        diag.title = "确认支付";
+        diag.maxbtn = false;
+        diag.ShowModal();
+    }
+    function orderSettle() {
+        location.href = "@(baseDir)Addon/after/OrderSettle?ID=@Model.id";
+    }
+    function printexp() {
+        window.location.href = "@(baseDir)Addon/ExpPrint?ID=@Model.id";
+    }
+    //function showSuit(cartid) {
+    //    ShowComDiag("/common/comp/SuitPro_Cart?CartID=" + cartid, "促销组合");
+    //}
+    function post(action,msg)
+    {
+        if(msg&&!confirm(msg)){return false;}
+        $.post("Order_API?ids=@(Model.id)&action="+action,{},function(data){
+            location=location;
+        })
+    }
+    function saveRemind()
+    {
+        $.post("Order_API?ids=@(Model.id)&action=info_remind",{"Internalrecords":$("#Internalrecords").val(),"Ordermessage":$("#Ordermessage").val()},function(data){
+            alert("保存成功");
+        })
+    }
+</script>    
+    
+}

@@ -1,0 +1,128 @@
+﻿@using ZoomLa.BLL.Content
+@using ZoomLaCMS.Areas.Admin.Models
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.Model.CreateJS
+@model ZoomLaCMS.Areas.Admin.Models.VM_Content
+@{
+    M_ReleaseResult result = ViewBag.ReleaseResult;
+    ZoomLa.BLL.Content.ContentHelper conHelp = new ZoomLa.BLL.Content.ContentHelper();
+}
+@section head{<title>@Model.conMod.Title</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("/{manage}/Main",L.工作台),
+new Bread("ContentManage",L.内容管理),
+new Bread("ContentManage?NodeID="+Model.NodeID,Model.nodeMod.NodeName),
+new Bread(Context.Request.RawUrl(),L.内容预览)
+}, "")
+
+
+    <div class="container-fluid pr-0">
+        <div class="row sysRow list_choice">
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" href="#base" data-toggle="tab">@L.基本信息</a></li>
+                <li class="nav-item"><a class="nav-link" href="#info" data-toggle="tab">@L.信息属性</a></li>
+                <li class="nav-item"><a class="nav-link" href="#process" data-toggle="tab">@L.流程控制</a></li>
+            </ul>
+
+            <div class="tab-content table-responsive">
+                <div class="tab-pane fade in active show" id="base">
+                    <table class="table table-bordered sys_table">
+                        <tr>
+                            <th class="w12rem_lg">@L.所属节点</th>
+                            <td>
+                                @Model.nodeMod.NodeName
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>ID</th>
+                            <td>
+                                @Model.conMod.GeneralID
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @L.标题
+                            </th>
+                            <td>
+                                @Model.conMod.Title
+                            </td>
+                        </tr>
+                        @Html.Partial("Fields/Index_Admin_AddContent", new VM_FieldModel(Model.ModelID, Model.NodeID, new ModelConfig() { Source = ModelConfig.SType.Admin, Mode = ModelConfig.SMode.PreView }, Model.conMod.GeneralID, Model.ValueDR))
+
+                        <tr><th class="fd_td_l">@L.主编辑器扩展图</th><td><img class="thumImg" onerror="shownopic(this);" src="@Model.conMod.TopImg" /></td></tr>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="info">
+                    <table class="table table-bordered sys_table">
+                        <tr>
+                            <th class="w12rem_lg">@L.录入者</th>
+                            <td>
+                                @Model.conMod.Inputer
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.点击数</th>
+                            <td>
+                                @Model.conMod.Hits
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.录入时间</th>
+                            <td>
+                                @Model.conMod.CreateTime
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.更新时间</th>
+                            <td>
+                                @Model.conMod.UpDateTime
+                            </td>
+                        </tr>
+                        <tr><th>@L.个性模板</th><td>@Model.conMod.Template</td></tr>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="process">
+                    <table class="table table-bordered sys_table">
+                        <tr>
+                            <th class="w12rem_lg">
+                                @L.审核状态<br />
+                            </th>
+                            <td class="tdrighttxt">
+                                @(conHelp.GetStatus(Model.conMod.Status))
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>推荐</th>
+                            <td>
+                                @(conHelp.GetElite(Model.conMod.EliteLevel.ToString()))
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+                        <div style="width:100%;">
+                            @if (result != null&&result.Status==99)
+                    {
+                <div class="alert alert-info">@L.生成静态页成功：<a href="@(result.VPath)" target="_blank">@(result.VPath)</a></div> 
+            @*else{<div class=" alert alert-waring">未生成静态页：</div>}*@
+            }
+                        </div>
+            <div class="text-center Conent_fix">
+                <a class="btn btn-outline-info" href="EditContent?GeneralID=@Model.conMod.GeneralID">@L.重新修改</a>
+                <a class='btn btn-outline-info' href='AddContent?ModelID=@(Model.conMod.ModelID)&NodeID=@(Model.conMod.NodeID)'>@L.继续添加</a>
+                <a class='btn btn-outline-info' href='ContentManage?NodeID=@(Model.conMod.NodeID)'>@L.管理信息</a>
+                <a class="btn btn-outline-info" href="/Item/@(Model.conMod.GeneralID)" target="_blank">@L.浏览文章</a>
+            </div>
+        </div>
+    </div>
+
+
+}
+@section script{
+<style type="text/css">
+ img{max-width:100%;}
+</style>
+
+}

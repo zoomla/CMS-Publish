@@ -1,0 +1,39 @@
+﻿@section head{<title>@L.推送消息</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("MsgList",L.消息推送),
+        new Bread() {url="", text=L.推送消息,addon="" }}
+        )
+<div class="list_choice">
+    <table class="table table-bordered table-striped">
+        @*<tr>
+            <th class="w12rem_lg">应用名称</th>
+            <td>
+                <asp:DropDownList runat="server" ID="APPList_DP" CssClass="form-control max20rem" DataTextField="Alias" DataValueField="ID"></asp:DropDownList>
+            </td>
+        </tr>*@
+        <tr>
+            <th>@L.类型</th>
+            <td>
+                <label><input type="radio" name="pushtype_rad" value="alert" checked="checked" />@L.通知</label>
+                <label><input type="radio" name="pushtype_rad" value="sms" />SMS(@L.会产生相关短信费用)</label>
+            </td>
+        </tr>
+        <tr>
+            <th>@L.内容</th>
+            <td>
+                <textarea class="form-control m50rem_50" ID="MsgContent_T" name="MsgContent_T" maxlength="72"></textarea>
+                <small class="text-muted">@L.可输入最多72个汉字</small>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID=P"ush_Btn" class="btn btn-info" value="@L.推送消息"/>
+                <a href="MsgList" class="btn btn-outline-info">@L.返回列表</a>
+            </td>
+        </tr>
+    </table>
+</div>
+}

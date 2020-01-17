@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>ID</th>
+        <th>@L.名称</th>
+        <th>@L.创建时间</th>
+        <th>@L.成员数量</th>
+        <th>@L.操作</th>
+        </tr></thead>
+        
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+        <td>@dr["ID"]</td>
+        <td><a href="javascript:;" onclick="node.edit(@dr["ID"]);"> @dr["Name"]</a></td>
+        <td>@dr["AddTime"]</td>
+        <td>@(DataConverter.CStr(dr["UserIDS"]).Split(",".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).Length)</td>
+        <td>
+            <a href="javascript:node.add(@dr["ID"]);"><i class="zi zi_plus"></i></a>
+            <a href="javascript:node.edit(@dr["ID"]);" title="修改"><i class="zi zi_pencilalt"></i></a>
+            <a href="StructMember?id=@dr["ID"]" title="成员管理"><i class="zi zi_useralt"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({url:'Struct_API?action=del',ids:'@dr["ID"]',confirm:'@L.确定要删除吗'})"><i class='zi zi_trashalt'></i></a>
+        </td>
+    </tr>
+}
+    @Html.Partial("_page")
+</table>

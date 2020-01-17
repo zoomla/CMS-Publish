@@ -1,0 +1,28 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+@section head{ <title>@L.CMS日志</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+ new Bread("{admin}"),
+ new Bread(Context.Request.RawUrl(),@L.CMS日志)
+})
+<div class="list_choice">
+    <div class="input-group" style="margin-bottom:5px;">
+        <input type="text" class="form-control mvcparam" id="type2" placeholder="@L.操作类型" value="@Context.Request.GetParam2("type2")"/>
+        <input type="text" class="form-control mvcparam" id="skey" placeholder="@L.请输入关键词"/>
+        <input type="text" class="form-control mvcparam" id="cdate_s" placeholder="@L.开始时间" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });"/>
+        <input type="text" class="form-control mvcparam" id="cdate_e" placeholder="@L.结束时间" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });"/>
+        <span class="input-group-append"><button type="button" onclick="mvcpage.load();">@L.搜索</button></span>
+        <input type="hidden" id="type1" value="@Context.Request.GetParam2("type1")"/>
+    </div>
+    @Html.Partial("SysLog_List")
+</div>
+}
+@section script{ 
+<script src="~/js/DatePicker/WdatePicker.js"></script>
+<style type="text/css">
+#AllID_Chk{display:none;}
+</style>
+}

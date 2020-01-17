@@ -1,0 +1,88 @@
+﻿@section head{ 
+<title>@L.移动微信管理平台</title>
+<style>
+body { FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#99CCFF,endColorStr=#fff); /*IE 6 7 8*/ 
+background: -ms-linear-gradient(top, #99CCFF, #fff) no-repeat; /* IE 10 */ 
+background: -webkit-gradient(linear, 0% 0%, 0% 100%,from(#99CCFF), to(#fff)) no-repeat; /*谷歌*/ }
+.wxapp_box {
+  margin: auto;
+  max-width: 100%;
+  padding-top: 100px; }
+
+.wxapp {
+  height: 150px; }
+  .wxapp a {
+    display: block;
+    text-align: center;
+    color: #333; }
+  .wxapp a i {
+    width: 4.98rem;
+    height: 4.98rem;
+    background: #31b0d5;
+    border-radius: 10px;
+    font-size: 3.4rem;
+    color: #fff;
+    box-shadow: 0 0 3px 1px rgba(49, 163, 255, 0.4); }
+
+.weixin_div .weixin_cnt {
+  width: 900px;
+  max-width: 500%;
+  text-align: justify;
+  text-decoration: inherit; }
+
+.weixin_border {
+  position: absolute;
+  left: 20px;
+  top: 3em;
+  width: 0;
+  height: 0;
+  border-width: 10px;
+  border-color: transparent;
+  border-top-color: #e2f9fc;
+  border-style: solid; }
+</style>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("/{manage}/I/Main",L.工作台),
+        new Bread("/{manage}/WeiXin/Home",L.网站配置),
+        new Bread() {url="", text=L.微信应用,addon= "" }}
+        )
+<div class="container">
+    <div id="MainApp" class="wxapp_box list_choice row">
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="WxAppManage"><i class="zi zi_globe center-block"></i><div>@L.欢迎语</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="WxAppManage"><i class="zi zi_commentdots center-block" style="background: #73B9FF;"></i><div>@L.自动回复</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="WxAppManage"><i class="zi zi_newspaper center-block" style="background: #FFC926;"></i><div>@L.素材管理</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="Msg/MsgTlpList?appid=<%:Mid %>"><i class="zi zi_rss center-block" style="background: #0085B2;"></i><div>@L.高级群发</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="WxAppManage"><i class="zi zi_book center-block" style="background: #00D9D9;"></i><div>@L.菜单配置</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="WxConfig"><i class="zi zi_cog center-block" style="background: #FF4DFF;"></i><div>@L.微信配置</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="WxAppManage"><i class="zi zi_users center-block" style="background: #686859;"></i><div>@L.粉丝管理</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="@Call.PathAdmin("Template/TemplateSetOfficial")"><i class="zi zi_cloud center-block" style="background: #ff006e;"></i><div>@L.模板云</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="http://app.z01.com/" target="_blank" class="wxapp_a"><i class="zi zi_mobile center-block" style="background: #ff6a00;"></i><div>@L.微场景</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="http://www.z01.com/mtv" target="_blank" class="wxapp_a"><i class="zi zi_film center-block" style="background: #ff6a00;"></i><div>@L.云视频</div></a>
+        </div>
+        <div class="wxapp col-6 col-sm-3 col-lg-2 col-xl-2">
+            <a href="http://www.z01.com/other/2400.shtml" target="_blank" class="wxapp_a"><i class="zi zi_braille center-block" style="background: #00698C;"></i><div>@L.智能采集</div></a>
+        </div>
+    </div>
+	</div>
+    }

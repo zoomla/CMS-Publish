@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head runat="server">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script type="text/javascript" src="../internal.js"></script>
+<title>Word转换</title>
+</head>
+<body>
+<form enctype="multipart/form-data" id="form1" method="post">
+<div style="padding: 5px;">
+    <div>
+        <input type="file" id="cms_file" name="cms_file" accept=".docx"/>
+        <input id="subBtn" type="button" value="开始解析" onclick="checkSub();" style="padding-left: 5px; border-radius:3px;" /><br/>
+        *请上传docx后缀名文件
+    </div>
+    <div style="display: none;color:red;" id="waitdiv">正在努力解析中,请等待...</div>
+</div>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/ICMS/ZL_Common.js"></script>
+<script src="/js/jquery.form.js"></script>
+<script type="text/javascript">
+    function checkSub() {
+        if ($("#cms_file").val() == "") { alert("请选定需要上传的文件"); return false; }
+        document.getElementById("waitdiv").style.display = "";
+        disBtn("subBtn");
+        $("#form1").ajaxSubmit({
+            url: "/IO/Ueditor_wordcover", success: function (data) {
+                if ("".indexOf("fail:") == 0) {
+                    alert("失败:" + model.retmsg);
+                }
+                else {
+                    editor.setContent(data);
+                    dialog.close();
+                }
+            }
+        });
+    }
+</script>
+</form>
+</body>
+</html>

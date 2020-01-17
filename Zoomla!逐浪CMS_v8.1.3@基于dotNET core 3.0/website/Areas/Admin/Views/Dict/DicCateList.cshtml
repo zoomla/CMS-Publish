@@ -1,0 +1,34 @@
+﻿@model  ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head {<title>@L.数据字典</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+         new Bread("{admin}"),
+         new Bread("DictionaryManage",@L.数据字典),
+         new Bread() {url=Context.Request.RawUrl(), text=@L.单级数据字典管理,addon="" }})
+    <div class="list_choice">
+        @Html.Partial("DicCate_List")
+    </div>
+    
+}
+@section script {
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Controls/Control.js"></script>
+    <script>
+        function save() {
+            if (ZL_Regex.isEmpty($("#CateName").val())) { alert("@Html.Raw(L.分类名不能为空)"); return false; }
+            $.post("DictCate_API?action=save&id="+$("#CateID").val(), { name: $("#CateName").val() }, function (data) {
+                if (data == "1") { mvcpage.load(); }
+                $("#CateID").val("");
+                $("#CateName").val("");
+            })
+        }
+        function showAdd(id) {
+            $("#CateID").val(id);
+            $("#CateName").val($("#item_" + id).text());
+        }
+    </script>
+
+}

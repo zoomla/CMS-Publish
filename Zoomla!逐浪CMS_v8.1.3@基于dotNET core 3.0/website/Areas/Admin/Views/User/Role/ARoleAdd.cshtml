@@ -1,0 +1,31 @@
+﻿@model ZoomLa.Model.M_RoleInfo
+@section head{<title>@L.角色信息</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("ARole",L.角色管理),
+new Bread(Context.Request.RawUrl(),L.角色信息)
+})
+<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice w-100 ">
+    <form method="post" action="@MVCHelper.GetAction("ARoleAdd_Submit",Context.Request)">
+    <table class="table table-container table-bordered table-striped">
+        <tr><td style="width:120px;">@L.角色名</td><td>@Html.TextBoxFor(m=>m.RoleName,new {@class="form-control text_300" })</td></tr>
+        <tr><td>@L.角色描述</td><td>
+            @Html.TextAreaFor(m=>m.Description,new {@class="form-control",rows="5" })
+            </td></tr>
+        <tr><td></td><td>
+            <input type="submit" class="btn btn-info" value="@L.保存信息" />
+            <a class="btn btn-info" href="ARole">@L.返回列表</a>
+            </td></tr>
+    </table>
+        </form>
+
+
+    </div>
+</div>
+}
+@section script{ 
+
+
+}

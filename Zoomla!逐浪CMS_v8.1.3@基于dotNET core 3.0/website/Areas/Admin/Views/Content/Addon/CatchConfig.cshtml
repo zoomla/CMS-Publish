@@ -1,0 +1,38 @@
+﻿@{ 
+
+}
+@section head{ <title>@L.采集配置</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Call.PA("Content/ContentManage"),L.内容管理),
+new Bread(Context.Request.RawUrl(),L.采集配置)
+})
+<div class="list_choice">
+<form method="post" action="CatchConfig_Submit">
+<div style="margin-top:10px;">
+     <table class="table table-bordered table-striped">
+         <tr><th class="td_m">@L.允许采集</th><td>
+              <div>
+                  @MVCHelper.H_Check("Coll_Allow",SiteConfig.SiteOption.Coll_Allow==1,new {@class="switchChk",value="1" })
+              </div>
+              <div><small>@L.开启采集</small></div>
+              </td></tr>
+         <tr>
+             <th>@L.授权密钥</th><td><input type="text" id="Coll_Key" name="Coll_Key" value="@SiteConfig.SiteOption.Coll_Key" class="form-control text_300"/>
+             <button type="button" class="btn btn-info" onclick="$('#Coll_Key').val(GetRanPass(10));">@L.自动生成</button>
+             <div><small>@L.授权密钥用于验证管理员身份</small></div>
+             <div><small>@L.示例推送地址格式：@(SiteConfig.SiteInfo.SiteUrl+"/API/ConPush/Index?key="+SiteConfig.SiteOption.Coll_Key)</small></div>
+             </td>
+         </tr>
+         <tr><td></td><td><input type="submit" value="@L.保存配置" class="btn btn-info" /></td></tr>
+     </table>
+</div>
+</form>    
+</div>
+}
+@section script{ 
+<link href="~/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-switch.js"></script>
+
+}

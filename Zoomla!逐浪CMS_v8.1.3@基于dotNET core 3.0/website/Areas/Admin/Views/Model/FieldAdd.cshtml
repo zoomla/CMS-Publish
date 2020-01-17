@@ -1,0 +1,806 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model.Content
+@using ZoomLa.BLL.Other
+@model ZoomLa.Model.Content.M_ModelField
+@functions{
+    M_ModelInfo modInfo = null;
+    FieldModel fieldMod = null;
+    public string ShowReturnUrl()
+    {
+        switch (modInfo.ModelType)
+        {
+            case 9:
+                return Call.PA("User/SystemUserModel");
+            default:
+                return "Field?ID=" + modInfo.ModelID + "&ModelType=" + modInfo.ModelType;
+        }
+    }
+    public string GetValue(string name, string def)
+    {
+        string value = fieldMod.GetValue(name);
+        if (string.IsNullOrEmpty(value)) { value = def; }
+        return value;
+    }
+    //现仅用于单图片
+    public string GetFirstValue(string content)
+    {
+
+        if (content.Contains("="))
+        {
+            string result = content.Split('=')[1];
+            return result;
+        }
+        else { return ""; }
+    }
+    //仅用于单选项,取其特殊存储的类型与内容   // 1=a|a,Property=0,Default=0
+    public string Radio_Type()
+    {
+        if (Model.FieldID < 1 || !Model.FieldType.Equals("OptionType")) { return "1"; }
+        return Model.Content.Split('=')[0];
+    }
+    public string Radio_Content()
+    {
+        if (Model.FieldID < 1 || !Model.FieldType.Equals("OptionType")) { return ""; }
+        string content = Model.Content.Split('=')[1].Split(',')[0];
+        content = content.Replace("||", "\n") + "\n";
+        return content;
+    }
+    public string IsChecked(bool chked)
+    {
+        if (chked) { return "checked=\"checked\""; }
+        else { return ""; }
+    }
+}
+@{
+    B_Model modBll = new B_Model();
+    fieldMod = new FieldModel(Model.Content);
+    modInfo = ViewBag.modInfo;
+
+    DataTable cateDT = new B_GradeCate().Sel();
+    {
+        DataRow dr = cateDT.NewRow();
+        dr["CateName"] = "选择多级选项分类";
+        dr["CateID"] = 0;
+        cateDT.Rows.InsertAt(dr, 0);
+    }
+    {
+        DataRow dr = cateDT.NewRow();
+        dr["CateName"] = "省市县三级联动";
+        dr["CateID"] = -1;
+        cateDT.Rows.Add(dr);
+    }
+    {
+        DataRow dr = cateDT.NewRow();
+        dr["CateName"] = "省市县镇级四级联动";
+        dr["CateID"] = -2;
+        cateDT.Rows.Add(dr);
+    }
+}
+@section head{
+    <link rel="stylesheet" type="text/css" href="/dist/css/bootstrap-switch.min.css" />
+    <link rel="stylesheet" type="text/css" href="/js/Plugs/color/bootstrap.colorpickersliders.min.css?v=1" />
+    <script src="/js/Plugs/color/tinycolor-min.js"></script>
+    <script src="/js/Plugs/color/bootstrap.colorpickersliders.min.js?v=1"></script>
+    <title>@L.字段管理</title>
+    <style type="text/css">
+        .ftype { border-radius: 5px; border: 1px solid #ddd; padding: 5px 8px; width: 200px; margin-right: 5px; cursor: pointer; }
+        .ftype:hover { border: 1px solid #0094ff; }
+        #SmallFileType_Btns .btn { border: 1px solid #ddd; }
+    </style>
+}
+@section content{
+    <ol class="breadcrumb fixed-top">
+        <li class="breadcrumb-item"><a href="@Call.PA("I/Main")">@L.工作台</a></li>
+        <li class="breadcrumb-item"><a href="@Call.PA("Config/SiteOption")">@L.系统设置</a></li>
+        <li class="breadcrumb-item"><a href="ModelManage?ModelType=@modInfo.ModelType">@modBll.GetModelType(modInfo.ModelType)</a></li>
+        <li class="breadcrumb-item"><a href="@ShowReturnUrl()">@L.字段列表</a></li>
+        <li class="breadcrumb-item">@(modInfo.ModelName) @L.当前表:[@modInfo.TableName]</li>
+    </ol>
+    <form method="post" action="@MVCHelper.GetAction("FieldAdd_Submit",Context.Request)">
+        <div class="container-fluid pr-0">
+            <div class="row sysRow list_choice table-responsive-md">
+                <table class="table table-striped table-bordered sys_table">
+                    <tr>
+                        <th scope="col" class="w12rem_lg">
+                            <strong>@L.字段别名 <span class="tips text-danger">*</span></strong>
+                        </th>
+                        <th scope="col">
+                            <input type="text" name="Alias_T" ID="Alias_T" class="form-control max20rem" maxlength="20" onkeyup="mfield.getpy('Alias_T','Name_T')" value="@Model.FieldAlias" />
+                            <small class="text-muted">@L.如：@L.文章标题</small>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <strong>@L.字段名称 <span class="tips text-danger">*</span></strong>
+                        </th>
+                        <td>
+                            @if (Model.FieldID > 0)
+                            {
+                                <input type="text" name="Name_T" ID="Name_T" readonly="readonly" class="form-control max20rem" value="@Model.FieldName" />
+                            }
+                            else
+                            {
+                                <input type="text" name="Name_T" ID="Name_T" maxlength="50" class="form-control max20rem" value="@Model.FieldName" />
+                            }
+                            <small class="text-muted">@L.字段名由字母</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <strong>@L.字段提示</strong>
+                        </th>
+                        <td>
+                            <input type="text" name="Tips" ID="Tips" class="form-control max20rem" maxlength="50" value="@Model.FieldTips" />
+                            <small class="text-muted">@L.显示在字段别名下方作为重要提示的文字</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <strong>@L.字段描述</strong>
+                        </th>
+                        <td>
+                            <textarea name="Description" ID="Description" class="form-control m50rem_50" rows="3" value="@Model.Description"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><strong>@L.是否启用</strong></th>
+                        <td>
+                            <input name="rblCopy" id="rblCopy" type="checkbox" class="switchChk" value="1" @IsChecked(Model.IsCopy == 0) />
+                            <small class="text-muted">@L.如果您暂时不需要</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <strong>@L.后台显示</strong>
+                        </th>
+                        <td>
+                            <input type="checkbox" name="IsChain" id="IsChain" class="switchChk" value="1" @IsChecked(Model.IsChain) />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><strong>@L.前台显示</strong></th>
+                        <td>
+                            <input type="checkbox" name="IsShow" id="IsShow" class="switchChk" value="1" @IsChecked(Model.IsShow) />
+                            <small class="text-muted">@L.选择否定输出</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><strong>@L.是否必填</strong></th>
+                        <td><input type="checkbox" name="IsNotNull" id="IsNotNull" class="switchChk" value="1" @IsChecked(Model.IsNotNull) /></td>
+                    </tr>
+                    @*<tr>
+                            <th>
+                                <strong>是否批量添加</strong>
+                            </th>
+                            <td>
+                                <div>
+                                    <input type="checkbox" name="Islotsize" id="Islotsize" class="switchChk" value="1" @IsChecked(Model.Islotsize) />
+                                    <small class="text-muted">字段类型只允许文本类型</small>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>是否在搜索表单显示</strong></th>
+                            <td><input type="checkbox" name="IsSearchForm" id="IsSearchForm" class="switchChk" value="1" @IsChecked(Model.IsSearchForm) /></td>
+                        </tr>*@
+                    <tr>
+                        <th>
+                            <strong>@L.字段类型</strong>
+                        </th>
+                        <td id="ftype_wrap" onclick="mfield.switch();">
+                            @foreach (DataRow dr in B_ModelField.FTypeDT.Rows)
+                            {
+                                <label class="ftype"><input type="radio" name="type_rad" value="@dr["value"]" />@dr["name"]</label>
+                            }
+                        </td>
+                    </tr>
+                    <!--  单行文本   -->
+                    <tbody id="DivTextType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg" scope="col"><strong>@L.显示的宽度</strong></th>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" name="TitleSize" ID="TitleSize" class="form-control max20rem" maxlength="3" value="@GetValue("TitleSize","100")" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.默认值</strong></th>
+                            <td>
+                                <input type="text" ID="TextType_DefaultValue" name="TextType_DefaultValue" class="form-control max20rem" value="@GetValue("DefaultValue","匿名|本站作者")" />
+                                <small class="text-muted">@L.以|号分隔</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.扩展选项：</strong></th>
+                            <td class="node_select">
+                                @*@MVCHelper.H_Check("Text_SelVideo_Chk", "选择视频", "1", GetValue("SelVideo", ""))*@
+                                @MVCHelper.H_Check("Text_SelIcon_Chk", "BootStrap", "1", GetValue("SelIcon", ""))
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  多行文本(不支持Html)-->
+                    <tbody id="DivMultipleTextType" class="mfield_body">
+                        <tr>
+                            <th><strong>@L.显示的宽度</strong></th>
+                            <td>
+                                <div class="input-group td_m">
+                                    <input type="text" name="MultipleTextType_Width" ID="MultipleTextType_Width" class="form-control" maxlength="3" value="@GetValue("Width","100")" />
+                                    <span class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.显示的高度</strong></th>
+                            <td>
+                                <div class="input-group td_m">
+                                    <input type="text" id="MultipleTextType_Height" name="MultipleTextType_Height" class="form-control" maxlength="4" value="@GetValue("Height","200")" />
+                                    <span class="input-group-append">
+                                        <span class="input-group-text">px</span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.扩展功能</strong></th>
+                            <td>
+                                @MVCHelper.H_Check("MText_SelUser_Chk", ""+@L.选择用户+"", "1", GetValue("SelUser", ""))
+                                @MVCHelper.H_Check("MText_Down_Chk", "Json"+@L.下载模式+"", "1", GetValue("SelUser", ""))
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  多行文本(支持Html)    -->
+                    <tbody id="DivMultipleHtmlType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg">
+                                <strong>@L.编辑器类型</strong>
+                            </th>
+                            <td>
+                                @Html.DropDownList("IsEditor", MVCHelper.ToSelectList("简洁型|简单型|标准型|增强型".Split('|'), "1,4,2,3".Split(','), GetValue("IsEditor", "1")), new { @class = "form-control text_300" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col"><strong>@L.扩展图片</strong></th>
+                            <td>
+                                <input type="checkbox" name="Topimg_Chk" id="Topimg_Chk" class="switchChk" value="1" />
+                                <input type="text" value="Topimg" disabled="disabled" class="form-control text_md" />
+                                <small class="text-muted">@L.字段名必须为TopImg,@L.编辑界面显示为"@L.主编辑器扩展图",@L.只能唯一</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                <strong>@L.显示的宽度</strong>
+                            </th>
+                            <td>
+                                <div class="input-group td_m">
+                                    <input type="text" name="MultipleHtmlType_Width" ID="MultipleHtmlType_Width" class="form-control" maxlength="3" value="@GetValue("Width","100")" />
+                                    <span class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.显示的高度</strong>
+                            </th>
+                            <td>
+                                <div class="input-group td_m">
+                                    <input type="text" name="MultipleHtmlType_Height" ID="MultipleHtmlType_Height" class="form-control" maxlength="4" value="@GetValue("Height","300")" />
+                                    <span class="input-group-append">
+                                        <span class="input-group-text">px</span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  单选项    -->
+                    <tbody id="DivOptionType" class="mfield_body">
+                        <tr>
+                            <th>
+                                <strong>@L.分行键入每个选项</strong>
+                            </th>
+                            <td>
+                                <div class="input-group" style="width:647px;">
+                                    <input type="text" class="form-control text_md mfield_key" placeholder="@L.选项名" />
+                                    <input type="text" class="form-control text_md mfield_val" placeholder="@L.选项值" />
+                                    <span class="input-group-append">
+                                        <input type="button" class="btn btn-info" value="@L.添加数据字段" onclick="mfield.addOption(this);" />
+                                        <input type="button" class="btn btn-primary" value="@L.从数据字典中导入" onclick="mfield.opendic('RadioType_Content');" />
+                                    </span>
+                                </div>
+                                <textarea ID="RadioType_Content" name="RadioType_Content" class="form-control mfield_txt" rows="6" style="margin-top:5px;width:647px;">@Radio_Content()</textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.默认值</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="RadioType_Default" ID="RadioType_Default" class="form-control max20rem" value="@GetValue("Default","")" />
+                                <span class="tips" style="color: #808000">@L.注释信息</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.显示选项</strong>
+                            </th>
+                            <td>
+                                @MVCHelper.H_Radios("RadioType_Type", "单选下拉|单选按钮".Split('|'), "1,2".Split(','), Radio_Type())
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.是否设置属性值</strong>
+                            </th>
+                            <td>
+                                <input type="checkbox" name="RadioType_Property" id="RadioType_Property" checked="checked" value="1" class="switchChk" @IsChecked(GetValue("Property", "") == "1") />
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  多选项    -->
+                    <tbody id="DivListBoxType" class="mfield_body">
+                        <tr>
+                            <th>
+                                <strong>@L.分行键入每个选项</strong>
+                            </th>
+                            <td>
+                                <div class="input-group" style="width:647px;">
+                                    <input type="text" class="form-control text_md mfield_key" placeholder="@L.选项名" />
+                                    <input type="text" class="form-control text_md mfield_val" placeholder="@L.选项值" />
+                                    <span class="input-group-append">
+                                        <input type="button" class="btn btn-info" value="@L.添加数据字段" onclick="mfield.addOption(this);" />
+                                        <input type="button" class="btn btn-primary" value="@L.从数据字典中导入" onclick="mfield.opendic('ListBoxType_Content');" />
+                                    </span>
+                                </div>
+                                <textarea ID="ListBoxType_Content" name="ListBoxType_Content" class="form-control mfield_txt" rows="6" style="margin-top:5px;width:647px;"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.显示选项</strong>
+                            </th>
+                            <td>
+                                @MVCHelper.H_Radios("ListBoxType_Type", "复选框|多选框|多填选项框".Split('|'), "1,2,3".Split(','))
+                            </td>
+                        </tr>
+                    </tbody>
+
+                    <!--  日期型    -->
+                    <tbody id="DivDateType" class="mfield_body">
+                        <tr>
+                            <th scope="col">
+                                <strong>@L.日期数据</strong>
+                            </th>
+                            <td>
+                                @MVCHelper.H_Radios("date_value_rad", "默认为空|当前时间".Split('|'), "0,1".Split(','), GetValue("value", "0"))
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>@L.时间限定</td>
+                            <td>
+                                <div class="input-group" style="width:600px;">
+                                    <span class="input-group-prepend"><span class="input-group-text">@L.最小日期</span></span>
+                                    <input type="text" name="Date_SDate_T" ID="Date_SDate_T" class="form-control" onclick="WdatePicker({dateFmt:'yyyy/MM/dd'});" placeholder="@L.为空则不限定" value="@GetValue("sdate","")" />
+                                    <span class="input-group-prepend"><span class="input-group-text">@L.最大日期</span></span>
+                                    <input type="text" name="Date_EDate_T" ID="Date_EDate_T" class="form-control" onclick="WdatePicker({dateFmt:'yyyy/MM/dd'});" placeholder="@L.为空则不限定" value="@GetValue("edate","")" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.日期格式</th>
+                            <td>
+                                <div class="input-group" style="width:600px;">
+                                    <input type="text" name="Date_Format_T" ID="Date_Format_T" class="form-control" value="@GetValue("Format","yyyy/MM/dd HH:mm")" />
+                                    <span class="input-group-append" id="date_format_btns">
+                                        <button type="button" class="btn btn-info" data-format="yyyy/MM/dd HH:mm">@L.年月日时分</button>
+                                        <button type="button" class="btn btn-info" data-format="yyyy/MM/dd">@L.年月日</button>
+                                        <button type="button" class="btn btn-info" data-format="yyyy/MM">@L.年月</button>
+                                        <button type="button" class="btn btn-info" data-format="HH:mm:ss">@L.时分秒</button>
+                                    </span>
+                                </div>
+                                <script>
+                                $("#date_format_btns .btn").click(function () {
+                                    $("#Date_Format_T").val($(this).data("format"));
+    });
+                                </script>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--单文件上传-->
+                    <tbody id="DivSmallFileType" class="mfield_body" style="display: table-row-group;">
+                        <tr>
+                            <th>
+                                <strong>@L.允许上传的文件类型</strong>
+                            </th>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" name="TxtUploadFileTypes" id="TxtUploadFileTypes" class="form-control" value="@GetFirstValue(Model.Content)">
+                                    <span class="input-group-append" id="SmallFileType_Btns">
+                                        <button type="button" class="btn btn-light" data-accept="image/jpg,image/png,image/jpeg">@L.仅图片</button>
+                                        <button type="button" class="btn btn-light" data-accept="application/msexcel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">@L.仅Excel</button>
+                                        <button type="button" class="btn btn-light" data-accept="application/pdf,application/msexcel,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">PDF|Word|Excel</button>
+                                        <button type="button" class="btn btn-light" data-accept="">@L.不限制</button>
+                                    </span>
+                                    <script>
+                                    $("#SmallFileType_Btns .btn").click(function () { $("#TxtUploadFileTypes").val($(this).data("accept")); });
+                                    </script>
+                                </div>
+                                <span class="tips" style="color: red">*</span><span class="tips" style="color: Blue">@L.注意为空不限定</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--图片类型-->
+                    <tbody id="DivPicType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg" scope="col"><strong>@L.图片是否加水印</strong></th>
+                            <td>
+                                <input type="checkbox" name="Pic_Water_Chk" id="Pic_Water_Chk" class="switchChk" value="1" @IsChecked(GetValue("Water", "") == "1") />
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <th scope="col"><strong>@L.开启选择已上传文件</strong></th>
+                            <td>
+                                <input type="checkbox" name="Pic_SelUpFile_Chk" id="Pic_SelUpFile_Chk" class="switchChk" value="1" @IsChecked(GetValue("SelUpFile", "") == "1") />
+                            </td>
+                        </tr>*@
+                        <tr>
+                            <th><strong>@L.图片是否压缩</strong></th>
+                            <td><input type="checkbox" name="Pic_Compress_Chk" id="Pic_Compress_Chk" class="switchChk" value="1" @IsChecked(GetValue("Compress", "") == "1") /></td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.允许上传的图片类型</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="PicFileExt_T" ID="PicFileExt_T" class="form-control text_md" value="@GetValue("PicFileExt","jpg|png|gif|bmp|jpeg")" />
+                                <span class="tips" style="color: red">*</span><span class="tips" style="color: Blue">@L.注意允许多个类型</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--组图-->
+                    <tbody id="DivImages" class="mfield_body">
+                        <tr><th><strong>@L.图片数量</strong></th><td><input type="text" name="images_maxcount_t" ID="images_maxcount_t" class="form-control max20rem" value="@GetValue("maxcount","5")" /><span class="rd_green">@L.最多可上传图片数</span></td></tr>
+                        <tr>
+                            <th><strong>@L.上传方式</strong></th>
+                            <td>
+                                @MVCHelper.H_Radios("images_type_rad", "传统样式|微信样式".Split('|'), "pc,mobile".Split(','), GetValue("type", ""))
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  多图片    -->
+                    <tbody id="DivMultiPicType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg"><strong>@L.缩略图选项</strong></th>
+                            <td>
+                                <span class="tips" style="float: left; margin-left: 0;">
+                                    <input type="text" name="ChkThumb" ID="ChkThumb" value="1" @IsChecked(GetValue("ChkThumb", "") == "1") />@L.保存缩略图地址字段：
+                                </span>
+                                <input type="text" name="TxtThumb" ID="TxtThumb" class="form-control text_md" value="@GetValue("Thumb","")" />
+                                <span style="color: Red; display: none;">@L.保存缩略图地址字段名不能与主字段名重复！</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.图片是否加水印</strong></th>
+                            <td>
+                                <input type="checkbox" id="RBLWaterMark" name="RBLWaterMark" checked="checked" class="switchChk" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.允许上传的图片大小</strong></th>
+                            <td>
+                                <input type="text" name="TxtPicSize" ID="TxtPicSize" class="form-control float-left" Style="max-width: 80px;" value="@GetValue("PicSize","1024")" />
+                                <span class="tips">KB</span>
+                                <span class="tips" style="color: blue">@L.提示：1 KB = 1024 Byte，1 MB = 1024 KB</span>
+                                <span class="tips" style="color: red">*</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.允许上传的图片类型</strong></th>
+                            <td>
+                                <input type="text" name="TextImageType" ID="TextImageType" class="form-control text_300" value="@GetValue("ImageType","jpg|png|gif|bmp|jpeg")" Style="max-width: 200px;" />
+                                <span class="tips" style="color: red">*</span><span class="tips" style="color: Blue">@L.注意允许多个类型</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  图片入库    -->
+                    <tbody id="DivSqlType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg"><strong>@L.允许上传的图片大小</strong></th>
+                            <td>
+                                <input type="text" name="TxtMaxPicSize" ID="TxtMaxPicSize" class="form-control float-left" Style="max-width: 80px;" value="@GetValue("MaxPicSize","1024")" />
+                                <span class="tips">KB</span>
+                                <span class="tips" style="color: blue">@L.提示：@L.仅支持2005及更高 SQL Server @L.版本</span>
+                                <span class="tips" style="color: red">*</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><strong>@L.允许上传的图片类型</strong></th>
+                            <td>
+                                <input type="text" name="TxtPicSqlType" ID="TxtPicSqlType" class="form-control float-left" Style="max-width: 200px;" value="@GetValue("PicSqlType","jpg|png|gif|bmp|jpeg")" />
+                                <span class="tips" style="color: red">*</span><span class="tips" style="color: Blue">@L.注意允许多个类型</span>
+                            </td>
+                        </tr>
+                        <!--  下拉文件类型    -->
+                    <tbody id="DivPullFileType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg">
+                                <strong>@L.文件路径</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="PullFileText" ID="PullFileText" class="form-control float-left" Style="max-width: 200px;" value="@Model.Content" />
+                                <span class="tips" style="color: Blue">@L.填写图片存储的目录如：/UploadFiles/demo/</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--  多文件类型    -->
+                    <tbody id="DivFileType" class="mfield_body">
+                        @*<tr>
+                            <th class="w12rem_lg">
+                                <strong>保存文件大小设置</strong>
+                            </th>
+                            <td>
+                                @MVCHelper.H_Check("ChkFileSize", "是否保存文件大小", "1", GetValue("ChkFileSize", ""))
+                                <small>(勾选后将同步创建附属字段)</small>
+                            </td>
+                        </tr>*@
+                        @*<tr>
+                            <th>附属字段名</th>
+                            <td>
+                                <input type="text" name="TxtFileSizeField" ID="TxtFileSizeField" class="form-control text_300 subField" readonly="readonly" value="@(Model.FieldName+"_sub")" />
+                                <small>用于存储文件大小(MB)</small>
+                            </td>
+                        </tr>*@
+                    </tbody>
+                    <!--  多级选项    -->
+                    <tbody id="DivGradeOptionType" class="mfield_body">
+                        	<tr>
+		                        <th class="w12rem_lg">
+			                        <strong>@L.选择分级数据分类</strong>
+		                        </th>
+		                        <td>
+                                    @Html.DropDownList("GradeOptionType_Cate",MVCHelper.ToSelectList(cateDT,"CateName","CateID",GetValue("GradeCate","0")),new{@class="form-control text_300"})
+		                        </td>
+	                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.选项下拉框排列格式化</strong>
+                            </th>
+                            <td>
+                                @MVCHelper.H_Radios("GradeOptionType_Direction", "一行横排|多行竖排".Split('|'), "0,1".Split(','),GetValue("Direction","0"))
+                            </td>
+                        </tr>
+
+                    </tbody>
+                    <tbody id="DivNumType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg">
+                                <strong>@L.文本框长度</strong>
+                            </th>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" name="NumberType_TitleSize" ID="NumberType_TitleSize" class="form-control float-left" Style="max-width: 80px;" maxlength="4" value="@GetValue("TitleSize","35")" />
+                                    <span class="input-group-append"><span class="input-group-text">px</span></span>
+                                </div>
+                            </td>
+                        </tr>
+                        @*<tr>
+                            <th>
+                                <strong>@L.数字类型</strong>
+                            </th>
+                            <td>
+                                @MVCHelper.H_Radios("NumberType_Style", "整数|小数".Split('|'), "1,2".Split(','), GetValue("type", "1"))
+                            </td>
+                        </tr>*@
+                        <tr id="showdec">
+                            <th>
+                                <strong>@L.小数位</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="txtdecimal" ID="txtdecimal" class="form-control text_md" value="@GetValue("NumLenght","2")" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.默认值</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="NumberType_DefaultValue" ID="NumberType_DefaultValue" class="form-control text_md" value="@GetValue("DefaultValue","")" />
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody id="DivColorType" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg">
+                                <strong>@L.默认颜色值</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="ColorDefault" ID="ColorDefault" class="form-control text_md" value="@GetValue("DefaultValue","#ffffff")" />
+                                <script>
+                                $(function () {
+                                    $("#ColorDefault").ColorPickerSliders({ hsvpanel: true, sliders: true, placement: 'auto', color: $(this).val(), previewformat: "rgb", });
+                                })
+                                </script>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--地图字段-->
+                    <tbody id="DivMapType" class="mfield_body">
+                        <tr>
+                            <th><strong>@L.地图来源</strong></th>
+                            <td>
+                                @Html.DropDownList("MapSource_DP", MVCHelper.ToSelectList("百度|Google".Split('|'), "baidu,google".Split(','), GetValue("source", "baidu")), new { @class = "form-control max20rem" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="w12rem_lg"><strong>@L.地图类型</strong></th>
+                            <td>
+                                @MVCHelper.H_Radios("MapType_Rad", "简单|完全(支持多标记,自定义标记,Html内容)".Split('|'), "simp,full".Split(','), GetValue("type", "simp"))
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!--智能多文件上传-->
+                    <tbody id="DivSwfFileUpload" class="mfield_body">
+                        <tr>
+                            <th class="w12rem_lg">
+                                <strong>@L.允许上传的文件大小</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="TxtMaxFileSize1" ID="TxtMaxFileSize1" class="form-control float-left" Style="max-width: 80px;" value="@GetValue("MaxFileSize","1024")" />
+                                <span class="tips">KB</span>
+                                <span class="tips" style="color: blue">@L.提示：1 KB = 1024 Byte，1 MB = 1024 KB</span>
+                                <span class="tips" style="color: red">*</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="w12rem_lg">
+                                <strong>@L.允许上传的文件类型</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="TxtUploadFileType1" ID="TxtUploadFileType1" class="form-control float-left" Style="max-width: 200px;" value="@GetValue("UploadFileType","rar|jpg|gif|bmp")" />
+                                <span class="tips" style="color: red">*</span>
+                                <span class="tips" style="color: Blue">@L.注意允许多个类型</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody id="DivTableField" class="mfield_body">
+                        <!--库选字段-->
+                        <tr>
+                            <th class="w12rem_lg"><strong>@L.库选类型</strong></th>
+                            <td>
+                                @MVCHelper.H_Radios("TableFieldType_Drop", "单选模式|多选模式".Split('|'), "1,2".Split(','), GetValue("FieldType", "1"))
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.字段值 (Text)</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="TableField_Text" ID="TableField_Text" class="form-control" value="@GetValue("Text","")" /><span style="line-height: 30px;"> *@L.示例：ZL_User.UserName，@L.出现在下拉列表中值。</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.实际入库值 (Value)</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="TableField_Value" ID="TableField_Value" class="form-control" value="@GetValue("Value","")" /><span style="line-height: 30px;">@L.示例：ZL_User.UserID，@L.用于实际的Value存值使用，@L.如为空则存入上方字段值。</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <strong>@L.筛选条件</strong>
+                            </th>
+                            <td>
+                                <input type="text" name="Where_Text" ID="Where_Text" class="form-control" value="@GetValue("Where","")" /> <span style="line-height: 30px;"> @("T-Sql条件筛选如：UserID<10 （支持多条件查询）")</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" ID="Save_Btn" value="@(Model.FieldID==0?"添加字段":"修改字段")" class="btn btn-info" onclick="return mfield.check()" />
+                            <a href="@ShowReturnUrl()" ID="Return_Btn" class="btn btn-outline-info">@L.返回列表</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </form>
+}
+@section script{
+    <script src="/dist/js/bootstrap-switch.js"></script>
+    <script src="/js/chinese.js"></script>
+    <script src="/js/SelectCheckBox.js?v=2"></script>
+    <script src="/js/DatePicker/WdatePicker.js"></script>
+    <script>
+        var mfield = {};
+        mfield.init = function () { }
+        mfield.getpy = function (ontxt, id) {
+            var $source = $("#" + ontxt);
+            var $target = $("#" + id);
+            if (!document.getElementById(id).disabled) {
+                var str = $source.val().replace(/ /ig, "");
+                if (str == "") { $target.val("");  }
+                var strpy = makePy(str).toString().toLowerCase();
+                if (strpy.indexOf(",") > -1) { strpy = strpy.split(',')[0]; }
+                $target.val(strpy);
+            }
+        }
+        //SelectModelType
+        mfield.switch = function () {
+            var $rad = $("input[name=type_rad]:checked");
+            if ($rad.length < 1) {  }
+            $(".mfield_body").hide();
+            $("#Div" + $rad[0].value).show();
+        }
+        mfield.init = function () {
+            var fieldId = parseInt("@Model.FieldID");
+            if (fieldId == 0) {
+                SetRadVal("type_rad", "TextType");
+                //附属字段统一命名,不允许更改
+                $("#Name_T,#Alias_T").bind("blur paste clip", function () {setTimeout(function () { $(".subField").val($("#Name_T").val() + "_sub"); }, 50);})
+            }
+            else {
+                SetRadVal("type_rad", "@Model.FieldType");
+            }
+            //mfield.switch();
+        }
+        //字段填写的值是否规范
+        mfield.check = function () {
+            $alias = $("#Alias_T");
+            $name = $("#Name_T");
+            if (ZL_Regex.isEmpty($alias.val())) { alert("@Html.Raw(L.字段别名不能为空)"); $alias.focus(); return false; }
+            if (ZL_Regex.isEmpty($name.val())) { alert("@Html.Raw(L.字段名称不能为空)"); $name.focus(); return false; }
+            var patt = /^[a-zA-Z0-9_\-]+$/
+            if (!patt.test($name.val())) { alert('@Html.Raw(L.字段名称只能由字母)、@Html.Raw(L.下划线或数字组成)！'); $name.focus(); return false; }
+            return true;
+        }
+        //------------------------------用于多选字段等
+        mfield.addFromDic = function (id, val) {
+            //val:a,b,c,d
+            $txt = $("#" + id);
+            var valArr = val.split(',');
+            var options = "";
+            for (var i = 0; i < valArr.length; i++) {
+                if (!valArr[i]) { continue;}
+                options += (valArr[i] + "|" + valArr[i]) + "\n";
+            }
+            mfield.addToTxt($txt, options);
+            CloseComDiag();
+        }
+        mfield.addOption = function (btn) {
+            var $div = $(btn).closest(".mfield_body");
+            var $key = $div.find(".mfield_key");
+            var $val = $div.find(".mfield_val");
+            var $txt = $div.find(".mfield_txt");
+            if (ZL_Regex.isEmpty($key.val())) { alert("@Html.Raw(L.选项名不能为空)"); }
+            else if (ZL_Regex.isEmpty($val.val())) { alert("@Html.Raw(L.选项值不能为空)"); }
+            else {
+                mfield.addToTxt($txt, ($key.val() + "|" + $val.val()));
+                $key.val(""); $val.val("");
+            }
+        }
+        mfield.opendic = function (id) {
+            //window.open('../../Addon/SelectDictionary?ControlId=' + id + '', 'newWin', 'modal=yes,width=700,height=500,resizable=no,scrollbars=yes')
+            ShowComDiag('@Call.PA("Extend/Dict/DicCateSel?conid=")' + id, '@Html.Raw(L.数据字典导入)');
+        }
+        //添加选项入textbox,并保证格式准确
+        mfield.addToTxt = function ($txt, option) {
+            var text = $txt.val();
+            if (ZL_Regex.isEmpty(option)) {  }
+            option = option.replace(/ /g, "");//选项不允许空格
+            if (text.lastIndexOf("\n") != (text.length - 1)) { option = "\n" + option; }
+            $txt.val(text + option);
+        }
+       $( function() { mfield.init(); })
+    </script>
+
+}

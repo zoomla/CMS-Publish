@@ -15,8 +15,8 @@
 
 
 ![](https://www.z01.com/UploadFiles/Image/20180109/6365113731841359629161856.jpg)
-> 当前版本： cms2 x3.9.5
-> 发布日期：2018-6-5
+> 当前版本： cms v8.1.3
+> 发布日期：2020-1-17
 > 离线包下载：[www.z01.com/pub](http://www.z01.com/pub "www.z01.com/pub")
 
 
@@ -26,6 +26,7 @@
 - 全面转为dotNET core框架内核。
 - 190101：发布基于dot NET core 2.0的Zoomla!逐浪CMS v8.0.1
 - 191110：发布基于dot NET core 3.0的Zoomla!逐浪CMS v8.1.2
+- 200117：发布基于dot NET core 3.0的Zoomla!逐浪CMS v8.1.3，提供PWA超站等应用。
 
 - 更多信息请访问www.z01.com
 

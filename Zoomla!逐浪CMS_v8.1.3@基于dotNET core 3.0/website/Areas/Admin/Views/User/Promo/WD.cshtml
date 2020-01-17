@@ -1,0 +1,75 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{
+<title>@L.用户提现</title>
+<style type="text/css">
+.qrcode_img{width:300px;height:300px;position:absolute;display:none;
+            background-color:#fff;padding:5px;border:1px solid #ddd;
+            border-radius:5px;box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 5px 0px, rgba(0, 0, 0, 0.0784314) 0px 2px 10px 0px;
+}
+</style> 
+}
+@section content{ 
+    @Call.SetBread(new Bread[] {
+ new Bread("{admin}"),
+ new Bread(Context.Request.RawUrl(),@L.用户提现)
+},"{search}")
+    <ul class="nav nav-tabs list_choice" role="tablist">
+        <li class="nav-item" role="presentation" data-type="-100"><a class="nav-link" href="?s=-100">@L.全部</a></li>
+        <li class="nav-item" role="presentation" data-type="0"><a class="nav-link" href="?s=0">@L.未处理</a></li>
+        <li class="nav-item" role="presentation" data-type="99"><a class="nav-link" href="?s=99">@L.已确认</a></li>
+        <li class="nav-item" role="presentation" data-type="-1"><a class="nav-link" href="?s=-1">@L.已拒绝</a></li>
+    </ul>
+    @Html.Partial(MVCHelper.ViewDir_Admin+"User/Promo/WD_List.cshtml")
+    <div>
+         @*OnClick="CheckDepos_B_Click" OnClientClick="return confirm('要确认选定出金吗?');"*@
+        <button ID="CheckDepos_B" class="btn btn-info" onclick="mvcpage.bat({'url':'WD_API?action=audit',confirm:'@L.确定要执行该操作吗'});">@L.批量确认</button>
+        <button type="button" class="btn btn-outline-info" onclick="OutToExcel();">@L.导出Excel</button>
+    </div>
+}
+@section script{ 
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/Label/ZLHelper.js"></script>
+<script>
+        $().ready(function () {
+            $("#chkAll").click(function () {selectAllByName(this, "idchk");});
+            checkState("@ViewBag.state");
+        });
+        //默认滑动门
+        function checkState(state) {
+            $("[data-type]").find("a").removeClass('active');
+            $("[data-type='" + state + "']").find("a").addClass('active');
+        }
+        var diag = new ZL_Dialog();
+        function cashAudit(id, action) {
+            diag.url = "WDAudit?id=" + id + "&action=" + action;
+            diag.title = "";
+            diag.maxbtn = false;
+            diag.reload = true;
+            diag.backdrop = true;
+            diag.ShowModal();
+        }
+        function OutToExcel() {
+            var $html = $(document.getElementById("tab_div").outerHTML);
+            $html.find("td").css("border", "1px solid #666");
+            $html.find("tr").find("td:first").remove();
+            $html.find("#page_tr").remove();
+            $html.find("tr:last").remove();
+            ZLHelper.OutToExcel($html.html(), '@(DateTime.Now.ToString("yyyyMMdd"))用户提现');
+        }
+        var qrcode = {};
+        qrcode.toggle = function (btn) {
+            var $wrap = $(btn).closest(".qrcode_wrap");
+            var $img = $wrap.find("img");
+            if ($img.is(":visible")) {
+                $img.hide();
+                $(btn).text("@Html.Raw(L.点击显示收款码)");
+            }
+            else {
+                $(".qrcode_img").hide();
+                $img.show();
+                $(btn).text("@Html.Raw(L.点击隐藏收款码)");
+            }
+        }
+    </script>
+
+}

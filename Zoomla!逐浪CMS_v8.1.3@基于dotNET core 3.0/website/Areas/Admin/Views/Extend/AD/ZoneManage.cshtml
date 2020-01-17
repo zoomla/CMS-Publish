@@ -1,0 +1,48 @@
+﻿@using ZoomLa.BLL.Extend
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Zone_API?action=";
+}
+@section head{ <title>@L.广告版位管理</title>}
+@section content{ 
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url=Context.Request.RawUrl(),text=L.版位管理,addon="<a href='ZoneAdd'> ["+@L.添加版位+"]</a>" }
+},"{search}")
+    <ul class="nav nav-tabs list_choice">
+        <li class="nav-item" data-type=""><a href="javascript:;" class="nav-link" onclick="ShowTab('');">@L.所有版位</a></li>
+        @foreach (var item in Enum.GetNames(typeof(B_AD_Zone.ADType)))
+        {
+            <li class="nav-item" data-type="@item"><a href="javascript:;" class="nav-link" onclick="ShowTab('@item');">@item</a></li>
+        }
+    </ul>
+	<div class="table-responsive-md">
+        @Html.Partial(MVCHelper.ViewDir_Admin +"Extend/AD/Zone_List.cshtml")
+	</div>
+    <button type="button" onclick="mvcpage.post({url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.确定删除版位吗)'});" class="btn btn-outline-danger">@L.批量删除</button>
+    <button type="button" onclick="mvcpage.post({url:'@(apiUrl+"active")',confirm:'@Html.Raw(L.确定要激活吗)'});" OnClick="BtnActive_Click" class="btn btn-outline-info">@L.激活版位</button>
+    <button type="button" onclick="mvcpage.post({url:'@(apiUrl+"pause")',confirm:'@Html.Raw(L.确定要暂停吗)'});" OnClick="BtnPause_Click" class="btn btn-outline-danger">@L.暂停版位</button>
+
+}
+@section script{ 
+<script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+<script type="text/javascript">
+    $().ready(function () {
+        var type = decodeURI(getParam("type"));
+        if (!type) { $(".nav.nav-tabs li").eq("0").find("a").addClass("active"); }
+        else {
+            $(".nav-item").each(function () {
+                console.log($(this).data("type"));
+                if ($(this).data("type") == type) { $(this).find("a").addClass("active"); }
+            })
+        }
+    })
+    function ShowTab(n) {
+        if (n == "")
+            location.href = "ZoneManage";
+        else
+            location.href = "ZoneManage?type=" + encodeURI(n);
+    }
+</script>
+
+}

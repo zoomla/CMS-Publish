@@ -1,0 +1,38 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    B_Ask askBll = new B_Ask();
+    
+}
+<table class="table table-bordered table-striped" id="EGV">
+<thead>
+    <tr>
+        <td class="td_xs"></td>
+        <td class="td_s">ID</td>
+        <td>@L.问卷名称</td>
+        <td class="td_m">@L.类别</td>
+        <td class="td_m">@L.启用</td>
+        <td style="width:450px;"></td>
+    </tr>
+</thead>
+
+@foreach(DataRow dr in Model.dt.Rows)
+{
+     <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td><a href="SurveyAdd?ID=@dr["ID"]">@dr["Title"]</a></td>
+            <td>@L.问卷调查</td>
+            <td>@Html.Raw(DataConverter.CLng(dr["ZStatus"])==99?ComRE.Icon_OK:ComRE.Icon_Error)</td>
+            <td>
+				<a class="btn btn-info btn-sm" href="SurveyAdd?ID=@dr["ID"]"> <i class="zi zi_pencilalt" title="修改"></i> @L.修改</a>
+                <a class="btn btn-info btn-sm" href="SurveyItemList?Sid=@dr["ID"]" > <i class="zi zi_listalt"></i> @L.问题</a>
+                <a class="btn btn-info btn-sm" href="/Vote/Index?id=@dr["ID"]" target="_blank" > <i class="zi zi_globe"></i> @L.查看</a>
+                <a class="btn btn-info btn-sm" href="SurveyResultChart?id=@dr["ID"]" > <i class="zi zi_chartpie" title="分析"></i> @L.分析</a>
+                <a class="btn btn-info btn-sm" href="SurveyResultList?ID=@dr["ID"]" > <i class="zi zi_list"></i> @L.结果</a>
+                    
+                <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.del({url:'Survey_API?action=del',ids:'@dr["ID"]',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trashalt" title="删除"></i> @L.删除</a>
+            </td>
+        </tr>
+}
+    @Html.Partial("_page")
+</table>

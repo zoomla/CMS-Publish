@@ -1,0 +1,27 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{
+    <title>@L.课程管理</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb navbar-fixed-top w-100">
+                <li class="breadcrumb-item"><a href='@(CustomerPageAction.customPath2)I/main'>@L.工作台</a></li>
+                <li class="breadcrumb-item"><a href='Papers_System_Manage'>@L.教育模块</a></li>
+                <li class="breadcrumb-item"><a href='Papers_System_Manage'>@L.考试管理</a></li>
+                <li class="breadcrumb-item">@L.课程管理<a href='AddCourse'>[@L.添加课程]</a></li>
+                @MvcHtmlString.Create(Call.GetHelp(75))
+            </ol>
+        </div>
+    </div>
+    @Html.Partial("CourseManage_List")
+    <div class="alert alert-light">
+        <button type="button" class="btn btn-outline-danger" onclick='mvcpage.bat({ url: "Course_Del", confirm: "@Html.Raw(L.不可恢复性删除确定要删除吗)？" });'>@L.批量删除</button>
+    </div>
+}
+@section script{
+
+}

@@ -1,0 +1,37 @@
+﻿@using ZoomLa.Model.Extend
+@using ZoomLa.BLL.Extend
+@model ZoomLa.Model.Extend.M_AD_Info
+@{ 
+
+}
+@{ 
+
+}
+<style>
+.ad_tcck {position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 1050;display: none;/*overflow: hidden;*/-webkit-overflow-scrolling: touch;outline: 0;overflow-x: hidden;overflow-y: auto;}
+.ad_tcck .modal-dialog {position: relative;width: 700px;margin: 140px auto 35px;}
+.ad_tcck .modal-content {position: relative;-webkit-background-clip: padding-box;background-clip: padding-box;border-radius: 6px;outline: 0;}
+.ad_tcck img{width:100%;border:0 none;}
+.ad_tcck .modal-header {position: absolute;right:5%;min-height: 16.42857143px;padding: 0.5rem 0.5rem;}
+.ad_tcck .modal-header .close {margin-top: -2px;}
+.ad_tcck .close {float: right;font-size: 21px;font-weight: bold;line-height: 1;color: #eee;}
+.ad_tcck .close:hover,.ad_tcck .close:focus {color: #fff;text-decoration: none;cursor: pointer;}
+.ad_tcck button.close {-webkit-appearance: none;padding: 0;cursor: pointer;background: transparent;border: 0;}
+</style>
+<div class="ad_tcck modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+	  <div class="modal-content">
+	    <a href="@Model.LinkUrl"><img src="@Model.Image" /></a>
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color:#0e0e0e">×</button>
+		 </div>
+          <div class="modal-content">
+              @Html.Raw(Model.Html)
+          </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    $(".ad_tcck").modal("show");
+</script>

@@ -1,0 +1,21 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+@section head{<title>@L.发送记录</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+	new Bread("{admin}"),
+	new Bread() {url=Context.Request.RawUrl(), text=L.发送记录,addon="[<a href='SMSSend'>"+@L.短信发送+"</a>]"}}
+	)
+<div class="list_choice">
+@Html.Partial(MVCHelper.ViewDir_Admin+"/User/Mail/SMSSendLog_List.cshtml")
+</div>
+
+}
+@section script{ 
+<style type="text/css">
+#navHolder{display:none;}
+</style>
+
+}

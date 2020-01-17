@@ -1,0 +1,24 @@
+﻿@model System.Data.DataTable
+@{ 
+
+}
+@if (Model != null)
+{
+    <table class="table table-bordered table-striped">
+        <thead><tr> @foreach (DataColumn dc in Model.Columns)
+        {<td>@dc.ColumnName</td>} </tr></thead>
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <tr>@foreach (DataColumn dc in Model.Columns)
+            {<td>@dr[dc.ColumnName]</td> }</tr>
+        }
+    </table>
+}
+else if (Model == null && string.IsNullOrEmpty(ViewBag.err)) 
+{
+    <div class="alert alert-info" style="margin:10px;">操作成功</div>
+}
+else
+{
+    <div id="remind_div" class="alert alert-danger" style="margin:10px;">@ViewBag.err</div>
+}

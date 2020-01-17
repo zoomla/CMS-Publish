@@ -1,0 +1,30 @@
+﻿<script>
+    var sites = {
+        apiUrl: "API?action=",
+        diag: new ZL_Dialog(),
+        post: function (action, params, cb) {
+            var ref = this;
+            if (!params) { params = {}; }
+            ref.showMask();
+            $.post(ref.apiUrl + action, params, function (data) {
+                var ret = APIResult.getModel(data);
+                if (APIResult.isok(ret)) { if (cb) { cb(ret.result); } }
+                else { alert("error:" + ret.retmsg); }
+                ref.diag.CloseModal();
+            })
+        },
+        site_list: function (cb) {
+            var ref = this;
+            ref.post("site_list", {}, cb)
+        },
+        file_del: function (cb) {
+            ref.post("file_del", {}, cb);
+        },
+        showMask: function () {
+            var ref = this;
+            ref.diag.closebtn = false;
+            ref.diag.ShowMask("正在处理中...");
+        },
+        showDiag: function () { }
+    };
+</script>

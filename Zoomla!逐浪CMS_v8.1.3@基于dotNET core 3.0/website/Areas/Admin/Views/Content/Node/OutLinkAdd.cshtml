@@ -1,0 +1,85 @@
+﻿@model ZoomLa.Model.M_Node
+@using ZoomLa.BLL.Content
+@{
+    B_Node nodeBll = new B_Node();
+    M_Node parentMod = nodeBll.SelReturnModel(Model.ParentID);
+    if (string.IsNullOrEmpty(Model.NodeDir)) { Model.NodeDir = function.GetRandomString(10); }
+}
+@section head{<title>链接信息</title>}
+@section content{
+<style type="text/css">
+.batch_yes{display:none;}
+</style>
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}","系统设置"),
+new Bread("NodeManage","节点管理"),
+new Bread() {url=Context.Request.RawUrl(), text=(Model.NodeID<1?"添加节点":Model.NodeName),addon="" }},"<div class='ml-auto'><a href=''><i class='zi zi_redoalt'></i></a></div>")
+
+
+    <div class="container-fluid pr-0 list_choice">
+        <form method="post" action="@MVCHelper.GetAction("NodeAdd_Submit",Context.Request)">
+            <input type="hidden" name="NodeType" value="@((int)NodeEnum.OuterLink)"/>
+                <table class="table table-striped table-bordered sys_table">
+                        <tbody>
+                            <tr class="batch_no">
+                                <th class="w12rem_lg">所属栏目</th>
+                                <td>@parentMod.NodeName</td>
+                            </tr>
+                            <tr class="batch_no">
+                                <th>链接名称</th>
+                                <td>
+                                    <input type="text" name="TxtNodeName" ID="TxtNodeName" class="form-control m50rem_50 required" value="@Model.NodeName" />
+                                    <small id="TxtNodeName_sp"></small>
+                                </td>
+                            </tr>
+                             <tr class="batch_no" style="display:none;">
+                                <th>链接名称</th>
+                                <td>
+                                    <input type="text" name="TxtNodeDir" ID="TxtNodeDir" class="form-control m50rem_50 required" value="@Model.NodeDir" />
+
+                                </td>
+                            </tr>
+                            <tr class="batch_no">
+                                <th>
+                                    链接URL
+                                </th>
+                                <td>
+                                    <input type="text" name="NodeUrl" ID="NodeUrl" class="form-control m50rem_50 required" value="@Model.NodeUrl" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="w12rem_lg">
+                                    链接图片地址
+                                </th>
+                                <td>
+                                    <input type="text" name="TxtNodePicUrl" ID="TxtNodePicUrl" class="form-control m50rem_50" value="@Model.NodePic" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>
+                                    链接提示
+                                </th>
+                                <td>
+                                    <textarea name="TxtTips" ID="TxtTips" class="form-control m50rem_50" rows="2">@Model.Tips</textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    链接说明
+                                </th>
+                                <td><textarea name="TxtDescription" ID="TxtDescription" class="form-control m50rem_50" rows="2">@Model.Description</textarea></td>
+                            </tr>
+                            <tr><td></td><td>
+                                <input type="submit" value="保存信息" class="btn btn-info"/>
+                                </td></tr>
+                        </tbody>
+                    </table>
+        </form>
+    </div>
+}
+@section script{
+    <script>
+        $("form").validate({});
+    </script>
+}

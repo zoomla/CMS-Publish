@@ -1,0 +1,22 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Zone_API?action=";
+}
+@section head{<title>@L.广告管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("ZoneManage",@L.版位管理),
+        new Bread() {url="InfoManage", text=@L.广告列表 ,addon="<a href='InfoAdd'>["+@L.添加广告+"]</a>" }}
+        )
+        <div class="list_choice">
+            @Html.Partial(MVCHelper.ViewDir_Admin +"Extend/AD/Info_List.cshtml")
+	    </div>
+  <input type="hidden" id="ZoneID" value="@Context.Request.GetParam("ZoneID")"/>  
+
+}
+   
+@section  script{ 
+    <script src="/JS/SelectCheckBox.js"></script>
+
+}

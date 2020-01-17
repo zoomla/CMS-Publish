@@ -1,0 +1,52 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string ShowPirceMode(DataRow dr)
+    {
+        int mode = DataConverter.CLng(dr["PriceMode"]);
+        if (mode == 1) { return "按件数"; }
+        else { return "按重量"; }
+    }
+
+}
+@{ 
+
+}
+@section head {<title>@L.运费模板</title>}
+@section content {
+@Call.SetBread( new Bread[] {
+    new Bread("{admin}"),
+	new Bread(Call.PathAdmin("Product/ProductManage"),@L.商品管理),
+	new Bread(){url=Context.Request.RawUrl(), text=L.运费模板列表,addon="<a href='DeliverAdd'>["+@L.添加运费模板+"]</a>"}
+	})
+<div class="list_choice">
+<table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <td></td>
+                <td>ID</td>
+                <td>@L.模板名称</td>
+                <td>@L.计价方式</td>
+                <td>@L.备注</td>
+                <td>@L.备注 (@L.仅卖家可见)</td>
+                <td>@L.操作</td>
+            </tr>
+        </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+        <td>@dr["ID"]</td>
+        <td><a href="DeliverAdd?id=@dr["id"]">@dr["TlpName"]</a></td>
+        <td>@ShowPirceMode(dr)</td>
+        <td>@dr["Remind"]</td>
+        <td>@dr["Remind2"]</td>
+        <td>
+            <a href="DeliverAdd?id=@dr["id"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({ url: '@("Deliver_API?action=del")', ids: '@dr["ID"]', confirm: '@L.你确定将该数据删除吗', after: function () { location = location; } });"><i class="zi zi_trashalt" title="删除"></i>@L.删除</a>
+        </td>
+    </tr>
+    }
+    </table>
+}
+</div>
+    

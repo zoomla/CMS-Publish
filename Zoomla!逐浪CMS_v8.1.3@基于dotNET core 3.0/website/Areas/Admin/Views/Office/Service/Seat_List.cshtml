@@ -1,0 +1,30 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>ID</th>
+        <th>@L.客服名称</th>
+        <th>@L.用户名</th>
+        <th>@L.默认客服</th>
+        <th>@L.操作</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["S_ID"]" /></td>
+            <td>@dr["S_ID"]</td>
+            <td>
+                <img class="img_50" src="@dr["S_FaceImg"]" onerror="shownopic(this);" />
+                @dr["S_Name"]
+            </td>
+            <td>@dr["S_Remrk"]</td>
+            <td>@(DataConverter.CLng(dr["S_Default"])==1?"是":"否")</td>
+            <td>
+                <a class="btn btn-info btn-sm" href="SeatAdd?ID=@dr["S_ID"]"><i class="zi zi_pencilalt"></i></a>
+                <a class="btn btn-info btn-sm" href="MsgEx?Uids=@dr["S_AdminID"]" title="查看该客服的聊天记录" ><i class="zi zi_eye"></i>@L.聊天记录</a>
+                <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.post2('Seat_API?action=del', '@dr["S_ID"]', {confirm:'@Html.Raw(L.确定要删除吗)'})"><i class="zi zi_trashalt"></i></a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

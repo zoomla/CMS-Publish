@@ -1,0 +1,24 @@
+﻿@model ZoomLa.Model.M_Node
+@{
+  
+}
+@section head{<title>@L.节点信息</title>}
+@section content{
+<style type="text/css">
+.batch_yes{display:none;}
+</style>
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}",L.系统设置),
+new Bread("NodeManage",L.节点管理),
+new Bread() {url=Context.Request.RawUrl(), text=(Model.NodeID<1?""+L.添加节点+"":Model.NodeName),addon="" }},"<div class='ml-auto'><a href=''><i class='zi zi_redoalt'></i></a></div>")
+
+
+    <div class="container-fluid pr-0 list_choice">
+        <form method="post" action="@MVCHelper.GetAction("NodeAdd_Submit",Context.Request)">
+                @Html.PartialAsync("/Areas/Admin/Views/Content/Node/NodeAdd_Partial.cshtml").Result
+        </form>
+    </div>
+}
+@section script{
+
+}

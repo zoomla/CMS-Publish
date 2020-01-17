@@ -1,0 +1,22 @@
+﻿@using ZoomLa.Model.Extend
+@using ZoomLa.BLL.Extend
+@model ZoomLa.Model.Extend.M_AD_Zone
+@{
+
+   
+}
+
+@section head{ <title>版位预览</title>}
+@section content{
+    <div style="min-height:500px;position:relative;">
+        @Html.Partial("AD/Quote",Model.Name)
+    </div>
+    <div class="card card-default" style="margin-top:5px;position:fixed;bottom:0px;z-index:100;width:100%;">
+        <div class="card-header">版位引用</div>
+        <div class="card-body"><textarea class="form-control">@@Html.Partial(/Views/Shared/AD/Quote.cshtml,@(Model.Name))</textarea></div>
+    </div>
+}
+@section script{
+
+
+}

@@ -1,0 +1,16 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{ <title>@L.话题管理</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("CompList",L.能力中心),
+new Bread(Context.Request.RawUrl(),L.话题管理)
+},"{search}")
+<div class="list_choice table-responsive-md pr-1">
+@Html.Partial(MVCHelper.ViewDir_Admin+"Office/Plat/TopicList_List.cshtml")
+</div>
+	<div class="sysBtline">
+<input type="button" class="btn btn-outline-info" ID="SetToStar_Btn" value="@L.设为星标" onclick="mvcpage.bat({url:'API?action=topic_star'})"/>
+<input type="button" class="btn btn-outline-danger" ID="CancelStar_Btn" value="@L.取消星标" onclick="mvcpage.bat({url:'API?action=topic_unstar'})"/>
+</div>
+}

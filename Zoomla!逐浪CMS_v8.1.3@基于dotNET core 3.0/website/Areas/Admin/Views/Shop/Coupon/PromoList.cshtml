@@ -1,0 +1,28 @@
+﻿<asp:Content runat="server" ContentPlaceHolderID="head"><title>@L.促销列表</title></asp:Content>
+<asp:Content runat="server" ContentPlaceHolderID="Content">
+<div>
+    <ol class="breadcrumb fixed-top">
+        <li class="breadcrumb-item"><a href='@Call.PathAdmin("Main")'>@L.工作台</a></li>
+        <li class="breadcrumb-item"><a href='../ProductManage'>@L.商城管理</a></li>
+        <li class="breadcrumb-item">@L.促销管理 <a href="PromoAdd">[@L.添加促销活动]</a></li>
+        <div id="help" class="float-right text-center mr-2"><a href="javascript:;" onclick="selbox.toggle();" id="sel_btn" class="help_btn"><i class="zi zi_search"></i></a></div>
+        <div id="sel_box" runat="server" class="padding5">
+            <div class="input-group float-left">
+                <asp:TextBox runat="server" ID="Key_T" class="form-control" placeholder="@Html.Raw(L.请输入活动名称)" />
+                <span class="input-group-btn">
+                    <asp:Button ID="Search_B" CssClass="btn btn-outline-dark" runat="server" Text="@Html.Raw(L.搜索)" OnClick="Search_B_Click" />
+                </span>
+            </div>
+        </div>
+    </ol>
+</div>
+<div class="table-responsive-md list_choice"></div>
+    @Html.Partial(MVCHelper.ViewDir_Admin_Coupon+"Promo_List.cshtml")
+</asp:Content>
+<asp:Content runat="server" ContentPlaceHolderID="ScriptContent">
+    <script>
+        $(function () {
+            
+        })
+    </script>
+</asp:Content>

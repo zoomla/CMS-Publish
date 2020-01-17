@@ -1,0 +1,80 @@
+﻿@model ZoomLa.Model.Shop.M_Store_Style
+@{ 
+
+}
+@section head{<title>@L.样式管理</title> }
+@section content{ 
+@Call.SetBread( new Bread[] {
+new Bread("{admin}"),
+new Bread("StoreManage",L.店铺管理),
+new Bread("StoreStyle",L.店铺样式),
+new Bread(){url="", text=L.样式管理}
+}) 
+<form method="post" action="@MVCHelper.GetAction("StoreStyleAdd_Submit",Context.Request)">
+<div class="container-fluid pr-0">
+<div class="row sysRow list_choice table-responsive-md">
+    <table class="table table-bordered table-striped sys_table">
+        <tr>
+            <th class="w12rem_lg">@L.样式名称</th>
+            <td>
+                <input type="text" id="StyleName_T" name="StyleName_T" class="form-control max20rem required" value="@Model.StyleName"/>
+            </td>
+        </tr>
+        <tr>
+            <th>@L.预览图片</th>
+            <td>
+                @Html.Partial("C_SfileUP", new C_SFileUP() { FileType = "img", ID = "Thumbnail", SaveType = "admin",Value=Model.Thumbnail })
+            </td>
+        </tr>
+        <tr>
+            <th>@L.首页模板</th>
+            <td>
+                 @Html.Raw(PageCommon.GetTlpDP("Template_Index", !string.IsNullOrEmpty(Model.Template_Index)))
+                <input type="hidden" id="Template_Index_hid" name="Template_Index_hid" />
+            </td>
+        </tr>
+        <tr>
+            <th>@L.内容模板</th>
+            <td>
+                @Html.Raw(PageCommon.GetTlpDP("Template_Content", !string.IsNullOrEmpty(Model.Template_Content)))
+                <input type="hidden" id="Template_Content_hid" name="Template_Content_hid" />
+            </td>
+        </tr>
+        <tr>
+            <th>@L.列表模板</th>
+            <td>
+                @Html.Raw(PageCommon.GetTlpDP("Template_List", !string.IsNullOrEmpty(Model.Template_List)))
+                <input type="hidden" id="Template_List_hid" name="Template_List_hid" />
+            </td>
+        </tr>
+        <tr>
+            <th>@L.备注信息</th>
+            <td>
+                <textarea ID="Remind_T" name="Remind_T" class="form-control" rows="5">@Model.Remind</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" ID="Save_B" class="btn btn-info" value="@L.保存" />
+                <a href="StoreStyle" class="btn btn-outline-info">@L.返回</a>
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+</form>
+@Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex", ""))
+}
+@section script{ 
+    <script src="/JS/chinese.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script src="/JS/ZL_Regex.js"></script>
+    <script>
+        $(function () {
+            Tlp_initTemp();
+        })
+    </script>
+
+}

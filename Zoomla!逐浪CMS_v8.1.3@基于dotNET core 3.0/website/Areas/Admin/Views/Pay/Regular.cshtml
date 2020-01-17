@@ -1,0 +1,13 @@
+﻿@section head{<title>@L.规则列表</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),		
+        new Bread() {url="", text=""+L.充值赠送+"<a href='RegularAdd'> ["+L.添加规则+"]</a>",addon="" }}
+		)
+
+	<div class="list_choice">
+        @Html.Partial("Regular_List")
+
+	</div>
+
+}

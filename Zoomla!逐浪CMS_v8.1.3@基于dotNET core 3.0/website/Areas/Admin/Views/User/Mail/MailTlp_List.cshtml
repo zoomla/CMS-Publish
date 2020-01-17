@@ -1,0 +1,28 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th>
+            <th>@L.模板名称</th>
+            <th>@L.缩略图</th>
+            <th>@L.创建人</th>
+            <th>@L.创建日期</th>
+            <th>@L.操作</th>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td><a href="MailTlpAdd?id=@dr["ID"]">@dr["TempName"]</a></td>
+            <td><img src="@dr["Pic"]" alt="缩略图" class="img_3rem" onerror="shownopic(this);" /></td>
+            <td>@dr["AddUser"]</td>
+            <td>@dr["CreateTime"]</td>
+            <td>
+                 <a href="MailTlpAdd?id=@dr["ID"]"><i class="zi zi_pencilalt" zico="笔黑"></i></a>
+                 <a href="javascript:;" onclick="mvcpage.del({url:'Mail_API?action=tlp_del',ids:'@dr["ID"]'confirm:'@Html.Raw(L.确定要删除吗)'});" ><i class="zi zi_trashalt" zico="垃圾箱竖条"></i>@L.删除</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

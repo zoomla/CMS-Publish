@@ -1,0 +1,34 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>ID</th>
+        <th>Logo</th>
+        <th>@L.公司名称</th>
+        <td>@L.成员人数</td>
+        <th>@L.创建人</th>
+        <th>@L.企业邮箱</th>
+        <th>@L.创建时间</th>
+        <th>@L.操作</th>
+        </tr></thead>
+   @foreach (DataRow dr in Model.dt.Rows)
+   {
+       <tr>
+           <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+           <td>@dr["ID"]</td>
+           <td>@ComRE.Img_NoPic(DataConverter.CStr(dr["CompLogo"]))</td>
+           <td><a href="AddComp?ID=@dr["ID"]">@dr["CompName"]</a></td>
+           <td>@dr["MemberCount"]</td>
+           <td><a href="javascript:void(0);>" onclick="user.showuinfo(@dr["CreateUser"])">@dr["UserName"]</a></td>
+           <td>@dr["Mails"]</td>
+           <td>@dr["CreateTime"]</td>
+           <td>
+               <a href="AddComp?id=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+               <a href="MemberList?compid=@dr["id"]"><i class="zi zi_users"></i> @L.成员</a>
+               @*<a href="WordTlp?ID=@dr["ID"]" ><i class="zi zi_list"></i>报表</a>*@
+               <a href="javascript:;" onclick="mvcpage.del({url:'API?action=comp_del',ids:'@dr["ID"]',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trashalt" title="删除"></i>@L.删除</a>
+           </td>
+       </tr>
+   }
+    @Html.Partial("_page")
+</table>

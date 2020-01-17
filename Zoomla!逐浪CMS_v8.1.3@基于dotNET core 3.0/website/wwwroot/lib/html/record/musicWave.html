@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+<!--
+用于音乐播放时随音频跳动,另需引用jquery   
+
+
+-->
+<div id="root">
+    <div id="music-app">
+        <!--音频线-->
+        <div id="sound-waves" class="visible"></div>
+        <!--随机高度亮点-->
+        <div id="particles" class="visible"></div>
+    </div>
+</div>
+<style type="text/css">
+@keyframes pulse {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-50%) scale3d(1, 1, 1);
+  }
+  80%,
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-50%) scale3d(5, 1.5, 1);
+  }
+}
+
+@keyframes particle-down {
+  from {
+    opacity: 0;
+    top: 0%;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80%,
+  to {
+    opacity: 0;
+    top: 100%;
+  }
+}
+
+@keyframes particle-up {
+  from {
+    opacity: 0;
+    top: 100%;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80%,
+  to {
+    opacity: 0;
+    top: 0%;
+  }
+}
+
+@keyframes loading {
+  from,
+  to {
+    height: 4px;
+  }
+  50% {
+    height: 12px;
+  }
+}
+
+@keyframes bounce-in-right {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(3000px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-25px, 0, 0);
+  }
+  75% {
+    transform: translate3d(10px, 0, 0);
+  }
+  90% {
+    transform: translate3d(-5px, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+
+html,
+body,
+#root {
+  font-family: 'Barlow Condensed', sans-serif;
+  height: 100%;
+  margin: 0px;
+  overflow: hidden;
+  padding: 0px;
+  width: 100%;
+}
+
+#music-app {
+  background-image: url("../earth-space.jpg");
+  background-position: center;
+  background-size: cover;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+  width: 100%;
+}
+
+
+#music-app #sound-waves {
+  background-color: rgba(0, 0, 0, 0.6);
+  height: 100%;
+  opacity: 0;
+  position: relative;
+  transition: all 2s;
+  transition-delay: 1.4s;
+  transition-timing-function: ease-in-out;
+  width: 100%;
+  z-index: 1;
+}
+
+#music-app #sound-waves.visible {
+  opacity: 1;
+}
+
+#music-app #sound-waves .sound-wave {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  display: flex;
+  height: 4px;
+  justify-content: space-around;
+  text-align: center;
+  width: 100%;
+  z-index: 10;
+}
+
+#music-app #sound-waves .sound-wave#wave-1 {
+  z-index: 2;
+}
+
+#music-app #sound-waves .sound-wave#wave-1 .sound-line {
+  background-color: white;
+  box-shadow: 0px 0px 1px 1px white, 0px 0px 6px 2px rgba(255, 255, 255, 0.8);
+  transition: all 150ms ease-in-out;
+}
+
+#music-app #sound-waves .sound-wave#wave-2 {
+  z-index: 3;
+}
+
+#music-app #sound-waves .sound-wave#wave-2 .sound-line {
+  background-color: white;
+  box-shadow: 0px 0px 1px 1px white, 0px 0px 6px 2px rgba(255, 255, 255, 0.8);
+  transition: all 150ms ease-in-out;
+}
+
+#music-app #sound-waves .sound-wave#wave-3 {
+  z-index: 1;
+}
+
+#music-app #sound-waves .sound-wave#wave-3 .sound-line {
+  background-color: white;
+  box-shadow: 0px 0px 1px 1px white, 0px 0px 6px 2px rgba(255, 255, 255, 0.8);
+  transition: all 100ms ease-in-out;
+}
+
+#music-app #sound-waves .sound-wave .sound-line {
+  backface-visibility: hidden;
+  display: inline-block;
+  position: relative;
+  transform: translateY(-50%);
+  top: 50%;
+  width: 4px;
+}
+
+#music-app #particles {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  height: 2px;
+  opacity: 0;
+  transition: all 2s;
+  transition-delay: 1.4s;
+  transition-timing-function: ease-in-out;
+  width: 100%;
+  z-index: 10;
+}
+
+#music-app #particles.visible {
+  opacity: 1;
+}
+
+#music-app #particles .particle-path {
+  position: absolute;
+  transition: opacity 0.4s;
+  width: 2px;
+}
+
+#music-app #particles .particle-path .particle {
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  background-color: white;
+  border-radius: 10px;
+  height: 2px;
+  position: absolute;
+  width: 2px;
+}
+</style>
+<script>
+    var waves = [
+        { id: "wave-1", wHeight: 150, wWidth: 5, duration: 150, range: { start: 0.1, end: 0.3 }, peakFreq: 5,interval:0 },
+        { id: "wave-2", wHeight: 150, wWidth: 5, duration: 150, range: { start: 0.6, end: 0.9 }, peakFreq: 5 ,interval:0},
+        { id: "wave-3", wHeight: 50, wWidth: 7, duration: 100, range: { start: 0, end: 1 }, peakFreq: 7, interval: 0 }
+    ];
+    //var interval = 0;
+    var isPlaying = true;
+    var nLines = Math.floor(window.innerWidth / 20);
+    function createSoundLine() {
+      
+        //var lines = [];
+        // interval = _props3.interval;
+        var lines = "";
+        for (var i = 0; i < nLines; i++) {
+            var style = { height: 2 + 'px' };
+                lines+= '<div class="sound-line" ' + util.showStyle(style) + '></div>';
+        }
+        for (var i = 0; i < waves.length; i++) {
+            var html = '<div id="' + waves[i].id + '" class="sound-wave">' + lines + '</div>';
+            $("#sound-waves").append(html);
+        }
+    }
+    function createParticle() {
+        //根据当前宽度生成点效果
+        var html = "";
+        var particles = [], nParticles = window.innerWidth / 8;
+        var tlp = '<div class="particle-path" style="height: 71px; left: 302px; opacity: 1; transform: translateY(0%);"><div class="particle" style="animation-name: particle-down; animation-delay: -288ms; animation-duration: 516ms; height: 2px; width: 2px;"></div></div>';
+       for (var i = 0; i < nParticles; i++) {
+            var left = (0, util.getRand)(1, window.innerWidth),
+                height = (0, util.getRand)(40, 60),
+                delay = (0, util.getRand)(0, 1000),
+                duration = (0, util.getRand)(100, 400) ,
+                direction = (0, util.getRand)(1, 1000),
+                size = (0, util.getRand)(1, 1000),
+                pathStyle = {
+                    height: height + 'px',
+                    left: left + 'px',
+                    opacity:  1,
+                    transform: '' + (direction % 2 === 0 ? 'translateY(0%)' : 'translateY(-100%)')
+                },
+                particleStyle = {
+                    animation_name: '' + (direction % 2 === 0 ? 'particle-down' : 'particle-up'),
+                    animation_delay: delay * -1 + 'ms',
+                    animation_duration: duration + 'ms',
+                    height: '' + (size % 2 === 0 ? '4px' : '2px'),
+                    width: '' + (size % 2 === 0 ? '4px' : '2px')
+               };
+           html += '<div class="particle-path" ' + util.showStyle(pathStyle) + '><div class="particle" ' + util.showStyle(particleStyle) + '></div></div>\r\n';
+           
+           // particles.push(React.createElement('div', { key: i, className: 'particle-path', style: pathStyle }, React.createElement('div', { className: 'particle', style: particleStyle })));
+        }
+        //附加入元素 particles
+       $("#particles").html(html);
+    }
+    //up,bump弹起的高度
+    //5或7为一段,中间最高,两边渐低
+    function setLineHeights(wave, up, bump) {
+         var getNearestInterval=function(interval, number, start) {
+	      var offset = start ? 0 : -1;
+	      return Math.ceil(number / interval) * interval + offset;
+	    }
+        	 var  wHeight = wave.wHeight,
+	          wMinHeight = wave.wMinHeight,
+	          wWidth = wave.wWidth,
+	          range = wave.range,
+	          //isPlaying = wave.isPlaying,
+	          mute = wave.mute,
+	          end = wave.end;
+          var lineDoms = $("#" + wave.id).find(".sound-line");
+
+	      var lineHeights = [],
+	          minHeight = 2,
+	          height = 0,
+	          rand = 0,
+	          maxHeight = up ? wHeight : Math.round(wHeight * (Math.random() + 0.01)),
+	          half = (wWidth - 1) / 2,
+	          inc = 1 / (half + 1),
+	         startLine = getNearestInterval(wWidth, Math.round(nLines * range.start), true),
+             endLine = getNearestInterval(wWidth, Math.round(nLines * range.end), false);
+        if (bump) maxHeight *= 2;
+        //对单个wave的sound-line遍历
+	      for (var i = 0; i < nLines; i += wWidth) {
+	        rand = Math.floor(Math.random() * maxHeight);
+	        if (wMinHeight) rand += wMinHeight;else rand += minHeight;
+	        for (var j = 0; j < wWidth; j++) {
+                height = 0;
+                //已结束,停止播放,小于启动线,大于停止线,则不跳动(disuse)
+                //|| i + j < startLine || i + j > endLine
+	          if (!isPlaying ) {
+	            height = minHeight;
+              } else if (j < half) {  
+	            height += rand * inc * (j + 1);
+	          } else if (j === half) {
+	            height += rand;
+              } else {
+                  height += rand * (1 - inc * (j - half));
+	          }
+                $(lineDoms[i+j]).css("height", Math.round(height));
+	        }
+          }
+    }
+    function sounder_play() { }
+    function sounder_stop() { }
+    var util = {};
+    util.showStyle = function (json) {
+        var result = "";
+        for (key in json) { result += (key.replace("_","-")) + ":" + json[key] + ";"; }
+        return 'style="' + result + '"';
+    }
+    util.getRand = function (min, max) {
+	  return Math.floor(Math.random() * max) + min;
+    };
+    createSoundLine();
+    createParticle();
+    waves.forEach(function (wave) {
+        setInterval(function () {
+            //根据配置确定哪些弹起
+            //第peakFreq点为最高,bump次,三条wave是为了平滑过渡
+            var up = wave.interval % 2 === 0, bump = wave.interval % (wave.peakFreq) === 0;
+            setLineHeights(wave, up, bump);
+            wave.interval++;
+         }, wave.duration);
+    });
+	     
+
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+﻿@model ZoomLa.Model.SYS.M_Sys_Holiday
+@section head{<title>节日管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] { 
+new Bread("{admin}"),
+new Bread("Holiday","节日列表"),
+new Bread(Context.Request.RawUrl(),"节日管理")
+})
+<form method="post" action="@MVCHelper.GetAction("HolidayAdd_Submit",Context.Request)">
+<div class="list_choice">
+    <table class="table table-bordered table-striped">
+        <tr><td class="td_m">节日名称</td><td>@Html.TextBoxFor(m=>m.Name,new {@class="form-control  text_300 required" })</td></tr>
+        <tr><td>节日日期</td>
+            <td>
+            <div class="input-group">
+                <select id="HType" name="HType" class="form-control text_100">
+                    <option value="公历">公历</option>
+                    <option value="农历">农历</option>
+                </select>
+                <input type="text" class="form-control text_md required" name="HDate" onclick="WdatePicker({ dateFmt: 'MM月dd日' });" autocomplete="off" value="@Model.HDate"/>
+            </div>
+            </td>
+        </tr>
+        <tr><td>生效范围</td><td>
+            <div class="input-group">
+                <span class="input-group-prepend"><span class="input-group-text">节前</span></span>
+                @Html.TextBoxFor(m=>m.HDate_Start,new {@class="form-control text_x" })
+                <span class="input-group-prepend"><span class="input-group-text">天--节后</span></span>
+                @Html.TextBoxFor(m=>m.HDate_End,new {@class="form-control text_x" })
+                <span class="input-group-append"><span class="input-group-text">天</span></span>
+            </div>
+            </td></tr>
+        @*<tr><td colspan="2" class="text-center">信息配置</td></tr>*@
+        <tr><td>节庆图片</td><td>
+             @Html.Partial("C_SFileUP",new C_SFileUP() {ID="HImage",SaveType="admin",Value=Model.HImage })
+            </td></tr>
+        <tr><td>全站特效</td><td>
+            @MVCHelper.H_Checks("HEffect","灰屏".Split('|'),"全站灰屏".Split('|'),Model.HEffect)
+            </td></tr>
+        <tr><td>自定义脚本</td><td>
+             @Html.TextAreaFor(m=>m.HContent,new {@class="form-control",rows="5" })
+             <div><small>定义的Html内容和JS脚本会输出至前端页面</small></div>
+            </td></tr>
+        <tr><td></td><td>
+            <input type="submit" value="保存信息" class="btn btn-info"/>
+            </td></tr>
+    </table>
+</div>
+</form>
+}
+@section script{ 
+<script src="~/js/DatePicker/WdatePicker.js"></script>
+<script src="~/js/SelectCheckBox.js"></script>
+<script>
+   
+    $(function () {
+         $("form").validate({});
+        $("$HType").val("@Model.HType");
+    })
+</script>
+}

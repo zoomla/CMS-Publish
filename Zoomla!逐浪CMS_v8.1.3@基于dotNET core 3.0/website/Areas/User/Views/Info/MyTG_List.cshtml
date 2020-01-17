@@ -1,0 +1,32 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{ 
+
+}
+<div id="EGV">
+<ul id="user_ul">
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <li>
+            <div><img class="face" src="@dr["UserFace"]" onerror="shownoface(this);" /></div>
+            <div style="line-height:30px;margin-left:10px;">
+                <div>
+                    <span class="name">@B_User.GetUserName(dr["HoneyName"],dr["UserName"])</span>
+                    <span class="badge">@dr["GroupName"]</span>
+                </div>
+                <div style="font-size:12px;color:#999;">@dr["RegTime"]</div>
+            </div>
+        </li>
+    }
+</ul>
+@if (Model.itemCount > 0)
+    {
+       <div>@Html.Partial("_page2")</div>
+    }
+@if (Model.itemCount == 0)
+{
+        <div class="empty_div" runat="server" id="empty_div" style="text-align:center;color:#999;" visible="false">
+    <div><i class="zi zi_boxopen" style="font-size:8rem;"></i></div>
+    <div style="font-size:16px;">尚无推广信息</div>
+</div>
+}
+</div>

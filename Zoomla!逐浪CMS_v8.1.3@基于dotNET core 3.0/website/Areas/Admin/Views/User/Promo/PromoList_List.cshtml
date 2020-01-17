@@ -1,0 +1,70 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetOper(DataRow dr)
+    {
+        int pcount = DataConverter.CLng(dr["PCount"]);
+        if (pcount > 0) { return "<a href=\"?puid=" + dr["UserID"] + "\" class=\"option_style\"><i class=\"zi zi_user\"></i>下线会员</a>"; }
+        else { return "<span style=\"color:#999;cursor:pointer;margin-left:2px;\"><i class=\"zi zi_user\"></i> 无下线会员</span>"; }
+    }
+    public string ShowParentUserName(DataRow dr)
+    {
+        string uname = DataConverter.CStr(dr["ParentUserName"]);
+        string honey = DataConverter.CStr(dr["ParentHoneyName"]);
+        if (string.IsNullOrEmpty(uname)) { return "<span style='color:green;'>无</span>"; }
+        else
+        {
+            int puserid = DataConverter.CLng(dr["ParentUserID"]);
+            if (uname.StartsWith("wechat")) { uname = honey; }
+            if (!uname.Equals(honey)) { uname += "(" + honey + ")"; }
+            if (string.IsNullOrEmpty(uname)) { uname = DataConverter.CStr(dr["ParentUserName"]); }
+            return "<a href='javascript:;' onclick='user.showuinfo(" + puserid + ");' title='推荐人信息'>" + uname + "</a>";
+        }
+    }
+    public IHtmlContent ShowUserName(DataRow dr)
+    {
+        string html = "";
+        string uname = DataConverter.CStr(dr["UserName"]);
+        string honey = DataConverter.CStr(dr["HoneyName"]);
+        if (uname.StartsWith("wechat")) { uname = honey; }
+        if (!uname.Equals(honey)) { uname += "(" + honey + ")"; }
+        if (string.IsNullOrEmpty(uname)) { uname = DataConverter.CStr(dr["UserName"]); }
+        html = "<a href='javascript:;' onclick='user.showuinfo(" + dr["UserID"] + ");'>" + uname + "</a>";
+        return MvcHtmlString.Create(html);
+    }
+    public string ShowPM(int index, DataRow dr)
+    {
+        int pm = (Model.cpage * Model.psize) + 1;
+        if (DataConverter.CLng(dr["PCount"]) == 0) { return "--"; }
+        else { return pm.ToString(); }
+    }
+
+}
+@{ 
+    int index = 1;
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <th class="td_s">@L.排名</th>
+        <th class="td_s">ID</th>
+        <th style="width:60px;">头像</th>
+        <th>@L.用户名</th>
+        <th class="td_m">@L.推荐人</th>
+        <th class="td_m">@L.推广人数</th>
+        <th class="td_l">@L.注册时间</th>
+        <th class="td_l">@L.操作</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td>@ShowPM(index++,dr)</td>
+            <td>@dr["UserID"]</td>
+            <td><img src="@function.GetImgUrl(DataConverter.CStr(dr["salt"]))" onerror="shownopic(this);"  class="img_50"/></td>
+            <td><a href="javascript:;" onclick="user.showuinfo(@dr["UserID"]);">@ShowUserName(dr)</a></td>
+            <td>@MvcHtmlString.Create(ShowParentUserName(dr))</td>
+            <td>@DataConverter.CLng(dr["PCount"])</td>
+            <td>@dr["RegTime"]</td>
+            <td>@MvcHtmlString.Create(GetOper(dr))</td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

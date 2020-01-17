@@ -1,0 +1,233 @@
+﻿@using ZoomLa.Model.Design
+@using ZoomLa.BLL.Design
+@using ZoomLa.SQLDAL
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@functions{
+    B_Design_Question questBll = new B_Design_Question();
+    public string GetQType(DataRow dr)
+    {
+        return questBll.GetQType(DataConverter.CStr(dr["QType"]));
+    }
+    public string GetPercent(DataRow dr)
+    {
+        double percent = DataConverter.CDouble(dr["percent"]);
+        return (percent * 100).ToString("f2") + "%";
+    }
+    public string ShowChartWrap(DataRow dr)
+    {
+        string qtype = DataConverter.CStr(dr["QType"]);
+        if (qtype.Equals("radio") || qtype.Equals("checkbox")) { return ""; }
+        else { return "style='display:none;'"; }
+    }
+    public string TbName = "ZL_Design_AnsDetail";
+    //将选项的数据存入字段,以便前端绘图
+    private string SaveChartHid(DataTable opdt)
+    {
+        //text:count-->name:value
+        DataTable dt = new DataTable();
+        dt.Columns.Add(new DataColumn("name", typeof(string)));
+        dt.Columns.Add(new DataColumn("value", typeof(string)));
+        foreach (DataRow opdr in opdt.Rows)
+        {
+            DataRow dr = dt.NewRow();
+            dr["name"] = opdr["text"];
+            dr["value"] = opdr["count"];
+            dt.Rows.Add(dr);
+        }
+        return JsonConvert.SerializeObject(dt);
+    }
+    private DataTable GetAnsDT(int qid)
+    {
+        DataTable ansDT = SqlHelper.ExecuteTable("SELECT answer,COUNT(Answer)AS count FROM ZL_Design_AnsDetail WHERE Qid=" + qid + " AND Answer!='' AND Answer IS NOT NULL GROUP BY Answer");
+        for (int i = 0; i < ansDT.Rows.Count; i++)
+        {
+            ansDT.Rows[i]["count"] = DataConvert.CLng(ansDT.Rows[i]["count"]);
+        }
+        return ansDT;
+    }
+}
+@{ 
+    M_Design_Ask askMod = ViewBag.askMod;
+    DataTable questDT = ViewBag.questDT;
+    int itemIndex = 0;
+}
+@section head{ <title>结果分析</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("SurveyManage","问卷投票"),
+        new Bread() {url=Context.Request.RawUrl(), text="结果分析["+askMod.Title+"]",addon="" }})
+<div class="list_choice"></div>
+<h1 style="color:#0094ff;font-size:26px;border-bottom:1px solid #ddd;padding-bottom:10px;" class="text-center">@askMod.Title</h1>
+@if (questDT.Rows.Count > 0)
+{
+<div class="list">
+    @foreach (DataRow dr in questDT.Rows)
+    {
+        itemIndex++;
+        string qtype = DataConvert.CStr(dr["QType"]);
+        int qid = Convert.ToInt32(dr["ID"]);
+        M_Design_Question questMod = questBll.SelReturnModel(qid);
+        string chartValue = "";
+    <div class="item @dr["QType"]" id="item_@dr["ID"]">
+        <div class="h4"><strong>第@(itemIndex)题：@dr["QTitle"]</strong><span class="qtype">(@GetQType(dr))</span></div>
+
+        @if (qtype.Equals("radio"))
+        {
+            DataTable optionDT = JsonConvert.DeserializeObject<DataTable>(questMod.QOption);//四舍五入导至不匹配
+            optionDT.Columns.Add(new DataColumn("count", typeof(int)));
+            optionDT.Columns.Add(new DataColumn("percent", typeof(double)));
+            DataTable ansDT = GetAnsDT(qid);
+            int total = ansDT.Rows.Count < 1 ? 0 : Convert.ToInt32(ansDT.Compute("SUM(count)", ""));
+            for (int i = 0; i < optionDT.Rows.Count; i++)
+            {
+                DataRow opdr = optionDT.Rows[i];
+                foreach (DataRow ansdr in ansDT.Rows)
+                {
+                    string answer = ansdr["answer"].ToString();
+                    int count = Convert.ToInt32(ansdr["count"]);
+                    if (opdr["value"].ToString().Equals(answer)) { opdr["count"] = DataConvert.CLng(opdr) + count; }
+                }
+            }
+            for (int i = 0; i < optionDT.Rows.Count; i++)
+            {
+                double count = DataConvert.CDouble(optionDT.Rows[i]["count"]);
+                optionDT.Rows[i]["count"] = count;//未选择的为0
+                optionDT.Rows[i]["percent"] = count / total;
+            }
+            chartValue= SaveChartHid(optionDT);
+            <div>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <td>选项</td>
+                        <td>小计</td>
+                        <td>比例</td>
+                    </tr>
+                    @foreach (DataRow option in optionDT.Rows)
+                    {
+                        <tr class="option">
+                            <td>@option["Text"]</td>
+                            <td>@option["count"]</td>
+                            <td>@GetPercent(option)</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+        else if (qtype.Equals("checkbox"))
+        {
+            DataTable optionDT = JsonConvert.DeserializeObject<DataTable>(questMod.QOption);
+            optionDT.Columns.Add(new DataColumn("count", typeof(int)));
+            optionDT.Columns.Add(new DataColumn("percent", typeof(double)));
+            //多选项一个回答,会有多个结果,所以需要再处理一次
+            DataTable ansDT = GetAnsDT(qid);
+            int total = ansDT.Rows.Count < 1 ? 0 : Convert.ToInt32(ansDT.Compute("SUM(count)", ""));
+            for (int i = 0; i < optionDT.Rows.Count; i++)
+            {
+                DataRow opdr = optionDT.Rows[i];
+                foreach (DataRow ansdr in ansDT.Rows)
+                {
+                    string[] ansArr = ansdr["answer"].ToString().Split(',');
+                    int count = Convert.ToInt32(ansdr["count"]);
+                    foreach (string ans in ansArr)
+                    {
+                        if (opdr["value"].ToString().Equals(ans)) { opdr["count"] = DataConvert.CLng(opdr["count"]) + count; }
+                    }
+                }
+            }
+            for (int i = 0; i < optionDT.Rows.Count; i++)
+            {
+                double count = DataConvert.CLng(optionDT.Rows[i]["count"]);
+                optionDT.Rows[i]["count"] = count;
+                optionDT.Rows[i]["percent"] = count / total;
+            }
+            chartValue= SaveChartHid(optionDT);
+            <div>
+                <table class="table table-bordered table-striped table-condensed">
+                    <tr>
+                        <td>选项</td>
+                        <td>小计</td>
+                        <td>比例</td>
+                    </tr>
+                    @foreach (DataRow option in optionDT.Rows)
+                    {
+                        <tr class="option">
+                            <td>@option["Text"]</td>
+                            <td>@option["count"]</td>
+                            <td>@GetPercent(option)</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+        else if (qtype.Equals("blank"))
+        {
+            <div>
+                【<a href="javascript:;" onclick="vote.listByQid('@dr["ID"]');" class="answer_more">查看本题答案详细信息</a>】
+            </div>
+        }
+        else if (qtype.Equals("score"))
+        {
+            JObject jobj = JsonConvert.DeserializeObject<JObject>(questMod.QFlag);
+            string score = "0";
+            DataTable dt = DBCenter.SelWithField(TbName, "AVG(CAST(Answer as int))", "Answer IN('1','2','3','4','5','6','7','8','9','10') AND Qid=" + qid);
+            if (dt.Rows.Count > 0) { score = DataConvert.CDouble(dt.Rows[0][0]).ToString("f1"); }
+            <div>
+                <input type="text" data-stars="@(DataConvert.CLng(jobj["maxscore"]).ToString())" class="rating" ID="Score_T" value="@score" Style="display: none;" disabled="disabled" />
+            </div>
+        }
+
+
+
+        <div class="chart_wrap excel_no text-center" @ShowChartWrap(dr)>
+            <button type="button" class="btn btn-sm btn-info" onclick="showchart('@dr["ID"]','pie')"><i class="zi zi_chartpie"></i>饼状</button>
+            <button type="button" class="btn btn-sm btn-info" onclick="showchart('@dr["ID"]','circle')"><i class="zi zi_lifering"></i>圆环</button>
+            <button type="button" class="btn btn-sm btn-info" onclick="showchart('@dr["ID"]','bar')"><i class="zi zi_chartbar"></i>柱状</button>
+            <button type="button" class="btn btn-sm btn-info" onclick="showchart('@dr["ID"]','line')"><i class="zi zi_bars"></i>条形</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="hidechart('@dr["ID"]')"><i class="zi zi_times"></i>关闭</button>
+            <input type="hidden" ID="chart_hid" value='@Html.Raw(chartValue)' />
+            <div class="zlchart" id="chart_@dr["ID"]" style="width: 100%;"></div>
+        </div>
+    </div>
+    }
+</div>
+}
+else {
+<div id="empty_div" class="text-center">
+    <i class="zi zi_inbox" style="font-size: 120px;"></i>
+    <div class="padding-top">还没有人回答该问卷</div>
+</div>
+}
+
+<div class="Conent_fix">
+    <a href="/Vote/ResultAdd?ID=@(askMod.ID)" class="btn btn-info" target="_blank"><i class="zi zi_plus"></i> 添加投票</a>
+    <button type="button" class="btn btn-info" onclick="OutToExcel();"><i class="zi zi_expand"></i> 导出Excel</button>
+</div>
+ }
+@section script{ 
+<script src="/lib/ECharts/echarts.js"></script>
+<script src="/lib/ECharts//VoteEChart.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Label/ZLHelper.js"></script>
+<script>
+    
+    var vote = {};
+    vote.listByQid = function (qid) {
+        //ShowComDiag("/Plugins/Vote/AnsList?ID=" + qid, "回答详情");
+    }
+    function OutToExcel() {
+        var $table = $('<table><tr><td colspan="3" style="font-size:20px;text-align:center;">' + $("#Title_L").text() + '</td></tr></table>');
+        $(".item.checkbox,.item.radio").each(function () {
+            var $item = $(this.outerHTML);
+            $table.append('<tr><td colspan="3">' + $item.find(".h4").text() + '</td></tr>');
+            $table.append($item.find("tr.option"));
+        });
+        //items.find(".excel_no").remove();
+        $table.find("td").css("border", "1px solid #666");
+        $table.find("th").css("border", "1px solid #666");
+        ZLHelper.OutToExcel($table[0].outerHTML, $("#Title_L").text() + "结果分析");
+        //ZLHelper.OutToWord(items.html(), $("#Title_L").text() + "结果分析");
+    }
+</script>
+}

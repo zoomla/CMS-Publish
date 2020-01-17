@@ -1,0 +1,31 @@
+﻿@model ZoomLa.Model.M_Content_ScheTask
+@{ 
+    DataTable dt = ViewBag.dt;
+    
+}
+@section head{<title>内容发布</title>}
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("ContentRelease_Submit",Context.Request)">
+<table class="table table-bordered table-striped">
+    <tr><th>发布时间</th><td><input type="text" class="form-control required"  onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' });" value="@Model.ExecuteTime" name="ExecuteTime"/></td></tr>
+    <tr><th>选定内容</th><td>
+         <div style="max-height:300px;overflow-y:auto;">
+             <table class="table table-bordered">
+                <thead><tr><th class="td_s">ID</th><th>标题</th><th class="td_m">作者</th><th class="td_l">创建时间</th></tr></thead>
+                 @foreach (DataRow dr in dt.Rows)
+                 {
+                   <tr><td>@dr["GeneralID"]</td><td>@dr["Title"]</td><td>@dr["Inputer"]</td><td>@dr["CreateTime"]</td></tr>
+                 }
+                </table>
+         </div>
+        </td></tr>
+    <tr><th></th><td><input type="submit" value="确认添加" class="btn btn-info"/></td></tr>
+</table>
+</form>
+}
+@section script{ 
+<script src="~/js/DatePicker/WdatePicker.js"></script>
+<script>
+    $("form").validate({});
+</script>
+}

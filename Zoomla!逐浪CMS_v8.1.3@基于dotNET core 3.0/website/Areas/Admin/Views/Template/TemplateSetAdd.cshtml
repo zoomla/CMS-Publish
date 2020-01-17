@@ -1,0 +1,49 @@
+﻿@{
+            DataTable newtable = FileSystemObject.GetDirectorySmall(function.VToP("/Template/"));
+
+}
+@section head{<title>方案设置</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),		
+        new Bread("TemplateSetOfficial","云端模板"),				
+        new Bread() {url=Context.Request.RawUrl(), text="站点方案",addon="" }}
+		)
+<form method="post" action="TemplateSetAdd_Submit">
+	<div class="list_choice">
+    <table class="table table-striped table-bordered sys_table">
+        <tr>
+            <th class="w12rem_lg">方案名称</th>
+            <td><input type="text" ID="txtProname" name="proname" class=" form-control max20rem required" /></td>
+        </tr>
+        <tr>
+            <th>作者</th>
+            <td><input type="text" ID="txtAuthor" name="txtAuthor" class="form-control max20rem required" /></td>
+        </tr>
+        <tr>
+            <th>模板目录</th>
+            <td>
+                <select class="form-control max20rem">
+                     @foreach (DataRow dr in newtable.Rows)
+                     {
+                         <option value="@dr["name"]">@dr["name"]</option>
+                     }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" class="btn btn-info" value="提交申请"/>
+                <a href="TemplateSetOfficial" class="btn btn-outline-info">返回列表</a>
+            </td>
+        </tr>
+    </table>
+	</div>
+</form>
+}
+@section script{
+    <script>
+        $("form").validate({});
+    </script>
+}

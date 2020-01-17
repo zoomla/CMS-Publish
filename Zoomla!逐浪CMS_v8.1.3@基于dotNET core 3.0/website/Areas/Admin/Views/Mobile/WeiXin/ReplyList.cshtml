@@ -1,0 +1,23 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string path = ViewBag.path;
+}
+@section head{<title>@L.微信回复管理</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("Home",L.微信管理),
+new Bread(){url=Context.Request.RawUrl(),text=L.微信回复,addon="[<a href='ReplyAdd'>"+L.新建回复+"</a>]" }
+
+},"{search}")
+    <div class="list_choice">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Mobile/Weixin/Reply_List.cshtml")
+    </div>
+    <div class="sysBtline">
+        <button type="button" ID="BatDel_Btn" class="btn btn-outline-danger" onclick="mvcpage.bat({url:'Reply_API?action=del',confirm:'@Html.Raw(L.确定要删除吗)'});">@L.批量删除</button>
+    </div>
+
+}
+@section script{
+
+}

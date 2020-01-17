@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string baseUrl = "SysLog?type1=" + HttpUtility.UrlEncode(Context.Request.GetParam2("type1"));
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <th>@L.操作</th>
+        <th>@L.详情</th>
+        <th>@L.操作时间</th>
+        <th>@L.操作人</th>
+        <th>@L.操作IP</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><a href="?@(baseUrl+"&type2="+HttpUtility.UrlEncode(""+dr["type2"]))">@dr["type2"]</a></td>
+            <td>@dr["Content1"]</td>
+            <td>@dr["CDate"]</td>
+            <td>@dr["CName"]</td>
+            <td>@dr["CIP"]</td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

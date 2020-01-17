@@ -1,0 +1,44 @@
+﻿@using ZoomLa.Common
+@using ZoomLa.BLL.Other
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    B_WX_PayLog logBll = new B_WX_PayLog();
+    public string GetPayType(DataRow dr)
+    {
+        int type = DataConverter.CLng(dr["PayType"]);
+        return logBll.GetPayType(type);
+    }
+
+}
+<table id="EGV" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>@L.收款人</td>
+            <td>@L.公众号</td>
+            <td>@L.金额</td>
+            <td>@L.付款方式</td>
+            <td>@L.状态</td>
+            <td>@L.时间</td>
+            <td>@L.付款备注</td>
+            @*<td>操作</td>*@
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td>@dr["ID"]</td>
+            <td>@dr["TrueName"]</td>
+            <td><a href="?appid=@dr["Appid"]">@dr["Alias"]</a></td>
+            <td>@DataConverter.CDouble(dr["AMount"]).ToString("F2")</td>
+            <td>@GetPayType(dr)</td>
+            <td>@MvcHtmlString.Create(DataConverter.CLng(dr["ZStatus"])==1?ComRE.Icon_OK:ComRE.Icon_Error)</td>
+            <td>@dr["CDate"]</td>
+            <td>@dr["Remind"]</td>
+            @*<td>
+                     <a href="PayLogDetail?ID=<%#Eval("ID") %>"><i class="zi zi_list"></i>查看详情</a>
+                </td>*@
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

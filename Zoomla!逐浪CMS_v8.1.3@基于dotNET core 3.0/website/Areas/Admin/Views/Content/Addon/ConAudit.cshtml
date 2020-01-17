@@ -1,0 +1,49 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+  
+}
+@section head{<title>@L.内容审核</title>}
+@section content{
+@Call.SetBread(new Bread[] { 
+new Bread("{admin}"),
+new Bread(Call.PA("Content/ContentManage"),L.内容管理),
+new Bread(Context.Request.RawUrl(),L.内容审核)
+
+})
+<div class="list_choice">
+    <div style="margin-bottom:5px;" class="input-group">
+        <select class="form-control text_md mvcparam" id="ZStatus_DP">
+            <option value="">@L.全部</option>
+            <option value="0">@L.待处理</option>
+            <option value="99">@L.已同意</option>
+            <option value="-1">@L.已拒绝</option>
+        </select>
+        <input type="text" id="Skey" class="form-control mvcparam" placeholder="@Html.Raw(L.请输入内容标题)"/>
+        <input type="text" id="UName" class="form-control mvcparam" placeholder="@Html.Raw(L.请输入申请人用户名)" />
+        <span class="input-group-append">
+            <input type="button" id="Save_Btn" class="btn btn-info" value="@L.搜索" onclick="mvcpage.load();"/>
+        </span>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead><tr>
+            <th>@L.标题</th>
+            <th class="td_m">@L.操作</th>
+            <th class="td_m">@L.状态</th>
+            <th class="td_m">@L.申请人</th>
+            <th class="td_l">@L.申请日期</th>
+            <th class="td_m">@L.审核人</th>
+            <th class="td_l">@L.审核日期</th>
+            <th class="td_l">@L.操作</th>
+        </tr></thead>
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Content/Addon/ConAudit_List.cshtml")
+    </table>
+</div>
+
+ }
+@section script{ 
+<script>
+    function showContent(gid) {
+        ShowComDiag("@Call.PA("Conternt/EditContent?ID=")" + gid, "");
+    }
+</script>
+}

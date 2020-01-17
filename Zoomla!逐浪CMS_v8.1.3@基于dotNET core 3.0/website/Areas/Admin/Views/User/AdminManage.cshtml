@@ -1,0 +1,85 @@
+﻿@using System.Data
+@using ZoomLa.BLL.User
+@using ZoomLa.SQLDAL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+}
+@section head{<title>@L.管理员</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(){url=Context.Request.RawUrl(),text=L.管理员,addon=" <a href='AdminAdd'>["+L.添加管理员+"]</a>" }
+},"{search}")
+    
+
+    <ul class="nav nav-tabs list_choice">
+        <li class="nav-item" data-tag=""><a class="nav-link" href="AdminManage">@L.全部</a></li>
+        <li class="nav-item" data-tag="0"><a class="nav-link" href="AdminManage?islock=0">@L.已审核</a></li>
+        <li class="nav-item" data-tag="1"><a class="nav-link" href="AdminManage?islock=1">@L.未审核</a></li>
+    </ul>
+@Html.CMS_EGV_OrderBy()
+<div id="EGV_wrap">
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <td></td>
+            <td><span class="zlsort" data-field="a.adminid">ID</span></td>
+            <td>@L.状态</td>
+            <td>@L.管理员名</td>
+            <td>@L.真实姓名</td>
+            <td>@L.管理员角色</td>
+            <td>@L.关联会员</td>
+            <td>@L.最近IP</td>
+            <td>@L.上次修改密码时间</td>
+            <td><span class="zlsort" data-field="a.cdate">@L.创建时间</span></td>
+            <td><span class="zlsort" data-field="a.lastlogouttime">@L.最近活跃时间</span></td>
+            <td>@L.登录次数</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+    @Html.Partial("AdminManage_List")
+</table>
+</div>
+    <div>
+       @if (SiteConfig.SiteOption.RegManager == 1) { <button type="button" ID="Auit_B" class="btn btn-outline-info" onclick="batAudit();">@L.审核管理员并发送邮件</button> }
+        <button type="button" ID="Lock_B" class="btn btn-outline-info" onclick="mvcpage.bat({url:'Admin_API?action=lock'});">@L.批量锁定</button>
+        <button type="button" ID="UnLock_B" class="btn btn-outline-info" onclick="mvcpage.bat({url:'Admin_API?action=unlock'});">@L.批量解锁</button>
+        <button type="button" ID="Button2" class="btn btn-outline-danger" onclick="mvcpage.bat({url:'Admin_API?action=del',confirm:'@L.确定要删除吗'});">@L.批量删除</button>
+    </div>
+}
+@section script{
+    <script>
+        $(function () {
+            $(".nav-tabs [data-tag='" + getParam("islock") + "']").find("a").addClass('active');
+        });
+        function selectAllByName(obj, name) {
+            var allInput = document.getElementsByName(chkSel);
+            var loopTime = allInput.length;
+            for (i = 0; i < loopTime; i++) {
+                if (allInput[i].type == "checkbox") {
+                    allInput[i].checked = this.checked;
+                }
+            }
+        }
+        function CheckEmail() {
+            if ($("input[name=idchk]:checked").length < 1) { alert("@Html.Raw(L.未选择管理员)"); return false; }
+            if (confirm("@Html.Raw(L.是否同时给选中用户发送通知邮件)?"))
+                $("#IsEmail_Hid").val('1');
+            else
+                $("#IsEmail_Hid").val('0');
+            return true;
+        }
+        function IsSelectedId() {
+            return $("input:checkbox[name=chkSel]:checked").length > 0;
+        }
+        function batAudit() {
+            if ($("input[name=idchk]:checked").length < 1) { alert("@Html.Raw(L.请先选择需要操作的管理员)"); return false; }
+            if (!confirm("@Html.Raw(L.确定要审核选定的管理员吗+","+L.审核时自动忽略超管和正常的管理员)")) { return false; }
+            comdiag.ShowMask("@Html.Raw(L.正在处理中)...");
+            mvcpage.bat({ url: 'Admin_API?action=audit', after: function () { comdiag.CloseModal(); mvcpage.load(); }});
+        }
+    </script>
+
+
+}

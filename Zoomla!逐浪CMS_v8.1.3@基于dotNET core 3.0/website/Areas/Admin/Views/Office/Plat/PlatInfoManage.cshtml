@@ -1,0 +1,35 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    int ZStatus = ViewBag.ZStatus;
+}
+@section head{ <title>@L.信息管理</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("PlatInfoManage",L.能力中心),
+        new Bread() {url="PlatInfoManage", text=""+L.信息管理+"<a href='PlatInfoManage?s=0'> ["+L.回收站+"]</a>",addon="" }}
+        ,"{search}")
+    <div class="list_choice">
+        @Html.Partial(MVCHelper.ViewDir_Admin + "Office/Plat/PlatInfoManage_List.cshtml")
+    </div>
+    <div class="sysBtline">
+        @if (ZStatus == 0)
+        {
+             <input type="button" ID="Rels"  class="btn btn-outline-info" value="@Html.Raw(L.批量还原)" onclick="mvcpage.bat({url:'API?action=msg_recover'})"/>
+             <input type="button" ID="Clear_Btn"  class="btn btn-outline-danger" value="@Html.Raw(L.清空回收站)" onclick="mvcpage.post({ url:'API?action=msg_clear', data: {ids:''},callback:'reload',confirm:'@Html.Raw(L.确定要清空吗)'});"/>
+        }
+        else
+        {
+            <input type="button" ID="Dels" class="btn btn-outline-danger" value="@Html.Raw(L.批量删除)" onclick="mvcpage.bat({url:'API?action=msg_del',confirm:'@Html.Raw(L.确定要删除吗)'})" />
+        } 
+    </div>
+}
+@section script{ 
+    <script type="text/javascript">
+        $(function () {
+            $("#EGV tr:gt(0):not(:last)").dblclick(function () {
+                location = "PlatInfoDeail?ID=" + $(this).find("input[name=idchk]").val();
+            });
+        });
+    </script>
+}

@@ -1,0 +1,53 @@
+﻿@using ZoomLa.BLL.Shop
+@functions{
+    public DataTable gpDT { get {return ViewBag.gpDT; } }
+    B_Shop_RegionPrice regionBll = new B_Shop_RegionPrice();
+    public double GetPrice(DataRow dr)
+    {
+        int gid = Convert.ToInt32(dr["GroupID"]);
+        return regionBll.GetPrice(Model.price, 0, gid);
+    }
+
+}
+@section head{<title>区域价格管理</title> }
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("RegionPriceEdit_Submit",Context.Request)">
+<table class="table table-bordered table-striped">
+    <tr><td class="td_m">地区</td><td>@Model.region</td></tr>
+    <tr><td>价格详情</td><td>
+        <table class="table table-bordered table-striped margin_t5">
+            <tr>
+                <td>会员组</td>
+                <td>价格</td>
+            </tr>
+              @foreach (DataRow dr in gpDT.Rows)
+                {
+                     <tr>
+                        <td>@dr["GroupName"]</td>
+                        <td>
+                            <input type="text" value="@GetPrice(dr)" class="form-control price_t float" data-gid="@dr["GroupID"]" />
+                        </td>
+                    </tr>
+                }
+        </table>
+    </td>
+    </tr>
+<tr><td></td><td>
+    <input type="submit" ID="Save_Btn" class="btn btn-primary"  value="保存信息" onclick="return presave();" />
+    <input type="hidden" ID="Price_Hid" name="Price_Hid" />
+ </td></tr>
+</table>
+</form>
+}
+@section script{ 
+<script>
+    function presave() {
+        var price = [];
+        $(".price_t").each(function () {
+            var $input = $(this);
+            price.push({ gid: $input.data("gid"), price: $input.val() });
+        });
+        $("#Price_Hid").val(JSON.stringify(price));
+    }
+</script>
+}

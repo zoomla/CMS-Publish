@@ -1,0 +1,73 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "SearchFunc_API?action=";
+    int type = ViewBag.type;
+    string pageUrl = "SearchFunc?type=" + type + "&";
+}
+@section head{<title>@L.管理导航</title>}
+@section content{
+	@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread() {url=Context.Request.RawUrl(), text=@L.管理导航+"<a href='SearchFuncAdd?type="+type+"'>" +"["+@L.添加导航+"]</a>",addon="" }})
+	<div class="list_choice">
+    <ul class="nav nav-tabs" id="linktype_ul">
+
+        @if (!type.Equals("2"))
+        {
+            <li class="nav-item" data-id="-100" role="presentation"><a class="nav-link" href="@pageUrl">@L.所有应用</a></li>
+            <li class="nav-item" data-id="1" role="presentation"><a class="nav-link" href="@(pageUrl+"state=1")">@L.已启用</a></li>
+            <li class="nav-item" data-id="2" role="presentation"><a class="nav-link" href="@(pageUrl+"state=2")">@L.已停用</a></li>
+            <script>
+                $(function () {
+                    var LinkState = '@(DataConverter.CLng(Context.Request.GetParam("state"),-100))';
+                    $("#linktype_ul [data-id='" + LinkState + "']").find("a").addClass('active');
+                })
+            </script>
+        }
+        else
+        {
+            <li class="nav-item" data-id="0" role="presentation"><a class="nav-link" href="@(pageUrl+"state=1&elite=1&tab=0")">@L.推荐</a></li>
+            <li class="nav-item" data-id="1" role="presentation"><a class="nav-link" href="@(pageUrl+"state=1&elite=0&tab=1")">@L.普通</a></li>
+            <li class="nav-item" data-id="2" role="presentation"><a class="nav-link" href="@(pageUrl+"state=2&tab=2")">@L.已停用</a></li>
+            <script>
+                $(function () {
+                    var LinkState = '@(DataConverter.CLng(Context.Request.GetParam("tab")))';
+                    $("#linktype_ul [data-id='" + LinkState + "']").find("a").addClass('active');
+                })
+            </script>
+        }
+
+    </ul>
+    <div class="table-responsive" id="EGV_Table">
+        @Html.Partial("SearchFunc_List")
+    </div>
+    <div class="alert alert-light text-center">
+        @if (type.Equals("2"))
+        {
+            <input type="button" value="@L.批量推荐" class="btn btn-outline-info mb-1" onclick="mvcpage.bat({url:'@(apiUrl+"elite")'})" />
+            <input type="button" value="@L.取消推荐" class="btn btn-outline-info mb-1" onclick="mvcpage.bat({url:'@(apiUrl+"unelite")'})" />
+        }
+        <input type="button" value="@L.批量启用" class="btn btn-outline-info mb-1" onclick="mvcpage.bat({url:'@(apiUrl+"start")'})" />
+        <input type="button" value="@L.批量停用" class="btn btn-outline-danger mb-1" onclick="mvcpage.bat({url:'@(apiUrl+"stop")'})" />
+        <input type="button" value="@L.批量删除" class="btn btn-outline-danger mb-1" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});" />
+        <input type="button" value="@L.保存排序" class="btn btn-outline-info mb-1" onclick="saveOrder();" />
+    </div>
+	</div>
+}
+@section script{
+    <script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+    <script>
+        $().ready(function () {
+            ZL_Regex.B_Num("input[type=number]");
+        })
+        function saveOrder() {
+            if (!confirm('@Html.Raw(L.确定要保存排序吗)')) { return false; }
+            var packet = { order_T: "", order_Hid: "" };
+            $("input[name=order_T]").each(function () { packet.order_T += this.value + ","; });
+            $("input[name=order_Hid]").each(function () { packet.order_Hid += this.value + ","; });
+
+            $.post("@(apiUrl+"order")",packet, function (data) { if (data == "1") { alert("@Html.Raw(L.排序更新成功)"); } else { alert("@Html.Raw(L.排序更新失败):"+data); } })
+        }
+
+    </script>
+}

@@ -1,0 +1,65 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent ShowZStatus(DataRow dr)
+    {
+        string r= DataConverter.CLng(dr["ZStatus"]) == 99 ? ComRE.Icon_OK : ComRE.Icon_Error;
+        return MvcHtmlString.Create(r);
+    }
+    public string ShowType(DataRow dr)
+    {
+        int index = DataConverter.CLng(dr["ShowType"]);
+        string zoneshowtypename = "";
+        switch (index)
+        {
+            case 1:
+                zoneshowtypename = "权重随机显示";
+                break;
+            case 2:
+                zoneshowtypename = "权重优先显示";
+                break;
+            case 3:
+                zoneshowtypename = "顺序循环显示";
+                break;
+        }
+        return zoneshowtypename;
+
+    }
+}
+@{
+    string apiUrl = "Zone_API?action=";
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td class="td_xs"></td>
+            <td class="td_s">ID</td>
+            <td>@L.名称</td>
+            <td class="td_m">@L.广告数</td>
+            <td class="td_m">@L.类型</td>
+            <td class="td_s">@L.状态</td>
+            <td style="width:200px;">@L.管理</td>
+            <td style="width:130px;">@L.操作 </td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value='@dr["ID"]' /></td>
+            <td>@dr["ID"]</td>
+            <td>[<a href="ZoneManage?type=@dr["ZType"]">@dr["ztype"]</a>] <a href='ZoneAdd?ID=@(dr["ID"])'>@dr["Name"]</a></td>
+            <td>@dr["InfoCount"]</td>
+            <td>@ShowType(dr)</td>
+            <td>@ShowZStatus(dr)</td>
+            <td>
+                <a class="btn btn-info btn-sm" href="InfoAdd?ZoneID=@dr["ID"]"><i class="zi zi_plus" title="添加"></i> @L.广告</a>
+                <a class="btn btn-info btn-sm" href="javascript:;" onclick="ShowComDiag('ADPreView?ZoneID=@dr["ID"]','版位预览');"><i class="zi zi_globe"></i> @L.预览&@L.引用</a>
+            </td>
+            <td>
+                <a class="btn btn-info btn-sm" href="ZoneAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i> @L.编辑</a>
+                <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',ids:'@dr["ID"]',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trashalt" title="删除"></i></a>
+                @*<asp:LinkButton runat="server" CommandName="Refresh" CommandArgument='<%# Eval("ZoneID") %>'>刷新</asp:LinkButton>*@
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

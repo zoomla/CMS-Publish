@@ -1,0 +1,62 @@
+﻿@using ZoomLa.Model
+@model ZoomLaCMS.Areas.Admin.Models.VM_ContentManage
+@{
+    string apiUrl = "ContentManage_API?action=";
+ }
+@section head{<title>@L.内容回收站</title>}
+@section content{
+<style type="text/css">
+.nav-tabs{display:none;}
+</style>
+@(Call.SetBread(new Bread[] {
+new Bread("{main}",L.工作台),
+new Bread(Call.PathAdmin("Content/ContentManage"),L.内容管理),
+new Bread(Context.Request.RawUrl(),L.回收站)
+}))
+
+<div class="list_choice" style="width:100%;">
+    <form method="post" id="form1">
+
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#tab" data-toggle="tab" onclick="ShowTabs('')">@L.所有内容</a></li>
+            @*<li class="nav-item"><a class="nav-link" href="#tab5" data-toggle="tab" onclick="ShowTabs(5)">工作流审批</a></li>*@
+            <li class="nav-item"><a class="nav-link" href="#tab-3" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Draft)')">@L.草稿</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab0" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.UnAudit)')">@L.待审核</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab99" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Audited)')">@L.已审核</a></li>
+            <li class="nav-item active"><a class="nav-link" href="#tab-1" data-toggle="tab" onclick="ShowTabs('@((int)ZLEnum.ConStatus.Reject)')">@L.退稿</a></li>
+        </ul>
+        <div id="condiv">
+                    <table id="EGV_wrap" class="table table-striped table-bordered table-hover sys_table content_list">
+                <tr>
+                    <td class="w1rem"></td>
+                    <td><span class="zlsort" data-field="generalid">ID</span></td>
+                    <td>@L.标题</td>
+                    <td>@L.录入者</td>
+                    <td><span class="zlsort" data-field="hits">@L.点击数</span></td>
+                    <td><span class="zlsort" data-field="istop">@L.置顶</span></td>
+                    <td><span class="zlsort" data-field="EliteLevel">@L.推荐</span></td>
+                    <td>@L.静态</td>
+                    <td>@L.状态</td>
+                    <td>@L.排序</td>
+                    <td>@L.操作</td>
+                </tr> 
+            @Html.Partial("ContentManage_List", Model)
+                        </table>
+        </div>
+        <div style="margin-top:10px;">
+            <input type="button" ID="btnClear" class="btn btn-outline-danger mb-1" value="@L.彻底删除选中" onclick="mvcpage.bat({ url:'@(apiUrl+"del")', confirm: '@L.数据删除后不可恢复，@L.确认要删除选中项？' });" />
+            <input type="button" ID="btnRevert" class="btn btn-outline-info mb-1" value="@L.还原选中" onclick="mvcpage.bat({url:'@(apiUrl+"recover")',confirm:'@L.确定要还原吗'});" />
+            <input type="button" ID="btnClearAll" class="btn btn-outline-danger mb-1" value="@L.清空回收站" onclick="mvcpage.del({url:'@(apiUrl+"clear")',confirm:'@L.确实要清空回收站吗'})" />
+        </div>
+        <input type="hidden" class="mvcparam" data-type="json" value="@(Model.filter.ToJson())" />
+    </form>
+</div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>    
+<script>
+function ShowPopover() { }
+</script>    
+}

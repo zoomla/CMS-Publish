@@ -1,0 +1,102 @@
+﻿@functions{
+    //public string ShowStatus()
+    //   {
+    //       if (string.IsNullOrEmpty(GetToken()))
+    //       {
+    //           return "<span style='color:red;'>未获取到Token</span>"; 
+    //       }
+    //       else { return "<span style='color:green;'>运行中</span>"; }
+    //   }
+}
+@{ 
+    DataTable dt = new B_WX_APPID().Sel();
+
+}
+@section head{<title>@L.公众号管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+	new Bread("{admin}"),
+	new Bread() {url=Context.Request.RawUrl(), text=L.微信管理,addon= "[<a href='WxConfig'>"+L.添加公众号+"&"+L.小程序+"</a>]" }}
+	)
+<div class="list_choice">
+<table class="table table-bordered table-striped">
+<thead><tr>
+<td class="td_m">@L.功能</td>
+<td class="td_s">ID</td>
+<td>@L.别名</td>
+<td>@L.微信公众号</td>
+<td>APPID</td>
+<td class="td_l">@L.创建时间</td>
+<td class="weixin_div td_l">@L.操作</td>
+</tr></thead>
+@foreach (DataRow dr in dt.Rows)
+{
+    <tr>
+        <td>
+                <div class="btn-group">
+                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@L.操作<span class="caret"></span></a>
+                    <div class="dropdown-menu">
+                        
+                        @if (DataConverter.CStr(dr["ZType"]).Equals("小程序"))
+                        {
+
+                        }
+                        else
+                        {
+                            <a class="dropdown-item" href="WelPage?appid=@dr["ID"]"><i class="zi zi_globe"></i> @L.欢迎语</a>
+                            <a class="dropdown-item" href="ReplyList?appid=@dr["ID"]"><i class="zi zi_chat"></i> @L.自动回复</a>
+                            <a class="dropdown-item" href="MsgTlp?appid=@dr["ID"]"><i class="zi zi_comments"></i> @L.消息群发</a>
+                            <a class="dropdown-item" href="EditWxMenu?appid=@dr["ID"]"><i class="zi zi_book"></i> @L.菜单配置</a>
+                            <a class="dropdown-item" href="WxUserList?appid=@dr["ID"]"><i class="zi zi_users"></i> @L.粉丝管理</a>
+                        }
+
+                        <a class="dropdown-item" href="PayLog?appid=@dr["ID"]"><i class="zi zi_database"></i>  @L.支付日志</a>
+                        <a class="dropdown-item" href="WxPayConfig?appid=@dr["ID"]"><i class="zi zi_shoppingcart"></i> @L.支付配置</a>
+                    </div>
+                </div>
+
+
+        </td>
+        <td>@dr["ID"]</td>
+        <td>[@dr["ZType"]]@dr["Alias"]</td>
+        <td>@dr["WxNo"]</td>
+        <td>@dr["APPID"]</td>
+        <td>@dr["CDate"]</td>
+        <td>
+            <a class="btn btn-info btn-sm" href="WxConfig?id=@dr["ID"]"><i class="zi zi_pencilalt" title="编辑"> @L.编辑</i></a>
+		    <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.del({ids:'@dr["ID"]', url:'WXAPP_API?action=del',confirm:'@Html.Raw(L.确定要删除吗)',after:'refresh'});"><span class="zi zi_trashalt" title="删除"></span> @L.删除</a>
+        </td>
+    </tr>
+}
+</table>
+</div>
+<div class="alert alert-info fade in margin_b2px">
+<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<h4>@L.提示!</h4>
+@L.本页用于管理、关联微信公众帐号，如果还没有微信公众号可点击<a href="//mp.weixin.qq.com/" target="_blank">@L.微信公众平台</a>@L.申请；
+</div>
+
+
+}
+@section script{
+
+<script>
+    var $leftwx = $(parent.document.getElementById("LeftPanel"));
+    //以下函数同步左边栏内容操作
+    function DelWxApp(id) {
+        $leftwx.find("[data-id='" + id + "']").remove();
+        //parent.DelWxTree(id);
+    }
+    function AddWxApp(id,alias) {
+        var $ul = $leftwx.find("#menu7_9_ul2");
+        $ul.append("<li data-id='"+id+"'><a href='javascript:;' onclick='ShowMain(\"\",\"<%=customPath2 %>WeiXin/Home?appid="+id+"\");'>"+alias+"</a></li>");
+    }
+    function DelsWxApp(ids) {
+        var idsarray = ids.split(',');
+        for (var i = 0; i < idsarray.length; i++) {
+            $leftwx.find("[data-id='" + idsarray[i] + "']").remove();
+        }
+    }
+</script>
+
+ }

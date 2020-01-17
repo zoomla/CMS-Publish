@@ -1,0 +1,38 @@
+﻿@section head{<title>@L.全局配置</title> }
+@{ 
+    SiteOption cfg = SiteConfig.SiteOption;
+}
+@section content{
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread("WXAPPManage",L.微信管理),
+    new Bread(Context.Request.RawUrl(),L.全局配置)
+})
+<form method="post" action="Config_Submit">
+<div class="list_choice">
+    <table class="table table-bordered table-striped">
+        <tr><th class="td_m">@L.小程序接口</th><th>
+            @MVCHelper.H_Radios("WX_APP_Open","开启|关闭".Split('|'),"1|0".Split('|'),cfg.WX_APP_Open.ToString())
+             <small>@L.关闭后无法调用接口 关闭后,小程序将无法调用接口与上传文件</small>
+             </th></tr>
+        <tr><th>@L.小程序首页提示</th><td>@MVCHelper.H_Radios("WX_APP_Tip","开启|关闭".Split('|'),"1|0".Split('|'),cfg.WX_APP_Tip.ToString())
+            </td></tr>
+        <tr><th>@L.小程序提示文本</th><td>
+            <textarea style="width:500px;" rows="5" name="WX_APP_TipStr">@cfg.WX_APP_TipStr</textarea>
+            <small>@L.请勿包含特殊符号</small>
+            </td></tr>
+        <tr><th>@L.公众号接口</th><td>@MVCHelper.H_Radios("WX_Open","开启|关闭".Split('|'),"1|0".Split('|'),cfg.WX_Open.ToString())</td></tr>
+        <tr><th>@L.自动登录</th><td>@MVCHelper.H_Radios("WX_AutoSync","开启|关闭".Split('|'),"1|0".Split('|'),cfg.WX_AutoSync.ToString())</td></tr>
+        <tr><th>@L.用户会员组</th><td><input type="text" class="form-control td_m" name="WX_UserGroupID" value="@cfg.WX_UserGroupID.ToString()"/>
+            <small>@L.通过公众号与小程序注册</small>
+            </td></tr>
+        <tr><td></td><td><input type="submit" value="@L.保存信息" class="btn btn-info"/></td></tr>
+    </table>
+</div>
+</form>
+}
+@section script{
+<style type="text/css">
+small{display:block;}
+</style>
+}

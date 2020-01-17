@@ -1,0 +1,46 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+ public string ShowResult(DataRow dr)
+    {
+        switch (DataConverter.CStr(dr["Result"]))
+        {
+            case "1":
+                return "<span class='text-success'>成功</span>";
+            case "-1":
+                return "<span class='text-danger'>失败</span>";
+            default:
+                return "未处理";
+        }
+    }
+
+}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>@L.标题</th>
+            <th>@L.发件人</th>
+            <th>@L.收件人</th>
+            <th>@L.发送结果</th>
+            <th>@L.发送时间</th>
+            <th>@L.操作</th>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td>@dr["Subject"]</td>
+            <td>@(dr["FromEmail"]+"("+dr["FromName"]+")")</td>
+            <td>@ZoomLa.Common.StringHelper.SubStr(DataConverter.CStr(dr["ToAddress"]))</td>
+            <td>@ShowResult(dr)</td>
+            <td>@dr["CDate"]</td>
+            <td>
+                <a  href="MailSend?ID=@dr["ID"]"><i class="zi zi_eye"></i> @L.邮件内容</a>
+                @*<a  href="MailSendLog?id=<%#Eval("ID") %>"><i class="zi zi_magic"></i>发送日志</a>*@
+            </td>
+        </tr>
+    }
+</table>

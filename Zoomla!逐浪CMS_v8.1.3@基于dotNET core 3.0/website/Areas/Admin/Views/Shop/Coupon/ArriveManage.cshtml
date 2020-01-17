@@ -1,0 +1,70 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Arrive_API?action=";
+}
+@section head{<title>@L.优惠劵管理</title>}
+
+@section content{
+   @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(){url=Context.Request.RawUrl(), text=""+@L.优惠劵管理+"<a href='ArriveAdd'> ["+@L.新增优惠劵+"]</a>"}
+    })
+    
+    <div class="list_choice">
+        <div class="input-group p-2">
+            <div class="input-group-prepend">
+                <span class="input-group-text">@L.类型</span>
+            </div>
+            <select ID="Type_DP" class="form-control mvcparam">
+                <option value="-100">@L.全部</option>
+                <option value="0">@L.优惠券</option>
+                <option value="1">@L.现金券</option>
+            </select>
+            <div class="input-group-prepend">
+                <span class="input-group-text">@L.状态</span>
+            </div>
+            <select ID="State_DP" class="form-control mvcparam">
+                <option value="-100">@L.全部</option>
+                <option value="10">@L.已使用</option>
+                <option value="1">@L.未使用</option>
+            </select>
+            <input type="text" class="form-control max20rem mvcparam" ID="Name_T" placeholder="@L.优惠劵名" />
+            <input type="text" class="form-control max20rem mvcparam" ID="UserName_T" placeholder="@L.用户名" />
+            <input type="text" class="form-control max20rem mvcparam" ID="AgainTime_T" placeholder="@L.有效时间" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'EndTime_T\')}'});" />
+            <input type="text" class="form-control max20rem mvcparam" ID="EndTime_T" placeholder="@L.过期时间" onclick="WdatePicker({minDate:'#F{$dp.$D(\'AgainTime_T\')}'});" />
+            <span class="input-group-btn">
+                <input type="button" ID="Skey_Btn" value="@L.搜索" class="btn btn-outline-dark" onclick="mvcpage.load();"/>
+            </span>
+        </div>
+        <input type="hidden" id="state_hid" class="mvcparam"/>
+        <script>
+            function changeState(state) { $("#state_hid").val(state); }
+        </script>
+    </div>
+    @*<ul class="nav nav-tabs">
+        <li class="nav-item b_all active">全部</li>
+        <li class="nav-item b_isbind">已颁发</li>
+        <li class="nav-item b_nobind">未颁发</li>
+        <li class="nav-item b_expired">已过期</li>
+    </ul>*@
+    @Html.Partial(MVCHelper.ViewDir_Admin_Coupon+"Arrive_List.cshtml")
+    <input type="hidden" ID="user_hid" name="user_hid" />
+    <div class="alert alert-light">
+        <input type="button" class="btn btn-outline-info" value="@L.绑定用户" onclick="user.sel2('selMode=single');" />
+        <input type="button" ID="batActive" value="@L.批量激活" onclick="mvcpage.bat({url:'@(apiUrl+"active")'});" class="btn btn-outline-info" />
+        <input type="button" ID="batBtn" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});" value="@L.批量删除" class="btn btn-outline-danger" />
+    </div>
+}
+@section script{
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script src="/JS/DatePicker/WdatePicker.js"></script>
+    <script>
+function showtab(str) {
+    $(".b_" + str).find("a").addClass("active").siblings("li").find("a").removeClass("active");
+        }
+        user.hook["user"] = function (list, select) {
+            mvcpage.bat({ url: 'Arrive_API?action=bind', data: { uid: list[0].UserID } });
+            CloseComDiag();
+        }
+    </script>
+}

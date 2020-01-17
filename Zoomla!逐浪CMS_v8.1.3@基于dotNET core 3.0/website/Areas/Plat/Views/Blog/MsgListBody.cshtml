@@ -1,0 +1,313 @@
+﻿@using ZoomLa.BLL.Helper
+@model System.Data.DataTable
+@functions{
+    public int UserID { get { return ViewBag.UserID; } }
+    B_Plat_Group groupBll = new B_Plat_Group();
+    B_Blog_Msg msgBll = new B_Blog_Msg();
+    DataTable LikesDt { get { return ViewBag.LikesDt; } }
+    #region ItemGet
+    //true已经投票,false未投票
+    public bool HasVote(string voteResult, int uid)
+    {
+        bool flag = false;
+        foreach (string s in voteResult.Split(','))
+        {
+            if (s.Split(':').Length > 1 && s.Split(':')[1].Equals(uid.ToString())) { flag = true; break; }
+        }
+        return flag;
+    }
+    public IHtmlContent GetContent(DataRow dr)
+    {
+        string result = "";
+        string content = DataConverter.CStr(dr["MsgContent"]);
+        switch (DataConverter.CStr(dr["Source"]))
+        {
+            case "plat":
+                if (content.Length > 300 && !content.Contains("</"))//带Html则不收缩
+                {
+                    result = string.Format(ltlp, content.Substring(0, 300) + "...", content);
+                }
+                else
+                {
+                    result = content;
+                }
+                break;
+            case "bar":
+                string forwardTlp = "<i class='zi zi_sharealt'></i> 来自社区[<a href='/PClass?ID={0}' target='_blank'>{1}</a>]的分享：<strong>{3}</strong><a href='/PItem?ID={2}' title='点击浏览' target='_blank'> http://www.1th.cn/PItem?id={2}</a>";
+                result = StrHelper.DecompressString(DataConverter.CStr(dr["MsgContent"]));
+                result = string.Format(forwardTlp,dr["CateID"], dr["CateName"], -Convert.ToInt32(dr["ID"]), dr["Title"]) + result;
+                break;
+        }
+        return MvcHtmlString.Create(result);
+    }
+    string attachTlp = "<div class='imgview' onclick='PreView(\"{0}\");'><div class='ext {1}'></div><div class='fname'>{2}</div></div>";
+    string imgTlp = "<a class='athumbnail_img' rel='group_{0}' href='{1}'><img src='{1}' class='thumbnail_img'/></a>";
+    //-----Html Tlp
+    private string ltlp = "<div class='synposis_div'>{0}<div class='aritcle_op_div '><a onclick='ArtColl();' href='javascript:;'>展开</a></div></div>"
+                 + "<div class='detail_div'>{1}<div class='aritcle_op_div'><a onclick='ArtUnfold();' href='javascript:;'>折叠</a></div></div>";
+    //显示附件,图片则直接展示,其他仍以附件形式
+    public IHtmlContent GetAttach(DataRow dr)
+    {
+        string imgresult = "", attachresult = "";
+        string attach = DataConverter.CStr(dr["Attach"]);
+        int max = 3;
+        foreach (string file in attach.Split('|'))
+        {
+            if (string.IsNullOrEmpty(file)) continue;
+            if (ZoomLa.Safe.SafeC.IsImage(file) && max > 0)//jpg,png,gif图片显示预览,只显示前三张
+            {
+                imgresult += string.Format(imgTlp,dr["ID"], file); max--;
+            }
+            else
+            {
+                string fname = System.IO.Path.GetFileName(file); fname = fname.Length > 6 ? fname.Substring(0, 6) + ".." : fname;
+                attachresult += string.Format(attachTlp, file, System.IO.Path.GetExtension(file).ToLower().Replace(".", ""), fname);
+            }
+        }
+        imgresult = string.IsNullOrEmpty(imgresult) ? "" : "<div class='thumbnail_div'>" + imgresult + "</div>";
+        return MvcHtmlString.Create(imgresult + attachresult);
+    }
+    //是否收藏
+    public IHtmlContent GetColled(DataRow dr)
+    {
+        string ids = DataConverter.CStr(dr["ColledIDS"]);
+        int msgID = Convert.ToInt32(dr["ID"]);
+        string result = "";
+        if (ids.Contains("," + UserID+ ","))
+            result = "<span class='zi zi_star colled' title='取消收藏' onclick='CollFunc(this," + msgID + ");'></span>";
+        else
+            result = "<span class='zi zi_starLine nocolled' title='收藏' onclick='CollFunc(this," + msgID + ");'></span>";
+        return MvcHtmlString.Create(result);
+    }
+    public IHtmlContent GetVoteLI(DataRow dr)
+    {
+        string result = "", id = DataConverter.CStr(dr["ID"]), li = "<li onclick='$(this).find(\"input:radio\")[0].checked=true;'><input type='radio' name='vote_" + id + "' value='{0}' />{1}</li>";
+        string[] oparr = DataConverter.CStr(dr["VoteOP"]).Split(',');
+        for (int i = 0; i < oparr.Length; i++)
+        {
+            result += string.Format(li, i, oparr[i]);
+        }
+        return MvcHtmlString.Create(result);
+    }
+    //投票底部统计
+    public string GetVoteBottom(DataRow dr)
+    {
+        int count = DataConverter.CStr(dr["VoteResult"]).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        string html = " 总计 " + count + " 票 " + Convert.ToDateTime(dr["EndTime"]).ToString("yyyy年MM月dd日 HH:mm") + "到期";
+        return html;
+    }
+    public IHtmlContent GetForward(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["ForwardID"]) > 0)
+        {
+            string result = "<div class='msg_content_forward_div'>{0}";
+            DataTable dt = msgBll.GetContentByID(Convert.ToInt32(dr["ForwardID"]));
+            if (dt == null || dt.Rows.Count < 1 || string.IsNullOrEmpty(dt.Rows[0]["MsgContent"].ToString())) { return MvcHtmlString.Create(""); }
+            result = string.Format(result, dt.Rows[0]["MsgContent"]);
+            result += "<div style='margin-top:5px;'>" + Convert.ToDateTime(dt.Rows[0]["CDate"]).ToString("yyyy年MM月dd日 HH:mm");
+            result += "</div></div>";
+            return MvcHtmlString.Create(result);
+        }
+        return MvcHtmlString.Create("");
+    }
+    //点赞--用户列表
+    public IHtmlContent ShowLikeUser(DataRow info)
+    {
+        string result = "";
+        if (LikesDt != null)
+        {
+            DataTable dt = LikesDt;
+            dt.DefaultView.RowFilter = "MsgID=" + DataConverter.CStr(info["ID"]).Trim('-') + " AND Source='" + info["Source"] + "'";
+            foreach (DataRow dr in dt.DefaultView.ToTable().Rows)
+            {
+                string name = B_User.GetUserName(dr["HoneyName"], dr["UserName"]);
+                string uword = string.IsNullOrEmpty(name) ? "无" : name.Substring(0, 1);
+                result += "<li title='" + name + "' data-uid='" + dr["CUser"] + "' class='likeids_li'><a href='javascript:ShowUser(" + dr["CUser"] + ");'><div class=\"uword uword_xs\">" + uword + "</div><img src='" + dr["salt"] + "' class=\"uimg img_xs\" onerror=\"showword(this);\" data-uid=\"" + dr["CUser"] + "\"/></a></li>";
+            }
+        }
+        return MvcHtmlString.Create(result);
+    }
+    // 控制转发,点赞等效果
+    public IHtmlContent GetReplyOP(DataRow dr)
+    {
+        int id = Convert.ToInt32(dr["ID"]);
+        int msgtype = Convert.ToInt32(dr["MsgType"]);
+        int uid = Convert.ToInt32(dr["CUser"]);
+        string suid = "," + uid + ",";
+        string ids = DataConverter.CStr(dr["LikeIDS"]);
+        string result = "";
+        string clockHtml = "";
+        string delHtml = "<span class='zi zi_trashalt' title='删除' onclick='PostDelMsg(" + id + ");'></span>";
+        string forHtml = "<span class='zi zi_sharesquare' title='转发' onclick='ShowForWard(" + id + ");'></span>";
+        string likeHtml = "<span class='zi zi_thumbsup' title='{0}' onclick='PostLike(" + id + ");'></span>";
+        if (UserID == uid)//非本人不允许删除
+        {
+            result += clockHtml;
+            result += delHtml;
+        }
+        if (msgtype != 2 && id > 0)//投票类型不转发,贴吧不允许转发
+        {
+            result += forHtml;
+        }
+        result += string.Format(likeHtml, ids.Contains(suid) ? "取消赞" : "点赞");
+        return MvcHtmlString.Create(result);
+    }
+    public string IsShowLike(DataRow dr)
+    {
+        string id = DataConverter.CStr(dr["ID"]).Trim('-');
+        return LikesDt.Select("MsgID=" + id + " AND Source='" + dr["Source"] + "'").Length > 0 ? "" : "display:none;";
+    }
+    public int GetLikeNum(DataRow dr)
+    {
+        string id = DataConverter.CStr(dr["ID"]).Trim('-');
+        return LikesDt.Select("MsgID=" + id + " AND Source='" + dr["Source"] + "'").Length;
+    }
+    public IHtmlContent GetWhoCanSee(DataTable GroupDT, DataRow info)
+    {
+        string result = "", ids = "";
+        if (UserID == Convert.ToInt32(info["CUser"]))
+        {
+            ids = DataConverter.CStr(info["GroupIDS"]).Trim(',');
+            result = " <i class='zi zi_bookmark'></i>";
+            if (string.IsNullOrEmpty(ids))
+            {
+                result += "所有人";
+            }
+            else if (ids.Equals("0"))
+            {
+                result += "仅自己";
+            }
+            else
+            {
+                GroupDT.DefaultView.RowFilter = "ID IN (" + ids + ")";
+                foreach (DataRow dr in GroupDT.DefaultView.ToTable().Rows)
+                {
+                    result += dr["GroupName"] + ",";
+                }
+                result = result.TrimEnd(',');
+            }
+        }
+        return MvcHtmlString.Create(result);
+    }
+    public string GetUName(DataRow dr)
+    {
+        return B_User.GetUserName(dr["HoneyName"],dr["UserName"]);
+    }
+    #endregion
+}
+@{ 
+    M_User_Plat upMod = ViewBag.upMod;
+    DataTable GroupDT = groupBll.SelByCompID(upMod.CompID);
+}
+<start>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <div class="msgitem" id="msgitem-@dr["ID"]">
+            <div class="plat_left_div" style="position:absolute;">
+                <div class="float-left">
+                     <img class="uimg img_s uinfo" src="@dr["UserFace"]" onerror="showword(this);" data-uid="@dr["CUser"]" />
+                </div>
+            </div>
+            <div class="msg_content_div plat_content_div">
+                <div class="content_head">
+                    <a href="/Plat/Blog/?uids=@dr["CUser"]" title="@(GetUName(dr))的工作流">@(GetUName(dr))</a>
+                    <div class="reply_op_div float-right">
+                        @GetColled(dr)
+                    </div>
+                </div>
+                @switch (DataConverter.CLng(dr["MsgType"]))
+                {
+                    case 1://普通内容
+                        {
+                            <div class="normal">
+                                <div class="msg_content_article_div" style="max-height:180px;overflow-y:hidden;">@GetContent(dr)</div>
+                                @GetAttach(dr) @GetForward(dr)
+                                <div class="msg_content_showMore" style="display:none; text-align:center;"><a href="javascript:;" onclick="$(this).closest('.normal').find('.msg_content_article_div').css('max-height', '5000'); $(this).hide();"><i class="zi zi_arrowDown"></i> 显示全部</a></div>
+                            </div>
+                        }
+                        break;
+                    case 2://投票
+                        {
+                            bool isHasVote = HasVote(DataConverter.CStr(dr["VoteResult"]), UserID) || (Convert.ToDateTime(dr["EndTime"]) < DateTime.Now);
+
+                            <div id="vote">
+                                <div class="paddbottom5"><strong>@dr["Title"]</strong></div>
+                                @if (isHasVote)
+                                {
+                                    DataTable voteDT = msgBll.GetVoteResultDT(dr["VoteOP"].ToString(), dr["VoteResult"].ToString());
+                                    <div class="vote_user_div" id="vote_user_div">
+                                        <ul class="vote_list_ul">
+                                            @GetVoteLI(dr)
+                                        </ul>
+                                        <div>
+                                            <input type="button" value="投票" onclick="PostUserVote(@dr["ID"]);" class="btn btn-primary btn-sm" />
+                                            <input type="button" value="查看结果" onclick="ShowMsgDiv('@dr["ID"]','.vote_user_div','.vote_result_div');" class="btn btn-primary btn-sm" />
+                                        </div>
+                                    </div>
+
+                                    <div class="vote_result_div" id="vote_result_div">
+                                        <!--结果页-->
+                                        @foreach (DataRow voteDR in voteDT.Rows)
+                                        {
+                                            <div>@dr["opName"]</div>
+                                            <div class="progress vote_progress">
+                                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuemax="100" @("style='width:" + dr["Percent"] + "%;'")></div>
+                                            </div>
+                                            <label class="vote_person_num">@(dr["count"] + "人")</label>
+                                        }
+                                        <div class="clearfix"></div>
+                                        @if (isHasVote)
+                                        {
+                                            <div id="msg_op_btn_div">
+                                                <input value="返回投票" class="btn btn-primary btn-sm" onclick="ShowMsgDiv(@dr["ID"]>,'.vote_result_div','.vote_user_div');" />
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                <div class="paddin5"><strong>@GetVoteBottom(dr)</strong></div>
+                                <div class="paddbottom5">@dr["MsgContent"]</div>
+                            </div>
+                        }
+                        break;
+                    case 3:
+                        {
+                            <div id="longarticle">
+                                <div class="subtitle grayremind">@dr["Title"]<div class="clearfix"></div><input type="button" value="浏览全文" class="btn btn-sm btn-primary" onclick="ShowLong(@dr["ID"]);" /></div>
+                            </div>
+                        }
+                        break;
+                }
+
+                <a title="浏览信息详情" href="/Plat/Blog/MsgDetail?ID=@dr["ID"]" class="grayremind">@(DataConverter.CDate(dr["CDate"]))</a>
+                <span class="grayremind" title="哪些人可见">@GetWhoCanSee(GroupDT, dr)</span><span class="grayremind" title="阅读量"> <i class="zi zi_eye"></i>@dr["ReadNumber"]</span>
+                <div class="reply_op_div"> @GetReplyOP(dr) <span class="zi zi_commentdots" title="回复" onclick="DisReplyOP(@dr["ID"],0,'@GetUName(dr)');"></span> </div>
+                <div class="likeids_div">
+                    <ul class="likeids_div_ul" style='@IsShowLike(dr)'>
+                        <li style="width:auto;"> <a href="javascript:;" onclick="PostLike(@dr["ID"])" class="likeids_div_a"><span class="zi zi_thumbsup"></span><span class='likenum_span'>(@GetLikeNum(dr))</span></a> </li>
+                        @ShowLikeUser(dr)
+                    </ul>
+                </div>
+                <div id='reply_@dr["ID"]'>
+                    @Html.Action("ReplyList", new { pid = dr["ID"] })
+                </div>
+                <div id="reply_div_@dr["ID"]" class="reply_item">
+                    <input type="hidden" id="Reply_Rid_Hid_@dr["ID"]" value="0" />
+                    <div>
+                        <textarea id="MsgContent_@dr["ID"]" class="form-control atwho reply_text" style="height:40px;" placeholder="说一句吧..."></textarea>
+                    </div>
+                    <div class="margin_t5">
+                        <a href="javascript:;" title="附件" class="reply_a_btn" onclick="reply.upfile('@dr["ID"]');"><i class="zi zi_paperclip zi_2x" style="position:relative;top:5px;"></i></a>
+                        <input type="button" value="回复" onclick="AddReply(@dr["ID"]);" class="btn btn-primary btn-sm replybtn" />
+                        <div class="reply_attach_wrap" id="reply_attach_@dr["ID"]"></div>
+                        <div class="clearfix"></div>
+                        <input type="hidden" id="reply_hid_@dr["ID"]" />
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <input type="hidden" class="msgid" value="@dr["ID"]" />
+            <div class="clearfix"></div>
+        </div>
+    }
+</start>

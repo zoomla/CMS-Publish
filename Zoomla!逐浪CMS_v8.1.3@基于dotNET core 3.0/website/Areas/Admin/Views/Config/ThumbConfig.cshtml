@@ -1,0 +1,318 @@
+﻿@{
+    WaterConfig config = WaterModuleConfig.WaterConfig;
+
+}
+@section head{<title>@L.水印缩图</title>
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/dist/js/bootstrap-switch.js"></script>
+<script src="/JS/ZL_Content.js"></script>
+}
+
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("SiteInfo",L.系统设置),
+new Bread() {url="", text=L.缩略图配置,addon="" }},
+                            Call.GetHelp(6))
+<form method="post" action="ThumbConfig_Submit">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow">
+            <ul class="nav nav-tabs list_choice" role="tablist">
+                <li class="nav-item active"><a class="nav-link active show" href="#water_div" data-toggle="tab">@L.水印配置</a></li>
+                <li class="nav-item"><a class="nav-link" href="#thumb_div" data-toggle="tab">@L.缩图配置</a></li>
+            </ul>
+            <div class="tab-content col-12 table_box">
+                <div class="tab-pane active table-responsive" id="water_div">
+                    <table class="table table-striped table-bordered table-hover sys_table">
+                        <tr>
+                            <th style="width:260px;">@L.是否开启水印</th>
+                            <td>@MVCHelper.H_Check("IsUsed",config.IsUsed,new { @class="switchChk",value="1"})</td>
+                        </tr>
+                        <tr>
+                            <th>@L.开启用户水印</th>
+                            <td>
+                                @MVCHelper.H_Check("EnableUserWater",config.EnableUserWater,new {@class="switchChk",value="1" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.传图水印</th>
+                            <td>
+                                @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "imgLogo", SaveType = "admin", Value = config.imgLogo })
+                            </td>
+                        </tr>
+                        <tr style="display: none">
+                            <th>@L.缩略图算法</th>
+                            <td>
+                                @MVCHelper.H_Radios("WaterClassType", "常规算法：宽度和高度都大于0时，直接缩小成指定大小，其中一个为0时，按比例缩小|裁剪法：宽度和高度都大于0时，先按最佳比例缩小再裁剪成指定大小，其中一个为0时，按比例缩小|补充法：在指定大小的背景图上附加上按最佳比例缩小的图片".Split('|')
+                               ,"1|2|3".Split('|'), config.WaterClassType.ToString())
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.水印类型</th>
+                            <td class="sys_table_none">
+                               @MVCHelper.H_Radios("WaterClass", "图片水印|文字水印".Split('|'), "1|2".Split('|'),config.WaterClass.ToString())
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.水印图片透明度</th>
+                            <td>
+                                <div class="input-group">
+                                    <input name="imgAlph" type="text" value="@config.imgAlph" class="form-control max20rem" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted">@L.水印透明度</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.水印文字</th>
+                            <td>
+                                <input name="WaterWord" type="text" value="@config.WaterWord" maxlength="15" class="form-control max20rem">
+                                <small class="text-muted">@L.水印文字不宜超过15个字符</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @L.文字字体<br />
+                            </th>
+                            <td>
+                                <select name="WordType" id="WordType" class="form-control max20rem">
+                                    <option value="宋体">@L.宋体</option>
+                                    <option value="楷体">@L.楷体</option>
+                                    <option value="新宋体">@L.新宋体</option>
+                                    <option selected="selected" value="黑体">@L.黑体</option>
+                                    <option value="隶书">@L.隶书</option>
+                                    <option value="幼圆">@L.幼圆</option>
+                                    <option value="Andale Mono">Andale Mono</option>
+                                    <option value="Arial">Arial</option>
+                                    <option value="Arial Black">Arial Black</option>
+                                    <option value="Book Antiqua">Book Antiqua</option>
+                                    <option value="Century Gothic">Century Gothic</option>
+                                    <option value="Comic Sans MS">Comic Sans MS</option>
+                                    <option value="Courier New">Courier New</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Impact">Impact</option>
+                                    <option value="Tahoma">Tahoma</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Trebuchet MS">Trebuchet MS</option>
+                                    <option value="Script MT Bold">Script MT Bold</option>
+                                    <option value="Stencil">Stencil</option>
+                                    <option value="Verdana">Verdana</option>
+                                    <option value="Lucida Console">Lucida Console</option>
+                                </select>
+                                <script>$("#WordType").val("@Html.Raw(config.WaterWordType)")</script>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @L.字体样式<br />
+                            </th>
+                            <td>
+                                <select name="WordStyle" id="WordStyle" class="form-control max20rem">
+                                    <option value="1">@L.正常</option>
+                                    <option value="2">@L.斜体</option>
+                                    <option selected="selected" value="3">@L.加粗</option>
+                                    <option value="4">@L.删除线</option>
+                                    <option value="5">@L.下划线</option>
+                                </select>
+                               <script>$("#WordStyle").val("@config.WaterWordStyle")</script>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="style3">
+                                @L.文字大小<br />
+                            </th>
+                            <td>
+                                <input name="WordSize" type="text" value="@config.WaterWordSize" id="WordSize" class="form-control max20rem">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @L.文字颜色<br />
+                            </th>
+                            <td>
+                                <input name="WordColor" type="text" value="@config.WaterWordColor" id="WordColor" class="form-control max20rem">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@L.坐标起点位置</th>
+                            <td>
+                                <select name="lopostion" id="lopostion" class="form-control max20rem">
+                                    <option value="1">@L.左上</option>
+                                    <option value="2">@L.左中</option>
+                                    <option value="3">@L.左下</option>
+                                    <option value="4">@L.上中</option>
+                                    <option value="5">@L.中</option>
+                                    <option value="6">@L.下中</option>
+                                    <option value="7">@L.右上</option>
+                                    <option value="8">@L.右中</option>
+                                    <option selected="selected" value="9">@L.右下</option>
+                                </select>
+                                <script>$("#lopostion").val("@config.lopostion");</script>
+                            </td>
+                        </tr>
+                         <tr><td></td><td>
+                            <input type="submit" value="@L.保存设置" class="btn btn-outline-info"></td></tr>
+                    </table>
+                </div>
+                <div class="tab-pane table-responsive" id="thumb_div">
+                    <table class="table table-striped table-bordered table-hover sys_table">
+                        <tr>
+                            <th class="w12rem_lg">@L.按宽高等比压缩</th>
+                            <td>
+						<div class="input-group m50rem_50">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">@L.最大宽</span>
+						  </div>
+						  <input name="ThumbWidth_T" type="text" value="@SiteConfig.ThumbsConfig.ThumbsWidth" id="ThumbWidth_T" class="form-control text_s">
+						  <div class="input-group-append">
+							<span class="input-group-text">@L.最大高</span>
+						  </div>
+						  <input name="ThumbHeight_T" type="text" value="@SiteConfig.ThumbsConfig.ThumbsWidth" id="ThumbHeight_T" class="form-control text_s">
+						  <div class="input-group-append">
+							<span class="input-group-text">PX</span>
+						  </div>
+						</div>
+						<small class="text-muted">@L.为0则忽略该条件</small>
+                    </td>
+                        </tr>
+                        <tr><td></td><td>
+                            <input type="submit" value="@L.保存设置" class="btn btn-outline-info"></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+ </form>
+}
+
+@section script{
+<link href="~/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-colorpicker.min.js"></script>
+    <script>
+        //-------------上传
+        $(function () {
+            BindAttachEvent();
+            //InitImgs({ "name": "waterimgs" });
+            $("#iLogo_img").attr("src", $("#iLogo_url").val());
+            $("#iLogo_url").change(function () {
+                $("#iLogo_img").attr("src", $("#iLogo_url").val());
+            });
+           $('#WordColor').colorpicker({ format: "hex8"});
+        });
+        //以下封装入ZL_Images
+        //初始化,如果pval中带了list,则以其list为准
+        function InitImgs(pval) {
+            $text = $("#txt_" + pval.name);
+            $imgul = $("#ul_" + pval.name);
+            var list = JSON.parse($text.val() == "" ? "[]" : $text.val());
+            if (!list || list.length < 1) { return; }
+            var tlp = "<li class='margin_l5'><img src='@@src' class='preview_img'/><div class='file-panel' style='height: 0px;'><span class='editpic' title='编辑'></span><span class='cancel' title='删除'></span></div></li>";
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].url == "") continue;
+                if ($imgul.length > 0) {
+                    $imgul.append(tlp.replace("@@src", list[i].url));
+                }
+            }
+            BindAttachEvent();
+        }
+        function PageCallBack(action, vals, pval) {
+            if (vals == "") return;
+            switch (action) {
+                case "cutpic":
+                    $("img[src]").each(function () {
+                        var url = $(this).attr("src").split('?')[0];
+                        if (url == vals) { this.src = url + "?" + Math.random(); }
+                    });
+                    break;
+                default:
+                    if (pval.type == "single") {
+                        $("#" + pval.name).val(vals.split('|')[0]);
+                        $("#" + pval.name).change();
+                    }
+                    else {
+                        AddAttach(null, { _raw: vals }, pval);
+                        BindAttachEvent();//后期看是否移入common
+                    }
+                    break;
+            }
+            CloseComDiag();
+        }
+        function BindAttachEvent() {
+            //先清除有事件再绑定,以避免重绑
+            $(".preview_img_ul li .cancel").unbind("click");
+            $(".preview_img_ul li .editpic").unbind("click");
+            $(".preview_img").unbind("click");
+            //---------------
+            $(".preview_img_ul li").mouseenter(function () {
+                $btns = $(this).find(".file-panel");
+                $btns.stop().animate({ height: 30 });
+            }).mouseleave(function () {
+                $btns = $(this).find(".file-panel");
+                $btns.stop().animate({ height: 0 });
+            });
+            $(".preview_img_ul li .cancel").click(function () {
+                var $li = $(this).closest("li");
+                var $text = $("#" + $li.closest("ul").data("id"));
+                var name = $li.find("img").attr("src");
+                $li.remove();
+                var list = JSON.parse($text.val() == "" ? "[]" : $text.val());
+                $text.val(RemoveAttach(name, list));
+            });
+            $(".preview_img_ul li .editpic").click(function () {
+                $li = $(this).closest("li");
+                var url = $li.find("img").attr("src");
+                ShowCutImg("ipath=" + url);
+            });
+            $(".preview_img").click(function () {//允许点击预览大图
+                PreViewImg(this.src);
+            });
+        }
+        function AddAttach(file, ret, pval) {
+            if (ret._raw == "") return;
+            //if (pval.field == "down") { AddAttach_down(file, ret, pval); return; }
+            //仅用于组图
+            var tlp = "<li class='margin_l5'><img src='@@src' class='preview_img'/><div class='file-panel' style='height: 0px;'><span class='editpic' title='编辑'></span><span class='cancel' title='删除'></span></div></li>";
+            var $text = $("#txt_" + pval.name), imgarr = ret._raw.split('|');
+            var list = JSON.parse($text.val() == "" ? "[]" : $text.val());
+            $imgul = $("#ul_" + pval.name);
+            if (pval.isGroup) {//标识是否是图片排序返回的数据(需初始化数据)
+                $imgul.html(""); $text.val("");
+            }
+            for (var i = 0; i < imgarr.length; i++) {
+                if (imgarr[i] == "") continue;
+                if ($imgul.length > 0) {
+                    $imgul.append(tlp.replace("@@src", imgarr[i]));
+                }
+                imgarr[i] = imgarr[i].replace(pval.uploaddir, "");
+                var json = { url: imgarr[i], desc: (pval.descs ? pval.descs[i] : "") };
+                list.push(json);
+            }
+            $text.val(JSON.stringify(list));
+            BindAttachEvent();
+            CloseComDiag();
+        }
+        function RemoveAttach(name, list) {//需要移除的图片名,全图片字符串
+            name = name.split('?')[0];
+            if (!list || list.length < 1) { return; }
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].url == name) {
+                    list.splice(i, 1);
+                }
+            }
+            return JSON.stringify(list);
+        }
+        function ShowCutImg(param) {
+            comdiag.maxbtn = false;
+            ShowComDiag("/Plugins/PicEdit/CutPic?" + param, "@Html.Raw(L.图片编辑)");
+        }
+        function SelPic(pval) {
+            comdiag.maxbtn = false;
+            ShowComDiag("/Common/SelFiles?pval=" + JSON.stringify(pval), "@Html.Raw(L.选择图片)");
+        }
+    </script>
+
+
+}
+

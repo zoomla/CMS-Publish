@@ -1,0 +1,65 @@
+﻿@{ 
+    string pageName = ""+@L.内容检测+"";
+
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),L.安全中心),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+    <div class="list_choice">
+        <div style="display:flex;padding:1rem;background-color:#fff;border-bottom:1px solid #ddd;">
+            <div>
+                <i class="zi zi_textbook" style="font-size:6.5rem;margin-right:2rem;color:#999;"></i>
+            </div>
+            <div style="padding-top:1rem;">
+                <h4>@L.内容敏感词检测</h4>
+                <div style="font-size:12px;">
+                    <div>@L.内容安全</div>
+                    <div>@L.快速检索模块</div>
+                    <div style="margin-top:0.5rem;">
+                        <button type="button" class="btn btn-info btn-sm" onclick="check_start(this);" id="check_start_btn"><i class="zi zi_shieldalt"></i> @L.开始检查</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="check_stop(this);" id="check_stop_btn" style="display:none;"><i class="zi zi_stopcircle"></i> @L.检测中,@L.点击可停止任务</button>
+                        <a href="ContentCheckConfig" class="btn btn-info btn-sm">@L.敏感词汇管理</a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <div style="position:relative;background-color:#fff;" id="result_div">
+         <table class="table table-bordered table-striped" id="result_tb">
+            <thead><tr class="td_s"><th>ID</th><th class="td_m">@L.来源</th><th>@L.标题</th><th>@L.命中词</th></tr></thead>
+        </table>
+    </div>
+}
+@section script{ 
+<script src="/js/Controls/ZL_Array.js"></script>
+<script>
+    var checkInter = null;
+    function check_start() {
+        $.post("API?action=content_word_start", {}, function (data) {
+            checkInter = setInterval(check_inter,5000);
+        })
+        $("#check_start_btn").hide(); $("#check_stop_btn").show();
+    }
+    function check_inter()
+    {
+        $.post("API?action=content_word_get", {}, function (data) {
+            var ret = APIResult.getModel(data);
+            var itemTlp = '<tr><td>@@id</td><td>@@s</td><td>@@title</td><td>@@words</td></tr>';
+            var html = JsonHelper.FillItem(itemTlp, ret.result, null);
+            if (ret.addon == "0") { alert("@Html.Raw(L.检测已完成)"); check_stop(); }
+            $("#result_tb").append(html);
+        });
+    }
+    function check_stop() {
+        $("#check_stop_btn").hide(); $("#check_start_btn").show();
+        if (checkInter) { clearInterval(checkInter); }
+        $.post("API?action=content_word_stop", {}, function (data) {})
+    }
+</script>
+}
+

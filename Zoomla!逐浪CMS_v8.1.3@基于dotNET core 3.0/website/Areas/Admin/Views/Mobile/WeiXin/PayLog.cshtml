@@ -1,0 +1,23 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+    string path = (ViewBag.viewDir + "PayLog_List.cshtml");
+}
+@section head{<title>@L.支付日志</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),	
+		new Bread("Home",L.移动微信),	
+        new Bread() {url=Context.Request.RawUrl(), text=L.支付日志,addon="" }}
+		)
+<div class="list_choice">
+    @Html.Partial(path)
+</div>
+<div>
+    <input type="button" class="btn btn-outline-info" value="@L.导出Excel" onclick="ZLHelper.OutToExcel()" />
+</div>
+}
+@section script{ 
+<script src="/JS/Label/ZLHelper.js"></script>
+
+}

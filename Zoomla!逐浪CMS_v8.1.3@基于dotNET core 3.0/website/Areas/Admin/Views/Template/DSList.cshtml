@@ -1,0 +1,11 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>@L.数据源列表</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),				
+        new Bread() {url=Context.Request.RawUrl(), text=L.外部数据源,addon="<a href='DSAdd'>["+L.添加新数据源+"]</a>" }}
+		)
+<div class="list_choice">
+@Html.Partial("DSList_List")
+</div>
+}

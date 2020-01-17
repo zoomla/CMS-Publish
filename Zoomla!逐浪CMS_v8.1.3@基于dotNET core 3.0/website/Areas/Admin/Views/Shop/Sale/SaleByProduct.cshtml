@@ -1,0 +1,20 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.BLL.Shop
+@model ZoomLa.BLL.Shop.F_Order_Sale
+@{
+    DataTable saleDT = B_Shop_SaleReport.SelByProduct(Model);
+}
+@section head{
+    <title>@L.销售记录</title>
+}
+@section content{
+@Html.Partial(MVCHelper.ViewDir_Admin_Sale+"SaleTopMenu.cshtml", Model)
+<div style="width:100%;">
+    @Html.Partial(MVCHelper.ViewDir_Admin_Sale+"SaleByProduct_List.cshtml", saleDT)
+</div>
+
+}
+@section script{
+
+}

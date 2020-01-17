@@ -1,0 +1,44 @@
+﻿@{ 
+    string pageName = ""+@L.网站体检+"";
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),L.安全中心),
+     new Bread(Context.Request.RawUrl(),pageName)
+    })
+
+    <div class="list_choice">
+        <div style="display:flex;padding:1rem;background-color:#fff;border-bottom:1px solid #ddd;">
+            <div>
+                <i class="zi zi_desktop" style="font-size:6.5rem;margin-right:2rem;color:#999;"></i>
+            </div>
+            <div style="padding-top:1rem;">
+                <h4>@L.站点文件检测</h4>
+                <div style="font-size:12px;">
+                    <div>@L.精确查杀各类网马</div>
+                    <div>@L.检测SQL注入</div>
+                    <div style="margin-top:0.5rem;"><button type="button" class="btn btn-info btn-sm"  onclick="site_check_begin(this);"><i class="zi zi_shieldalt"></i> @L.开始检查</button></div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <div style="position:relative;background-color:#fff;" id="result_div">
+        @*@Html.Partial(MVCHelper.ViewDir_Admin+"Extend/Safe/SiteCheck_Result.cshtml")*@
+    </div>
+
+}
+@section script{ 
+<script>
+    function site_check_begin(btn) {
+        $("#result_div").html('<div style="text-align:center;"><i class="zi zi_spinner zi_spin" style="font-size:3rem"></i></div>');
+        disBtn(btn);
+        $.post("API?action=site_check", {}, function (data) {
+            $("#result_div").html(data);
+            btn.removeAttribute("disabled");
+        })
+    }
+</script>
+}

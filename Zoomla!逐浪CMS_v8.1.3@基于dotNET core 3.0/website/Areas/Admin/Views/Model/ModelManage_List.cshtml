@@ -1,0 +1,46 @@
+﻿@using System.Data;
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.SYS
+@using System.Web
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent GetModelIcon(DataRow dr)
+    {
+        string icon = DataConverter.CStr(dr["ItemIcon"]);
+        return MvcHtmlString.Create(StringHelper.GetItemIcon(icon));
+    }
+
+}
+@{
+
+
+}
+
+
+<tbody id="EGV">
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+
+        <tr ondblclick="location = 'ModelAdd?ID=@dr["ModelID"]';">
+            <td>
+                <div class="btn-group">
+                    <a class="dropdown-toggle" href="javascript:;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@L.操作<span class="caret"></span></a>
+                    <div class="dropdown-menu">
+                        <a href="Field?ID=@dr["ModelID"]&ModelType=@ViewBag.ModelType" class="dropdown-item"><i class="zi zi_columns"></i> @L.字段</a>
+                        <a href="ModelAdd?ID=@dr["ModelID"]&ModelType=@ViewBag.ModelType" class=" dropdown-item"><i class="zi zi_pencilalt"></i> @L.编辑</a>
+                        <a href="javascript:;" class="dropdown-item" onclick="mvcpage.post({ url: 'Model_API?action=copy', data: {ids:'@dr["ModelID"]'},callback:'reload',confirm:'@Html.Raw(L.确定要复制该模型吗)'});"><i class="zi zi_paste"></i> @L.复制</a>
+                        <a href="javascript:;" class="dropdown-item" onclick="mvcpage.post({ url: 'Model_API?action=del', data: {ids:'@dr["ModelID"]'},callback:'reload',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trash"></i> @L.删除</a>
+                        <a href="ModelData?ID=@dr["ModelID"]" class="dropdown-item"><i class="zi zi_database"></i> 数据</a>
+                    </div>
+                </div>
+            </td>
+            <td>@dr["ModelID"]</td>
+            <td>@GetModelIcon(dr) @dr["ModelName"]</td>
+            <td>@dr["TableName"]</td>
+            <td>@dr["ItemName"]</td>
+            <td>@dr["Description"]</td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</tbody>

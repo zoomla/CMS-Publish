@@ -1,0 +1,116 @@
+﻿@model ZoomLa.Model.M_Payment
+@{ 
+    Layout = "/Views/Cart/_layout.cshtml";
+    string PayMethod = Context.Request.GetParam("method");
+    M_UserInfo mu = ViewBag.mu;
+}
+@section head{ <title>在线支付_@Call.SiteName</title>}
+@section content{
+<div class="progress carpro">
+<div class="progress-bar w-100" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><h1>在线支付</h1></div>
+</div>
+<form id="form1" method="post" action="@MVCHelper.GetAction("PayOnline_Submit",Context.Request)">
+<div class="mainpay_div container cartbody">
+    <div class="paytable pb-4" id="payinfo_div">
+        <div><strong>订单提交成功，请您尽快付款!</strong></div>
+        <div>订单号：@Model.PaymentNum</div>
+        <div>应付金额：@Model.MoneyReal.ToString("F2")</div>
+        <div>
+            @(ViewBag.vname+"："+ViewBag.vmoney)</div>
+        <div>
+            <span>支付方式：</span>
+            <span style="color:orange;font-weight:bolder;">@ViewBag.vname</span>
+            <a href="/PayOnline/Orderpay?PayNo=@Model.PayNo" style="margin-left:10px;"><i class="zi zi_undo"></i> 重新选择</a>
+            @if (string.IsNullOrEmpty(PayMethod))
+            {
+                <div class="mt-2" id="Alipay_Btn">
+                    <input type="button" value="确定付款" class="btn btn-info btn-lg ml-2 confirmPay" onclick="alipaySubmit();" />
+                </div>
+            }
+            else//虚拟币支付
+            {
+                <div class="mt-2">
+                    @if (!string.IsNullOrEmpty(mu.PayPassWord))
+                    {
+                        <div id="spwd_div" class="shortPwd_div">
+                        <link href="/JS/Plugs/shortPwd/shortPwd.css" rel="stylesheet" />
+                        <script src="/JS/Plugs/shortPwd/shortPwd.js"></script>
+                        <span class="shortPwd" node-type="shortPassword">
+                            <input type="password" class="shortPwd-input" node-type="shortPassword-input" autocomplete="new-password" maxlength="1" autofocus="autofocus" />
+                            <input type="password" class="shortPwd-input" node-type="shortPassword-input" autocomplete="new-password" maxlength="1" />
+                            <input type="password" class="shortPwd-input" node-type="shortPassword-input" autocomplete="new-password" maxlength="1" />
+                            <input type="password" class="shortPwd-input" node-type="shortPassword-input" autocomplete="new-password" maxlength="1" />
+                            <input type="password" class="shortPwd-input" node-type="shortPassword-input" autocomplete="new-password" maxlength="1" />
+                            <input type="password" class="shortPwd-input" node-type="shortPassword-input" autocomplete="new-password" maxlength="1" />
+                            <input type="password" name="pwd_t" id="pwd_t" class="shortPwd-hidden" node-type="shortPassword-value" maxlength="6" />
+                        </span>
+                        <div class="" id="spwd_remind_div"></div>
+                        <input type="button" id="surepay_btn" value="确定支付" class="btn btn-info btn-lg mt-1" onclick="shortPwdCheck();" />
+                        <script>
+                            shortPassword();
+                            function shortPwdCheck() {
+                                var spwd = $("#pwd_t").val();
+                                var $remind = $("#spwd_remind_div"); $remind.text("");
+                                if (spwd == "") { $remind.text("支付密码不能为空"); return; }
+                                if (spwd.length != 6) { $remind.text("请将支付密码输入完整"); return; }
+                                setTimeout(function () { document.getElementById("surepay_btn").disabled = true; }, 50);
+                                $.post("/api/usercheck?action=spwd", { "spwd": spwd }, function (data) {
+                                    var model = APIResult.getModel(data);
+                                    if (APIResult.isok(model)) { $("#Confirm_VMoney_Btn").click(); }
+                                    else { $remind.text(model.retmsg); }
+                                    setTimeout(function () { document.getElementById("surepay_btn").disabled = false; }, 50);
+                                    $("#form1").submit();
+                                });
+                            }
+                        </script>
+                    </div>
+                    }
+                    else
+                    {
+                          <div id="nospwd_div">
+                          <input type="submit" value="确定支付" class="btn btn-info btn-lg confirmPay"  />
+                    </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+    
+</div>
+
+
+<div id="payremind_div" class="d_none">
+    <div class="card">
+        <div class="card-header"><span class="zi zi_bookmark"></span><span class="margin_l5">登录平台支付</span></div>
+        <div class="card-body">
+            <div class="pb-2 pl-1">请您在新打开的支付平台页面进行支付,支付完成前请不要关闭该窗口</div>
+            <div class="text-center">
+                <a id="PayComp_Href" href="/User/Order/OrderList" class="btn btn-info">已完成支付</a>
+                <a href="OrderPay?PayNo=@Model.PayNo" class="btn btn-info m-2">重选支付平台</a>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+<div ID="alipay_form" class="d_none">@MvcHtmlString.Create(ViewBag.formHtml)</div>
+
+ }
+@section script{ 
+<script>
+function alipaySubmit() {
+    $("#payform").submit();
+    var diag = new ZL_Dialog();
+    diag.maxbtn = false;
+    diag.closebtn = false;
+    diag.backdrop = true;
+    diag.width = "minwidth";
+    diag.title = "正在支付";
+    diag.body = $("#payremind_div").show().html(); $("#payremind_div").remove();
+    diag.ShowModal();
+}
+
+
+</script>
+}

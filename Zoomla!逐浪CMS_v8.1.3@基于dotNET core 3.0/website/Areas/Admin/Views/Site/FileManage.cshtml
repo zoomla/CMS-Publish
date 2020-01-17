@@ -1,0 +1,219 @@
+﻿@using System.IO
+@using System.Text.RegularExpressions;
+@using Microsoft.AspNetCore.Http
+@using ZoomLa.BLL.API
+@model ZoomLaCMS.Control.C_FileBrower
+@functions{
+    //  当前所处的虚拟目录  xxx/xxx
+    public string VDir { get { return CStr(Context.Request.Query["vdir"]).TrimStart('/'); } }
+    //  /xxx/xxx/xxx
+    public string VFullDir { get { return Model.BaseDir + VDir; } }
+    public string SiteId { get { return Context.Request.GetParam("siteId"); } }
+    public string CStr(object obj) { return DataConverter.CStr(obj); }
+    //目录点开进入下一,文件则预览(暂不实现,可见PLAT)
+    public string ShowLink(DataRow dr)
+    {
+        string reuslt = GetExtIcon(CStr(dr["ExName"]).ToLower());
+        string name = CStr(dr["Name"]);
+        //string vpath = GetVPath(CStr(dr["FullPath"])).TrimStart('/');
+        string vpath = DataConverter.CStr(dr["vpath"]);
+
+        switch (CStr(dr["ExName"]).ToLower())
+        {
+            case "filefolder":
+                return reuslt + "<a href='" + AppendQuery(Model.BaseUrl, "vdir=" + vpath) + "'>" + name + "</a>";
+            //case ".htm":
+            //case ".html":
+            //case ".shtml":
+            //    return reuslt + "<a href='javascript:;' onclick=\"SelHtmlFile('" + vpath + "');\">" + name + "</a>";
+            //case "png":
+            //case "jpg":
+            //case "jpeg":
+            //case "bmp":
+            //case "gif":
+            //    break;
+            default:
+                return reuslt + "<a href='javascript:;' onclick=\"fb.choose('" + vpath + "');\">" + name + "</a>";
+        }
+    }
+    public string ShowItemOP(DataRow dr)
+    {
+        if (string.IsNullOrEmpty(Model.Tlp_ItemOP)) { return ""; }
+        //string vpath = GetVPath(CStr(dr["FullPath"])).TrimStart('/');
+        string vpath = DataConverter.CStr(dr["vpath"]);
+        string ext = CStr(dr["ExName"]).ToLower().Trim('.');
+        string ftype = (ext == "filefolder") ? "folder" : "file";
+        string html = Model.Tlp_ItemOP.Replace("{vpath}", vpath).Replace("{ext}", ext).Replace("{ftype}", ftype);
+        return html;
+    }
+    public string ShowBread()
+    {
+        string breadHtml = "";
+        if (string.IsNullOrEmpty(VDir)) { return "根目录"; }
+        //-----------------------------
+        string url = AppendQuery(Model.BaseUrl, "vdir=");
+        string[] dirArr = VDir.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        breadHtml += "<a href='" + url + "'>全部文件</a>";
+        for (int i = 0; i < dirArr.Length; i++)
+        {
+            //上一级目录链接
+            url += dirArr[i] + "/";
+            breadHtml += "<i class='zi zi_forRight spanr'></i>";
+            if (i == (dirArr.Length - 1)) { breadHtml += "<span>" + dirArr[i] + "</span>"; }
+            else { breadHtml += "<a href='" + url + "'>" + dirArr[i] + "</a>"; }
+            //设置返回上一级
+            if (dirArr.Length == 1) { breadHtml = "<a href='" + Model.BaseUrl + "'>返回上一级</a> | " + breadHtml; }
+            else if (i == (dirArr.Length - 2))
+            {
+                breadHtml = "<a href='" + url + "'>返回上一级</a> | " + breadHtml;
+            }
+        }
+        return breadHtml;
+    }
+    //物理-->虚拟-->去除模板目录
+    //private string GetVPath(string path)
+    //{
+    //    string _vpath = function.PToV(path);
+    //    _vpath = Regex.Replace(_vpath, Model.BaseDir, "", RegexOptions.IgnoreCase);
+    //    return _vpath;
+    //}
+    private string GetExtIcon(string ext)
+    {
+        switch (ext.ToLower())
+        {
+            case "filefolder":
+                return "<i class='zi zi_folders' style='color:#4586BD;'></i> ";
+            case ".htm":
+            case ".html":
+            case ".shtml":
+                return "<i class='zi zi_code' style='color:#4586BD;'></i> ";
+            default:
+                return "";
+        }
+    }
+    private string AppendQuery(string url, string query)
+    {
+        if (string.IsNullOrEmpty(query)) { return url; }
+        if (url.Contains("?")) { return url + "&" + query; }
+        else { return url + "?" + query; }
+    }
+    public DataTable File_List()
+    {
+        M_APIResult ret = ZoomLa.BLL.Site.B_Site_Helper.Post("file_list","siteId="+SiteId+"&vdir="+VDir);
+        return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(ret.result);
+    }
+
+}
+@{
+ Layout = "_safe";
+    /*
+   {ext}=jpg,{ftype}=file|folder,{vpath}=xxx/xxxx.html
+     */
+    /*
+    1.允许JS关联事件
+    2.根据需要支持预览(Plat方案)
+    3.支持根目录(指定初始目录)
+
+    */
+    string err = "";
+    DataTable filesDT = new DataTable();
+    try
+    {
+        //if (!Directory.Exists(function.VToP(VFullDir))) { throw new Exception("[" + VFullDir + "]目录不存在"); }
+        if (string.IsNullOrEmpty(Model.BaseUrl))
+        {
+            Model.BaseUrl = Context.Request.Path.ToString().ToLower();
+            if (Model.BaseUrl.StartsWith("/manage/")) { Model.BaseUrl = Model.BaseUrl.Replace("/manage/", CustomerPageAction.customPath2); }
+            string query = "";
+            //参数值为空和vdir不参与
+            foreach (var item in Context.Request.Query)
+            {
+                string key = item.Key;
+                if (key.ToLower().Equals("vdir")) { continue; }
+                if (string.IsNullOrEmpty(Context.Request.Query[key])) { continue; }
+                query += "&" + key + "=" + Context.Request.Query[key];
+            }
+            Model.BaseUrl = AppendQuery(Model.BaseUrl, query.TrimStart('&'));
+        }
+        //------------------------------------
+        //filesDT = FileSystemObject.GetDirectoryInfos(function.VToP(VFullDir), FsoMethod.All);
+        filesDT = File_List();
+        if (filesDT.Rows.Count > 0)
+        {
+            string f_dir_hide = "", f_ext_show = "";
+            foreach (string dir in Model.Dir_Hide.Split('|'))
+            {
+                f_dir_hide += "AND name<>'" + dir + "' ";
+            }
+            f_dir_hide = f_dir_hide.TrimStart("AND".ToCharArray());
+
+            if (!string.IsNullOrEmpty(Model.Ext_Show))
+            {
+                foreach (string ext in Model.Ext_Show.Split('|'))
+                {
+                    f_ext_show += "OR name LIKE '%." + ext + "' ";
+                }
+                f_ext_show = f_ext_show.TrimStart("OR".ToCharArray());
+                //允许文件夹
+                f_ext_show = "(" + f_ext_show + " OR ExName='FileFolder')";
+            }
+            string filter = (f_dir_hide + " AND " + f_ext_show).Trim(" AND".ToCharArray());
+            filesDT.DefaultView.RowFilter = filter;
+            filesDT = filesDT.DefaultView.ToTable();
+        }
+
+
+    }
+    catch (Exception ex) { err = ex.Message; }
+
+}
+@section head{<title>文件管理</title> }
+@section content{
+@*@Call.SetBread(new Bread[] {
+  new Bread("{admin}"),
+  new Bread(Call.PA("Site/SiteList"),"站点列表"),
+  new Bread(Model.BaseUrl,"文件管理")
+})*@
+<div class="">
+@if (!string.IsNullOrEmpty(err))
+{
+    <div class="alert alert-danger">@err</div>
+}
+else
+{
+<style type="text/css">
+    .fb_div { padding-top: 0px; position: relative; background-color: #fff; }
+    #bread_div { padding-left: 10px; line-height: 30px; border: 1px solid #ddd; border-radius: 5px; margin-top: 15px; margin-bottom: 5px; }
+    #bread_div a { color: #06c; }
+    #bread_div .spanr { padding: 0 4px; color: #aaa; font-size: 18px; position: relative; top: 2px; }
+    .colhead { padding: 8px; background-color: #f7f7f7; color: #888; border: 1px solid #d2d2d2; border-radius: 2px; }
+    .coltr { padding: 8px; border-bottom: 1px solid #ddd; display: flex; }
+    .col10 { display: inline-block; width: 10%; }
+    .col20 { display: inline-block; width: 20%; }
+    .col50 { display: inline-block; width: 50%; }
+    .folder .folder_hidden { display: none; }
+    .file .file_hidden { display: none; }
+</style>
+<div class="fb_div">
+    <div id="bread_div">@MvcHtmlString.Create(ShowBread())</div>
+    <div class="colhead"><span class="col10"></span><span class="col50">文件名</span><span class="col20">大小</span><span class="col20">修改日期</span></div>
+    <div class="mainlist">
+        @foreach (DataRow dr in filesDT.Rows)
+        {
+            <div class="coltr">
+                <span class="col10">@MvcHtmlString.Create(ShowItemOP(dr))</span>
+                <span class="col50">@MvcHtmlString.Create(ShowLink(dr))</span>
+                <span class="col20">@dr["ExSize"]</span>
+                <span class="col20">@dr["LastWriteTime"]</span>
+            </div>
+        }
+    </div>
+</div>
+@if(string.IsNullOrEmpty(Model.Tlp_ItemOP)) { <script>$(".col10").hide();</script> }
+
+}
+</div>
+ }
+@section script{ 
+@Html.Partial("Site_Assets")
+}

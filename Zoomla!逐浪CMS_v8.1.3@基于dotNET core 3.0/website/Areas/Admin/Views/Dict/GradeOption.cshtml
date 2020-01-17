@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    M_GradeCate cateMod = ViewBag.cateMod;
+    int parentId = DataConverter.CLng(Context.Request.GetParam("ParentID"));
+    string addLink = "[<a href='javascript:;' onclick=\"ShowComDiag('GOptionAdd?CateID=" + cateMod.CateID + "&ParentID=" + parentId+"');\">"+@L.添加选项+"</a>]";
+}
+@section head {
+<script src="/JS/Controls/Control.js"></script>
+<title>@L.多级数据字典管理</title>
+
+}
+
+@section content{
+	@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("GradeCateManage",cateMod.CateName),
+        new Bread() {url=Context.Request.RawUrl(), text=@L.字典管理,addon=addLink }}
+		)
+    <div class="panel panel-default list_choice">
+        @Html.Partial("GradeOption_List")
+    </div>
+	
+ }
+@section script{ 
+    <script>
+        Control.EnableEnter();
+        function mybind() { mvcpage.load(); CloseComDiag(); }
+    </script>
+}

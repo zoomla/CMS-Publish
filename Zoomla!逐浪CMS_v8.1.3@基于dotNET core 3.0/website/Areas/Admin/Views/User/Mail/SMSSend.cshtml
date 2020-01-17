@@ -1,0 +1,98 @@
+﻿@using ZoomLa.BLL.Client
+@{
+    B_Group gpBll = new B_Group();
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    DataTable attrDT = attrBll.Sel("ctype");
+    DataTable gpDT = gpBll.Select_All();
+}
+
+@section head{<title>@L.发送手机短信</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread() {url=Context.Request.RawUrl(), text=L.短信发送,addon= "<a href='SMSSendLog'>("+L.查看发送记录+")</a>" }}
+        )
+<form method="post" action="SMSSend_Submit">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow list_choice">
+            <table class="table table-bordered sys_table">
+                <tr>
+                    <th  style="width:150px;">@L.短信内容</th>
+                    <td ><textarea ID="Content_T" name="Content_T" class="form-control" maxlength="70" placeholder="@L.请填入短信内容或短信模板 ID" rows="5"></textarea></td>
+                </tr>
+                <tr>
+                    <th>@L.模板参数</th>
+                    <td>
+                        <textarea ID="Param_T" name="Param_T" rows="3" class="form-control" placeholder="@L.参数名:@L.参数值,@L.参数名 2:@L.参数值"></textarea>
+                        <small style="display:block;">@L.如非模板短信或无参数</small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>CRM @L.客户类别</th>
+                    <td>
+                        @foreach (DataRow dr in attrDT.Rows) { <label><input type="checkbox" name="crm_chk" value="@dr["value"]"/>@dr["value"]</label> }
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.会员组</th>
+                    <td>
+                      @foreach (DataRow dr in gpDT.Rows) {<label><input type="checkbox" name="group_chk" value="@dr["GroupID"]" />@dr["GroupName"]</label> }
+                    </td>
+                </tr>
+                <tr>
+                    <th >@L.会员列表</th>
+                    <td>
+                        <div class="mb-2">
+                            <input type="button" class="btn btn-info btn-sm" value="+@L.选择用户" onclick="user.sel('InceptUser', 'user', '')" />
+                        </div>
+                        <textarea ID="InceptUser_T" name="InceptUser_T"  class="form-control" rows="5" disabled="disabled" ></textarea>
+                        <input type="hidden" ID="InceptUser_Hid" name="InceptUser_Hid"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th >@L.手机号码</th>
+                    <td>
+                        <textarea ID="Mobiles_T" name="Mobiles_T" class="form-control" Rows="5" placeholder="@L.请输入手机号码使用英文半角" ></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="submit" ID="BtnSend" value="@L.发送短信" onclick="return subCheck();" class="btn btn-info" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+}
+@section script{
+    <script>
+        function SelectUser() {
+            var url = "/Office/Mail/SelGroup?Type=AllInfo#ReferUser";
+            comdiag.maxbtn = false;
+            ShowComDiag(url, "@Html.Raw(L.选择用户)");
+        }
+
+        user.hook["InceptUser"] = userdeal;
+        function userdeal(list, select) {
+            var names = "", ids = "";
+            for (var i = 0; i < list.length; i++) {
+                names += list[i].UserName + ",";
+                ids += list[i].UserID + ",";
+            }
+            $("#" + select + "_T").val(names);
+            $("#" + select + "_Hid").val(ids);
+            if (comdiag != null) { CloseComDiag(); }
+        }
+        function subCheck() {
+            var content = $("#Content_T").val();
+            if (ZL_Regex.isEmpty(content)) { alert("@Html.Raw(L.短信内容不能为空)"); return false; }
+            if (content.length > 70) { alert("@Html.Raw(L.短信内容超过70字)"); return false; }
+            return true;
+        }
+//$("#Content_T").val("178791");
+//$("#Param_T").val("vcode:10000");
+//$("#Mobiles_T").val("");
+    </script>
+}

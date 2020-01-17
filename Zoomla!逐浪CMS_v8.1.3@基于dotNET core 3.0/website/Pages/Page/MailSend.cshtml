@@ -1,0 +1,128 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.Model.SYS
+@using ZoomLa.BLL.Helper
+@model PageModel
+@functions{
+
+    public class PageModel : Page_Base
+    {
+        public M_EMail_Item email = new M_EMail_Item();
+        public IActionResult OnGet()
+        {
+            email.ToAddress = GetParam("email");
+            email.Subject = HttpUtility.UrlDecode(GetParam("t"));
+            email.MailBody = HttpUtility.UrlDecode(GetParam("c"));
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            return Content(Success.ToString());
+        }
+        public IActionResult OnPostSave()
+        {
+            M_EMail_Item mailMod = new M_EMail_Item();
+            mailMod.Subject = GetParam("Subject");
+            mailMod.FromName = GetParam("formName");
+            mailMod.MailBody = GetParam("MailBody");
+            mailMod.ToAddress = GetParam("ToAddress");
+            ZoomLa.BLL.SYS.B_EMailHelper.SendAsync(mailMod);//自动将mailMod写入数据库
+            return Redirect("MailSend?r=1");
+        }
+    }
+}
+@{
+    Layout = "_empty";
+}
+@section head{
+<link rel="stylesheet" href="~/theme/css/v4.css"/>
+<script type="text/javascript" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+<title>快邮_@Call.SiteName</title>
+<style type="text/css"> 
+body{background:rgba(0, 0, 0, 0.07);}
+</style>
+}
+@section content{
+
+    @if (HttpContext.Request.GetParam("r").Equals("1"))
+    {
+        <div class="container animated sysTips_prompt" style="margin-top:30%;">
+            <div class="col-sm-6 offset-sm-3">
+                <div class="card">
+                    <div class="card-header"><i class="zi zi_bulbLine" aria-hidden="true"></i>操作完成 </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title"></h5>
+                        <p class="card-text">邮件已成功发送</p>
+                        <div class="card-text"><a ID="LnkReturnUrl" href="/" class="btn btn-info" style="color:#fff;"><i class="zi zi_reply"></i> 返回上一页 </a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="container voteCon">
+        <form method="post">
+            <div class="vote_head">
+            <h1><i class="zi zi_envelopeBold zi_load"></i> 向我们提交邮件</h1>
+        </div>
+
+        <div class="input-group">
+        <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">收件人</span>
+        </div>
+        <input type="text" class="form-control  required" ID="ToAddress" name="ToAddress" value="@Model.email.ToAddress" />
+        </div>
+
+        <div class="input-group">
+        <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">发件人</span>
+        </div>
+        <input type="text" class="form-control required" ID="FromName" name="FromName" value="@Model.email.FromName"/>
+        </div>
+        <small id="emailHelp" class="form-text text-muted">发件人姓名,该值不可为Email,否则可能会被目标邮箱过滤</small>
+
+        <div class="input-group">
+        <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">邮件标题</span>
+        </div>
+        <input type="text" ID="Subject" name="Subject" class="form-control required" value="@Model.email.Subject" />
+        </div>
+
+        <div class="mailCon">
+        <div class="input-group">邮件内容-&gt;</div>
+          <textarea ID="MailBody" name="MailBody" class="" style="width:100%;height:200px;">@Model.email.MailBody</textarea>
+        </div>
+
+        <div class="voteFoot">
+        <button type="submit" class="btn btn-info" asp-page-handler="Save" onclick="return checkForm();"><i class="zi zi_fly"></i> 发送邮件</button>
+        <a href="javascript:window.opener=null;window.open('','_self');window.close();" class="btn btn-outline-info">✘ 关闭窗口</a>
+        </div>
+
+        </form>
+    <div class="alert alert-info" style="margin-top:5px;">
+            示例URL：/Page/MailSend?email=收件人邮箱&t=邮件标题&c=邮件内容
+        </div>
+        </div>    
+        
+    }
+}
+@section script{
+
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/jquery.validate.min.js"></script>
+<script>
+    function checkForm() {
+        if (ZL_Regex.isEmpty($("#ToAddress").val())) { alert("收件人不能为空"); return false; }
+        //if (ZL_Regex.isEmpty($("#FromName").val())) { alert("发件人不能为空"); return false; }
+        if (ZL_Regex.isEmpty($("#Subject").val())) { alert("邮件标题不能为空"); return false; }
+        var len = UE.getEditor("MailBody").getContent().length;
+        if (len < 10) { alert("邮件内容不能为空"); return false; }
+        return true;
+    }
+</script>
+@MvcHtmlString.Create(Call.GetUEditor("MailBody", 2))
+}

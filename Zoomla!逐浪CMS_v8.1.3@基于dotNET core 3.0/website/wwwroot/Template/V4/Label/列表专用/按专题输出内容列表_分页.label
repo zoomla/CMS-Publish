@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>51</LabelID>
+    <LabelName>按专题输出内容列表_分页</LabelName>
+    <LabelType>4</LabelType>
+    <LabelCate>列表专用</LabelCate>
+    <LabelDesc />
+    <LabelParam>SpecID,1,1,专题ID|ulClassName,,1,ul绑定样式|liClassName,,1,li绑定样式|ShowNum,10,1,每页显示数|Order,asc$desc,3,排序方法</LabelParam>
+    <LabelTable>ZL_CommonModel</LabelTable>
+    <LabelField>GeneralID,Title,NodeID</LabelField>
+    <LabelWhere>SpecialID like '%@SpecID%' and status=99</LabelWhere>
+    <LabelOrder>ZL_CommonModel.CreateTime @Order</LabelOrder>
+    <LabelContent>&lt;ul class="@ulClassName"&gt;
+{Repeate}
+  &lt;li class="@liClassName"&gt;&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}" target="{ZL:GetNodeOpen({Field="NodeID"/})/}"&gt;[{ZL.Label id="根据节点ID输出指定节点名与链接" NodeID="{Field="NodeID"/}" /}]&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}"&gt;{Field="Title"/}&lt;/a&gt;&lt;/li&gt;
+  
+  {/Repeate}
+
+
+
+
+{ZL.Page/}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo />
+    <addroot>循环计算</addroot>
+    <setroot />
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <EmptyContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":""}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

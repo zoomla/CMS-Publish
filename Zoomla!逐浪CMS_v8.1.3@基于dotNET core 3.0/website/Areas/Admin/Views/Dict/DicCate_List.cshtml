@@ -1,0 +1,56 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+public string GetUsedFlag(string tType)
+{
+    bool t = DataConverter.CBool(tType);
+    return DataConverter.CBool(tType) ? ComRE.Icon_OK : ComRE.Icon_Error;
+}
+
+}
+@{ 
+    string apiUrl = "DictCate_API?action=";
+}
+<div id="EGV">
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <td class="td_xs"></td>
+            <td>ID</td>
+            <td>@L.分类</td>
+            <td>@L.启用</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["DicCateID"]" /></td>
+        <td>@dr["DicCateID"]</td>
+        <td><a id="item_@dr["DicCateID"]">@dr["CategoryName"]</a></td>
+        <td>@MvcHtmlString.Create(GetUsedFlag(DataConverter.CStr(dr["IsUsed"])))</td>
+        <td>
+            <a href="javascript:;" onclick="showAdd('@dr["DicCateID"]')"><i class="zi zi_pencilalt"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({ids:'@dr["DicCateID"]',url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trashalt" title="删除"></i></a>
+            <a href="DicItemList?CateID=@dr["DicCateID"]"><i class="zi zi_list" title="列表"></i>@L.字典项目列表</a>
+        </td>
+    </tr>
+}
+    @Html.Partial("_page")
+</table>
+<div id="sleall" style="float:left;">
+    <div class="input-group">
+        <span class="input-group-prepend"><span class="input-group-text"> @L.分类名：</span></span>
+        <input type="text" ID="CateName" class="form-control max20rem" />
+        <span class="input-group-append">
+            <button type="button" ID="btnSave" class="btn btn-outline-info" onclick="save();">@L.保存</button>
+        </span>
+        <input type="hidden" ID="CateID" />
+    </div>
+</div>
+<div style="float:right;margin-right:10px;">
+    <input type="button" ID="btndelete" value="@L.批量删除" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.你确定要将所有选择项删除吗)'});" class="btn btn-outline-danger" />
+    <input type="button" ID="btnSetUsed" value="@L.批量启用" onclick="mvcpage.bat({url:'@(apiUrl+"use")'});" class="btn btn-outline-info" />
+    <input type="button" ID="btnSetUnUsed" value="@L.批量停用" onclick="mvcpage.bat({url:'@(apiUrl+"unuse")'});" class="btn btn-outline-dange" />
+    <button type="button" class="btn btn-outline-info" onclick="ShowComDiag('@Call.PathAdmin("Com/Import?Mode=Ex_Dictionary")','数据导入');">@L.数据导入</button>
+</div>
+</div>

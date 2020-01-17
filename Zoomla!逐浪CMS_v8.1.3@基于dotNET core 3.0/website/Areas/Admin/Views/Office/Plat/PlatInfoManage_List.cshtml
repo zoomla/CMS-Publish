@@ -1,0 +1,50 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string getText(DataRow dr)
+    {
+        string str = StringHelper.StripHtml(DataConverter.CStr(dr["MsgContent"]), 500).Replace(" ", "");
+        return str.Length > 30 ? str.Substring(0, 29) + "..." : str;
+    }
+            public IHtmlContent GetStatus(DataRow dr)
+        {
+            string result = "";
+            switch (DataConverter.CStr(dr["Status"]))
+            {
+                case "0":
+                    result = "<span style='color:red;'>前台删除</span>";
+                    break;
+                case "1":
+                    result = "<span style='color:green;'>正常</span>";
+                    break;
+            }
+            return MvcHtmlString.Create(result);
+        }
+}
+<table class="table table-bordered" id="EGV">
+<thead>
+    <tr>
+        <th></th>
+        <th>ID</th>
+        <th>@L.信息内容</th>
+        <th>@L.用户</th>
+        <th>@L.状态</th>
+        <th>@L.创建时间</th>
+        <th>@L.操作</th>
+    </tr>
+</thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input name="idchk" type="checkbox" value="@dr["ID"]" /></td>
+        <td>@dr["ID"]</td>
+        <td>@getText(dr)</td>
+        <td><a href="../User/UserInfo.aspx?id=@dr["CUser"]">@dr["CUName"]</a></td>
+        <td>@GetStatus(dr)</td>
+        <td>@dr["CDate"]</td>
+        <td>
+             <a href="PlatInfoDeail?ID=@dr["ID"]">@L.详情</a>
+        </td>
+    </tr>
+}
+@Html.Partial("_page")
+</table>

@@ -1,0 +1,132 @@
+﻿@using System.Web
+@using System.Data
+@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+@{
+    B_FunLabel funBll = new B_FunLabel();
+    DataTable cateDT = ViewBag.cateDT;
+}
+
+<div v-show="step==3">
+    <div class="container-fluid pr-0">
+                <div class="row sysRow table-responsive-md">
+                    <table class="table table-striped table-bordered sys_table">
+                        <tr class="labelhtml_no">
+                            <td class="spacingtitle" align="center" colspan="2">第四步：标签内容</td>
+                        </tr>
+                        <tr class="labelhtml_no">
+                            <th class="w12rem_lg">参数[可拖放]</th>
+                            <td>
+                                <div class="plist">
+                                    <div v-for="item in param.dt" class='spanfixdiv1' draggable='true' ondragstart='pdrag(event);'  v-bind:code="'@@'+item.ParamName">@@{{item.ParamName}}</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="labelhtml_no">
+                            <th>判断模式</th>
+                            <td>
+                                <label><input type='checkbox' id="BoolMode_Chk" name="BoolMode_Chk" value="1" v-model="model.IsOpen" />判断模式</label>[根据判断条件输出内容--支持：动态标签/系统标签/扩展函数]@*不支持直接放置{Field,页面参数请用GetRequest*@
+                                <div style="margin-top:5px;" id="judge_example_div">
+                                    <button type="button" class="btn btn-light" data-label="{$GetRequest(NodeID)$}">获取当前节点ID</button>
+                                    <button type="button" class="btn btn-light" data-label="{$GetRequest(ID)$}">获取当前内容ID</button>
+                                    <button type="button" class="btn btn-light" data-label="{ZL:GetuserID()/}">获取当前用户ID</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="model.IsOpen==1">
+                            <th>模式设置</th>
+                            <td>
+                                <div class="input-group">
+                                    @Html.DropDownList("Modeltypeinfo", MVCHelper.ToSelectList("参数判断|用户登录判断".Split('|'), "参数判断|用户登录判断".Split('|'), Model.labelMod.Modeltypeinfo), new { @class = "form-control td_m" })
+                                    <input type="text" ID="Valueroot" name="Valueroot" value="@Model.labelMod.Valueroot" class="form-control text_200_auto" placeholder="这里放入标签" />
+                                    @Html.DropDownList("setroot", MVCHelper.ToSelectList("大于|等于|小于|不等于".Split('|'), "大于|等于|小于|不等于".Split('|'), Model.labelMod.setroot), new { @class = "form-control td_m" })
+                                    <input type="text" ID="Modelvalue" name="Modelvalue" value="@Model.labelMod.Modelvalue" class="form-control td_m" title="注意：当判断是否为空时，请不要填写任何内容" />
+                                </div>
+                            </td>
+                        </tr>
+                       <tr>
+                            <td colspan="2" style="padding:5px;padding-bottom:0;padding-right:0px;">
+                              <div id="labeldiv" style="position:relative;">
+                                    <div id="label_left">
+                                        <ul class="nav nav-tabs top_opbar" style="margin-bottom: 0px; border-bottom: none;">
+                                            <li class="nav-item"><a class="nav-link active" href="#Tabs0" data-toggle="tab">自定标签</a></li>
+                                            <li class="nav-item"><a class="nav-link" href="#Tabs1" data-toggle="tab">字段标签</a></li>
+                                            <li class="nav-item"><a class="nav-link" href="#Tabs2" data-toggle="tab">系统标签</a></li>
+                                            <li class="nav-item"><a class="nav-link" href="#Tabs3" data-toggle="tab">扩展函数</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="Tabs0">
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        选择标签类型
+                                                        <select ID="CustomLabel_DP" name="CustomLabel_DP" class="form-control max20rem" onchange="GetCustom(this);">
+                                                            <option value="">选择标签类型</option>
+                                                            @foreach (DataRow dr in cateDT.Rows)
+                                                            {
+                                                                <option value="@dr["name"]">@dr["name"]</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="panel-body" id="CustomLabel_div"></div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" id="Tabs1">
+                                                <div class="card card-header">
+                                                    <div class="card-body" id="Field_div"></div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" id="Tabs2">
+                                                <div class="list-group">
+                                                   <div id="lblSys">@Html.Raw(funBll.GetSysLabel())</div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" id="Tabs3">
+                                                <div class="list-group">
+                                                   <div id="lblFun">@Html.Raw(funBll.GetFunLabel())</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                       <div id="label_right">
+                                       <ul class="nav nav-tabs top_opbar" id="editor_tab" style="margin-bottom: 0px; border-bottom: none;">
+                                            <li class="nav-item"><a class="nav-link active" href="javascript:;" onclick="labelEditor.load(this,'Content_T');">模板内容</a></li>
+                                            <li class="nav-item"><a class="nav-link" href="javascript:;" onclick="labelEditor.load(this,'EmptyContent');">数据为空</a></li>
+                                            <li class="nav-item"><a class="nav-link" href="javascript:;" onclick="labelEditor.load(this,'FalseContent');">不满足判断</a></li>
+                                        </ul>
+                                       <div style="margin-left: 30px;">
+                                        @Html.Raw(SafeSC.ReadFileStr("/lib/html/label.html"))
+                                       </div>
+                                         <div class="tab-content">
+                                            <div id="editor_normal_div" class="tab-pane active">
+                                                <textarea ID="textContent" name="textContent" class="editor">@Model.labelMod.Content</textarea>
+                                            </div>
+                                            <div style="display: none;">
+                                                <textarea ID="Content_T" name="Content_T">@Model.labelMod.Content</textarea>
+                                                <textarea ID="EmptyContent" name="EmptyContent">@Model.labelMod.EmptyContent</textarea>
+                                                <textarea ID="FalseContent" name="FalseContent">@Model.labelMod.FalseContent</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="text-center">
+                                    @Html.DropDownList("Step_DP", MVCHelper.ToSelectList(Model.stepDT, "name", "id", "3"), new { @class = "form-control w12rem_lg labelhtml_no", onchange = "app.changeStep(this.value);" })
+                                    @Html.Partial("LabelSql_Btns")
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div style="margin-top: 5px;">
+                <ul class="disc">
+                    <li>标签内容支持CSS等HTML定义，可以从左侧拖拽标签参数使用。</li>
+                    <li>重复输出数据请需要在{Repeate}{/Repeate}内进行排序输出。</li>
+                    <li>扩展函数支持字段格式化、截取、重新筛选、取值获值等操作，使数据输出更加科学合理。</li>
+                    <li>由于多浏览器兼容与W3C规则严谨度要求，建议标签预览仅作为预览使用，不作为保存操作，以免产生乱码。</li>
+                </ul>
+            </div>
+</div>

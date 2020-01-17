@@ -1,0 +1,18 @@
+﻿@model ZoomLa.Model.Shop.M_Shop_FareTlp
+@section head {<title>运费模板</title>}
+@section content{
+@Call.SetBread( new Bread[] {
+	new Bread("{admin}"),
+	new Bread("DeliverType","运费模板"),
+	new Bread(){url=Context.Request.RawUrl(), text="模板信息"}
+	})
+<div class="list_choice">
+    <form method="post" action="@MVCHelper.GetAction("DeliverAdd_Submit",Context.Request)">
+       @Html.Partial(MVCHelper.ViewDir_Admin+"Shop/Exp/DeliverAdd_Page.cshtml")
+    </form>
+</div>
+ }
+@section script{ 
+
+
+}

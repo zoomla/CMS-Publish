@@ -1,0 +1,35 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string api = "ARole_API?action=";
+}
+@section head{  <title>@L.角色管理</title>}
+@section content{
+    
+
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url=Context.Request.RawUrl(), text=L.管理员角色+"<a href='ARoleAdd'> ["+L.添加角色+"]</a>"}
+})
+<div class="list_choice">
+<table class="table table-bordered table-striped">
+<thead><tr><th class="td_s">ID</th><th class="td_l">@L.角色名</th><th>@L.描述</th><th class="td_l">@L.操作</th></tr></thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td>@dr["RoleID"]</td>
+        <td><a href="ARoleAdd?ID=@dr["RoleID"]">@dr["RoleName"]</a></td>
+        <td>@dr["Description"]</td>
+        <td>
+            <a href="ARoleAdd?ID=@dr["RoleID"]" class="btn btn-info btn-sm"><i class="zi zi_pencilalt"></i></a>
+            <a href="ARoleAuth?ID=@dr["RoleID"]" class="btn btn-info btn-sm"><i class="zi zi_key"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({ url: '@(api+"del")', ids:@dr["RoleID"], confirm: '@L.确定要删除吗', after: function () { location = location; } })" class="btn btn-danger btn-sm"><i class="zi zi_trash"></i></a>
+        </td>
+    </tr>
+}
+</table>
+</div>
+}
+@section script{ 
+
+
+}

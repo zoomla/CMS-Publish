@@ -1,0 +1,552 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@using ZoomLa.Components
+@using ZoomLaCMS.Control
+@functions{
+
+}
+@{
+    SiteOption option = SiteConfig.SiteOption;
+    DataTable tempDT = FileSystemObject.GetDirectorySmall(function.VToP("/Template/"));
+    for (int i = 0; i < tempDT.Rows.Count; i++)
+    {
+        tempDT.Rows[i]["name"] = "/Template/" + tempDT.Rows[i]["name"];
+    }
+}
+@section head{
+<title>@L.网站参数配置</title>
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<style type="text/css">
+    small {display:block;}
+</style>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("SiteInfo",L.系统设置),
+new Bread("SiteInfo",L.网站配置),
+new Bread() {url="", text=L.网站参数配置,addon="" }}
+                )
+<form method="post" action="SiteOption_Submit">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow">
+            <ul class="nav nav-tabs list_choice" role="tablist">
+                <li class="nav-item"><a class="nav-link active show" href="#Tabs0" data-toggle="tab">@L.全局设置 </a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs1" data-toggle="tab">@L.风格参数</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs2" data-toggle="tab">@L.安全设置</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs3" data-toggle="tab">@L.上传控制</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs4" data-toggle="tab">@L.商城配置</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs5" data-toggle="tab">@L.内容配置</a></li>
+            </ul>
+            <div class="tab-content col-12 table_box">
+                <div class="tab-pane active" id="Tabs0">
+                    <table class="table table-striped table-bordered  sys_table">
+                        <tbody>
+                            <tr id="Tr5">
+                                <th class="w12rem_lg">@L.选择默认语言 </th>
+                                <td>
+                                    @Html.DropDownList("Language_DP", MVCHelper.ToSelectList("中国 - 简体中文|United States - English|France - Français|Россия - Русский|Deutschland|Italia - Italiano|日本 - 日本語".Split('|'),
+                                   "ZH-CN,EN-US,fr-FR,ba-RU,de-DE,it-IT,ja-JP".Split(','),option.Language), new { @class = "form-control max20rem" })
+                                </td>
+                            </tr>
+                           <tr>
+                                <th>@L.超级管理按钮</th>
+                                <td>
+                                    @MVCHelper.H_Check("UAgent", option.UAgent, new { @class = "switchChk", value = "1" })
+                                </td>
+                            </tr>
+                             @*<tr>
+                                <th>启用系统帮助 </th>
+                                <td>
+                                    @MVCHelper.H_Check("IsOpenHelp", option.IsOpenHelp == "1", new { @class = "switchChk", value = "1" })
+                                </td>
+                            </tr>*@
+                            <tr>
+                                <th>@L.开启域名路由 </th>
+                                <td>
+                                    @MVCHelper.H_Check("DomainRoute_chk", option.DomainRoute == "1", new { @class = "switchChk", value = "1" })
+                                    <small class="text-muted">@L.修改后重启生效</small>
+                                </td>
+                            </tr>
+
+                            @*<tr>
+                                <th>生成PDF目录 </th>
+                                <td>
+                                    <input type="text" name="PdfDirectory" ID="PdfDirectory" value="@option.PdfDirectory" class="form-control max20rem" />
+                                    <small class="text-muted">目录名前后不要加斜杠 "/"</small>
+                                </td>
+                            </tr>*@
+                            <tr>
+                                <th>
+                                    @L.广告存储目录 <br />
+                                </th>
+                                <td>
+                                    <input type="text" name="txtAdvertisementDir" ID="txtAdvertisementDir" value="@option.AdvertisementDir" class="form-control max20rem" />
+                                    <small id="txtAdvertisementDir" class="text-muted">@L.修改广告存放目录</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.链接地址方式 </th>
+                                <td>@MVCHelper.H_Radios("IsAbsoluatePath", "相对路径|绝对路径".Split('|'), "1,0".Split(','), option.IsAbsoluatePath ? "1" : "0")</td>
+                            </tr>
+                            <tr>
+                                <th>@L.首页生成后缀 </th>
+                                <td class="sys_table_none">
+                                    @MVCHelper.H_Radios("IndexEx", ".html|.htm|.shtml|不生成".Split('|'), "0,1,2,3".Split(','), option.IndexEx)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.生成静态目录 </th>
+                                <td>
+                                    <input type="text" name="GeneratedDirectory" ID="GeneratedDirectory" value="@option.GeneratedDirectory" class="form-control max20rem" />
+                                    <small class="text-muted">@L.目录名前后不要加斜杠 "/"</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs1">
+                    <table class="table table-striped table-bordered  sys_table">
+                        <tbody>
+                            @*<tr>
+                                    <th>云盘共享空间权限 </th>
+                                    <td class="sys_table_none">
+                                        <asp:CheckBoxList  ID="cloud_ChkList" RepeatDirection="Horizontal">
+                                            <asp:ListItem Value="read" Text="读取"></asp:ListItem>
+                                            <asp:ListItem Value="del" Text="删除"></asp:ListItem>
+                                            <asp:ListItem Value="up" Text="上传"></asp:ListItem>
+                                        </asp:CheckBoxList>
+                                    </td>
+                                </tr>*@
+                            <tr>
+                                <th class="w12rem_lg" >@L.简洁界面模式 </th>
+                                <td>
+                                    @MVCHelper.H_Check("SiteManageMode_Chk", option.SiteManageMode == 1, new { @class = "switchChk" })
+                                    <small class="text-muted">@L.登录不加载图片</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.用户登录跳转</th>
+                                <td>
+                                    <input type="text" name="LoggedUrl_T" ID="LoggedUrl_T" value="@option.LoggedUrl" class="form-control max20rem" />
+                                    <small class="text-muted">@L.登后跳转页面</small>
+                            </tr>
+                            <tr>
+                                <th>@L.系统云台 </th>
+                                <td>
+                                    <input type="text" name="txtProjectServer" ID="txtProjectServer" value="@option.ProjectServer" class="form-control max20rem" />
+                                    <small class="text-muted">@L.远程下载与模板官方服务器地址 http://update.z01.com</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.网站首页模板 </th>
+                                <td>
+                                    @Html.Raw(PageCommon.GetTlpDP("IndexTemplate_DP"))
+                                    <input type="hidden" name="IndexTemplate_DP_hid" ID="IndexTemplate_DP_hid" value="@option.IndexTemplate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.店铺首页模板</th>
+                                <td>
+                                    @Html.Raw(PageCommon.GetTlpDP("ShopTemplate_DP"))
+                                    <input type="hidden" name="ShopTemplate_DP_hid" ID="ShopTemplate_DP_hid" value="@option.ShopTemplate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                    <th>@L.模板方案</th>
+                                    <td>
+                                        <div id="DivtemplateDir">
+                                            @Html.DropDownList("DropTemplateDir",MVCHelper.ToSelectList(tempDT,"name","name",option.TemplateDir),new {@class="form-control max20rem",@onchange="cc()" })
+                                        </div>
+                                    </td>
+                                </tr>
+                            <tr>
+                                <th>@L.风格路径</th>
+                                <td>
+                                    <div id="DivCssDir">
+                                        <input type="text" name="txtCssDir" ID="txtCssDir" value="@option.CssDir" class="form-control max20rem" />
+                                        <small class="text-muted">@L.继承模板目录</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.默认风格</th>
+                                <td><input type="text" name="txtStylePath" ID="txtStylePath" value="@option.StylePath" class="form-control max20rem" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs2">
+                    <table class="table table-striped table-bordered  sys_table">
+                        <tbody>
+                            <tr>
+                                <th>@L.后台超时锁屏</th>
+                                <td>
+                                    <div class="input-group" style="width:300px;">
+                                        <input type="text" class="form-control" value="@option.Lock_SpareTime" name="Lock_SpareTime"/>
+                                        <span class="input-group-prepend"><span class="input-group-text">@L.分钟</span></span>
+                                    </div>
+                                    <small style="display:block;">@L.闲置超时自动锁屏</small>
+                                </td>
+                            </tr>
+                             <tr>
+		                        <th>@L.管理员注册</th>
+		                        <td>
+                                    @MVCHelper.H_Check("RegManager",(option.RegManager==1),new {@class="switchChk",value="1" })
+                                    <small>@L.自助注册审核生效</small>
+		                        </td>
+	                        </tr>
+                            <tr>
+                                <th class="w12rem_lg">@L.HTTPS全站SSL加密 </th>
+                                <td>
+                                    @MVCHelper.H_Check("safeDomain_Chk", option.SafeDomain == "1", new { @class = "switchChk", value = "1" })
+                                    <small class="text-muted">@L.访问行为由http变更为https</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.统一域名归集访问</th>
+                                <td>
+                                    <div>
+                                        @MVCHelper.H_Check("DomainMerge_Chk", option.DomainMerge, new { @class = "switchChk", value = "1" })
+                                        <small class="text-muted">@L.多域名绑定302跳到SiteUrl唯一地址</small>
+                                    </div>
+                                    <div class="input-group margin_t5 group_box"><span class="group_input cRadius_right">@L.PC端</span> <input type="text" name="Domain_PC_T" ID="Domain_PC_T" class="form-control max20rem" placeholder="http://网址" value="@option.Domain_PC" /></div>
+                                    <div class="input-group margin_t5 group_box"><span class="group_input cRadius_right">@L.手机</span><input type="text" name="Domain_Mobile_T" ID="Domain_Mobile_T" class="form-control max20rem" placeholder="http://网址" value="@option.Domain_Mobile" /></div>
+                                    <div class="input-group margin_t5 group_box"><span class="group_input cRadius_right">@L.微信</span><input type="text" name="Domain_Wechat_T" ID="Domain_Wechat_T" class="form-control max20rem" placeholder="http://网址" value="@option.Domain_Wechat" /></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.SSO域名 SSO域名(用户)</th>
+                                <td>
+                                    <input type="text" name="SSOCookies_Domain_T" ID="SSOCookies_Domain_T" value="@option.SSOCookies_Domain" class="form-control max20rem" placeholder="@L.请输入域名" />
+                                    <small>@L.示例域名登录</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.验证码类型</th>
+                                <td>
+                                    @MVCHelper.H_Radios("VerifyType_rad", "验证码|点触科技 [<a href=\"Third/TouClickAdd\">前往配置</a>]".Split('|'), "0,1".Split(','), option.VerifyType.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.验证码长度</th>
+                                <td>
+                                    <input type="text" name="VerifyLen_T" ID="VerifyLen_T" class="form-control max20rem" maxlength="1" value="@option.VerifyLen" />
+                                    <small class="text-muted">@L.长度推荐</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.验证码组成</th>
+                                <td>
+                                    @MVCHelper.H_Radios("VerifyForm_rad", "数字+英文|仅数字|仅英文".Split('|'), "4,2,3".Split(','), option.VerifyForm.ToString())
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.启用后台管理认证码</th>
+                                <td>
+                                    @MVCHelper.H_Check("EnableSiteManageCode", option.EnableSiteManageCode, new { @class = "switchChk" })
+                                </td>
+                            </tr>
+
+
+                            @*<tr>
+                                <th>是否启用发送短信 </th>
+                                <td>
+                                    @MVCHelper.H_Check("OpenSendMessage", option.OpenSendMessage, new { @class = "switchChk" })
+                                </td>
+                            </tr>*@
+
+
+                            <tr>
+                                <th>@L.是否过滤敏感词汇 </th>
+                                <td>
+                                    @MVCHelper.H_Check("rdoIsSensitivity", option.IsSensitivity == 1, new { @class = "switchChk" })
+                                </td>
+                            </tr>
+
+                            <tr class="dis_none">
+                                <th>@L.过滤敏感词汇 </th>
+                                <td>
+                                    <textarea name="TxtSensitivity" ID="TxtSensitivity" Rows="6" class="form-control m50rem_50">@option.Sensitivity</textarea>
+                                    <small class="text-muted">@L.提示敏感词汇</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.后台管理认证码 </th>
+                                <td><input type="text" name="txtSiteManageCode" ID="txtSiteManageCode" class="form-control max20rem" value="@option.SiteManageCode" /></td>
+                            </tr>
+                            <tr><th>@L.加密机制</th><td>
+                                <div>MD5：@L.用于管理员密码</div>
+                                <div style="padding-left:40px;">@L.密文不可还原</div>
+                                <div>AES：@L.敏感信息加密</div>
+                                <div style="padding-left:40px;">@L.对称加密</div>
+                                <div>RSA：@L.重要信息加密</div>
+                                <div style="padding-left:40px;">@L.非对称加密</div>
+                                </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs3">
+                    <table class="table table-striped table-bordered  sys_table">
+                        <tbody>
+                            <tr>
+                                <th class="w12rem_lg">@L.是否允许上传文件 </th>
+                                <td>
+                                    @MVCHelper.H_Check("EnableUploadFiles", option.EnableUploadFiles, new { @class = "switchChk" })
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.媒体文件最大值 </th>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="TxtUpMediaSize" ID="TxtUpMediaSize" value="@option.UploadMdaMaxSize" class="form-control max20rem" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">KB</span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">@L.提示 ：1 KB = 1024 Byte，1 MB = 1024 KB</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.网站上传目录 </th>
+                                <td><input type="text" name="txtUploadDir" ID="txtUploadDir" value="@option.UploadDir" class="form-control max20rem" /></td>
+                            </tr>
+                            <tr>
+                                <th>@L.文件保存路径 </th>
+                                <td>
+                                    <select id="FileRJ" class="form-control max20rem">
+                                        <option value="0">@L.节点文件类型 节点/文件类型</option>
+                                        <option value="1">@L.文件年月 文件类型/年月</option>
+                                        <option value="2">@L.文件类型年月 文件类型/年/月</option>
+                                        <option value="3">@L.文件节点年月  文件类型/节点/年/月</option>
+                                        <option value="4">@L.节点年月 节点/年/月</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.文件命名规则</th>
+                                <td>
+                                    <select id="FileN" class="form-control max20rem">
+                                        <option value="0">@L.随机数</option>
+                                        <option value="1">@L.年月日时分秒</option>
+                                        <option value="2">@L.时分秒</option>
+                                        <option value="3">@L.原文件名</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.附件类型限制 </th>
+                                <td><textarea type="text" name="txtUploadFileExts" ID="txtUploadFileExts" class=" form-control m50rem_50" Rows="3">@option.UploadFileExts</textarea></td>
+                            </tr>
+
+                            @*<tr>
+                                <th>可上传图片最大值 </th>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="TxtUpPicSize" ID="TxtUpPicSize" value="@option.UploadPicMaxSize" class="form-control max20rem" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">KB</span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">提示：1 KB = 1024 Byte，1 MB = 1024 KB</small>
+                                </td>
+                            </tr>*@
+                            <tr>
+                                <th>@L.媒体文件类型限制 </th>
+                                <td><textarea name="TxtUpMediaExt" ID="TxtUpMediaExt" class="form-control m50rem_50" Rows="3">@option.UploadMdaExts</textarea></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs4">
+                    <table class="table table-striped table-bordered  sys_table">
+                        <tbody>
+                            <tr>
+                                <th class="w12rem_lg">@L.允许虚拟币支付</th>
+                                <td>
+                                    <label><input type="checkbox" name="PayType" value="purse" />@L.余额 </label>
+                                    <label><input type="checkbox" name="PayType" value="sicon" />@L.银币 </label>
+                                    <label><input type="checkbox" name="PayType" value="point" />@L.积分 </label>
+                                    <input type="hidden" ID="PayType_Hid" value="@SiteConfig.SiteOption.SiteID"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.积分金额抵扣比率</th>
+                                <td>
+                                    <div class="input-group text_s">
+                                        <input type="text" name="PointRatio_T" ID="PointRatio_T" value="@SiteConfig.ShopConfig.PointRatiot" class="form-control max20rem float" />
+                                        <span class="group_input cRadius_left">%</span>
+                                    </div>
+                                    <small class="text-muted">@L.关闭积分兑换</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.积分货币兑换比率</th>
+                                <td>
+                                    <div class="input-group max20rem mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="basic-addon3">1 @L.积分=</span>
+                                        </div>
+                                        <input type="text" name="PointRate_T" ID="PointRate_T" class="form-control float" value="@SiteConfig.ShopConfig.PointRate" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">@L.元</span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">@L.为0关闭积分兑换</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><strong>@L.快递方式</strong></th>
+                                <td>
+                                    <input type="text" name="ExpNames_T" ID="ExpNames_T" value="@SiteConfig.ShopConfig.ExpNames" class="form-control max20rem" />
+                                    <small class="text-muted">@L.示例格式</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.订单确认后才可付款</th>
+                                <td>@MVCHelper.H_Check("IsCheckPay", SiteConfig.ShopConfig.IsCheckPay == 1, new { @class = "switchChk" })</td>
+                            </tr>
+                            <tr>
+                                <th>@L.订单过期时间 </th>
+                                <td>
+                                    <input type="text" name="OrderExpired_T" ID="OrderExpired_T" value="@SiteConfig.ShopConfig.OrderExpired" class="form-control max20rem" />
+                                    <small class="text-muted">@L.时间单位</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.商品编号生成规则 </th>
+                                <td><input type="text" name="ItemRegular_T" ID="ItemRegular_T" value="@SiteConfig.ShopConfig.ItemRegular" class="form-control max20rem" /></td>
+                            </tr>
+                            <tr>
+                                <th>@L.快递实时跟踪 API</th>
+                                <td>
+                                    <input type="text" name="KDKey_T" ID="KDKey_T" value="@option.KDKey" class="form-control max20rem" />
+                                    <small class="text-muted">@L.商城查询订单<a class="tex_color a_Jump" href="http://www.kuaidi100.com/openapi/" target="_blank">@L.点此申请快递100集成密钥 </a>。</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>@L.退货日期时限 </th>
+                                <td>
+                                    <input type="text" name="ReturnDate_T" ID="ReturnDate_T" value="@option.THDate" class="form-control max20rem" />
+                                    <small class="text-muted">@L.提示不检测</small>
+                                </td>
+                            </tr>
+                            @*<tr><th>顾客短信提醒<td class="sys_table_none">
+        <asp:CheckBoxList  ID="OrderMsg_Chk" RepeatDirection="Horizontal">
+            <asp:ListItem Value="ordered" Text="下单后"></asp:ListItem>
+            <asp:ListItem Value="payed" Text="付款后"></asp:ListItem>
+        </asp:CheckBoxList></td></tr>*@
+                            @*<tr  id="OrderMsg_Tr">
+            <th>顾客短信模板</th>
+            <td>
+                <asp:TextBox  ID="OrderMsg_ordered_T" TextMode="MultiLine" class="form-control  m50rem_50 m-1 textbox_mid" Height="120" placeholder="下单后后内容模板 " />
+                <asp:TextBox  ID="OrderMsg_payed_T" TextMode="MultiLine" class="form-control m50rem_50 m-1 textbox_mid" Height="120" placeholder="付款后内容模板 " />
+            </td>
+        </tr>
+        <tr>
+            <th>管理员订单短信</th>
+            <td class="sys_table_none">
+                <asp:CheckBoxList  ID="OrderMasterMsg_Chk" RepeatDirection="Horizontal">
+                    <asp:ListItem Value="ordered" Text="下单后"></asp:ListItem>
+                    <asp:ListItem Value="payed" Text="付款后"></asp:ListItem>
+                </asp:CheckBoxList></td>
+        </tr>
+        <tr  id="Tr6">
+            <th>管理员短信模板</th>
+            <td>
+                <asp:TextBox  ID="OrderMasterMsg_ordered_Tlp" TextMode="MultiLine" class="form-control m50rem_50 m-1 textbox_mid" Height="120" placeholder="下单后后内容模板 " />
+                <asp:TextBox  ID="OrderMasterMsg_payed_Tlp" TextMode="MultiLine" class="form-control m50rem_50 m-1 textbox_mid" Height="120" placeholder="付款后内容模板 " />
+            </td>
+        </tr>
+        <tr>
+            <th>管理员订单邮件</th>
+            <td class="sys_table_none">
+                <asp:CheckBoxList  ID="OrderMasterEmail_Chk" RepeatDirection="Horizontal">
+                    <asp:ListItem Value="ordered" Text="下单后"></asp:ListItem>
+                    <asp:ListItem Value="payed" Text="付款后"></asp:ListItem>
+                </asp:CheckBoxList></td>
+        </tr>
+        <tr  id="Tr7">
+            <th>管理员邮件模板</th>
+            <td class="sys_table_none">
+                <asp:TextBox  ID="OrderMasterEmail_ordered_Tlp" TextMode="MultiLine" class="form-control m50rem_50 m-1 textbox_mid" Height="120" placeholder="下单后后内容模板" />
+                <asp:TextBox  ID="OrderMasterEmail_payed_Tlp" TextMode="MultiLine" class="form-control m50rem_50 m-1 textbox_mid" Height="120" placeholder="付款后内容模板 " />
+            </td>
+        </tr>*@
+
+                        </tbody>
+                    </table>
+                </div>
+                <div id="Tabs5" class="tab-pane">
+                    <table class="table table-bordered sys_table">
+                        <tr><th class="w12rem_lg">@L.内容审批</th><td>
+                            @MVCHelper.H_Check("Con_AuditFlow",(option.Con_AuditFlow==1),new {@class="switchChk",value="1" })
+                            <small class="text-muted">@L.内容管理操作</small>
+                        </td></tr>
+                        <tr>
+                                <th>@L.内容标题查重 </th>
+                                <td>
+                                    <input type="text" name="DupTitleNum_T" ID="DupTitleNum_T" class="form-control max20rem" value="@option.DupTitleNum" />
+                                    <small class="text-muted">@L.标题字符检测</small>
+                                </td>
+                            </tr>
+                        <tr>
+                                <th>@L.评论积分赠送 </th>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" name="CommentRule" ID="CommentRule" value="@SiteConfig.UserConfig.CommentRule" class="form-control max20rem" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">@L.分</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                    </table>
+                </div>
+                <div class="text-left panel_footers">
+                    <div class="w12rem_lg dib"></div>
+                    <input type="submit" value="@L.保存配置信息" class="btn btn-outline-info" onclick="setTimeout(function () { document.getElementById('Button1').disabled = true;},50)" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+    @Html.Partial("C_TlpDP", new C_TlpDP("TemplateIndex", ""))
+}
+@section script{
+    <script src="/js/SelectCheckBox.js"></script>
+    <script src="/js/Controls/ZL_Dialog.js"></script>
+    <script src="/dist/js/bootstrap-switch.js"></script>
+    <script>
+var tab = '@Context.Request.Query["tab"]';
+$(function () {
+    $("li a[href='#Tabs" + tab + "']").parent().addClass("active").siblings("li").removeClass("active");
+    $("#Tabs" + tab).addClass("active").siblings("div").removeClass("active");
+    var paytypes = $("#PayType_Hid").val().split(',');
+    $(paytypes).each(function (i, d) {
+        $("input[value='" + d + "']")[0].checked = true;
+    });
+    Tlp_initTemp();
+    ZL_Regex.B_Float(".float");
+    //积分抵扣比率范围限制
+    ZL_Regex.B_Value("#PointRatio_T", {
+        min: 0, max: 100, overmin: null, overmax: null
+    });
+})
+var obj1 = document.getElementById("DropTemplateDir");
+var obj2 = document.getElementById("txtCssDir");
+function cc() {
+    obj2.value = obj1.value + "/style";
+};
+function WinOpenDialog(url, w, h) {
+    open(url, window, 'Width=' + w + ',Height=' + h + ',center=yes,status=no,help=no');
+}
+function showconfig(n) {
+    $(".nav-tabs").find("li").removeClass("active");
+    $(".nav-tabs").find("li a[href=#Tabs" + n + "]").parent().addClass("active");
+    $(".tab-content").find(".tab-pane").removeClass("active");
+    $(".tab-content").find("#Tabs" + n).addClass("active");
+}
+    </script>
+
+}

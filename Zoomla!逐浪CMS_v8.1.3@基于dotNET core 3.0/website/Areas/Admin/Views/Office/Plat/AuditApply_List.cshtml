@@ -1,0 +1,50 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+ public string GetStatus(DataRow dr)
+        {
+            int status = DataConverter.CLng(dr["Status"]);
+            switch (status)
+            {
+                case (int)ZLEnum.ConStatus.UnAudit:
+                    return "<span style='color:blue;'>未审核<span>";
+                case (int)ZLEnum.ConStatus.Audited:
+                    return "<span style='color:green;'>已同意</span>";
+                case (int)ZLEnum.ConStatus.Reject:
+                    return "<span style='color:red;'>已拒绝</span>";
+                default: return "";
+            }
+        }
+}
+<table class="table table-bordered" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>UserID</th>
+        <th>@L.科目</th>
+        <th>@L.公司名称</th>
+        <th>@L.会员名</th>
+        <th>@L.手机</th>
+        <th>@L.邮箱</th>
+        <th>@L.定位</th>
+        <th>@L.申请时间</th>
+        <th>@L.处理状态</th>
+        <th>@L.备注</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value='@dr["ID"]' /></td>
+            <td>@dr["UserID"]</td>
+            <td>@dr["Info1"]</td>
+            <td>@dr["CompName"]</td>
+            <td><a href="javascript:;">@dr["UserName"]</a></td>
+            <td>@dr["Mobile"]</td>
+            <td>@dr["Email"]</td>
+            <td>@ZoomLa.BLL.Helper.IPScaner.IPLocation(DataConverter.CStr(dr["IP"]))</td>
+            <td>@dr["CDate"]</td>
+            <td>@GetStatus(dr)</td>
+            <td>@dr["Remind"]</td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

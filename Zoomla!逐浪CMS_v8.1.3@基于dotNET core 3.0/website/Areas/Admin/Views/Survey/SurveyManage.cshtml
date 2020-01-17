@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Survey_API?action=";
+}
+@section head{ <title>@L.问卷调查</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url=Context.Request.RawUrl(),text=@L.问卷调查,addon="[<a href='SurveyAdd'>"+@L.添加问卷+"</a>]" },
+},"{search}")
+
+    <div class="list_choice">
+        @Html.Partial("SurveyManage_List")
+    </div>
+    <div>
+        <input type="button" value="@L.批量停用" onclick="mvcpage.bat({'url':'@(apiUrl+"stop")'});" class="btn btn-outline-danger"/>
+        <input type="button" value="@L.批量启用" onclick="mvcpage.bat({'url':'@(apiUrl+"start")'});"  class="btn btn-outline-info"/>
+        <input type="button" value="@L.批量删除" onclick="mvcpage.bat({'url':'@(apiUrl+"del")',confirm:'@Html.Raw(L.确定要删除吗)'});" class="btn btn-outline-danger" />
+    </div>
+}
+@section script{ 
+
+
+}

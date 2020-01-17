@@ -1,0 +1,111 @@
+﻿@model ZoomLa.Model.M_UserRecei
+@{
+    Layout = "/Areas/User/Views/shared/_empty.cshtml";
+}
+@section head{<title>地址管理</title>
+}
+@section content{
+<form id="form1" method="post" action="@MVCHelper.GetAction("Address_Add",Context.Request)" onsubmit="return CheckForm();" class="table-responsive-md">
+    <table class="table table-bordered">
+        <tr>
+            <td>
+                <div style="display: flex;">
+                    <select id="province_dp" name="province_dp" class="form-control"></select>
+                    <select id="city_dp" class="form-control"></select>
+                    <select id="county_dp" class="form-control"></select>
+                </div>
+                <input type="hidden" id="pro_hid" name="pro_hid" value="@Model.Provinces" />
+            </td>
+        </tr>
+        <tr>
+
+            <td>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">详细地址：</span>
+                    </div>
+                    <input type="text" id="street_t" name="street_t" class="form-control required" autofocus="autofocus" value="@Model.Street"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" id="zipcode_t" name="zipcode_t" class="form-control num zipcode" maxlength="6" value="@Model.Zipcode" placeholder="邮政编码"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" id="recename_t" name="recename_t" class="form-control required" title="收货人姓名不能为空" value="@Model.ReceivName" placeholder="收货人姓名"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" id="mobilenum_t" name="mobilenum_t" class="form-control num phones" maxlength="13" value="@Model.MobileNum" placeholder="手机号码"/>
+            </td>
+        </tr>
+        @*<tr>
+                <th class="text-right">电话号码：</th>
+                <td>
+                    <input type="text" id="area_t" name="area_t" class="form-control float-left num" placeholder="区号" maxlength="4" style="width:80px;" value="@(string.IsNullOrEmpty(Model.phone) ? "" : Model.phone.Split('-')[0])" />
+                    <input type="text" id="phone_t" name="phone_t" class="form-control float-left num" placeholder="号码" maxlength="8" style="width:210px;margin-left:10px;" value="@(string.IsNullOrEmpty(Model.phone) ? "":Model.phone.Split('-')[1])" />
+                </td>
+            </tr>*@
+        <tr>
+            <td><input type="checkbox" class="switchChk" id="Def_chk" name="Def_chk" value="1" @(Model.isDefault == 1 ? "checked=\"checked\"" : "") /></td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <button type="button" class="btn btn-info" onclick="saveForm();">保存地址</button>
+            </td>
+        </tr>
+    </table>
+</form>	
+}
+@section script{
+<!--    <link href="/images/V3.css" rel="stylesheet" />-->
+    <link href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .control-sm {width: 120px;display: inline-block;}
+    </style>
+    <script src="/dist/js/bootstrap-switch.js"></script>
+    <script src="/JS/ICMS/area.js"></script>
+    <script src="/JS/Controls/ZL_PCC.js"></script>
+    <script src="/JS/ZL_Regex.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        $(function () {
+            ZL_Regex.B_Num(".num");
+            var pcc = new ZL_PCC("province_dp", "city_dp", "county_dp");
+            if ($("#pro_hid").val() == "") {
+                pcc.ProvinceInit();
+            }
+            else {
+                var attr = $("#pro_hid").val().split(' ');
+                pcc.SetDef(attr[0], attr[1], attr[2]);
+                pcc.ProvinceInit();
+            }
+            jQuery.validator.addMethod("phones", function (value) {
+                return ZL_Regex.isMobilePhone(value);
+            }, "请输入正确的手机号码!");
+            $("form").validate({});
+        });
+        function CheckForm() {
+            $("#pro_hid").val($("#province_dp option:selected").text() + " " + $("#city_dp option:selected").text() + " " + $("#county_dp option:selected").text());
+            var vaild = $("form").validate({ meta: "validate" });
+            return vaild.form();
+        }
+        function Refresh() {
+            if (parent && parent.Refresh) { parent.Refresh(); }
+            if (parent && parent.exp) { parent.exp.addressBack(); }
+        }
+        function saveForm()
+        {
+            var form = $("#form1").serialize();
+            comdiag.ShowMask("正在提交中");
+            $.post($("#form1").attr("action"), form, function (data) {
+                comdiag.CloseModal();
+                Refresh();
+            })
+        }
+    </script>
+}

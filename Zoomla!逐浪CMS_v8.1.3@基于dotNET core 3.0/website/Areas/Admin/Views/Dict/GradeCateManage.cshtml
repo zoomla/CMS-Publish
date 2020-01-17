@@ -1,0 +1,22 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+@section head{ <title>@L.多级数据字典管理</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread() {url="GradeCateManage", text=@L.多级数据字典管理,addon="[<a href=\"javascript:;\" onclick=\"ShowComDiag('GCateAdd','');\">"+@L.添加数据+"</a>]" }}
+		)
+<div class="list_choice">
+    @Html.Partial("GradeCate_List")
+</div> 
+ }
+@section script{ 
+<script src="/JS/Controls/Control.js"></script>
+<script>
+    Control.EnableEnter();
+    function mybind() { mvcpage.load(); CloseComDiag(); }
+</script>
+
+}

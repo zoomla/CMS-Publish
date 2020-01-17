@@ -1,0 +1,117 @@
+﻿@using ZoomLa.Model.Extend
+@using ZoomLa.BLL.Extend
+@model ZoomLa.Model.Extend.M_AD_Info
+@{ 
+    B_AD_Zone zoneBll = new B_AD_Zone();
+    //M_AD_Zone zoneMod = zoneBll.SelReturnModel(Convert.ToInt32(Model.ZoneID));
+    DataTable zoneDT = zoneBll.Sel();
+
+}
+@section head{ 
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css"  rel="stylesheet"/>
+<link rel="stylesheet" href="/Plugins/CodeMirror/lib/codemirror.css">
+<link rel="stylesheet" href="/Plugins/CodeMirror/theme/eclipse.css">
+<script type="text/javascript" src="/dist/js/bootstrap-switch.js"></script>
+<script src="/Plugins/CodeMirror/lib/codemirror.js"></script>
+<script src="/Plugins/CodeMirror/mode/css.js"></script>
+<script src="/Plugins/CodeMirror/mode/xml.js"></script>
+<script src="/Plugins/CodeMirror/mode/javascript/javascript.js"></script>
+<script src="/Plugins/CodeMirror/addon/selection/active-line.js"></script>
+<script src="/Plugins/CodeMirror/addon/edit/matchbrackets.js"></script>
+<script src="/Plugins/CodeMirror/mode/htmlmixed.js"></script>
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<title>添加广告</title>
+<style type="text/css">
+.upload_wrap{width:500px;}
+.upload_wrap iframe{height:38px;}
+</style>
+
+}
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("InfoManage","广告管理"),
+        new Bread() {url="", text="广告信息" }},
+		Call.GetHelp(29)
+		)
+<style type="text/css">
+.item{display:none;}
+</style>
+<form method="post" action="@MVCHelper.GetAction("InfoAdd_Submit",Context.Request)">
+<div class="list_choice">
+   <table class="table table-bordered table-striped">
+       <tr><td>所属版位</td><td>
+           <select class="form-control max20rem" id="ZoneID" name="ZoneID" onchange="changeZType()">
+               @foreach (DataRow dr in zoneDT.Rows)
+               {
+                   <option value="@dr["ID"]" data-ztype="@dr["ZType"]">@(dr["Name"]+"("+dr["ZType"]+")")</option>
+               }
+           </select>
+           @if (!string.IsNullOrEmpty(Model.ZoneID)) {<script>$("#ZoneID").val("@Model.ZoneID")</script> }
+           </td></tr>
+       <tr><td>广告名称</td><td>@Html.TextBoxFor(m=>m.Name,new {@class="form-control max20rem required" })</td></tr>
+       <tr><td>有效期</td><td>
+           <div class="input-group">
+               <span class="input-group-prepend"><span class="input-group-text">起始时间</span></span>
+               @Html.TextBoxFor(m=>m.SDate,new {@class="form-control text_300",onclick="WdatePicker({})" })
+               <span class="input-group-prepend"><span class="input-group-text">到期时间</span></span>
+               @Html.TextBoxFor(m=>m.EDate,new {@class="form-control text_300",onclick="WdatePicker({})" })
+           </div>
+           </td></tr>
+       <tr><td>是否启用</td><td>@MVCHelper.H_Check("ZStatus","启用后才会在版位中显示","99",(Model.ZStatus.ToString()))</td></tr>
+       <tr><td colspan="10" class="text-center"><strong><i class="zi zi_congyunxiazai"></i> 广告内容</strong></td></tr>
+       <tr class="item" data-ztype="弹出窗口 对联广告 固定位置 漂浮移动"><td>图片</td><td>
+           @Html.Partial("C_SFileUP",new C_SFileUP() {ID="image",SaveType="admin",Value=Model.Image })
+           </td></tr>
+       <tr class="item" data-ztype="对联广告 固定位置"><td>文本</td><td>@Html.TextBoxFor(m=>m.Text,new {@class="form-control " })</td></tr>
+       <tr class="item" data-ztype="弹出窗口 对联广告 固定位置 漂浮移动"><td>链接</td><td>@Html.TextBoxFor(m=>m.LinkUrl,new {@class="form-control ", })</td></tr>
+       <tr class="item" data-ztype="矩形横幅"><td>图片组</td><td>
+            <input type="button" id="upfile_btn" class="btn btn-info btn-sm" value="选择文件" />
+            <div id="uploader" class="uploader"><ul class="filelist"></ul></div>
+            <input type="hidden" id="Attach_Hid" name="Attach_Hid" value="@Model.Images"/>
+       </td></tr>
+       <tr class="item" data-ztype="文字代码 弹出窗口 固定位置 随屏移动"><td>Html代码</td><td>@Html.TextAreaFor(m=>m.Html,new {@class="form-control" })</td></tr>
+       @*<tr><td>备注</td><td>@Html.TextAreaFor(m=>m.Remind,new {@class="form-control",rows="5" })</td></tr>*@
+       <tr><td></td><td>
+           <input type="submit" class="btn btn-info" value="保存信息"/>
+           <a href="InfoManage" class="btn btn-info">返回列表</a>
+           </td></tr>
+    </table>
+</div>
+</form>
+}
+@section script{
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script>
+$(function () {
+    $("form").validate({});
+    ZL_Webup.config.json.ashx = "";
+    ZL_Webup.config.json.accept = "img";
+    $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+    if (!ZL_Regex.isEmpty($("#Attach_Hid").val())) {
+    var files = $("#Attach_Hid").val().split('|');$("#Attach_Hid").val("");
+    for (var i = 0; i < files.length; i++) {if (!files[i]) { continue;}AddAttach(files[i], { _raw: files[i] }, {});}}
+    changeZType();
+})
+function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+var editor = CodeMirror.fromTextArea(document.getElementById("Html"), {
+        mode: "text/html",
+        lineNumbers: true,
+        textWrapping: false,
+        styleActiveLine: true
+});
+function changeZType() {
+    var $option = $("#ZoneID option:checked");
+    $(".item").hide();
+    if ($option.length < 1) { return; }
+    var ztype = $option.data("ztype");
+    //-------------------------
+    $(".item").each(function () {
+         var itemType= $(this).data("ztype");
+        if (itemType.indexOf(ztype) > -1) { $(this).show();}
+    });
+}
+</script>
+ }

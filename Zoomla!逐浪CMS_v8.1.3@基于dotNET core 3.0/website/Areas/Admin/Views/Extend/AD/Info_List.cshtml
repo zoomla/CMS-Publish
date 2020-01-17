@@ -1,0 +1,52 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string ShowZStatus(DataRow dr)
+    {
+        return DataConverter.CLng(dr["ZStatus"]) == 99 ? ComRE.Icon_OK : ComRE.Icon_Error;
+    }
+    public string ShowDate(DataRow dr)
+    {
+        DateTime sdate = Convert.ToDateTime(dr["SDate"]);
+        DateTime edate = Convert.ToDateTime(dr["EDate"]);
+        if (edate.Year >= 3000) { return "无限期"; }
+        else { return sdate.ToString("yyyy/MM/dd") + "--" + edate.ToString("yyyy/MM/dd"); }
+    }
+}
+@{
+    string apiUrl = "Info_API?action=";
+}
+<div id="EGV">
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <td class="td_xs"></td>
+            <td class="td_s">ID</td>
+            <td>@L.名称</td>
+            <td>@L.有效期</td>
+            <td class="td_s">@L.启用</td>
+            <td class="td_m">@L.操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value='@dr["ID"]' /></td>
+            <td>@dr["ID"]</td>
+            <td>
+                [@dr["ZoneType"]]
+                [<a href="?ZoneID=@dr["ZoneID"]">@dr["ZoneName"]</a>]
+                <a href='InfoAdd?ID=@(dr["ID"])'>@dr["Name"]</a>
+            </td>
+            <td>@ShowDate(dr)</td>
+            <td>@MvcHtmlString.Create(ShowZStatus(dr))</td>
+            <td>
+                <a class="btn btn-info btn-sm" href="InfoAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i> @L.编辑</a>
+                <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',ids:'@dr["ID"]',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trashalt" title="删除"></i></a>
+            </td>
+    </tr>
+    }
+</table>
+    <button type="button" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.确定删除广告吗)'});" class="btn btn-outline-danger">@L.删除广告</button>
+    <button type="button" onclick="mvcpage.bat({url:'@(apiUrl+"audit")',confirm:'@Html.Raw(L.确定要审核吗)'});" class="btn btn-outline-info" >@L.审核通过</button>
+    <button type="button" onclick="mvcpage.bat({url:'@(apiUrl+"unaudit")',confirm:'@Html.Raw(L.确定要取消吗)'});" class="btn btn-outline-danger" >@L.取消审核</button>
+</div>

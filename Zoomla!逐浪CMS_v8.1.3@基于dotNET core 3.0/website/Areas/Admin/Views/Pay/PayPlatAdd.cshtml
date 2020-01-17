@@ -1,0 +1,146 @@
+﻿@using ZoomLa.Model
+@model ZoomLa.Model.M_PayPlat
+@functions{
+    public bool ShowCertBody()
+    {
+        switch (Model.PayClass)
+        {
+            case (int)M_PayPlat.Plat.Alipay_H5:
+            case (int)M_PayPlat.Plat.CCB:
+            case (int)M_PayPlat.Plat.ICBC_NC:
+                return true;
+        }
+        return false;
+    }
+}
+}
+
+@section head{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/dist/js/bootstrap-switch.js"></script>
+<title>@L.编辑在线支付平台</title>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+    new Bread("/{manage}/Main",L.工作台),
+    new Bread("/{manage}/Config/SiteInfo",L.系统设置),
+    new Bread("PayPlat",L.支付平台),
+    new Bread() {url=Context.Request.RawUrl(), text=Model.PayPlatName,addon="" }}
+    )
+<form method="post" action="@MVCHelper.GetAction("PayPlatAdd_Submit",Context.Request)">
+    <div class="container-fluid pr-0">
+        <div class="row sysRow list_choice">
+            <table class="table table-bordered table-striped sys_table">
+                <tr>
+                    <th class="w12rem_lg">@L.支付名称</th>
+                    <td id="payplat_td">
+                        @Html.TextBoxFor(m => m.PayPlatName, new { @class = "form-control max20rem required" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.接口名称</th>
+                    <td>
+                        <input type="text" ID="PlatName_L" class="form-control max20rem" disabled="disabled" value="@M_PayPlat.GetPayPlatName(Model.PayClass)" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.商户号</th>
+                    <td>
+                        @Html.TextBoxFor(m => m.AccountID, new { @class = "form-control max20rem" })
+                    </td>
+                </tr>
+                @if (Model.PayClass == (int)M_PayPlat.Plat.Alipay_Instant)
+                {
+                    <tr>
+                        <th>MD5Key</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.MD5Key, new { @class = "form-control max20rem" })
+                        </td>
+                    </tr>
+                }
+                else if (Model.PayClass == (int)M_PayPlat.Plat.Alipay_H5)
+                {
+                    <tr>
+                        <th>APPID</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.APPID, new { @class = "form-control max20rem" })
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr><th>APPID</th><td> @Html.TextBoxFor(m => m.APPID, new { @class = "form-control max20rem" })</td></tr>
+                    <tr><th>Secret</th><td>@Html.TextBoxFor(m => m.Secret, new { @class = "form-control max20rem" })</td></tr>
+                    <tr><th>MD5Key</th><td>@Html.TextBoxFor(m => m.MD5Key, new { @class = "form-control max20rem" })</td></tr>
+                }
+                @if (ShowCertBody())
+                {
+                    <tr>
+                        <th class="tdleft">@L.私钥</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.PrivateKey, new { @class = "form-control max20rem" })
+                            <span class="rd_green">@L.用于签名支付表单</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="tdleft">@L.公钥</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.PublicKey, new { @class = "form-control max20rem" })
+                            <span class="rd_green">(cer|crt|pem @L.文件路径)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="tdleft">@L.支付平台证书</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.ServerPublicKey, new { @class = "form-control max20rem" })
+                            <span class="rd_green">@L.支付平台公钥</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="tdleft">@L.证书密码</th>
+                        <td>
+                            @Html.TextBoxFor(m => m.PrivateKey_Pwd, new { @class = "form-control max20rem" })
+                            <span class="rd_green">@L.仅用于私钥证书</span>
+                        </td>
+                    </tr>
+                }
+                <tr><td colspan="2" class="text-center">@L.信息配置</td></tr>
+                <tr>
+                    <th>@L.手续费</th>
+                    <td>
+                        <div class="input-group">
+                            @Html.TextBoxFor(m => m.Rate, new { @class = "form-control max20rem" })
+                            <div class="input-group-append">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.启用</th>
+                    <td>
+                        @MVCHelper.H_Check("IsDisabled", !Model.IsDisabled, new { @class = "switchChk", value = "1" })
+                    </td>
+                </tr>
+                <tr>
+                    <th>备注</th>
+                    <td>
+                        @Html.TextAreaFor(m => m.Remind, new { @class = "form-control m50rem_50", rows = "5" })
+                        <small class="text-muted">@L.线下支付填写收款帐号。</small>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="submit" ID="EBtnSubmit" value="@L.保存信息" class="btn btn-info" />
+                        <a href="PayPlat" class="btn btn-outline-info">@L.返回列表</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+}
+@section script{
+    
+    }

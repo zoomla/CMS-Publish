@@ -1,0 +1,145 @@
+﻿@using ZoomLa.Common
+@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    B_Group gpBll = new B_Group();
+    DataTable gpDT = gpBll.Sel();
+    string apiUrl = "User_API?action=";
+    int groupId = DataConverter.CLng(Context.Request.GetParam("GroupID"));
+}
+@section head{<title>会员管理</title> }
+@section content{
+<ul class="breadcrumb fixed-top">
+<li class="breadcrumb-item"><a href='@Call.PathAdmin("I/Main")'>@L.工作台</a></li>
+<li class="breadcrumb-item"><a href='UserManage'>@L.会员管理</a><a href='javascript:;' class='reds' onclick="ShowComDiag('UserAdd');"> [@L.添加会员]</a></li>
+<div id="help" class="float-right text-center"><a href="javascript:;" id="sel_btn" class="help_btn"><i class="zi zi_search" zico="搜索"></i></a></div>
+</ul>
+<div id="sel_box" class="sel_box" style="margin-top:20px;">
+    <div class="input-group">
+        <input type="text" class="form-control max20rem mvcparam" ID="UserID_T" placeholder="@L.用户ID" />
+        <input type="text" class="form-control max20rem mvcparam" ID="UName_T" placeholder="@L.用户名,@L.昵称" />
+        <span class="input-group-append">
+            <a href="javascript:;" onclick="mvcpage.load();" class="btn btn-outline-secondary"><i class="zi zi_search" zico="搜索"></i></a>
+        </span>
+    </div>
+</div>
+<input type="hidden" id="GroupID" value="0" class="mvcparam"/>
+@Html.CMS_EGV_OrderBy()
+<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive-md">
+             <ul class="nav nav-tabs" role="tablist">
+                  <li class="nav-item" onclick="setGroupId(0);"><a class="nav-link active" href="javascript:;" data-toggle="tab">全部会员 </a></li>
+                 @foreach (DataRow dr in gpDT.Rows)
+                 {
+                     <li class="nav-item" onclick="setGroupId(@dr["GroupID"]);"><a class="nav-link" href="javascript:;" data-toggle="tab">@dr["GroupName"] </a></li>
+                 }
+            </ul>
+        <script>
+            function setGroupId(id) { $("#GroupID").val(id); mvcpage.load(); }
+        </script>
+        <div class="tab-content col-12 table-responsive-md table_box">
+            <table id="EGV_wrap" class="table table-striped table-bordered">
+                <tr>
+                    <th class="excel_no"></th>
+                    <th><span class="zlsort" data-field="a.userid">ID</span></th>
+                    <th>@L.用户名</th>
+                    <th>@L.昵称</th>
+                    <th>@L.会员组</th>
+                    <th><span class="zlsort" data-field="Purse">@L.资金</span></th>
+                    <th><span class="zlsort" data-field="regtime">@L.注册时间</span></th>
+                    <th><span class="zlsort" data-field="UserExp">@L.积分</span></th>
+                    <th>@L.登录次数</th>
+                    <th><span class="zlsort" data-field="LastLoginTime">@L.最后登录时间</span></th>
+                    <th>@L.状态</th>
+                    <th>@L.聚合认证</th>
+                    <th class="excel_no">@L.操作</th>
+                </tr>
+                @Html.Partial("UserManage_List")
+            </table>
+        </div>
+    </div>
+<div class="row">
+            <div class="col-8">
+                <input type="button" ID="btnLock" value="@L.批量锁定" class="btn btn-info" onclick="mvcpage.bat({url:'@(apiUrl+"lock")'});"/>
+                <input type="button" ID="btnNormal" value="@L.批量解锁"  class="btn btn-info" onclick="mvcpage.bat({url:'@(apiUrl+"unlock")'});"/>
+                <input type="button" ID="Approve" value="@L.认证用户" class="btn btn-info" onclick="mvcpage.bat({url:'@(apiUrl+"approve")'});"/>
+                <input type="button" ID="ApproveFailure" value="@L.取消认证"  class="btn btn-info" onclick="mvcpage.bat({url:'@(apiUrl+"unapprove")'});"/>
+                <input type="button" ID="Export" value="@L.Excel导出" class="btn btn-info" onclick="ZLHelper.OutToExcel('EGV_wrap')" />
+                <input class="btn btn-info" type="button" onclick="ShowComDiag('@(Call.PathAdmin("Com/Import?mode=ZL_User"))');" value="@L.Excel导入" />
+                <input type="button" ID="btnDel" value="@L.批量删除"  class="btn btn-danger"  onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});"/>
+            </div>
+            <div class="col-4">
+                <div class=" input-group">
+                    <select class="form-control" id="group_dp">
+                        @foreach (DataRow dr in gpDT.Rows)
+                        {
+                            if (dr["GroupID"].ToString().Equals("0")) { continue; }
+                            <option value="@dr["GroupID"]">@dr["GroupName"]</option>
+                        }
+                    </select>
+                    <span class="input-group-append"><button type="button" class="btn btn-info" onclick="moveGroup();">@L.移动会员组</button></span>
+                    <script>
+                        function moveGroup() {
+                            var $option = $("#group_dp option:checked");
+                            mvcpage.bat({ url: '@(apiUrl+"move")', confirm: "确定要移动会员到[" + $option.text() + "]", data: { gid: $option.val() } });
+                        }
+
+                    </script>
+                </div>
+
+            </div>
+              
+        </div>
+</div>
+<input type="hidden" ID="GroupData_Hid" value="@Newtonsoft.Json.JsonConvert.SerializeObject(gpDT)"/>
+}
+@section script{
+<script src="/js/SelectCheckBox.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script src="/js/Label/ZLHelper.js"></script>
+    <script>
+        $(function () {
+            $("#GroupID").val("@groupId");
+        })
+        function inputuserinfo() {
+            ShowComDiag("InputUser", "@Html.Raw(L.导入会员)");
+        }
+        function CloseDiaog() {
+            diag.CloseModal();
+            CloseComDiag();
+        }
+        function ShowOrderIcon(id) {
+            $("#" + id).find(".order_img").show();
+        }
+        function displayToolbar() {
+            var dr = document.getElementById("search");
+            if (dr.style.display == "none") {
+                dr.style.display = "block";
+                $("#Search_Hid").val("1");
+            }
+            else {
+                $("#Search_Hid").val("0");
+                dr.style.display = "none";
+            }
+        }
+        function mybind() { mvcpage.load(); CloseComDiag(); }
+        $().ready(function () {
+            var searchFlag = $("#Search_Hid").val();
+            if (searchFlag && searchFlag == "1") {
+                displayToolbar();
+            }
+            $("#sel_btn").click(function (e) {
+                if ($("#sel_box").css("display") == "none") {
+                    $(this).addClass("active");
+                    $("#sel_box").slideDown(300);
+                }
+                else {
+                    $(this).removeClass("active");
+                    $("#sel_box").slideUp(200);
+                }
+            });
+           
+        });
+    </script>
+
+}

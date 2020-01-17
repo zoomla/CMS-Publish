@@ -1,0 +1,17 @@
+﻿@model System.Data.DataTable
+@section head{<title>@L.视图列表</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread() {url="ViewList", text=@L.视图列表,addon="" }}
+		)
+    <table class="table table-bordered table-striped list_choice">
+       <thead><tr><td>@L.视图名</td></tr></thead>
+        @foreach (DataRow dr in Model.Rows)
+        {
+            <tr><td>@dr["Name"]</td></tr>
+        }
+    </table>
+ }
+@section script{ 
+}

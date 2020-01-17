@@ -1,0 +1,20 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+
+@section head{<title>@L.客服代码列表</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("Seat",L.客服管理),
+        new Bread() {url="CodeList", text=""+L.引用管理+"<a href='CodeAdd'> ["+L.创建引用+"]</a>",addon="" }}
+		)
+<div class="Creat_tips list_choice">
+	<div class="alert alert-info alert-dismissible fade show">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		<h5>@L.默认客服引用代码：</h5>
+<code>&lt;script id='zlchat' data-option='{&quot;theme&quot;:&quot;def&quot;,&quot;id&quot;:&quot;1&quot;}' src='/JS/Plugs/Chat/chat_def.js?v=1'&gt;&lt;/script&gt;</code>
+</div>
+     @Html.Partial(MVCHelper.ViewDir_Admin+"Office/Service/Code_List.cshtml")
+  }
+@section script{
+
+}

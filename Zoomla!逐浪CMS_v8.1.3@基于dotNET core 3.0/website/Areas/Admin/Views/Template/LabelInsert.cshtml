@@ -1,0 +1,120 @@
+﻿@model ZoomLa.Model.M_Label
+@using System.Text
+@functions{
+    public class ParamModel
+    {
+        public string name = "";
+        public string defaultValue = "";
+        public int type = 0;
+        public string intro = "";
+    }
+
+}
+@{
+
+    List<ParamModel> paramList = new List<ParamModel>();
+
+    if (!string.IsNullOrEmpty(Model.Param) && !Model.Param.Equals("[]"))
+    {
+        string[] paramArr = Model.Param.Split("|".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < paramArr.Length; i++)
+        {
+            ParamModel item = new ParamModel();
+            string[] array = paramArr[i].Split(',');
+            item.name = paramArr[i].Split(',')[0];
+            item.defaultValue = paramArr[i].Split(',')[1];
+            item.type = DataConverter.CLng(paramArr[i].Split(',')[2]);
+            item.intro = paramArr[i].Split(',')[3];
+            paramList.Add(item);
+        }
+    }
+
+}
+@section head{<title>@L.标签插入</title>}
+@section content{
+    <div>
+        <div>
+            @(string.IsNullOrEmpty(Model.Desc) ? "" : Model.Desc)
+        </div>
+        <div>
+            <table class="table table-bordered">
+                @foreach (ParamModel item in paramList)
+                {
+                    <tr>
+                        <td style="width:100px;" class="">@item.name</td>
+                        <td>
+                            @if (item.type == 1)//普通
+                            {
+                                <input type="text" id="@item.name" value="@item.defaultValue" class="form-control" autocomplete="off"/>
+                            }
+                            else if (item.type == 2)//页面
+                            {
+                                <input type="text" disabled="disabled" value="@Html.Raw(L.页面根据地址栏传参)" class="form-control" />
+                            }
+                            else if (item.type == 3)//单选
+                            {
+                                <select id="@item.name" style="width:100%;">
+                                    <option value="">@L.不使用该参数</option>
+                                    @foreach (string op in item.defaultValue.Split('$'))
+                                    {
+                                        <option value="@op">@op</option>
+                                    }
+                                </select>
+                            }
+                            else if (item.type == 4)//多选
+                            {
+                                @foreach (string op in item.defaultValue.Split('$'))
+                                {
+                                    <label><input type="checkbox" name="@(item.name)" value="@op" onclick="selectchecked(this)" />@op</label>
+                                }
+                            }
+                            else
+                            {<div>@L.未知类型@(item.type)</div>}
+                            <small style="color:orange;">@item.intro</small>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+}
+@section script{
+    <script>
+        function submitdate() {
+        var lbltype="@Model.LabelType";
+        var returnstr;
+            if (lbltype == "1"){returnstr = "{ZL.Source id=\"@Html.Raw(Model.LabelName)\"";}
+            else if (lbltype == "21")//扩展日期格式转换，不需要返回值
+            { returnstr = "{ZL:ConverToWeek(@Html.Raw(L.时间为空自动输出当前星期))"; }
+            else {returnstr = "{ZL.Label id=\"@Html.Raw(Model.LabelName)\""; }
+            //附加上参数
+            var paramList =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(paramList));
+            for (i = 0; i < paramList.length;i++)
+            {
+                var item = paramList[i];
+                var value = "";
+                //普通,单选,多选
+                if (item.type == 1) {
+                    value = $("#" + item.name).val();
+                    console.log(value);
+                }
+                else if (item.type == 3) {
+                    value = $("#"+item.name).val();
+                }
+                else if (item.type == 4) {
+                    $("input[name=" + item.name + "]:checked").each(function () { value += this.value + ","; });
+                    if (!ZL_Regex.isEmpty(value)) { value = value.substr(0,value.length-1); }
+                }
+                if (!ZL_Regex.isEmpty(value)) { returnstr += (" " + item.name + '="'+value+'"'); }
+            }//for end;
+        returnstr= returnstr + " /}";
+        parent.PasteValue(returnstr);
+        parent.closeCuModal();
+    }
+    $(function(){
+        //未设置参数,则不需要配置
+        if ("@Model.Param" == ""||"@Model.Param"=="[]") { submitdate(); return; }
+        parent.setdiagTitle("@Html.Raw(L.标签名称)：@Html.Raw(Model.LabelName)");
+    })
+    </script>
+}

@@ -1,0 +1,24 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+    string apiUrl = "Pub_API?action=";
+}
+@section head{<title>@L.互动模块</title>}
+@section content{
+@(Call.SetBread(new Bread[] {
+        new Bread("/{manage}/Main",@L.工作台),
+        new Bread() {url=Context.Request.RawUrl(), text=""+@L.互动模块+" [<a class='text-danger' href='PubAdd'>"+@L.添加互动+"</a>]",addon="" }},
+        Call.GetHelp(96)))
+ <div class="container-fluid p-0 pr-2 table-responsive">
+     @Html.Partial(MVCHelper.ViewDir_Admin_Pub+"PubManage_List.cshtml",Model)
+     <div style="margin-top:5px;">
+         <button type="button" class="btn btn-danger" onclick="mvcpage.bat({ url: '@(apiUrl+"del")', confirm: '@L.确定要批量移除吗', after: 'reload' });">@L.批量删除</button>
+     </div>
+    </div>	   
+    }
+@section script{
+    
+    
+    }

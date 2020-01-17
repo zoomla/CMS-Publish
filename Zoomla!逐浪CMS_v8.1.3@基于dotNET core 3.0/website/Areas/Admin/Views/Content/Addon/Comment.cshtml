@@ -1,0 +1,33 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+
+ }
+@section head{<title>@L.评论管理</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Context.Request.RawUrl(),L.评论管理)
+})
+
+<div class="list_choice">
+<div class="input-group" style="margin-bottom:5px;">
+    <input type="text" class="form-control mvcparam" id="gids" placeholder="@Html.Raw(L.请输入文章ID),@Html.Raw(L.用逗号分隔)" value="@Context.Request.GetParam("gids")"/>
+    <input type="text" class="form-control mvcparam" id="skey" placeholder=" @Html.Raw(L.评论内容检索)"/>
+    <span class="input-group-append"><button type="button" onclick="mvcpage.load();" class="btn btn-info">@L.搜索</button></span>
+</div>
+    @Html.Partial(MVCHelper.ViewDir_Admin+"Content/Addon/Comment_List.cshtml")
+    <div style="margin-top:5px;">
+        <button type="button" class="btn btn-info" onclick="bat('audit')">@L.批量审核</button>
+        <button type="button" class="btn btn-info" onclick="bat('unaudit')">@L.取消审核</button>
+        <button type="button" class="btn btn-danger" onclick="bat('del','@Html.Raw(L.确定要批量删除吗)')">@L.批量删除</button>
+    </div>
+</div>
+}
+@section script{ 
+<script>
+    function bat(action, confirm) {
+        if (!confirm) { confirm = "";}
+        mvcpage.bat({ url: 'Comment_API?action=' + action, "confirm": confirm, after: "reload" });
+    }
+</script>
+}

@@ -1,0 +1,74 @@
+﻿@{
+ Layout = "_safe";
+}
+@section head{<title>@L.新建站点</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] { 
+new Bread("{admin}"),
+new Bread("SiteList",L.站点列表),
+new Bread(Context.Request.RawUrl(),L.新建站点)
+})
+<form method="post" action="@MVCHelper.GetAction("SiteAdd_Submit",Context.Request)">
+    <div class="list_choice" id="app">
+        <table class="table table-bordered">
+            <tr><th class="td_m">@L.站点名</th><td><input type="text" class="form-control required text_300" maxlength="50" v-model="model.Name"/></td></tr>
+            <tr><th>@L.绑定域名</th><td>
+               <input type="text" v-model="model.Url" class="form-control text_300" placeholder="@L.请输入端口与域名信息" />
+                <div>@L.端口与域名示例</div>
+                </td></tr>
+            <tr><th>@L.站点目录</th><td>
+                <input type="text" class="form-control required text_300" v-model="model.PhysicalPath"/>
+                <div><small></small></div>
+            </td></tr>
+            <tr><th>@L.数据库</th><td><input type="text" class="form-control required text_300" maxlength="50"  v-model="model.DBName"/></td></tr>
+            <tr><th>@L.数据库用户</th><td><input type="text" class="form-control required text_300" maxlength="50"  v-model="model.DBUserName"/></td></tr>
+            <tr><th>@L.数据库密码</th><td><input type="text" class="form-control required text_300" maxlength="50"  v-model="model.DBUserPwd"/></td></tr>
+            <tr><th></th><td>
+                @*<input type="submit" class="btn btn-info" value="@L.创建站点"/>*@
+                <button type="button" class="btn btn-info" v-on:click="save()">@L.创建站点与数据库</button>
+                </td></tr>
+        </table>
+        <div class="alert alert-info">
+            <div>1.@L.将会同步创建IIS站点</div>
+            <div>2.@L.如数据库用户不存在</div>
+            <div>3.@L.创建完成后</div>
+        </div>
+    </div>
+</form>
+}
+@section script{ 
+<script src="~/js/Plugs/base64.js"></script>
+<script src="~/dist/vue/vue.min.js"></script>
+@Html.Partial("Site_Assets")
+<script>
+    $(function () {
+        $("form").validate({});
+
+    })
+    var app = new Vue({
+        el: "#app",
+        data: {
+           // model: { "ID": "", "Name": "MyTest", "State": "", "PhysicalPath": "D:\\web\\test2\\", "Url": ":886", "AppPoolName": "", "NetVersion": "", "CMSVersion": "", "DBName": "test2", "DBUserName": "test2_user", "DBUserPwd": "test2_pwd" },
+              model: { "ID": "", "Name": "", "State": "", "PhysicalPath": "", "Url": "", "AppPoolName": "", "NetVersion": "", "CMSVersion": "", "DBName": "", "DBUserName": "", "DBUserPwd": "" },
+            //domainList: []
+        },
+        methods: {
+            //domain_add: function () { },
+            //domain_del: function () { },
+            //domain_to: function () { },
+            save: function () {
+                var ref = this;
+                var flag = $("form").validate({ meta: "validate" }).form();
+                if (!flag) { return false; }
+                //-------------------
+                var modelStr = JSON.stringify(this.model);
+                modelStr = Base64.base64encode(modelStr);
+                sites.post("site_add", { "model": modelStr }, function (result) {
+                    alert(result);
+                })
+            },
+        }
+
+    });
+</script>
+}

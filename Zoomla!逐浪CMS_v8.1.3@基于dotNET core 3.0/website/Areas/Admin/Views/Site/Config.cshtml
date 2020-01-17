@@ -1,0 +1,190 @@
+﻿@{
+    Layout = "_safe";
+    StationGroupInfo cfg = StationGroup.Info;
+}
+@section head{
+    <title>@L.控制中心</title>
+    @*<script type="text/javascript" src="/Plugins/Domain/Site.js"></script>*@
+    <script type="text/javascript" src="/JS/SelectCheckBox.js"></script>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("SiteList",L.站点列表),
+        new Bread() {url=Context.Request.RawUrl(), text=L.全局配置,addon="" }}
+        )
+<form method="post" action="@MVCHelper.GetAction("Config_Submit",Context.Request)">
+    <div class="list_choice">
+        <table class="table table-striped table-bordered">
+            <tr><th class="td_m">APIUrl</th>
+            <td> <input type="text" class="form-control text_300 required" name="APIUrl" value="@cfg.APIUrl"/>
+                 </td></tr>
+            <tr><th>@L.API密钥</th><td>
+                <input type="text" class="form-control text_300 required" name="APICert" value="@(string.IsNullOrEmpty(cfg.APICert)?"":"***********************************************")"/>
+                <div><small>@L.请输入授权密钥</small></div>
+            </td></tr>
+            <tr><th></th><td>
+                <input type="submit" value="@L.保存配置" class="btn btn-info" />
+                </td></tr>
+        </table>
+    </div>
+    @*<div class="tab col-12 col-md-6">
+                    <div >
+                    <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="nav-item"><a class="nav-link active" href="#Div3" aria-controls="home" role="tab" data-toggle="tab">显示</a></li>
+                    <li role="presentation" class="nav-item"><a class="nav-link" href="#Div4" aria-controls="profile" role="tab" data-toggle="tab">选中</a></li>
+                    </ul>
+                    <div class="tab-content selectbox">
+                    <div role="tabpanel" class="tab-pane active" id="Div3">
+                    <div class="site_border" style="padding-left:20px;">
+                    <p class="checkall0 allcheck"><label for="allChk">全选 </label><input type="checkbox" class="allChk ml-2" onclick="selectAllByName(this, 'ext100');"/></p>
+                    <ul id="Ul3">
+                    <li><input type="checkbox" name="ext100" value=".com"   /><label for="e0">.com</label></li>
+                    <li><input type="checkbox" name="ext100" value=".net"    /><label for="e1">.net</label></li>
+                    <li><input type="checkbox" name="ext100" value=".cn"     /><label for="e2">.cn</label></li>
+                    <li><input type="checkbox" name="ext100" value=".com.cn" /><label for="e3">.com.cn</label></li>
+                    <li><input type="checkbox" name="ext100" value=".net.cn" /><label for="e4">.net.cn</label></li>
+                    <li><input type="checkbox" name="ext100" value=".org.cn" /><label for="e5">.org.cn</label></li>
+                    <li><input type="checkbox" name="ext100" value=".org"  /><label for="e6">.org</label></li>
+                    <li><input type="checkbox" name="ext100" value=".asia" /><label for="e7">.asia</label></li>
+                    <li><input type="checkbox" name="ext100" value=".cc"   /><label for="e8">.cc</label></li>
+                    <li><input type="checkbox" name="ext100" value=".biz"  /><label for="e9">.biz</label></li>
+                    <li><input type="checkbox" name="ext100" value=".info" /><label for="e10">.info</label></li>
+                    <li><input type="checkbox" name="ext100" value=".tv"   /><label for="e11">.tv</label></li>
+                    <li><input type="checkbox" name="ext100" value=".tw"   /><label for="e12">.tw</label></li>
+                    <li><input type="checkbox" name="ext100" value=".in"   /><label for="e13">.in</label></li>
+                    <li><input type="checkbox" name="ext100" value=".me"   /><label for="e14">.me</label></li>
+                    <li><input type="checkbox" name="ext100" value=".中国" /><label for="e15">.中国</label></li>
+                    <li><input type="checkbox" name="ext100" value=".pw"   /><label for="e16">.pw</label></li>
+                    <li><input type="checkbox" name="ext100" value=".公司" /><label for="c17">.公司</label></li>
+                    <li><input type="checkbox" name="ext100" value=".网络" /><label for="c18">.网络</label></li>
+                    </ul>
+                    <p style="display: block; border-top: 1px solid #D5E0EF; width: 99%; *zoom: 1; overflow: hidden; *height: 1px; margin: 20px 0"></p>
+                    <p class="checkall1 allcheck"><label for="allChk2">全选 </label><input type="checkbox" id="Checkbox3" class="allChk ml-2" onclick="selectAllByName(this, 'ext101');"/></p>
+                    <ul id="Ul4">
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".jl.cn" /><label for="m19">.jl.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".sh.cn" /><label for="m20">.sh.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".qh.cn" /><label for="m21">.qh.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".gx.cn" /><label for="m22">.gx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".ah.cn" /><label for="m23">.ah.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".sx.cn" /><label for="m24">.sx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".hk.cn" /><label for="m25">.hk.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".fj.cn" /><label for="m26">.fj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".xz.cn" /><label for="m27">.xz.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".hb.cn" /><label for="m28">.hb.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".hl.cn" /><label for="m29">.hl.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".tj.cn" /><label for="m30">.tj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".nx.cn" /><label for="m31">.nx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".hi.cn" /><label for="m32">.hi.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".jx.cn" /><label for="m33">.jx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".nm.cn" /><label for="m34">.nm.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".mo.cn" /><label for="m35">.mo.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".ac.cn" /><label for="m36">.ac.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".sn.cn" /><label for="m37">.sn.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".hn.cn" /><label for="m38">.hn.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".js.cn" /><label for="m39">.js.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".cq.cn" /><label for="m40">.cq.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".xj.cn" /><label for="m41">.xj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".sc.cn" /><label for="m42">.sc.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".sd.cn" /><label for="m43">.sd.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".ln.cn" /><label for="m44">.ln.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".yn.cn" /><label for="m45">.yn.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".bj.cn" /><label for="m46">.bj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".gs.cn" /><label for="m47">.gs.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".gd.cn" /><label for="m48">.gd.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".zj.cn" /><label for="m49">.zj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".he.cn" /><label for="m50">.he.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".tw.cn" /><label for="m51">.tw.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".gz.cn" /><label for="m52">.gz.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext101" value=".ha.cn" /><label for="m53">.ha.cn</label></li>
+                    <div class="clearfix"></div>
+                    </ul>
+                    </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="Div4">
+                    <div class="site_border" style="padding-left:20px;">
+                    <p class="checkall0 allcheck"><label for="allChk">全选</label><input type="checkbox" id="Checkbox1" class="allChk ml-2" onclick="selectAllByName(this, 'ext');"/></p>
+                    <ul id="Ul1">
+                    <li><input type="checkbox" name="ext" value=".com"    /><label for="e0">.com</label></li>
+                    <li><input type="checkbox" name="ext" value=".net"    /><label for="e1">.net</label></li>
+                    <li><input type="checkbox" name="ext" value=".cn"     /><label for="e2">.cn</label></li>
+                    <li><input type="checkbox" name="ext" value=".com.cn" /><label for="e3">.com.cn</label></li>
+                    <li><input type="checkbox" name="ext" value=".net.cn" /><label for="e4">.net.cn</label></li>
+                    <li><input type="checkbox" name="ext" value=".org.cn" /><label for="e5">.org.cn</label></li>
+                    <li><input type="checkbox" name="ext" value=".org"  /><label for="e6">.org</label></li>
+                    <li><input type="checkbox" name="ext" value=".asia" /><label for="e7">.asia</label></li>
+                    <li><input type="checkbox" name="ext" value=".cc"   /><label for="e8">.cc</label></li>
+                    <li><input type="checkbox" name="ext" value=".biz"  /><label for="e9">.biz</label></li>
+                    <li><input type="checkbox" name="ext" value=".info" /><label for="e10">.info</label></li>
+                    <li><input type="checkbox" name="ext" value=".tv"   /><label for="e11">.tv</label></li>
+                    <li><input type="checkbox" name="ext" value=".tw"   /><label for="e12">.tw</label></li>
+                    <li><input type="checkbox" name="ext" value=".in"   /><label for="e13">.in</label></li>
+                    <li><input type="checkbox" name="ext" value=".me"   /><label for="e14">.me</label></li>
+                    <li><input type="checkbox" name="ext" value=".中国" /><label for="e15">.中国</label></li>
+                    <li><input type="checkbox" name="ext" value=".pw"   /><label for="e16">.pw</label></li>
+                    <li><input type="checkbox" name="ext" value=".公司" /><label for="c17">.公司</label></li>
+                    <li><input type="checkbox" name="ext" value=".网络" /><label for="c18">.网络</label></li>
+                    </ul>
+                    <p style="display: block; border-top: 1px solid #D5E0EF; width: 99%; *zoom: 1; overflow: hidden; *height: 1px; margin: 20px 0"></p>
+                    <p class="checkall1 allcheck"><label for="allChk2">全选</label><input type="checkbox" class="allChk ml-2" onclick="selectAllByName(this, 'ext2');"/></p>
+                    <ul id="Ul2">
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".jl.cn" /><label for="m19">.jl.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".sh.cn" /><label for="m20">.sh.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".qh.cn" /><label for="m21">.qh.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".gx.cn" /><label for="m22">.gx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".ah.cn" /><label for="m23">.ah.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".sx.cn" /><label for="m24">.sx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".hk.cn" /><label for="m25">.hk.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".fj.cn" /><label for="m26">.fj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".xz.cn" /><label for="m27">.xz.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".hb.cn" /><label for="m28">.hb.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".hl.cn" /><label for="m29">.hl.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".tj.cn" /><label for="m30">.tj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".nx.cn" /><label for="m31">.nx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".hi.cn" /><label for="m32">.hi.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".jx.cn" /><label for="m33">.jx.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".nm.cn" /><label for="m34">.nm.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".mo.cn" /><label for="m35">.mo.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".ac.cn" /><label for="m36">.ac.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".sn.cn" /><label for="m37">.sn.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".hn.cn" /><label for="m38">.hn.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".js.cn" /><label for="m39">.js.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".cq.cn" /><label for="m40">.cq.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".xj.cn" /><label for="m41">.xj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".sc.cn" /><label for="m42">.sc.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".sd.cn" /><label for="m43">.sd.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".ln.cn" /><label for="m44">.ln.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".yn.cn" /><label for="m45">.yn.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".bj.cn" /><label for="m46">.bj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".gs.cn" /><label for="m47">.gs.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".gd.cn" /><label for="m48">.gd.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".zj.cn" /><label for="m49">.zj.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".he.cn" /><label for="m50">.he.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".tw.cn" /><label for="m51">.tw.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".gz.cn" /><label for="m52">.gz.cn</label></li>
+                    <li class="countryli"><input type="checkbox" name="ext2" value=".ha.cn" /><label for="m53">.ha.cn</label></li><div class="clearfix"></div>
+                    </ul><div class="clearfix"></div>
+                    </div>
+            </div>
+          </div>
+
+
+            </div>
+        </div>*@
+</form>
+    <div class="clearfix"></div>
+    <div id="about" class="site_cont p-4">
+        <strong>@L.欢迎使用Zoomla站群系统</strong><br />
+        @L.使用前需了解一下信息<br />
+        1、@L.您拥有的权限<br />
+        2、@L.您是否熟悉IIS的管理机制<br />
+        3、@L.点此获得逐浪CMS程序包<br />
+        4、@L.如有问题请访问<a href="http://bbs.z01.com" target="_blank">bbs.z01.com</a>@L.开发专区交流<a href="http://weibo.com/zoomlacms" target="_blank">http://weibo.com/zoomlacms</a>。<br />
+        5、@L.推荐使用浏览器
+    </div>
+}
+@section script{
+    <script>
+        $("form").validate({});
+    </script>
+}

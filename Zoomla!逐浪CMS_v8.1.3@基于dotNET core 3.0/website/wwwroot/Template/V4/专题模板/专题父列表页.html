@@ -1,0 +1,31 @@
+﻿{ZL.Source id="专题数据源"/}
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>专题列表_{$SiteName/}</title> 
+{ZL:Boot4()/}
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<script src="/js/scrolltopcontrol.js" type="text/javascript"></script> 
+<style>
+#home_nav { position: relative;}
+</style>
+</head>
+<body>
+{ZL.Label id="全站头部"/}
+
+<div class="bs-header">
+<div class="container">
+<h1>专题列表</h1>
+<p>开放时代，智慧领航。</p>
+</div>
+</div>
+
+<main class="news_body pt-4">
+<div class="container special_list">
+{ZL.Label id="输出父专题下子专题列表" SpecID="{SField sid="专题数据源" FD="SpecID" page="0"/}" ulClassName="row" ClassName="col-md-3 col-6" ShowNum="10" Order="asc" /}
+</div>
+</main>
+{ZL.Label id="全站底部"/}
+</body>
+</html>

@@ -1,0 +1,63 @@
+﻿@using ZoomLa.BLL.Content
+@{
+    B_Node nodeBll = new B_Node();
+    DataTable nodeDT=nodeBll.CreateForListBox();
+}
+@section head{ <title>@L.节点合并迁移</title>}
+@section  content{ 
+<style type="text/css">
+.listbox{height:450px !important;}
+</style>
+    @Call.SetBread(new Bread[] {
+            new Bread("{admin}"),
+            new Bread("/{manage}/Content/Node/NodeManage",L.节点管理),
+            new Bread() {url=Context.Request.RawUrl(), text=L.节点合并迁移,addon="" }},Call.GetHelp(16))
+<form method="post" id="form1">
+        <div class="list_choice card card-default">
+            <div class="card-header"><i class="zi zi_cubes"></i> @L.节点合并&迁移  <label class="btn btn-light"><input type="checkbox" ID="CheckBox1" name="CheckBox1" value="1" />@L.合并后删除来源节点</label></div>
+            <div class="card-body row">
+                <div class="col-6">
+                    <div class="text-danger">@L.提示源节点</div>
+                    <select id="LstNodes" name="LstNodes" class="form-control listbox" multiple>
+                        @foreach (DataRow dr in nodeDT.Rows)
+                        {
+                            <option value="@dr["NodeID"]">@dr["NodeName"]</option>
+                        }
+                    </select>
+
+                </div>
+                <div class="col-6">
+                    <div class="text-danger">@L.提示目标节点</div>
+                    <select id="MainNode" name="MainNode" class="form-control listbox" size="4">
+                        <option value="-100">|-@L.根节点</option>
+                        @foreach (DataRow dr in nodeDT.Rows)
+                        {
+                            <option value="@dr["NodeID"]">@dr["NodeName"]</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <input type="button" value="@L.合并节点" class="btn btn-outline-info" onclick="merge();" />
+                <input type="button" value="@L.迁移节点" class="btn btn-outline-info" onclick="move();" />
+            </div>
+        </div>
+</form>
+
+}
+@section script{
+@*<script src="/JS/Common.js"></script>*@
+<script>
+    var $form = $("#form1");
+    function merge() {
+        if (!confirm("@Html.Raw(L.将要合并节点吗)")) { return false; }
+        $form.attr("action", "UnionNode_Merge"); $form.submit();
+    }
+    
+    function move() {
+        if (!confirm("@Html.Raw(L.迁移节点至新节点下)")) { return false; }
+        $form.attr("action", "UnionNode_Move"); $form.submit();
+    }
+</script>
+
+}

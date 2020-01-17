@@ -1,0 +1,135 @@
+﻿@model ZoomLa.Model.M_Content_ScheTask
+@{ 
+    Layout = "_safe";
+    string exTime1 = "", exTime2 = "";
+    if (Model.ID > 0)
+    {
+        if (Model.ExecuteType == (int)M_Content_ScheTask.ExecuteTypeEnum.JustOnce) { exTime1 = Model.ExecuteTime.ToString(); }
+        if (Model.ExecuteType == (int)M_Content_ScheTask.ExecuteTypeEnum.EveryDay) { exTime2 = Model.ExecuteTime.ToString(); }
+    }
+    //Model.TaskName = "test";
+    //Model.ExecuteType = 2;
+    //Model.Interval = 2;
+    //Model.Status = 0;
+    //Model.TaskContent = "UPDATE ZL_User SET GroupID=2";
+}
+@section head {<title>@L.添加任务</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("TaskList",L.计划任务),
+        new Bread() {url=Context.Request.RawUrl(), text=L.任务管理,addon="" }}
+		)
+
+<form method="post" action="@MVCHelper.GetAction("TaskAdd_Submit",Context.Request)">
+<div class="list_choice">
+<div id="maindiv" class="container-fluid pr-0">
+<div class="row sysRow table-responsive-md">
+<table class="table table-bordered table-striped sys_table">
+    <tr><th class="w12rem_lg">@L.任务名称</th><td><input type="text" ID="TaskName_T" name="TaskName_T" class="form-control max20rem required" value="@Model.TaskName"/></td></tr>
+    <tr><th>@L.任务类型</th><td>
+    <label><input type="radio" name="taskType_rad" checked="checked" value="1" />SQL</label>
+    <label><input type="radio" name="taskType_rad" value="4" />C#@L.代码</label>
+</td></tr>
+    <tr><th>@L.执行计划</th><td>
+        <label><input type="radio" name="executeType_rad" value="0" checked="checked" />@L.仅一次</label>
+        <label><input type="radio" name="executeType_rad" value="1" />@L.每日</label>
+        <label><input type="radio" name="executeType_rad" value="2" />@L.循环 (@L.每隔指定时间)</label>
+        <label><input type="radio" name="executeType_rad" value="3" />@L.被动</label>
+        <label><input type="radio" name="executeType_rad" value="4" />@L.每月</label>
+    </td></tr>
+    <tr id="date_tr1" class="time_tr"><th>@L.执行时间</th><td><input type="text" ID="ExecuteTime_T1" name="ExecuteTime_T1" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' });" class="form-control max20rem" value="@exTime1"/></td></tr>
+    <tr id="date_tr2" class="time_tr"><th>@L.执行时间</th><td><input type="text" ID="ExecuteTime_T2" name="ExecuteTime_T2" onclick="WdatePicker({ dateFmt: 'HH:mm:ss' });" class="form-control max20rem" value="@exTime2"/></td></tr>
+    <tr id="interval_tr" class="time_tr"><th>@L.间隔时间</th><td>
+        <div class="input-group max20rem">
+            <input type="text" ID="Interval_T" name="Interval_T" class="form-control max20rem" value="@(Model.Interval>0?Model.Interval.ToString():"")"/>
+            <span class="input-group-append"><span class="input-group-text">@L.分钟</span></span>
+        </div>
+    </td></tr>
+    <tr id="state_tr"><th>@L.任务状态</th>
+       <td>
+           <label><input type="radio" name="status_rad" value="0" checked="checked" />@L.正常</label>
+           <label><input type="radio" name="status_rad" value="-1" />@L.停用</label>
+           <label><input type="radio" name="status_rad" value="100" />@L.已完成</label>
+       </td>
+    </tr>
+    <tr><th id="conTr">@L.任务内容</th><td>
+        <textarea ID="TaskContent_T" name="TaskContent_T" class="form-control m50rem_50 required" rows="5">@Model.TaskContent</textarea>
+        <br />
+        <span class="info sqlinfo hidden text-primary">@L.可执行脚本规范</span>
+        </td></tr>
+    <tr><th>@L.备注</th><td><textarea ID="Remind_T" name="Remind_T" class="form-control m50rem_50" rows="3">@Model.Remind</textarea></td></tr>
+    <tr><td></td><td>
+        <input type="submit" ID="Save_Btn" value="@L.保存任务信息" onclick="return checkTime();"  class="btn btn-info" />
+        <a href="TaskList" class="btn btn-outline-info">@L.返回列表</a>
+                 </td></tr>
+</table>
+</div>
+</div>
+</div>
+</form>
+}
+@section script{ 
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/SelectCheckBox.js"></script>
+<style type="text/css">
+.time_tr {display:none;}
+</style>
+<script>
+function ShowTimeTr()
+{
+    $(".time_tr").hide();
+    $("#state_tr").show();
+    var value = $("input[name=executeType_rad]:checked").val();
+    if (value == 2) { $("#interval_tr").show(); }
+    else if (value == 0 || value == 4) { $("#date_tr1").show(); }
+    else if (value == 1) { $("#date_tr2").show(); }
+    else { $("#state_tr").hide(); }
+}
+function changeConTitle()
+{
+    $(".info").addClass("hidden");
+    var value = $("input[name='taskType_rad']:checked").val();
+    switch (value) {
+        case "1":
+            $("#conTr").html("@Html.Raw(L.SQL脚本)");
+            $(".sqlinfo").removeClass("hidden");
+            break;
+        case "4":
+            $("#conTr").html("C#@Html.Raw(L.方法名)");
+            $(".pageinfo").removeClass("hidden");
+            break;
+        default:
+            $("#conTr").html("@Html.Raw(L.任务内容)");
+            break;
+    }
+}
+function DisTaskTypeRad()
+{
+    $("input[name=taskType_rad]").attr("disabled", "disabled");
+}
+function checkTime()
+{
+    var val = $("input[name=executeType_rad]:checked").val();
+    if (val == 0 && $("#ExecuteTime_T1").val() == "") { alert("@Html.Raw(L.请指定执行时间)!"); return false; }
+    if (val == 1 && $("#ExecuteTime_T2").val() == "") { alert("@Html.Raw(L.请指定执行时间)!"); return false; }
+    if (val == 2 && $("#Interval_T").val() == "") { alert("@Html.Raw(L.请指定间隔时间)"); return false; }
+}
+$(function () {
+    ShowTimeTr();
+    changeConTitle();
+    $("input[name=executeType_rad]").click(ShowTimeTr);
+    $("input[name=taskType_rad]").click(changeConTitle);
+})
+</script>
+@if (Model.ID > 0)
+{
+    <script>
+        SetRadVal('taskType_rad','@Model.TaskType');
+        DisTaskTypeRad();
+        SetRadVal('executeType_rad','@Model.ExecuteType');
+        SetRadVal('status_rad','@Model.Status');
+    </script>
+}
+
+}

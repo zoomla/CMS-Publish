@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link rel="stylesheet" href="/theme/css/v4style.css?v=3" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+<link rel="stylesheet" href="/dist/css/animate.min.css"/>
+<style type="text/css">
+.list_choice form{width:100%;}
+.thumImg{max-width:100px;max-height:100px;}
+#help { position: absolute; right: 0.625rem; top: 0.94rem; }
+#help i { color: rgba(102, 102, 102, 0.8); cursor: pointer; }
+#help #help_div { border: 1px solid gold; margin-top: 1.25rem; padding-bottom: 0.625rem; }
+#help #help_content { position: absolute; top: 0; right: 0; width: 16rem; min-height: 10rem; padding: 0.32rem; border: 1px solid rgba(102, 102, 102, 0.8); background: white; line-height: 1.125rem; color: #999999; box-shadow: 1px 2px 2px black; }
+#help #help_content p { margin-bottom: 0; /*text-indent:1.02rem;*/ text-align: justify; text-justify: inter-ideograph; font-size: 0.72rem; }
+#help #help_content ul { list-style: none; margin-top: 0.625rem; margin-bottom: 0.625rem; text-align: left; font-size: 0.75rem; color: #666666; }
+#help #help_content abbr { padding-left: 0.2rem; border-left: 0.3rem solid red; font-style: normal; font-size: 0.8rem; font-weight: bold; }
+#help #help_content h1 { padding-top: 0.65rem; font-size: 0.88rem; line-height: 0.625rem; }
+#help #help_content li { font-size: 0.75rem; color: #666666; text-align: left; padding-left: 0.125rem; margin-top: 0.625rem; text-indent: 1.25rem; }
+#help #help_content li.example { text-indent: 0px; margin-top: 0.625rem; margin-bottom: 0.625rem; }
+#help #help_content a { display: inline; text-decoration: underline; color: #999999; }
+#help #help_content a:hover { color: #666666; }
+#help #help_hide { display: block; position: absolute; top: 0.5rem; right: 0.5rem; width: 1.25rem; }
+#help #help_hide span { cursor: pointer; }
+</style>
+@RenderSection("head",false)
+</head>
+<body>
+@RenderSection("content",false)
+<script>
+    var siteconf = {
+        path: "@Call.PA("")",
+        updir: "@ZoomLa.Components.SiteConfig.SiteOption.UploadDir.ToLower()"
+    };
+</script>
+@RenderSection("script",false)
+</body>
+</html>

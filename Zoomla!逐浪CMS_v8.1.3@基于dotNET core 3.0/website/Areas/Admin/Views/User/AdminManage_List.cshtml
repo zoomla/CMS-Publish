@@ -1,0 +1,67 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+    public DataTable RoleDT
+    {
+        get
+        {
+            if (ViewBag.RoleDT == null)
+            { ViewBag.RoleDT = ZoomLa.SQLDAL.DBCenter.Sel("ZL_Role"); }
+            return ViewBag.RoleDT;
+        }
+
+    }
+    public string GetRoleName(DataRow dr)
+    {
+        if (IsSuper(dr)) { return "超级管理员"; }
+        string ids = DataConverter.CStr(dr["AdminRole"]);
+        if (string.IsNullOrEmpty(ids)) { return ""; }
+        DataRow[] drs = RoleDT.Select("'" + ids + "' LIKE '%,'+RoleID+',%'");
+        ids = "";
+        foreach (DataRow item in drs)
+        {
+            ids += item["RoleName"].ToString() + ",";
+        }
+        return ids.Trim(',');
+    }
+    public string GetUserName(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["AddUserID"]) > 0)
+            return "<a href='UserInfo?id=" + dr["AddUserID"] + "'>查看</span>";
+        return "<span style='color:gray;'>无</span>";
+    }
+    public bool IsSuper(DataRow dr)
+    {
+        return (DataConverter.CLng(dr["AdminID"])==1);
+    }
+}
+@{
+
+}
+
+<tbody id="EGV">
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td> <input name="idchk" type="checkbox" title="全选" value="@dr["AdminID"]" /></td>
+            <td>@dr["AdminId"]</td>
+            <td>@(DataConverter.CLng(dr["IsLock"]) == 1 ? "锁定" : "正常")</td>
+            <td><a href="AdminAdd?id=@dr["AdminId"]">@dr["AdminName"]</a></td>
+            <td>@dr["AdminTrueName"]</td>
+            <td>@GetRoleName(dr)</td>
+            <td>@MvcHtmlString.Create(GetUserName(dr))</td>
+            <td>@dr["LastLoginIP"]</td>
+            <td>@dr["LastModifyPwdTime"]</td>
+            <td>@dr["CDate"]</td>
+            <td>@dr["LastLogoutTime"]</td>
+            <td>@dr["LoginTimes"]</td>
+            <td>
+                <a href="AdminAdd?ID=@dr["AdminID"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+                @if (!IsSuper(dr)) {<a href="javascript:;" onclick="mvcpage.del({ url: 'Admin_API?action=del', confirm: '@Html.Raw(L.确定要删除该管理员)','ids':'@dr["AdminID"]'});"><i class="zi zi_trashalt" zico="垃圾箱竖条"></i></a> }
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page", Model)
+</tbody>

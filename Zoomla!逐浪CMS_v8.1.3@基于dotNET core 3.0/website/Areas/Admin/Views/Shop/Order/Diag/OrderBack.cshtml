@@ -1,0 +1,41 @@
+﻿@model ZoomLa.Model.Shop.M_Order_Back
+@{ 
+    M_OrderList orderMod = ViewBag.orderMod;
+}
+@section head{ <title>退款处理</title>}
+@section content{ 
+<form method="post" action="@MVCHelper.GetAction("OrderBack_Submit",Context.Request)">
+<table class="table table-bordered table-striped">
+        <tr><td class="td_m">订单号：</td><td>@orderMod.OrderNo</td></tr>
+        <tr><td>订单金额：</td><td>@orderMod.Receivablesamount</td></tr>
+        <tr><td>申请日期：</td><td>@Model.CDate</td></tr>
+        <tr>
+            <td>退款原因：</td><td><textarea name="UserRemind_T"  class="form-control" rows="8" disabled="disabled">@Model.UserRemind</textarea></td>
+        </tr>
+        <tr><td>处理备注：</td><td><textarea name="AdminRemind_T"  class="form-control" rows="5" placeholder="管理员备注">@Model.AdminRemind</textarea></td></tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="hidden" id="op_hid" name="op_hid"/>
+                <input type="submit" class="btn btn-info" ID="Sure_Btn" value="确认退款" onclick="return agree();" />
+                <input type="submit" class="btn btn-info" ID="Reject_Btn" value="拒绝退款" onclick="return reject();" />
+            </td>
+        </tr>
+    </table>
+</form>
+}
+@section script{ 
+    <script>
+        function agree() {
+            if (!confirm("确定要同意退款吗,需手动将金额返还用户")) { return false; }
+            $("#op_hid").val("agree");
+            return true;
+        }
+        function reject() {
+              if (!confirm("确定要拒绝该次退款申请吗")) { return false; }
+            $("#op_hid").val("reject");
+            return true;
+        }
+    </script>
+
+}

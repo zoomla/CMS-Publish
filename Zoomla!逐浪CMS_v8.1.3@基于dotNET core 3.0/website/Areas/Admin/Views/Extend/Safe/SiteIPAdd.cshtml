@@ -1,0 +1,32 @@
+﻿@model ZoomLa.Model.Safe.M_Safe_IP
+@section head{<title>IP @L.管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("SiteIP",L.IP策略),
+new Bread(Context.Request.RawUrl(),"IP管理")
+})
+<form method="post" action="@MVCHelper.GetAction("SiteIPAdd_Submit",Context.Request)">
+<div class="list_choice">
+    <table class="table table-bordered">
+        <tr><th class="td_m">IP/IP @L.号段</th>
+        <td>@Html.TextBoxFor(m=>m.IP,new {@class="form-control text_300 required" })
+            <div><small>@L.最后一位支持</small></div>
+            </td></tr>
+        <tr><th>@L.到期日期</th>
+        <td>@Html.TextBoxFor(m=>m.EDate,new {@class="form-control text_300",onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd' });" })
+            <div><small>@L.到期后</small></div>
+            </td></tr>
+        <tr><th class="td_m">@L.备注</th>
+        <td>@Html.TextAreaFor(m=>m.Remind,new {@class="form-control",rows="5" })</td></tr>
+        <tr><td></td><td><input type="submit" value="@L.保存信息" class="btn btn-info"/></td></tr>
+    </table>
+</div>
+</form>
+}
+@section script{ 
+<script src="~/js/DatePicker/WdatePicker.js"></script>
+    <script>
+        $("form").validate({});
+    </script>
+}

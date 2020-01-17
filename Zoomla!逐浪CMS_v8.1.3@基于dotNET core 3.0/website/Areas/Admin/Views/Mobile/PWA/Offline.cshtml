@@ -1,0 +1,47 @@
+﻿@{ 
+    string quoteJS = "if('serviceWorker' in navigator) {navigator.serviceWorker.register('./sw.js?v="+DateTime.Now.ToString("yyyyMMdd")+"').then(function(registration){});";
+}
+@section head{<title>超站设置</title> }
+@section content{ 
+@Call.SetBread(new Bread[] { 
+  new Bread("{admin}"),
+  new Bread(Context.Request.RawUrl(),"超站设置")
+})
+<div class="list_choice">
+<form method="post" action="@MVCHelper.GetAction("Offline_Submit",Context.Request)">
+    <table class="table table-bordered">
+        <tr><th style="width:200px;">开启离线浏览</th><td>
+            @MVCHelper.H_Check("PWA_PC_Enable",SiteConfig.SiteOption.PWA_PC_Enable==1,new { @class="switchChk",value="1"})
+            <div><small>开启后即启用超级站点功能</small></div>
+            </td></tr>
+        <tr><th>缓存资源</th><td>
+            <input type="text" class="form-control" value="@SiteConfig.SiteOption.PWA_PC_Exts" placeholder="使用|分隔,示例：html|css|js" name="PWA_PC_Exts"/>
+            <div><small>指定的后缀名将会进行缓存处理</small></div>
+            </td></tr>
+        <tr><th>离线首页</th><td>
+            <input type="text" class="form-control" value="@SiteConfig.SiteOption.PWA_PC_IndexUrl" name="PWA_PC_IndexUrl"/>
+            <div>用户离线访问时展示的网站首页,示例 ：/offline.html</div>
+            </td></tr>
+        <tr><th>预加载资源</th><td>
+            <textarea class="form-control" name="PWA_PC_PreCache" rows="8">@SiteConfig.SiteOption.PWA_PC_PreCache</textarea>
+            <div><small>用户首次访问时一次性预加载的资源,回车换行</small><small style="color:red;">(资源路径必须正确)</small></div>
+            </td></tr>
+        <tr><th>手动引入</th><td>
+<textarea rows="3" class="form-control">
+if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js?v=@(DateTime.Now.ToString("yyyyMMdd"))').then(function(registration) {});
+}
+</textarea>
+            <div>将该段JS复制入首页,开启超站功能</div>
+            </td></tr>
+        <tr><th></th><td>
+            <input type="submit" value="保存并更新JS文件" class="btn btn-info"/>
+            </td></tr>
+    </table>
+</form>
+</div>
+}
+@section script{ 
+<link href="~/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-switch.js"></script>
+}

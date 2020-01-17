@@ -1,0 +1,179 @@
+﻿@using System.Xml
+@using ZoomLa.BLL.Third
+@using ZoomLa.Model.Third
+@{ 
+    /*
+     * 1.页面按规则新增Html
+     * 2.config文件中新增条目
+     * 3.其他页面取出调用
+     */ 
+    //QQ APPID=Key,APPKey=Secret
+    //Key:一串数字,Secret:一串字母
+    //所有的存值都为 key和secret
+    B_Third_Info thirdBll = new B_Third_Info();
+    XmlDocument Xml = thirdBll.GetXmlDoc();
+    M_Third_Info sina = thirdBll.SelModelByName("Sina");
+    M_Third_Info qq = thirdBll.SelModelByName("QQ");
+    M_Third_Info wechat = thirdBll.SelModelByName("Wechat");
+    M_Third_Info baidu = thirdBll.SelModelByName("Baidu");
+    M_Third_Info baidu_trans = thirdBll.SelModelByName("BaiduTrans");
+    M_Third_Info printer = thirdBll.SelModelByName("Printer");//商户号 Secret
+}
+
+@section head{<title>@L.社会化登录</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("/{manage}/User/UserManage",@L.会员管理),
+        new Bread() {url="", text=@L.社会化登录,addon= "" }},
+        Call.GetHelp(2)
+        )
+<form method="post" action="ThirdInfo_Submit">
+<div class="container-fluid pr-0">
+<div class="row sysRow">
+    <ul class="nav nav-tabs list_choice" role="tablist">
+        <li class="nav-item"><a class="nav-link active show" href="#app" aria-controls="app" role="tab" data-toggle="tab">@L.社会化登录</a></li>
+        <li class="nav-item"><a class="nav-link" href="#other" aria-controls="other" role="tab" data-toggle="tab">@L.第三方平台</a></li>
+    </ul>
+    <div class="tab-content  col-12 table_box">
+        <div role="tabpanel" class="tab-pane active " id="app">
+            <table class="table table-striped table-bordered">
+                <tr>
+                    <th class="w12rem_lg">
+                         <i class="zi zi_tmWeibo text-danger sys_wx_icon"></i>
+                        <div><label>@MVCHelper.H_Check("Sina_Enable",sina.Enabled,new {value="1" })@L.开启新浪微博登录</label></div>
+                    </th>
+                    <td>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">Key</span>
+						  </div>
+						  <input name="Sina_Key" type="text" class="form-control max20rem" value="@sina.Key" />
+						   <div class="input-group-prepend"><span class="input-group-text">Secret</span></div>
+						  <input name="Sina_Secret" type="text" class="form-control max20rem" value="@sina.Secret" />
+						</div>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend"><span class="input-group-text">@L.回调</span></div>
+						  <input name="Sina_CallBackUrl" type="text" class="form-control max20rem" value="@sina.CallBackUrl" />
+						</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <i class="zi zi_tmQq text-primary sys_wx_icon"></i>
+                        <div><label>@MVCHelper.H_Check("QQ_Enable",qq.Enabled,new {value="1" })@L.开启QQ登录</label></div>
+                    </th>
+                    <td>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">APPID</span>
+						  </div>
+						  <input name="QQ_Appid" type="text" class="form-control max20rem" value="@qq.Appid"/>
+						   <div class="input-group-prepend">
+							<span class="input-group-text">Key</span>
+						  </div>
+						  <input name="QQ_Key" type="text" class="form-control max20rem" runat="server" value="@qq.Key" />
+						</div>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">@L.回调</span>
+						  </div>
+						  <input name="QQ_CallBackUrl" type="text" class="form-control max20rem" value="@qq.CallBackUrl"/>
+						</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <i class="zi zi_tmBaidu text-primary sys_wx_icon"></i>
+                        <div><label>@MVCHelper.H_Check("Baidu_Enable",baidu.Enabled,new {value="1" })@L.开启百度登录</label></div>
+                    </th>
+                    <td>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">Key</span>
+						  </div>
+						  <input name="Baidu_Key" type="text" class="form-control max20rem" value="@baidu.Key"/>
+						   <div class="input-group-prepend">
+							<span class="input-group-text">Secret</span>
+						  </div>
+						  <input id="Baidu_Secret" type="text" class="form-control max20rem" value="@baidu.Secret" />
+						</div>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">@L.回调</span>
+						  </div>
+						    <input id="Baidu_CallBack" type="text" class="form-control max20rem" value="@baidu.CallBackUrl" />
+						</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <i class="zi zi_tmWeixin text-success sys_wx_icon"></i>
+                        <span>@L.微信登录</span>
+                        <div><label>@MVCHelper.H_Check("Wechat_Enable",baidu.Enabled,new {value="1" })@L.开启微信登录</label></div>
+                    </th>
+                    <td>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">Key</span>
+						  </div>
+						  <input type="text" ID="Wechat_Appid" class="form-control max20rem" value="@wechat.Appid"/>
+						   <div class="input-group-prepend">
+							<span class="input-group-text">Secret</span>
+						  </div>
+						  <input type="text" ID="Wechat_Secret" class="form-control max20rem" value="@wechat.Secret"/>
+						</div>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">@L.回调</span>
+						  </div>
+						  <input type="text" ID="Wechat_CallBackUrl" class="form-control max20rem" value="@wechat.CallBackUrl"/>
+						</div>
+                    </td>
+                </tr>
+                   <tr>
+                    <th class="w12rem_lg">@L.百度翻译</th>
+                    <td>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">Key</span>
+						  </div>
+						  <input type="text" ID="BaiduTrans_Key" class="form-control max20rem" value="@baidu_trans.Key" />
+						   <div class="input-group-prepend">
+							<span class="input-group-text">Secret</span>
+						  </div>
+						  <input type="text" ID="BaiduTrans_Secret" class="form-control max20rem" value="@baidu_trans.Secret" />
+						</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.飞印打印</th>
+                    <td>
+						<div class="input-group m-1">
+						  <div class="input-group-prepend">
+							<span class="input-group-text">@L.商户号</span>
+						  </div>
+						  <input type="text" ID="Printer_Key" class="form-control max20rem" value="@printer.Key" />
+						   <div class="input-group-prepend">
+							<span class="input-group-text">Secret</span>
+						  </div>
+						  <input type="text" ID="Printer_Secret" class="form-control max20rem" value="@printer.Secret" />
+						</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td><input type="submit" ID="Login_Save_Btn" class="btn btn-outline-info" value="@L.保存配置信息"/></td>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+    </div>
+    </div>
+</form>
+}
+@section script{
+
+}
+@*  *@

@@ -1,0 +1,202 @@
+﻿@using ZoomLaCMS.Common
+@using Newtonsoft.Json
+@functions{
+   
+
+}
+@{ 
+    if (string.IsNullOrEmpty(SiteConfig.SiteOption.Web_defaultDocument))
+    {
+        DataTable dt = DataTableHelper.CreateTable("name");
+        foreach (string item in "index.shtml|index.html|index.htm".Split('|'))
+        {
+            DataRow dr = dt.NewRow();
+            dr["name"] = item;
+            dt.Rows.Add(dr);
+        }
+        SiteConfig.SiteOption.Web_defaultDocument = JsonConvert.SerializeObject(dt);
+    }
+    //if (string.IsNullOrEmpty(SiteConfig.SiteOption.Web_customErrors))
+    //{
+    //    DataTable dt = DataTableHelper.CreateTable("statusCode,redirect");
+    //    foreach (string item in "401,402,403,404,405,406,412,500,501,502".Split(','))
+    //    {
+    //        DataRow dr = dt.NewRow();
+    //        dr["statusCode"] = item;
+    //        dr["redirect"] = "/Prompt/NoAccess.html";
+    //        dt.Rows.Add(dr);
+    //    }
+    //    SiteConfig.SiteOption.Web_customErrors = JsonConvert.SerializeObject(dt);
+    //}
+}
+@section head{ 
+<script type="text/javascript" src="/dist/js/bootstrap-switch.js"></script>
+<script type="text/javascript" src="/JS/jquery.validate.min.js"></script>
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<title>@L.维护中心</title>
+<style type="text/css">
+ul {margin-left:0px;padding-left:0px;}
+</style>
+}
+@section content{ 
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+	new Bread("SiteInfo",L.网站配置),
+	new Bread() {url="", text=""+L.维护中心+" [<a href='/tools/'>"+L.扩展维护+"</a>]",addon= "" }},
+	Call.GetHelp(7)
+	)
+<form method="post" action="APPConfig_Submit" id="form1">
+
+<div class="list_choice">
+@*<ul class="nav nav-tabs list_choice" role="tablist">
+	<li role="presentation" class="nav-item"><a class="nav-link active show" href="#tab1" aria-controls="NormalConfig" role="tab" data-toggle="tab">通用配置</a></li>
+	<li role="presentation" class="nav-item"><a class="nav-link" href="#tab2" aria-controls="ErroCfg" role="tab" data-toggle="tab">错误页配置</a></li>
+</ul>*@
+<div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+            <table class="table table-striped table-bordered">
+                <tr><td>@L.超管功能</td><td><input type="button" value="@L.重置安装" class="btn btn-outline-danger" onclick="if (confirm('@Html.Raw(L.确定要重置安装吗)')) {mvcpage.help.submit({ 'url': 'APPConfig_ReInstall' }); }"/></td></tr>
+                <tr><td>@L.使用错误页</td><td>
+                    @MVCHelper.H_Radios("Safe_ErrorShow", "返回首页|跳转至指定页|跳转至自定义错误页|显示错误信息".Split('|'), "1|2|3|0".Split('|'),SiteConfig.SiteOption.Safe_ErrorShow.ToString())
+                    <div style="margin-top:5px;display:none;" id="error_text_div"><input type="text" placeholder="请输入跳转地址,示例：/Class_1/Default" class="form-control text_715" name="Safe_ErrorShow_Url" value="@SiteConfig.SiteOption.Safe_ErrorShow_Url"/></div>
+                    <small style="display:block;">1.@L.显示错误信息404</small>
+                    <small style="display:block;">2.@L.显示错误信息503</small>
+                    <script>
+                        $("input[name='Safe_ErrorShow']").click(function () {
+                            if ($(this).val() == 2) { $("#error_text_div").show(); }
+                            else { $("#error_text_div").hide(); }
+                        });
+                        $("input[name='Safe_ErrorShow']:checked").click();
+                    </script>
+                 </td></tr>
+                <tr>
+                    <td style="width:240px;">@L.默认文档配置</td>
+                    <td ng-app="app">
+                        <ul ng-controller="appController" class="default_div" style="max-width:500px;">
+                            <li>
+                                <div class="input-group">
+                                    <span class="input-group-prepend"><span class="input-group-text"><i class="zi zi_plus"></i></span></span>
+                                    <input type="text" id="indexname_T" value="home.html" class="form-control" />
+                                    <span class="input-group-append">
+                                        <button type="button" class="btn btn-info" ng-click="add(list.length)">@L.添加新项</button>
+                                    </span>
+                                </div>
+                            </li>
+                            <li ng-repeat="item in list">
+                                <div class="input-group margin_b2px ">
+                                    <span class="input-group-prepend"><span class="input-group-text">{{$index+1}}</span></span>
+                                    <input type="text" class="form-control" disabled="disabled" value="{{item.name}}" />
+                                    <span class="input-group-append">
+                                        <button type="button" class="btn btn-info" ng-click="remove($index)"><span class="zi zi_trashalt"></span></button>
+                                        <button type="button" class="btn btn-info" ng-click="moveup($index)"><span class="zi zi_arrowUp"></span></button>
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+                        <input type="hidden" ID="Web_defaultDocument" name="Web_defaultDocument" value="@SiteConfig.SiteOption.Web_defaultDocument" />
+                    </td>
+                </tr>
+                @*<tr>
+                    <td>
+                        <strong>错误页配置</strong>
+                        <ul>
+                            <li><span>401-访问被拒绝</span></li>
+                            <li><span>403-禁止访问</span></li>
+                            <li><span>403-文件不存在</span></li>
+                            <li><span>405-访问方式不被允许</span></li>
+                            <li><span>406-浏览器不接受所请求页面的MIME类型</span></li>
+                            <li><span>412-前提条件失败</span></li>
+                            <li><span>500-服务器错误</span></li>
+                            <li><span>501-指定了未实现的配置</span></li>
+                            <li><span>502-服务器收到了无效响应</span></li>
+                        </ul>
+                    </td>
+                    <td class="FalseHints_box" id="err_div">
+                        <ul style="max-width:500px;">
+                              <li v-for="item in list" style="margin-bottom:5px;">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">{{item.statusCode}}</span>
+                                        </div>
+                                        <input type="text" v-model="item.redirect" class="form-control"/>
+                                    </div>
+                                </li>
+                           
+                        </ul>
+                         <input type="hidden" id="Web_customErrors" name="Web_customErrors" value="@SiteConfig.SiteOption.Web_customErrors" v-model="getJson()"/>
+                    </td>
+                </tr>*@
+                <tr><td></td><td>
+                    <input type="submit"  value="@L.保存设置" onclick="return UrlChk();" class="btn btn-outline-info" />
+                    </td></tr>
+            </table>
+        </div>
+    <div class="tab-pane" id="tab2">
+    </div>
+</div>
+</div>
+<div class="alert alert-info">@L.默认文档等修改</div>
+
+
+
+
+</form>
+}
+@section script{ 
+<script src="/JS/Plugs/angular.min.js"></script>
+<script src="/dist/vue/vue.min.js"></script>
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script type="text/javascript">
+	var curScope = null;
+    var app = angular.module("app", []).controller("appController", function ($scope, $compile) {
+        curScope = $scope;
+        $scope.list = JSON.parse($("#Web_defaultDocument").val());
+        $scope.remove = function (index) {
+            $scope.list.splice(index, 1);
+        }
+        $scope.add = function (index) {
+            if ($("#indexname_T").val() == "") { alert("@Html.Raw(L.默认文档不能为空)!"); return; }
+            $scope.list.unshiftNoDup({ name: $("#indexname_T").val() }, "name");
+            $("#indexname_T").val("");
+        }
+        $scope.moveup = function (index) {//上移
+            var predata = $scope.list[index - 1];
+            if (predata) {
+                var curdata = { name: $scope.list[index].name };
+                $scope.list[index] = { name: predata.name };
+                $scope.list[index - 1] = curdata;
+            }
+            console.log(JSON.stringify($scope.list));
+        }
+    });
+	$(function () {
+		jQuery.validator.addMethod("serverurl", function (value) {
+			return ZL_Regex.isVirtualPath(value)
+		}, "@Html.Raw(L.请输入正确的URL)");
+		curScope.$apply(function ($compile) {//加载默认数据
+			if (curScope.list.length <= 0) {
+				curScope.list = [{ "name": "index.shtml" }, { "name": "index.html" }, { "name": "index.htm" }];
+			}
+		});
+	});
+	function UrlChk() {
+		var vaild = $("form").validate({ meta: "validate" });
+		$("#Web_defaultDocument").val(angular.toJson(curScope.list));
+		return vaild.form();
+    }
+    //------------------------
+    @*var err = new Vue({
+        el: "#err_div",
+        mounted: function () {
+        },
+        methods:{
+            getJson: function() {
+                return JSON.stringify(this.list);
+            }
+        },
+        data: {
+            list:@Html.Raw(SiteConfig.SiteOption.Web_customErrors)
+        }
+    })*@
+</script>
+}

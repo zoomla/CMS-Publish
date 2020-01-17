@@ -1,0 +1,38 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+   
+
+   
+    //protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+    //{
+    //    switch (e.CommandName)
+    //    {
+    //        case "del2":
+    //            int id = Convert.ToInt32(e.CommandArgument);
+    //            tlpBll.Del(id);
+    //            break;
+    //    }
+    //    MyBind();
+    //}
+
+}
+@section head{<title>@L.消息模板</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("WxAPPManage",L.微信管理),
+        new Bread() {url=Context.Request.RawUrl(), text=L.消息列表,addon="<a href='MsgTlpAdd'> ["+L.新建图文消息+"]</a><a href='MsgMultiAdd'> ["+L.新建多图文消息+"]</a>" }}
+		)
+
+<div class="list_choice">
+    @Html.Partial(MVCHelper.ViewDir_Admin+"Mobile/WeiXin/MsgTlp_List.cshtml")
+</div>
+}
+@section script{
+<script>
+    function sendMsg(id) {
+        ShowComDiag("MsgSend?ID=" + id, "@Html.Raw(L.消息群发)");
+    }
+</script>
+ }

@@ -1,0 +1,132 @@
+﻿@{ 
+   Layout = "_safe";
+}
+@section head{<title>站点列表</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("SiteList","站点列表")
+})
+<div class="list_choice">
+    <div id="app">
+         <div class="input-group">
+            <input type="text" class="form-control" placeholder="请输入站点名或域名" v-model="filter.skey"/>
+            <span class="input-group-append">
+                <input type="button" class="btn btn-info" value="搜索" v-on:click="search()"/>
+            </span>
+        </div>
+          <ul class="nav nav-tabs" role="tablist" style="margin-top:5px;">
+                <li class="nav-item" v-on:click="setState('')"><a class="nav-link" href="javascript:;" :class="filter.State==''?'active':''">全部 </a></li>
+                <li class="nav-item" v-on:click="setState('Started')"><a class="nav-link" href="javascript:;" :class="filter.State=='Started'?'active':''">运行中 </a></li>
+                <li class="nav-item" v-on:click="setState('Stopped')"><a class="nav-link" href="javascript:;" :class="filter.State=='Stopped'?'active':''">已停止 </a></li>
+            </ul>
+        <table class="table table-bordered table-striped">
+            <thead><tr>
+                <th>ID</th>
+                <th>[状态]站点名</th>
+                <th>绑定域名</th>
+                <th>数据库</th>
+                <th>信息</th>
+                <th>物理路径</th>
+                <th>操作</th>
+                <th class="td_m">命令</th>
+            </tr></thead>
+            <tr v-for="(site,index) in list">
+                <td>{{site.ID}}</td>
+                <td>[<span v-html="showState(site)"></span>]{{site.Name}}</td>
+                <td v-html="showUrl(site)"></td>
+                <td>{{site.DBName}}</td>
+                <td>
+                    <div>运行时：{{site.NetVersion}}</div>
+                    <div>CMS版本：{{site.CMSVersion}}</div>
+                </td>
+                <td>{{site.PhysicalPath}}</td>
+                <td>
+                    <a :href="'FileManage?siteId='+site.ID" class="btn btn-outline-info btn-sm" target="_blank">文件管理</a>
+                    <button type="button" class="btn btn-outline-info btn-sm" v-on:click="db_sync(site)">更新数据库</button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-info btn-sm" v-if="site.State=='Stopped'" v-on:click="start(site)">启动</button>
+                    <button type="button" class="btn btn-danger btn-sm" v-if="site.State=='Started'" v-on:click="stop(site)">停止</button>
+                </td>
+            </tr>
+        </table>
+        <div>
+            @*<button type="button" class="btn btn-info">批量启动</button>
+            <button type="button" class="btn btn-danger">批量停止</button>*@
+            <button type="button" class="btn btn-info" v-on:click="site_reload()">重新加载站点数据</button>
+            <div class="alert alert-info" style="margin-top:5px;">数据做了缓存处理,如通过IIS管理器做了操作,可点击重新加载</div>
+        </div>
+    </div>
+</div>
+}
+@section script{ 
+<script src="/dist/vue/vue.min.js"></script>
+@Html.Partial("Site_Assets")
+<script>
+    var app = new Vue({
+        el: "#app",
+        mounted: function () {
+            var ref = this;
+            sites.site_list(function (result) {
+                ref.list_all = result;
+                ref.search();
+            });
+        },
+        data: {
+            list: [],
+            list_all: [],
+            filter: { skey: "", State: "" }//搜索参数 
+        },
+        methods: {
+            stop: function (site) {
+                sites.post("site_stop", {"siteId":site.ID}, function () {site.State = "Stopped";  })
+            },
+            start: function (site) {
+                sites.post("site_start", {"siteId":site.ID}, function () { site.State = "Started"; })
+            },
+            site_reload: function () { sites.post("site_reload", {}, function () { location = location; }) },
+            db_sync: function (site) {
+                if (site.CMSVersion == "Unknown") { alert("非ZoomLa CMS站点,无法使用数据库更新功能"); return false; }
+                if (!confirm("确定要更新吗,将会补齐缺少的字段与数据表")) { return false; }
+                sites.post("db_sync", { siteId: site.ID }, function (result) { alert("更新成功"); })
+            },
+            setState: function (state) {
+                this.filter.State = state;
+                this.search();
+            },
+            showState: function (site) {
+                var html = "";
+                if (site.State == "Started") { html = '<span style="color:green;">运行中</span>'; }
+                else if (site.State == "Stopped") {html = '<span style="color:red;">已停止</span>'; }
+                else { html = site.State; }
+                return html;
+            },
+            search: function () {
+                var ref = this;
+                ref.list = [];
+                for (var i = 0; i < ref.list_all.length; i++) {
+                    var item = ref.list_all[i];
+                    var flag = true;//是否允许添加入list
+                    if (flag && ref.filter.skey) {
+                        if (item.Name.indexOf(ref.filter.skey) < 0 && item.Url.indexOf(ref.filter.skey) < 0) { flag = false; }
+                    }
+                    if (flag && ref.filter.State) {
+                        flag = (item.State == ref.filter.State);
+                    }
+                    if (flag) { ref.list.push(item); }
+                }
+            },
+            showUrl: function (site) {
+                if (!site.Url) { return ""; }
+                var urls = site.Url.split('|');
+                var html = "";
+                for (var i = 0; i < urls.length; i++) {
+                    html += '<div><a href="' + urls[i] + '" target="_blank">' + urls[i] + '</a></div>';
+                }
+                return html;
+            },
+        }
+    });
+</script>
+}

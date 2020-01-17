@@ -1,0 +1,41 @@
+{
+    "short_name": "逐浪CMS",    
+    "name": "Zoomla!逐浪CMS",
+    "theme_color": "transparent",
+    "background_color": "transparent",
+    "orientation": "any",
+    "icons": [
+    {
+        "src": "/UploadFiles/System/PWA/icon-76.png",
+        "type": "image/png",
+        "sizes": "76x76"
+    },
+    {
+        "src": "/UploadFiles/System/PWA/icon-96.png",
+        "type": "image/png",
+        "sizes": "96x96"
+    },
+    {
+        "src": "/UploadFiles/System/PWA/icon-144.png",
+        "type": "image/png",
+        "sizes": "144x144"
+    },
+    {
+        "src": "/UploadFiles/System/PWA/icon-152.png",
+        "type": "image/png",
+        "sizes": "152x152"
+    },
+    {
+        "src": "/UploadFiles/System/PWA/icon-180.png",
+        "type": "image/png",
+        "sizes": "180x180"
+    },
+    {
+        "src": "/UploadFiles/System/PWA/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+    }
+       ],
+    "display": "standalone",
+    "start_url": "/default"
+}

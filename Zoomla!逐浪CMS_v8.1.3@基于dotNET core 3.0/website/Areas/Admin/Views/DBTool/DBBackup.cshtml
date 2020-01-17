@@ -1,0 +1,132 @@
+﻿@using ZoomLa.SQLDAL
+@using System.IO
+@{
+    Layout = "_safe";
+    DataTable dt = FileSystemObject.SearchFiles(function.VToP("/"), "*.bak");
+    if (dt != null && dt.Rows.Count > 0)
+    {
+        dt.DefaultView.Sort = "createTime DESC";
+    }
+
+    string dbname = DBHelper.GetAttrByStr(DBCenter.DB.ConnectionString, "Initial Catalog");
+    string dbSave = DateTime.Now.ToString("MMdd") + "ZoomlaCMS";
+
+    bool isRemoteDB = false;
+    if (!DBHelper.IsLocalDB(Context.Connection.LocalIpAddress.ToString(), System.Environment.MachineName))
+    {
+        isRemoteDB = true;
+    }
+}
+@section head{<title>@L.数据库备份还原</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread() {url=Context.Request.RawUrl(), text=L.备份与还原数据,addon="" }}
+    )
+<div class=" list_choice">
+<div>
+    @if (isRemoteDB)
+    {<div id="dbnolocal_sp" class="alert alert-danger">@L.提示信息 D:\Backup\</div>}
+    <form method="post" action="DB_Backup" id="form1">
+	<table class="table table-striped table-bordered">
+	    <tr><th colspan="2" class="text-center">@L.数据库备份</th></tr>
+	    <tr>
+		<th scope="col" class="w12rem_lg">@L.主数据库名</th>
+		<td scope="col">@dbname</td>
+	    </tr>
+	    <tr>
+		<th scope="col">@L.数据库备份</th>
+		<td scope="col">
+
+		    @if (isRemoteDB)
+		    {
+			<div class="input-group">
+			    <div class="input-group-prepend">
+				<span class="input-group-text" id="dir_sp">D:\Backup\</span>
+			    </div>
+			    <input id="DatabasePath" name="DatabasePath" value="@dbSave" class="form-control max20rem" />
+			    <div class="input-group-append">
+				<span class="input-group-text" id="basic-addon2">.bak</span>
+			    </div>
+			</div>
+			<small class="text-danger">@L.请确保数据已备份</small>
+		    }
+		    else
+		    {
+			<div class="input-group">
+			    <div class="input-group-prepend">
+				<span class="input-group-text" id="dir_sp">/Temp/</span>
+			    </div>
+			    <input id="DatabasePath" name="DatabasePath" value="@dbSave" class="form-control max20rem" />
+			    <div class="input-group-append">
+				<span class="input-group-text" id="basic-addon2">.bak</span>
+			    </div>
+			</div>
+			<label class="pt-1 node_select">
+			    <span id="backup_sp">
+				<input type="checkbox" id="saveOnRoot_chk" name="saveOnRoot_chk" onchange="changeDir(this)" value="1" /> @L.根目录
+				<script>
+				    function changeDir(chk) { var text = chk.checked ? "/" : "/Temp/"; $("#dir_sp").text(text); }
+				</script>
+			    </span>
+			</label>
+		    }
+		</td>
+	    </tr>
+	    <tr>
+		<th scope="col">@L.管理员操作</th>
+		<td scope="col">
+		    <input type="submit" ID="Backup" class="btn btn-outline-info" onclick="return confirm('@Html.Raw(L.确定要创建数据库备份吗)');" value="@L.备份数据库" />
+		</td>
+	    </tr>
+	</table>
+    </form>
+
+    @*<div style="color: #f00; line-height: 25px; padding-left: 20px;">
+	    还原数据库需如下操作：<br />1.断开数据库连接，因数据库有可能正在运行；<br />2.选择还原数据源；<br />3.删除数据库绑定的专属用户；<br />4.重新绑定用户。<br />* *如有问题可联系管理员进行还原。**
+	</div>*@
+    @if (dt.Rows.Count < 1)
+    {
+	<div class="alert alert-success">
+	    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	    <h4>@L.提示!</h4>
+	    <p style="padding-left: 50px;">
+		<strong>
+		    <span class='zi zi_exclamationTriangle' style='color: #f00; font-size: 18px;'></span>
+		    <span>@L.目前无本地备份记录!</span>
+		</strong>
+	    </p>
+	</div>
+    }
+    else
+    {
+	<table class="table table-bordered">
+	    <thead>
+		<tr>
+		    <td>@L.路径</td>
+		    <td>@L.大小</td>
+		    <td>@L.创建时间</td>
+		    <td>@L.操作</td>
+		</tr>
+	    </thead>
+	    @foreach (DataRow dr in dt.Rows)
+	    {
+		<tr>
+		    <td>@System.IO.Path.GetFileName(DataConverter.CStr(dr["Name"]))</td>
+		    <td>@FileSystemObject.GetFileSize(DataConvert.CStr(dr["size"]))</td>
+		    <td>@dr["createTime"]</td>
+		    <td>
+			<a href="DB_Down?fname=@HttpUtility.UrlEncode(dr["Name"].ToString())" target="_blank"><i class="zi zi_download"></i>@L.下载</a>
+			<a href="javascript:;" onclick="mvcpage.del({ url: 'DB_Del', ids: '@HttpUtility.UrlEncode(dr["name"].ToString())', confirm: '@Html.Raw(L.确定要删除吗)',after:function(){location=location;} });"><i class="zi zi_trash"></i> @L.删除</a>
+		    </td>
+		</tr>
+	    }
+	</table>
+    }
+
+</div>
+</div>
+}
+@section script{
+
+}

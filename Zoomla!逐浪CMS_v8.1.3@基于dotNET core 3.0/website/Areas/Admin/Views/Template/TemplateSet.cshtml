@@ -1,0 +1,39 @@
+﻿@using ZoomLa.SQLDAL.SQL
+@{
+    DataTable dt = FileSystemObject.GetDirectorySmall(function.VToP("/Template/"));
+}
+@section head{
+<title>@L.模板方案</title>
+<style type="text/css">
+    .pagination { justify-content: center; }
+</style>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.RawUrl(),L.模板风格)
+    })
+
+    <div class="list_choice">
+        <div class="card-body">
+            @Html.Partial("TemplateSet_List",dt)
+        </div>
+    </div>
+}
+@section script{
+    <link href="/Plugins/JqueryUI/LightBox/css/lightbox.css" rel="stylesheet" media="screen" />
+    <script src="/Plugins/JqueryUI/LightBox/jquery.lightbox.js" type="text/javascript"></script>
+    <script type="text/javascript">
+	$(document).ready(function () {
+		base_url = document.location.href.substring(0, document.location.href.indexOf('index.html'), 0);
+		$(".lightbox").lightbox({
+			fitToScreen: true,
+			imageClickClose: false
+		});
+	});
+
+	$(function () {
+	  $('[data-toggle="tooltip"]').tooltip()
+	})
+    </script>
+}

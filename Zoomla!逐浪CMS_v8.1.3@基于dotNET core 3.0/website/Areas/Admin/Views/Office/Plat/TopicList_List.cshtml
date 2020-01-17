@@ -1,0 +1,42 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+        public string GetMsgContgent(DataRow dr)
+        {
+            string msg = StringHelper.StripHtml(DataConverter.CStr(dr["MsgContent"]));
+            return StringHelper.SubStr(ZoomLa.BLL.Helper.StrHelper.RemoveBySE(msg));
+        }
+        public string GetStatus(object status)
+        {
+            if (DataConverter.CLng(status) == 1) { return ComRE.Icon_OK; }
+            else { return ""; }
+        }
+
+}
+<table class="table table-bordered table-striped">
+<thead><tr>
+    <th></th>
+    <th>ID</th>
+    <th>@L.话题</th>
+    <th>@L.最新信息</th>
+    <th>@L.热度</th>
+    <th>@L.星标话题</th>
+    <th>@L.创建日期</th>
+    <th>@L.操作</th>
+    </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td><a href="PlatInfoManage?topic=@HttpUtility.UrlEncode(DataConverter.CStr(dr["TName"]))" title="浏览话题">@dr["TName"]</a></td>
+            <td>[@dr["CUName"]]@GetMsgContgent(dr)</td>
+            <td>@dr["Count"]</td>
+            <td>@GetStatus(dr["IsStar"])</td>
+            <td>@dr["CDate"]</td>
+            <td>
+                <a href="javascript:;" onclick="mvcpage.del({url:'API?action=topic_del',confirm:'@Html.Raw(L.确定要删除吗)',ids:'@dr["ID"]'})"><i class="zi zi_trashalt" title="删除"></i></a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

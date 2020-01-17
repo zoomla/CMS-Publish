@@ -1,0 +1,5 @@
+﻿操作人：(用户名:,管理员名:,IP:)
+时间：(2019/12/7 13:59:19),操作：(labelex),来源：()
+详情：(来源：B_CreateHtml,方法名：ContentLabelProc1,标签：{ZL.Label id="分类信息缩略图_带标题简介v4" NodeID="99" TitleNum="30" ShowNum="1" synNum="100" /},报错：SelByLabel:报错:Message:对象名 'ZL_C_Info' 无效。,SQL:SELECT COUNT(*) FROM ZL_CommonModel ZL_CommonModel LEFT JOIN ZL_C_Info ZL_C_Info ON  ZL_CommonModel.ItemID=ZL_C_Info.ID WHERE  (NodeID=99 or FirstNodeID=99) and status=99 And slpic<>'' And Elitelevel=1,SP:,备注：)
+/*-----------------------------------------------------------------------------------*/ 
+ 

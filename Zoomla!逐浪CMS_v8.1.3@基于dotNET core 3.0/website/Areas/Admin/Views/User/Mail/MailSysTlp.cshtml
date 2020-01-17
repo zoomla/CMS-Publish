@@ -1,0 +1,39 @@
+﻿@{
+
+    DataTable dt = FileSystemObject.GetFileinfos("/lib/html/MailTlp/");
+}
+@section head{
+    <title>@L.系统邮件模板</title>
+
+    }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread() {url=Context.Request.RawUrl(), text=L.系统邮件模板,addon= "" }}
+        )
+<div class="list_choice">
+<table class="table table-bordered">
+  <thead>
+      <tr>
+          <th>@L.模板名称</th>
+          <th>@L.创建日期</th>
+          <th>@L.修改日期</th>
+          <th>@L.操作</th>
+      </tr>
+    </thead>
+    @foreach (DataRow dr in dt.Rows)
+    {
+        <tr>
+            <td><i class="zi zi_code"></i><a href="MailSysTlpEdit?TlpName=@(HttpUtility.UrlEncode(DataConverter.CStr(dr["Name"])))" >@dr["Name"]</a></td>
+            <td>@dr["CreationTime"]</td>
+            <td>@dr["UpdateTime"]</td>
+            <td><a href="MailSysTlpEdit?TlpName=@(HttpUtility.UrlEncode(DataConverter.CStr(dr["Name"])))" ><i class="zi zi_pencilalt" zico="笔黑"></i></a></td>
+        </tr>
+    }
+</table>
+    </div>
+}
+@section script{ 
+
+
+}

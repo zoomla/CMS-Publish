@@ -1,0 +1,64 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string view = (ViewBag.viewDir + "BKVersion_List.cshtml");
+    int status = DataConverter.CLng(Context.Request.GetParam("status"), -100);
+}
+@section head{ <title>@L.词条版本</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread("BKVersionList",L.百科管理)
+    },"{search}")
+
+    <div class="borders">
+        <ul class="nav nav-tabs list_choice">
+            <li class="nav-item" data-index="-100"><a class="nav-link" href="BKVersionList?Status=-100">@L.所有词条</a></li>
+            <li class="nav-item" data-index="0"><a class="nav-link" href="BKVersionList?Status=0">@L.待审核</a></li>
+            <li class="nav-item" data-index="1"><a class="nav-link" href="BKVersionList?Status=1">@L.已通过</a></li>
+            <li class="nav-item" data-index="-1"><a class="nav-link" href="BKVersionList?Status=-1">@L.已拒绝</a></li>
+        </ul>
+    </div>
+
+    <div>
+        @Html.Partial(view)
+    </div>
+    <div style="width: 400px; display: none;" id="reject_div">
+        <div class="panel panel-default">
+            <div class="panel-body padding0">
+                <textarea class="form-control w12rem_lg" id="msg_t" name="msg_t" placeholder="请输入拒绝原因,200字以内" maxlength="200"></textarea>
+            </div>
+            <div class="panel-footer">
+                <input type="button" value="确定" class="btn btn-primary" onclick="SubReject();" />
+                <input type="button" value="关闭" class="btn btn-primary" onclick="diag.CloseModal();" />
+            </div>
+        </div>
+    </div>
+}
+@section script{
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        $(function () {
+            var status = "@status";
+        $(".nav-tabs li[data-index=" + status + "]").find("a").addClass("active");
+    })
+    function ShowBKList(flow) {
+        ShowComDiag("BKList?Flow=" + flow, "@Html.Raw(L.版本浏览)");
+    }
+    var diag = new ZL_Dialog();
+    function ShowReject() {
+        diag.maxbtn = false;
+        diag.backdrop = false;
+        diag.title = "@Html.Raw(L.拒绝原因)";
+        diag.body = $("#reject_div").html();
+        diag.ShowModal();
+    }
+    function SubReject() {
+        $("#BatReject_Btn").click();
+        mvcpage.bat({ url: 'Version_API?action=reject', data: { "msg": $("#msg_t").val() } });
+    }
+    </script>
+
+}
+<asp:Content runat="server" ContentPlaceHolderID="ScriptContent">
+
+</asp:Content>

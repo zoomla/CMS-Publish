@@ -1,0 +1,49 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    int isDel = DataConverter.CLng(Context.Request.GetParam("isDel"));
+}
+@section head{<title>@L.问答列表</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Call.PA("Content/Ask/Default"),""+@L.问答列表+" [<a href='?IsDel=1'>"+@L.回收站+"</a>]")
+})
+<div class="list_choice">
+    <div class="input-group">
+         <select class="form-control mvcparam" id="status" style="max-width:150px;">
+            <option value="">@L.全部状态</option>
+            <option value="1">@L.已审核</option>
+            <option value="0">@L.待审核</option>
+        </select>
+        <input type="text" class="mvcparam form-control" id="skey" placeholder="@L.标题关键词"/>
+        <span class="input-group-append"><input type="button" value="@L.搜索" onclick="mvcpage.load();" class="btn btn-info"/></span>
+    </div>
+    <div style="margin-top:5px;">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Content/Ask/Default_List.cshtml")
+    </div>
+    @if (isDel == 1)
+    {
+         <div style="margin-top:5px;">
+             <input type="button" value="@L.恢复信息" onclick="bat('recover');" class="btn btn-outline-info" />
+             <input type="button" value="@L.彻底删除" onclick="bat('del');" class="btn btn-outline-danger" />
+         </div>
+    }
+    else
+    {
+       <div style="margin-top:5px;">
+        <input type="button" value="@L.批量删除" onclick="bat('recycle');" class="btn btn-outline-danger" />
+        <input type="button" value="@L.审核通过" OnClick="bat('audit')" class="btn btn-outline-info" />
+        <input type="button" value="@L.取消审核" OnClick="bat('unaudit')" class="btn btn-outline-danger" />
+        <input type="button" value="@L.批量推荐" OnClick="bat('elite')" class="btn btn-outline-info" />
+        <input type="button" value="@L.取消推荐" OnClick="bat('unelite')" class="btn btn-outline-danger" />
+    </div>
+    }
+</div>
+}
+@section script{
+<script>
+    function bat(action) {
+        mvcpage.bat({ url: 'Ask_API?action=' + action, confirm: '@Html.Raw(L.确定要执行操作吗)' });
+    }
+</script>
+}

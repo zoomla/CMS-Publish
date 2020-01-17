@@ -1,0 +1,187 @@
+﻿@using ZoomLa.Model.User
+@functions{
+    //获取选中状态
+    public IHtmlContent GetCheck(int type, DataRow dr)
+    {
+        string ids = "";
+        switch (type)
+        {
+            case 1:
+                ids = "," + GuestConfig.GuestOption.WDOption.SelGroup + ",";
+                break;
+            case 2:
+                ids = "," + GuestConfig.GuestOption.WDOption.ReplyGroup + ",";
+                break;
+            case 3:
+                ids = "," + GuestConfig.GuestOption.WDOption.QuestGroup + ",";
+                break;
+            default:
+                break;
+        }
+        string result = ids.Contains("," + dr["GroupID"] + ",") ? "checked=checked" : "";
+        return MvcHtmlString.Create(result);
+    }
+
+}
+@{ 
+    B_Group gpBll = new B_Group();
+    DataTable gpDT = gpBll.Select_All();
+    WDOption Model = GuestConfig.GuestOption.WDOption;
+}
+@section head{<title>@L.问答配置</title> }
+@section content{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+
+
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(),L.问答配置) }
+		)
+<div class="Creat_tips list_choice">
+<div class="alert alert-info alert-dismissible fade show">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <h4>@L.提示 !</h4>
+  <p class="pl-5"> 
+	  @L.提示_notice1<a href="/Ask" target="_blank" class="btn btn-info">@L.问答中心</a>@L.访问前端功能</p>
+  <p>@L.提示_notice2</p>
+</div>
+</div>
+<form method="post" action="@MVCHelper.GetAction("Config_Submit",Context.Request)">
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item" role="presentation"><a class="nav-link active" href="#auth" aria-controls="auth" role="tab" data-toggle="tab">@L.权限管理</a></li>
+<li class="nav-item" role="presentation"><a class="nav-link" href="#exp" aria-controls="exp" role="tab" data-toggle="tab">@L.奖励设定</a></li>
+</ul>
+<div class="tab-content">
+	<div role="tabpanel" class="tab-pane active table-responsive-md" id="auth">
+		<table class="table table-striped table-bordered table-hover sys_table">
+			<tr>
+			<th class="w12rem_lg">@L.查看权限</th>
+			<td>
+                @foreach (DataRow dr in gpDT.Rows)
+                {
+                    <label><input type="checkbox" name="SelGroup" @GetCheck(1,dr)  value="@dr["GroupID"]" />@dr["GroupName"]</label> 
+                }
+			</td>
+		</tr>
+		<tr>
+			<th>@L.回复权限</th>
+			<td>
+                @foreach (DataRow dr in gpDT.Rows)
+                {
+                    <label><input type="checkbox" name="ReplyGroup" @GetCheck(2,dr)  value="@dr["GroupID"]" />@dr["GroupName"]</label> 
+                }
+			</td>
+		</tr>
+		<tr>
+			<th>@L.提问权限</th>
+            <td>
+                @foreach (DataRow dr in gpDT.Rows)
+                {
+                    <label><input type="checkbox" name="QuestGroup" @GetCheck(3,dr) value="@dr["GroupID"]" />@dr["GroupName"]</label>
+                }
+            </td>
+		</tr>
+		<tr>
+			<th>@L.提问登录</th>
+			<td>
+                   @MVCHelper.H_Check("IsLogin", Model.IsLogin, new { @class = "switchChk",value="1" })
+			</td>
+		</tr>
+		<tr>
+			<th>@L.回复登录</th>
+            <td>
+                @MVCHelper.H_Check("IsReply", Model.IsReply, new { @class = "switchChk",value="1" })
+            </td>
+		</tr>
+		</table>
+	</div>
+	<div role="tabpanel" class="tab-pane" id="exp">
+		<table class="table table-striped table-bordered table-hover sys_table table-responsive-md">
+			<tr>
+		<th class="w12rem_lg">@L.奖励类型</th>
+		<td>
+            <label><input type="radio" value="@((int)M_UserExpHis.SType.SIcon)" name="PointType"/>@L.银币</label>
+            <label><input type="radio" value="@((int)M_UserExpHis.SType.SIcon)" name="PointType"/>@L.积分</label>
+            <label><input type="radio" value="@((int)M_UserExpHis.SType.SIcon)" name="PointType"/>@L.点券</label>
+            <label><input type="radio" value="@((int)M_UserExpHis.SType.SIcon)" name="PointType"/>@L.虚拟币</label>
+            <label><input type="radio" value="@((int)M_UserExpHis.SType.SIcon)" name="PointType"/>@L.信誉点</label>
+
+		</td>
+	</tr>
+	<tr>
+		<th>@L.提问奖励</th>
+		<td>
+			<input type="text" ID="QuestPoint_T" name="QuestPoint" value="@Model.QuestPoint"  class="form-control text_md num"/>
+		</td>
+	</tr>
+	<tr>
+		<th>@L.回复奖励</th>
+		<td>
+			<input type="text" ID="Point_T" name="WDPoint"  value="@Model.WDPoint" class="form-control text_md num" />
+		</td>
+	</tr>
+	<tr>
+		<th>@L.采纳奖励 <span class="text-danger">*</span></th>
+		<td>
+			<input type="text" ID="GPoint_T" name="WDRecomPoint"  value="@Model.WDRecomPoint" class="form-control text_md num" /><small class="text-muted">@L.采纳奖励_notice</small>
+		</td>
+	</tr>
+		</table>
+        </div>
+</div>
+<div class="text-center">
+	<input type="submit" onclick="return CheckData()" class="btn btn-info" value="@L.保存配置" />
+</div>
+</form>
+ }
+@section script{ 
+<script type="text/javascript" src="/dist/js/bootstrap-switch.js"></script>
+<script src="/js/SelectCheckBox.js"></script>
+<script>
+    $(function () {
+        SetRadVal("PointType_R","@Model.PointType");
+    })
+	function CheckData() {
+		var bl = true;
+		$(".num").each(function () {
+			if (!ZL_Regex.isNum($(this).val())) {
+				alert("@Html.Raw(L.数据格式不正确)!");
+				$(this).focus();
+				bl = false;
+				return false;
+			}
+		});
+		return bl;
+	}
+	var diag = new ZL_Dialog();
+	function showdiv(div_id, f) {
+		$("#dataField").val(f);
+		var div_obj = $("#" + div_id);
+		var h = (document.documentElement.offsetHeight) / 2;
+		var w = (document.documentElement.offsetWidth - 400) / 2;
+		div_obj.animate({ opacity: "show", left: w, top: 100, width: div_obj.width, height: div_obj.height }, 300);
+		div_obj.focus();
+	}
+	function selgroup(groupJson) {
+		var Gnames = "";
+		var Gids = "";
+		for (var i = 0; i < groupJson.length; i++) {
+			Gnames += "[" + groupJson[i].Gname + "],";
+			Gids += groupJson[i].Gid + ",";
+		}
+		Gnames = Gnames.substring(0, Gnames.length - 1);
+		Gids = Gids.substring(0, Gids.length - 1);
+		var flag = $("#dataField").val();
+		$("#" + flag + "T").val(Gnames);
+		$("#" + flag + "D").val(Gids);
+		$("#div_group").toggle();
+	}
+	function clearData() {
+		$("input[type='text']").val('0');
+		$("input[type='checkbox']").each(function (i, v) {
+			v.checked = false;
+		});
+	}
+</script>
+
+}

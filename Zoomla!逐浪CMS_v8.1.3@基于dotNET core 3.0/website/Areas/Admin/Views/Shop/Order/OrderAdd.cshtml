@@ -1,0 +1,231 @@
+﻿@using ZoomLa.BLL.Shop
+@functions{
+
+    //public int OrderType { get { return DataConvert.CLng(Request.QueryString["OrderType"]); } }
+    //private void MyBind()
+    //{
+    //    OrderType_DP.SelectedValue = OrderType.ToString();
+    //}
+
+
+}
+@{
+    B_Store_Info stBll = new B_Store_Info();
+    DataTable storeDT = stBll.SelPage(1, 100, new F_StoreInfo() { }).dt;
+}
+@section head{
+    <link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <title>创建订单</title>
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("OrderList",@L.订单管理),
+        new Bread(){url=Context.Request.RawUrl(), text="添加订单"}
+    })
+}
+@section content{
+<form method="post" action="OrderAdd_Submit">
+    <ul class="nav nav-tabs list_choice">
+        <li class="nav-item"><a class="nav-link active show" href="#Tabs0" data-toggle="tab">@L.订单信息</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tabs1" data-toggle="tab">@L.物流信息</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tabs2" data-toggle="tab">@L.商品信息</a></li>
+    </ul>
+    <div class="tab-content panel-body container-fluid pr-0 sys_table mb-5">
+        <div id="Tabs0" class="tab-pane active row sysRow table-responsive-md">
+            <table class="table table-striped table-bordered">
+                <tr>
+                    <th scope="col" class="w12rem_lg">@L.选择用户<span class="text-danger">*</span></th>
+                    <td scope="col">
+                        <div class="input-group">
+                            <input type="text" class="form-control max20rem required" ID="user_t" name="user_t" />
+                            <span class="input-group-append"><input type="button" class="btn btn-info" value="选择用户" onclick="user.sel2('selMode=single')" /></span>
+                        </div>
+                        <input type="hidden" ID="user_hid" name="user_hid" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.订单类型</th>
+                    <td>
+                        <select ID="OrderType_DP" name="OrderType_DP" class="form-control max20rem">
+                            <option value="0">@L.普通订单</option>
+                            <option value="1">@L.酒店</option>
+                            <option value="2">@L.航班</option>
+                            <option value="3">@L.旅游</option>
+                            <option value="4">@L.积分</option>
+                            <option value="6">@L.Purse充值</option>
+                            <option value="10">@L.代购</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.所属店铺</th>
+                    <td>
+                        <select class="form-control max20rem" name="StoreID_T">
+                            <option value="0">@L.自营商城</option>
+                            @foreach (DataRow dr in storeDT.Rows)
+                            {
+                                <option value="@dr["ID"]">@dr["Title"]</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.应付金额<span class="text-danger">*</span></th>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" ID="Price_T" name="Price_T" value="0" class="form-control max20rem required" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">@L.元</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.邮费</th>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" ID="Freight_T" name="Freight_T" value="0" class="form-control max20rem required" />
+                            <div class="input-group-append">
+                                <span class="input-group-text">@L.元</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.索要发票</th>
+                    <td>
+                        <input type="checkbox" id="Invoiceneeds" name="Invoiceneeds" class="switchChk" value="1" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.订单状态</th>
+                    <td>
+                        <select ID="OrderStatus_DP" name="OrderStatus_DP" class="form-control max20rem">
+                            <option value="0">@L.正常</option>
+                            <option value="1">@L.管理员确认</option>
+                            <option value="90">@L.订单已付款</option>
+                            <option value="91">@L.卖家确认发货</option>
+                            <option value="99">@L.买家确认收货</option>
+                            <option value="-1">@L.申请退款</option>
+                            <option value="-2">@L.拒绝退款</option>
+                            <option value="-3">@L.确认退款</option>
+                            <option value="-5">@L.拒绝订单</option>
+                            <option value="-99">@L.回收站</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.支付方式</th>
+                    <td>
+                        <label><input type="radio" name="PayType_Rad" value="0" checked="checked" />@L.正常</label>
+                        <label><input type="radio" name="PayType_Rad" value="1" />@L.需预付</label>
+                        <label><input type="radio" name="PayType_Rad" value="2" />@L.代理商代收</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.支付状态</th>
+                    <td>
+                        <label><input type="radio" name="Pay_Rad" value="0" checked="checked" />@L.未支付</label>
+                        <label><input type="radio" name="Pay_Rad" value="1" />@L.已支付</label>
+                        <label><input type="radio" name="Pay_Rad" value="2" />@L.收款首款</label>
+                        <label><input type="radio" name="Pay_Rad" value="-1" />@L.退款中</label>
+                        <label><input type="radio" name="Pay_Rad" value="-2" />@L.已退款</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.物流状态</th>
+                    <td>
+                        <label><input type="radio" name="Exp_Rad" value="0" checked="checked" />@L.未发货</label>
+                        <label><input type="radio" name="Exp_Rad" value="1" />@L.已发货</label>
+                        <label><input type="radio" name="Exp_Rad" value="2" />@L.已收货</label>
+                        <label><input type="radio" name="Exp_Rad" value="-1" />@L.已退货</label>
+                        <label><input type="radio" name="Exp_Rad" value="-2" />@L.确认退货</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.订单备注</th>
+                    <td><textarea ID="Ordermessage_T" name="Ordermessage_T" style="width:100%;" rows="3"></textarea></td>
+                </tr>
+            </table>
+        </div>
+        <div id="Tabs1" class="tab-pane row sysRow table-responsive-md">
+            <table class="table table-striped table-bordered">
+                <tr>
+                    <th scope="col" class="w12rem_lg">@L.收货人名<span class="text-danger">*</span></th>
+                    <td scope="col">
+                        <input type="text" class="form-control max20rem required" ID="ReceUser_T" name="ReceUser_T" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.所在地区</th>
+                    <td class="d-flex flex-row">
+                        <select id="province_dp" name="province_dp" class="form-control sys_region"></select>
+                        <select id="city_dp" name="city_dp" class="form-control sys_region"></select>
+                        <select id="county_dp" name="county_dp" class="form-control sys_region"></select>
+                        <input type="hidden" ID="address_hid" name="address_hid" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>@L.收货地址</th>
+                    <td><input type="text" ID="Address_T" name="Address_T" class="form-control max20rem" /></td>
+                </tr>
+                <tr>
+                    <th>@L.邮政编码</th>
+                    <td><input type="text" ID="ZipCode_T" name="ZipCode_T" class="form-control max20rem" /></td>
+                </tr>
+                <tr>
+                    <th>@L.手机号码</th>
+                    <td>
+                        <input type="text" ID="Mobile_T" name="Mobile_T" class="form-control max20rem mobile">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--SelProduct Start-->
+        <div id="Tabs2" class="tab-pane">
+            @{
+                C_SelProduct selProduct = new C_SelProduct()
+                {
+                    viewMode = "multi",
+                    cbname = "product_cb"
+                    //skey = "test"
+                };
+            }
+            @Html.Partial("Comp/SelProduct", selProduct)
+        </div>
+        <!--SelProduct End-->
+    </div>
+    <div class="text-center Conent_fix">
+        <input type="submit" ID="Submit_B" class="btn btn-info" value="添加订单" onclick="return checkSubmit();" />
+    </div>
+</form>
+}
+@section script{
+    <script src="/dist/js/bootstrap-switch.js"></script>
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script src="/JS/ICMS/area.js"></script>
+    <script src="/JS/Controls/ZL_PCC.js"></script>
+    <script>
+        $(function () {
+            var pcc = new ZL_PCC("province_dp", "city_dp", "county_dp");
+            if ($("#address_hid").val() == "") {
+                pcc.ProvinceInit();
+            }
+            else {
+                var attr = $("#address_hid").val().split(' ');
+                pcc.SetDef(attr[0], attr[1], attr[2]);
+                pcc.ProvinceInit();
+            }
+        });
+
+        function CloseDiag() {
+            proDiag.CloseModal();
+        }
+        function checkSubmit() {
+            if (ZL_Regex.isEmpty($("#user_hid").val())) { alert("@Html.Raw(L.未指定用户)"); return false; }
+            if (Convert.ToInt($("#Price_T").val()) <= 0) { alert("@Html.Raw(L.未指定订单金额)"); return false; }
+            if (ZL_Regex.isEmpty($("#ReceUser_T").val())) { alert("@Html.Raw(L.未指定收货人)"); return false; }
+            if (productApp.list.length < 1) { alert("@Html.Raw(L.未指定需要购买的商品)"); return false; }
+            return true;
+        }
+    </script>
+}

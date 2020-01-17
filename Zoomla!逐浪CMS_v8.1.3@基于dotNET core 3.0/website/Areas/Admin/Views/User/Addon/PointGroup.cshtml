@@ -1,0 +1,39 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{ <title>@L.积分等级</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Call.PathAdmin("User/UserManage"),L.会员管理),
+    new Bread() {url=Context.Request.RawUrl(), text= L.等级管理+"[<a href='PointGroupAdd'>"+L.添加等级+"</a>]",addon= "" }},
+    Call.GetHelp(2)
+    )
+
+<div class="container-fluid pr-0">
+    <div class="row sysRow list_choice">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"User/Addon/PointGroup_List.cshtml",Model)
+    </div>
+</div>
+}
+@section script{
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script>
+        function getinfo(id) {
+            location.href = "PointGroupAdd?id=" + id;
+        }
+        function saveOrder() {
+            var list = [];
+            $(".orderItem").each(function () {
+                var $item = $(this);
+                var model = {
+                    "id": Convert.ToInt($item.data("id")),
+                    "order": Convert.ToInt($item.val())
+                }
+                if (model.order < 1) { alert("@Html.Raw(L.等级不能小于)1"); return false; }
+                list.push(model);
+            });
+            if (list.length < 1) { alert("@Html.Raw(L.没有需要操作的数据)"); return false; }
+            $("#OrderInfo_Hid").val(JSON.stringify(list));
+            return true;
+        }
+    </script>
+}

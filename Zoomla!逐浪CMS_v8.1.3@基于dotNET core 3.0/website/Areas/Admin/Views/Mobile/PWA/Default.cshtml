@@ -1,0 +1,13 @@
+﻿@section head{<title>超站全局配置</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.RawUrl(),"全局配置")
+})
+<div class="list_choice">
+
+</div>
+}
+@section script{ 
+
+}

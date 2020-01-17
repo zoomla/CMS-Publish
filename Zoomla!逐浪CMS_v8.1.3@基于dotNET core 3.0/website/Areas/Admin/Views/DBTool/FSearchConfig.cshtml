@@ -1,0 +1,82 @@
+﻿@using ZoomLa.SQLDAL
+@functions{
+    public IHtmlContent ShowAllowDP(string name, string option, string value)
+    {
+        //是否选中
+        string check = ("," + value + ",").Contains("," + option + ",") ? "selected=\"selected\"" : "";
+        string html = "<select name='" + name + "_dp'>";
+        html += "<option value=\"\">"+L.不允许检索+"</option>";
+        html += "<option value=\"" + option + "\" " + check + ">"+L.允许检索+"</option>";
+        html += "</select>";
+        return Html.Raw(html);
+    }
+}
+@{
+    DataTable modDT = DBCenter.Sel("ZL_Model", "ModelType=1");
+    string modelIds = SiteConfig.SiteOption.FSearch_ModelIds;
+    string modules = SiteConfig.SiteOption.FSearch_Modules;
+
+}
+@section head{<title>@L.全站检索配置</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Context.Request.RawUrl(),L.全站检索)
+})
+    <div style="height:55px;"></div>
+<form method="post" action="FSearchConfig_Submit">
+    <div class="card card-default">
+        <div class="card-header">@L.内容检索</div>
+        <div class="card-body">
+            <table class="table table-striped table-bordered" id="EGV_wrap">
+                <tr>
+                    <th class="td_s"><span class="zlsort" data-field="modelid">ID</span></th>
+                    <th>@L.模型名称</th>
+                    <th class="td_m">@L.表名</th>
+                    <th class="td_m">@L.操作</th>
+                </tr>
+                @foreach (DataRow dr in modDT.Rows)
+                {
+                    <tr>
+                        <td>@dr["ModelID"]</td>
+                        <td>@dr["ModelName"]</td>
+                        <td>@dr["TableName"]</td>
+                        <td>
+                           @ShowAllowDP("model",dr["ModelID"].ToString(),modelIds)
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <div class="card card-default" style="margin-top:5px;">
+        <div class="card-header">@L.模块检索</div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <tr><td class="td_s">@L.标识</td><td>@L.模块名称</td><td class="td_m">@L.表名</td><td class="td_m">@L.操作</td></tr>
+                <tr><td>1</td><td><a href="/Bar/Index" title="点击浏览" target="_blank">@L.贴吧信息</a></td><td>ZL_Guest_Bar</td>
+                <td>@ShowAllowDP("module","bar",modules)</td></tr>
+                <tr><td>2</td><td><a href="/Guest/Default" title="点击浏览" target="_blank">@L.用户留言</a></td><td>ZL_Guestbook</td>
+                <td>@ShowAllowDP("module","guest",modules)</td></tr>
+                <tr><td>3</td><td><a href="/Ask/Default" title="点击浏览" target="_blank">@L.问答模块</a></td><td>ZL_Ask</td>
+                <td>@ShowAllowDP("module","ask",modules)</td></tr>
+                <tr><td>4</td><td><a href="javascript:;" title="点击浏览" target="_blank">@L.在线商城</a></td><td>ZL_Commodities</td>
+                <td>@ShowAllowDP("module","shop",modules)</td></tr>
+                <tr><td>5</td><td><a href="javascript:;" title="点击浏览" target="_blank">@L.店铺商品</a></td><td>ZL_Commodities</td>
+                <td>@ShowAllowDP("module","store",modules)</td></tr>
+            </table>
+        </div>
+    </div>
+    <div style="height:80px;"></div>
+    <div style="position:fixed;bottom:30px;height:52px; width:99%;padding:8px;background-color:rgba(52, 48, 48, 0.50);text-align:center;">
+        <input type="submit" value="@L.保存设置,@L.并生成全站索引" class="btn btn-info" onclick="return confirm('@L.确定要执行操作吗');"/>
+    </div>
+</form>
+}
+@section script{
+    <style>
+        .allchk_l {
+            display: none;
+        }
+    </style>
+}

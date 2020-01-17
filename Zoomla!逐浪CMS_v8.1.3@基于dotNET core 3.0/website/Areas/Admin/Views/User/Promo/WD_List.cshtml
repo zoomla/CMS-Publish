@@ -1,0 +1,96 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent ShowOP(DataRow dr)
+    {
+        string opstr = "";
+        if (Convert.ToInt32(dr["YState"]) == (int)ZoomLa.Model.ZLEnum.WDState.WaitDeal)
+        {
+            opstr += "<a href='javascript:;' onclick='cashAudit(" +dr["Y_ID"]+ ",\"dealed\")' class='btn btn-info btn-sm'>"+@Html.Raw(L.处理提现)+"</a>";
+            //opstr += "<a href='javascript:;' onclick='cashAudit(" + dr["Y_ID"] + ",\"rejected\")' class='btn btn-danger btn-sm'>拒绝</a>";
+        }
+        else
+        {
+            opstr += "<a href='javascript:;' onclick='cashAudit(" + dr["Y_ID"] + ",\"view\")' class='btn btn-info btn-sm'>"+@Html.Raw(L.查看详情)+"</a>";
+        }
+        return MvcHtmlString.Create(opstr);
+    }
+    //是否为普通银行
+    public bool IsBank(DataRow dr)
+    {
+        string cardType = DataConverter.CStr(dr["CardType"]);
+        if (string.IsNullOrEmpty(cardType) || cardType.Equals(""+@Html.Raw(L.银行卡)+""))
+        {
+            return true;
+        }
+        else { return false;}
+    }
+    public string GetStatus(DataRow dr)
+    {
+        string status = DataConverter.CStr(dr["YState"]);
+        switch (status)
+        {
+            case "1":
+                return "<span>"+@Html.Raw(L.等待确认)+"</span>";
+            case "99":
+                return "<span style='color:green'>"+@Html.Raw(L.成功出金)+"</span>";
+            case "-1":
+                return "<span style='color:red'>"+@Html.Raw(L.拒绝出金)+"</span>";
+            default:
+                return ""+@Html.Raw(L.等待确认)+"";
+        }
+    }
+
+}
+
+
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+         <th></th>
+                <th scope="col">ID</th>
+                <th scope="col">@L.用户名</th>
+                <th scope="col">@L.出金金额</th>
+                <th scope="col">@L.手续费</th>
+                <th scope="col">@L.申请时间</th>
+                <th scope="col">@L.出金状态</th>
+                <th scope="col">@L.帐户信息</th>
+@*               <th scope="col">@L.开户银行</th>*@
+                <th scope="col">@L.管理员备注</th>
+                <th scope="col">@L.操作</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+                        <td><input type="checkbox" name="idchk" value="@dr["Y_ID"]" /></td>
+                        <td>@dr["Y_ID"]</td>
+                        <td><a href="javascript:;" onclick="user.showuinfo(@dr["UserID"])" title="@dr["YName"]">@dr["YName"]</a><input type="hidden" name="uname_hid" value="@dr["YName"]" /></td>
+                        <td>@DataConverter.CDouble(dr["money"]).ToString("F2")<input type="hidden" name="price_hid" value="@dr["money"]" /></td>
+                        <td>@DataConverter.CDouble(dr["WithdrawFee"]).ToString("F2")</td>
+                        <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(dr["STime"])</td>
+                        <td>@Html.Raw(GetStatus(dr))</td>
+                        <td>
+                            @if (IsBank(dr))
+                            {
+                                <div>@L.银行：@dr["Bank"]</div>
+                                <div>@L.卡号：@dr["Account"]</div>
+                                <div>@L.开户人：@dr["PeopleName"]</div>
+                            }
+                            else
+                            {
+                                <div>@L.类型：@dr["CardType"]</div>
+                                <div>@L.账号：@dr["Account"]</div>
+                                <div>@L.姓名：@dr["PeopleName"]</div>
+                                <div class="qrcode_wrap" style="position:relative;">
+                                    @L.收款码：<a href="javascript:;" onclick="qrcode.toggle(this);">@L.点击显示收款码</a>
+                                    <img class="qrcode_img" onerror="shownopic(this);" src="@dr["QRCode"]"/>
+                                </div>
+                            }
+                        </td>
+                  @*    <td>@dr["Remark"]</td>*@
+                        <td>@dr["Result"]</td>
+                        <td>
+                           @ShowOP(dr)
+                        </td>
+                    </tr>
+    }
+    @Html.Partial("_page")
+</table>

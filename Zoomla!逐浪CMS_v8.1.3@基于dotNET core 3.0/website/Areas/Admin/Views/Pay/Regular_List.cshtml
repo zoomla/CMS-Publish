@@ -1,0 +1,33 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+<table class="table table-bordered table-striped">
+    <thead><tr>
+        <td></td>
+        <td>@L.别名</td>
+        <td>@L.充值金额</td>
+        <td>@L.金额</td>
+        <td>@L.银币</td>
+        <td>@L.积分</td>
+        <td>@L.备注用户可见</td>
+        <td>@L.操作</td>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+        <td>@dr["Alias"]</td>
+        <td>@dr["Min"]</td>
+        <td>@dr["Purse"]</td>
+        <td>@dr["SIcon"]</td>
+        <td>@dr["Point"]</td>
+        <td>@dr["UserRemind"]</td>
+        <td>
+            <a href="RegularAdd?id=@dr["ID"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({url:'Regular_API?action=del',confirm:'@Html.Raw(L.确定要删除吗)'})"><i class="zi zi_trashalt" title="删除"></i></a>
+        </td>
+    </tr>
+    }
+    @Html.Partial("_page")
+</table>

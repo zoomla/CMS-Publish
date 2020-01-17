@@ -1,0 +1,180 @@
+﻿@using ZoomLa.Components
+@using ZoomLa.Common
+@model ZoomLa.Components.SiteInfo
+@{
+
+}
+@section head{
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<title>@L.站点信息</title>
+<style type="text/css">
+.sfile_upbtn{display:none !important;}
+</style>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("SiteInfo",L.网站配置),
+new Bread() {url=Context.Request.RawUrl(), text=L.基本配置,addon= "" }}
+                      )
+<div class="list_choice">
+ <form method="post" action="SiteInfo_Submit">
+ <ul class="nav nav-tabs list_choice" role="tablist">
+    <li class="nav-item"><a class="nav-link active show" href="#Tabs0" data-toggle="tab">基本信息 </a></li>
+    <li class="nav-item"><a class="nav-link" href="../Mobile/PWA/Default">超站配置</a></li>
+ </ul>
+    <table class="table table-bordered table-striped sys_table">
+	<tr>
+	    <th scope="row" class="w12rem_lg">@L.网站名称</th>
+	    <td><input type="text" name="SiteName_T" ID="SiteName_T" class=" form-control max20rem" value="@Model.SiteName" /></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.网站标题</th>
+	    <td><input type="text" name="SiteTitle_T" ID="SiteTitle_T" class="form-control max20rem" value="@Model.SiteTitle" /></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.网站地址</th>
+	    <td>
+		<input type="text" name="SiteUrl_T" ID="SiteUrl_T" class="form-control max20rem required" value="@Model.SiteUrl" />
+	    </td>
+	</tr>
+	<tr>
+		<th scope="row">@L.后台路径</th>
+		<td>
+		    <input type="text" name="ManageDir" ID="ManageDir"  maxlength="10" class="form-control max20rem" onkeyup="value=value.replace(/[^\w\/]/ig,'')" autocomplete="off" value="@ZoomLa.Components.SiteConfig.SiteOption.ManageDir" />
+		    <small>@L.后台路径修改</small>
+		</td>
+	    </tr>
+	<tr>
+	    <th scope="row">@L.LOGO地址</th>
+	    <td><input type="text" name="LogoUrl_T" ID="LogoUrl_T" class="form-control max20rem" value="@Model.LogoUrl" /></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.后台标志</th>
+	    <td>
+		<div class="input-group">
+		    <input type="text" name="LogoAdmin_T" ID="LogoAdmin_T" placeholder="@L.初始值" class="form-control max20rem" value="@Model.LogoAdmin"/>
+		    <div class="input-group-append">
+			<span style="cursor:pointer;" class="input-group-text" onclick="ShowComDiag('/lib/html/icon2.html', '选择图标');">@L.选择图标 <i id="LogoAdmin_T_icon"></i></span>
+		    </div>
+		</div>
+		<small class="text-muted">@L.选取图标规格</small>
+	    </td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.后台名称</th>
+	    <td>
+		<div class="input-group">
+		    <input type="text" name="LogoPlatName_T" ID="LogoPlatName_T" placeholder="@L.初始值" class="form-control max20rem" value="@Model.LogoPlatName" />
+		    <div class="input-group-append">
+			<span  style="cursor:pointer;" class="input-group-text" onclick="setPlatName();">@L.推荐格式</span>
+		    </div>
+		</div>
+	</tr>
+	<tr>
+	    <th scope="row" class="w12rem_lg">@L.网站版本</th>
+	    <td>
+		<div class="input-group">
+		    @Html.TextBox("SiteVersion_T", SiteConfig.SiteInfo.SiteVersion, new { @class = "form-control max20rem" })
+		    <span class="input-group-append"><button type="button" class="input-group-text" onclick="$('#SiteVersion_T').val('@("V"+DateTime.Now.ToString("yyyyMMdd"))');">@L.按日期生成版本号</button></span>
+		</div>
+
+	    </td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.官方二维码</th>
+	    <td><input type="text" name="QRCode_T" ID="QRCode_T" class="form-control max20rem" value="@Model.BannerUrl" /></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.公司名称</th>
+	    <td><input type="text" name="ComName_T" ID="ComName_T" class="form-control max20rem" value="@Model.CompanyName" /></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.站长姓名</th>
+	    <td><input type="text" name="Webmaster_T" ID="Webmaster_T" class="form-control max20rem" value="@Model.Webmaster" /></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.站长手机</th>
+	    <td>
+		<input type="text" name="MasterPhone_T" ID="MasterPhone_T" class="form-control max20rem" value="@Model.MasterPhone" />
+	    </td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.站长信箱</th>
+	    <td>
+		<input type="text" name="WebmasterEmail_T" ID="WebmasterEmail_T" class="form-control max20rem" value="@Model.WebmasterEmail" />
+	    </td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.网站META关键词</th>
+	    <td><textarea type="text" name="MetaKeywords_T" ID="MetaKeywords_T" class="form-control m50rem_50">@Model.MetaKeywords</textarea></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.网站META网页描述</th>
+	    <td><textarea type="text" name="MetaDescription_T" ID="MetaDescription_T" class="form-control m50rem_50">@Model.MetaDescription</textarea></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.版权信息</th>
+	    <td><textarea type="text" name="Copyright_T" ID="Copyright_T" class="form-control h6rem">@Model.Copyright</textarea></td>
+	</tr>
+	<tr>
+	    <th scope="row">@L.站长统计脚本</th>
+	    <td><textarea type="text" name="allSiteJS" ID="allSiteJS" class="form-control h6rem">@Model.AllSiteJS</textarea></td>
+	</tr>
+	<tr>
+	    <td></td>
+	    <td>
+		<input type="submit" ID="Button1" value="@L.保存网站设置" class="btn btn-outline-info" onclick="disBtn(this,2000);" />
+	    </td>
+	</tr>
+    </table>
+</form>
+</div>
+          
+}
+@section script{
+<link href="~/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet" />
+<script src="~/dist/js/bootstrap-colorpicker.min.js"></script>
+<script>
+    $(".sfile_up").attr("name", "pwa_icon_up")
+    $(function () {
+        //if ("<%:Request["action"]%>" == "top") { top.location = siteconf.path + "Default"; }
+    });
+    //更新配置前检测
+    function CheckInfo() {
+        //var a = document.getElementById("<%=CustomPath.ClientID%>").value;
+        //if (a.length < 3) {
+        //    alert("个性化路径最少三位");
+        //    document.getElementById("<%=CustomPath.ClientID%>").focus();
+        //    return false;
+        //}
+        //else if (a.toLowerCase() == "user") {
+        //    alert("不允许使用已有目录名user");
+        //    document.getElementById("<%=CustomPath.ClientID%>").focus();
+        //    return false;
+        //}
+        disBtn("Button1", 3000);
+        return true;
+    }
+    function setPlatName() {
+        var tlp = "@Html.Raw(L.国际互联)<span>@Html.Raw(L.智能门户管理系统)</span>";
+        $("#LogoPlatName_T").val(tlp);
+    }
+    var zlicon = { text: "" };
+    zlicon.back = function (icon) {
+        if (!icon) { return; }
+        $(zlicon.text).val(icon);
+        $(zlicon.text + "_icon").attr("class", icon);
+        CloseComDiag();
+    }
+    zlicon.init = function (text) {
+        zlicon.text = text;
+        zlicon.back($(text).val());
+    }
+    zlicon.init("#LogoAdmin_T");
+
+   
+    </script>
+
+
+}

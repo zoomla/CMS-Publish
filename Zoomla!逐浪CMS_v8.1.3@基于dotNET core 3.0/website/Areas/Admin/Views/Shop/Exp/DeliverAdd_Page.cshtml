@@ -1,0 +1,87 @@
+﻿ @model ZoomLa.Model.Shop.M_Shop_FareTlp
+<table class="table table-bordered table-striped sys_table">
+    <tr><th class="w12rem_lg">模板名称</th><td>
+        <input type="text" ID="TlpName_T" name="TlpName_T" class="form-control max20rem" maxlength="20" value="@Model.TlpName"/></td></tr>
+    <tr><th>计价方式</th><td>
+        <label><input type="radio" value="1" name="pricemod_rad" checked="checked" />按件数</label>
+        <label><input type="radio" value="2" name="pricemod_rad"/>按重量</label></td>
+    </tr>
+    <tr><th>设置运费</th><td>
+        <div ng-app="app" ng-controller="appCtrl">
+    @*<%--         <div style="border-bottom:1px solid #ddd;padding-bottom:5px;">
+                <input type="button" value="添加新物流方式" ng-click="add();" />
+            </div>--%>*@
+            <div ng-repeat="item in list track by $index" class="margin_t5">
+                    
+                @*<%--  <input type="button" value="移除" ng-click="del(item);" />--%>
+                <%--   <input type="text" ng-model="item.name" class="text_xs" placeholder="标识"/>--%>*@
+                <label><input type="checkbox" ng-model="item.enabled" />{{item.name}}</label>
+                <span>运费：<input type="text" class="text_xs num" ng-model="item.price" /> 元，每超过1件/1KG，需加运费<input type="text" class="text_xs num" ng-model="item.plus" />元</span>
+                <select ng-model="item.free_sel">
+                    <option value="0">不包邮</option>
+                    <option value="1">计件包邮</option>
+                    <option value="2">金额包邮</option>
+                    <option value="3">件数+金额</option>
+                    <option value="4">计重包邮</option>
+                    <option value="5">计重+金额</option>
+                </select>
+                <span ng-show="item.free_sel==1||item.free_sel==3">满 <input type="text" class="text_xs" ng-model="item.free_num" style="width:100px;"/>件</span>
+                <span ng-show="item.free_sel==4||item.free_sel==5">重量小于<input type="text" class="text_xs" ng-model="item.free_num" style="width:100px;"/>KG</span>
+                <span ng-show="item.free_sel==3||item.free_sel==5">或</span>
+                <span ng-show="item.free_sel==2||item.free_sel==3||item.free_sel==5">满 <input type="text" class="text_xs" ng-model="item.free_money"/>金额</span>
+            </div>
+        </div>
+        </td></tr>
+    <tr><th>备注(买家可见):</th><td><textarea ID="Remind_T" name="Remind_T" class="form-control">@Model.Remind</textarea></td></tr>
+    <tr><th>备注(仅卖家可见):</th><td><textarea ID="Remind2_T" name="Remind2_T" class="form-control">@Model.Remind2</textarea></td></tr>
+    <tr><td></td><td><input type="submit" ID="Save_Btn"  value="保存信息" onclick="return scope.save();" class="btn btn-outline-info"/></td></tr>
+</table>
+<input type="hidden" id="Fare_Hid" name="Fare_Hid" value="@Model.Express"/>
+
+
+
+
+<link type="text/css" href="/dist/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script type="text/javascript" src="/dist/js/bootstrap-switch.js"></script>
+<script src="/js/Plugs/angular.min.js"></script>
+<script src="~/js/SelectCheckBox.js"></script>
+<script type="text/javascript">
+    var scope = null;
+    angular.module("app", []).controller("appCtrl", function ($scope) {
+        scope = $scope;
+        $scope.newModel = function (name) {
+            //快递名,计价方式,初始价,续价,包邮方式,多少件包邮,多少钱包邮
+            return { "name": name, mode: 1, enabled: true, price: 10, plus: 1, free_sel: 0, free_num: 0, free_money: 0 };
+        }
+        $scope.add = function () {
+            $scope.list.push($scope.newModel("",""));
+        }
+        $scope.del = function (item) {
+            for (var i = 0; i < $scope.list.length; i++) {
+                if ($scope.list[i] == item) { $scope.list.splice(i, 1); return; }
+            }
+        }
+        $scope.save = function () {
+            if (ZL_Regex.isEmpty($("#TlpName_T").val())) { alert("未指定模板名称"); return false; }
+            for (var i = 0; i < $scope.list.length; i++) {
+                var model = $scope.list[i];
+                if (ZL_Regex.isEmpty(model.name)) { alert("快递名不能为空"); return false; }
+            }
+            $("#Fare_Hid").val(angular.toJson($scope.list));
+            return true;
+        }
+        //----------------------------------------------
+        $scope.list = [];
+        if (ZL_Regex.isEmpty($("#Fare_Hid").val())) {
+            var expnames = "@Html.Raw(ZoomLa.Components.SiteConfig.ShopConfig.ExpNames)".split('|');
+            for (var i = 0; i < expnames.length; i++) {
+                if (ZL_Regex.isEmpty(expnames[i])) { continue; }
+                $scope.list.push($scope.newModel(expnames[i]));
+            }
+        }
+        else {
+            $scope.list = JSON.parse($("#Fare_Hid").val());
+        }
+    })
+    SetChkVal("pricemod_rad","@Model.PriceMode");
+</script>

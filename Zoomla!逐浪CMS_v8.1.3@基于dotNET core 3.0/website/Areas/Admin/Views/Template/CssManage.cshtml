@@ -1,0 +1,75 @@
+﻿@using System.Data
+@using System.Web
+@using ZoomLa.Safe
+@using ZoomLa.Common
+@using ZoomLa.Components
+@using ZoomLa.BLL.Helper
+@using ZoomLaCMS.Control
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+
+}
+@{
+    string html = "<div class=\"option_area dropdown {ext} {ftype} text-center\">"
+            + "<a href=\"javascript:;\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">"+@L.操作+"<span class=\"caret\"></span></a>"
+            + "<ul class=\"dropdown-menu\" role=\"menu\">"
+                + "<li class=\"dropdown-item folder_hidden\"><a href=\"javascript:;\" onclick=\"fb.down('{vpath}');\"><i class=\"zi zi_download\" title=\"下载\"></i>"+@L.下载+"</a></li>"
+                + "<li class=\"dropdown-item folder_hidden\"><a href=\"javascript:;\" onclick=\"fb.copy('{vpath}');\"><i class=\"zi zi_copy\" title=\"复制\"></i>"+@L.复制+"</a></li>"
+                + "<li class=\"dropdown-item\"><a href=\"javascript:;\" onclick=\"fb.del('{vpath}');\"><i class=\"zi zi_trashalt\" title=\"删除\"></i>"+@L.删除+"</a></li>"
+           + "</ul>"
+        +"</div>";
+}
+@section head{<title>@L.风格样式</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("/{manage}/Main",L.工作台),
+new Bread("TemplateSet",L.模板风格),
+new Bread("CssManage",L.风格管理) })
+    <div class="container-fluid pr-0">
+        <div class="  list_choice">
+            @Html.Partial("C_FileBrower",new C_FileBrower() {
+           BaseDir = ViewBag.BaseDir,
+           Dir_Hide = "Label|views|System|images|thumbnail",
+           Ext_Show = "css|png|jpg|txt",
+           Tlp_ItemOP = html
+       })
+        </div>
+    </div>
+}
+@section script{
+<script src="/JS/Modal/APIResult.js"></script>
+<script>
+function CreateFolderCheck() {
+    var folder = $("#txtForderName").val();
+    if (ZL_Regex.isEmpty(folder)) { alert("@Html.Raw(L.目录名称不能为空)"); return false; }
+    return true;
+}
+var fb = {
+    apiUrl:"@Call.PathAdmin("Template/CSSManage?action=")",
+    choose: function (vpath) { location = "CssEdit?filepath=" + encodeURI(vpath); },
+    del: function (vpath) {
+        var ref = this;
+        $.post(ref.apiUrl + "del", { "vpath": vpath }, function (data) {
+            if (!confirm("@Html.Raw(L.确定要删除吗)")) { return false; }
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) { location = location; }
+            else { alert("@Html.Raw(L.删除失败):" + model.retmsg); }
+        });
+    },
+    down: function (vpath) {
+        var ref = this;
+        $("#Down_Hid").val(vpath);
+        $("#Down_Btn").click();
+    },
+    copy: function (vpath) {
+        var ref = this;
+        $.post(ref.apiUrl + "copy", { "vpath": vpath }, function (data) {
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) { location = location; }
+            else { alert("@Html.Raw(L.复制失败):" + model.retmsg); }
+        });
+    }
+};
+</script>
+}

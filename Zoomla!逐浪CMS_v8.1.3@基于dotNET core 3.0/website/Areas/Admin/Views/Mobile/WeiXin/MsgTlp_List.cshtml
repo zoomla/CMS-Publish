@@ -1,0 +1,81 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.BLL.Other
+@using Newtonsoft.Json
+@functions{
+    B_WX_MsgTlp tlpBll = new B_WX_MsgTlp();
+    public string GetMsgType(DataRow dr)
+    {
+        return tlpBll.GetMsgType(DataConverter.CStr(dr["MsgType"]));
+    }
+    public string GetEditLink(DataRow dr)
+    {
+        int id = Convert.ToInt32(dr["ID"]);
+        string msgType = DataConverter.CStr(dr["MsgType"]);
+        string url = "";
+        switch (msgType)
+        {
+            case "text":
+            case "image":
+                url = "MsgTlpAdd?id=" + id;
+                break;
+            case "multi":
+                url = "MsgMultiAdd?ID=" + id;
+                break;
+            default:
+                break;
+        }
+        return url;
+    }
+    public string GetMsgContent(DataRow dr)
+    {
+        string msgType = DataConverter.CStr(dr["MsgType"]);
+        string result = DataConverter.CStr(dr["MsgContent"]);
+        switch (msgType)
+        {
+            case "text":
+                break;
+            case "image":
+                M_WXImgItem itemMod = JsonConvert.DeserializeObject<M_WXImgItem>(result);
+                //result = "<div>" + itemMod.Title + "</div>";
+                //result += "<div>" + itemMod.Url + "</div>";
+                result = "<div><img src='" + itemMod.PicUrl + "' style='max-width:100px;'/></div>";
+                break;
+            case "multi":
+                result = "<a href='MsgMultiAdd?ID="+dr["ID"]+"'>点击浏览内容</a>";
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+}
+<table class="table table-bordered table-striped">
+<thead>
+    <tr>
+        <th class="td_xs"></th>
+        <th class="td_s">ID</th>
+        <th class="td_l">@L.别名</th>
+        <th class="td_m">@L.消息类型</th>
+        <th>@L.消息内容</th>
+        <th class="td_l">@L.创建时间</th>
+        <th class="td_l">@L.操作</th>
+    </tr>
+</thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr>
+        <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+        <td>@dr["ID"]</td>
+        <td>@dr["Alias"]</td>
+        <td>@GetMsgType(dr)</td>
+        <td>@Html.Raw(GetMsgContent(dr))</td>
+        <td>@dr["CDate"]</td>
+        <td>
+              <a class="btn btn-info btn-sm" href="@(GetEditLink(dr))"><i class="zi zi_pencilalt" title="修改"></i></a>
+              <a class="btn btn-info btn-sm" href="javascript:;" onclick="sendMsg('@dr["ID"]');"><i class="zi zi_fly"></i> @L.发送</a>
+              <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.del({url:'API?action=msg_del',ids:'@dr["ID"]',confirm:'@Html.Raw(L.确定要删除该消息模板吗)?'});"><i class="zi zi_trashalt" title="删除"></i></a>
+        </td>
+    </tr>
+}
+    @Html.Partial("_page")
+</table>

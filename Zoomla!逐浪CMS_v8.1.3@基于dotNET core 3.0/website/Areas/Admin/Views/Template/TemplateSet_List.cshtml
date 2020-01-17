@@ -1,0 +1,61 @@
+﻿@model System.Data.DataTable
+@functions{
+    public string GetImgUrl(DataRow dr)
+    {
+        return SiteConfig.SiteOption.ProjectServer + "/Template/" + dr["TempDirName"] + "/View.jpg";
+    }
+    public string GetTlpName(string name,DataRow dr)
+    {
+        string ppath = function.VToP("/Template/" + dr["name"] + "/Info.config");
+        if (FileSystemObject.IsExist(ppath, FsoMethod.File))
+        {
+            DataSet newtempset = new DataSet();
+            newtempset.ReadXml(ppath);
+            return newtempset.Tables[0].Rows[0][name].ToString();//Project
+        }
+        else
+        {
+            return DataConverter.CStr(dr["name"]);
+        }
+    }
+    public IHtmlContent IsDefaultTlp(DataRow dr)
+    {
+        string html = "";
+        if (SiteConfig.SiteOption.TemplateDir.Equals("/template/" + dr["name"], StringComparison.OrdinalIgnoreCase))
+        {
+            html = "<span style='color:#f00;'>已选用</span>";
+        }
+        else { html = "待选用"; }
+        return MvcHtmlString.Create(html);
+    }
+}
+@{
+    string apiUrl = "TemplateSet_API?action=";
+}
+
+<ul class="list-unstyled">
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <li class="Template_list_card">
+            <div class="Template_box">
+                <div class="tempthumil">
+                    <a href="TemplateManage?setTemplate=@dr["name"]" title="点击进入模板管理">
+                        <span style="background: url(/Template/@dr["name"]/view.jpg) no-repeat top;"></span>
+                </div>
+                <ul>
+                    <li class="temp_title">
+                        <a href="javascript:;" title='作者:@GetTlpName("Author",dr)' data-toggle="tooltip" data-placement="top"><i class="zi zi_copyright" zico="版权"></i>@GetTlpName("Author",dr)</a>
+                        <a href='TemplateManage?setTemplate=@dr["name"]' style="font-size:12px;">@GetTlpName("Project",dr)</a>
+                    </li>
+                    <li class="temp_isuse"><a href="javascript:;" onclick="mvcpage.post({url:'@(apiUrl+"set")',confirm:'@Html.Raw(L.确定要选用该模板吗)',data:{name:'@dr["name"]'}});">@L.状态:</a>@IsDefaultTlp(dr)</li>
+                    <li class="temp_del">
+                        <a href='/Template/@dr["name"]/view.jpg' class="lightbox"> <i class="zi zi_searchplus" zico="搜索放大"></i> @L.预览</a>
+                        @*<a href="javascript:;" onclick="mvcpage.del({url:'@(apiUrl+"del")',confirm:'确定要删除吗',name:'@dr["name"]'});"> <i class="zi zi_trashalt" zico="垃圾箱竖条"></i> 删除 </a>*@
+                    </li>
+                </ul>
+
+                <div class="clearfix"></div>
+            </div>
+        </li>
+    }
+</ul>

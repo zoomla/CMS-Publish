@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <th></th>
+            <th>@L.名称</th>
+            <th>@L.日期</th>
+            <th>@L.操作</th>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["Str1"]</td>
+            <td>@dr["CDate"]</td>
+            <td>
+                <a class="btn btn-info btn-sm" href="CodeAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i></a>
+                <a class="btn btn-danger btn-sm" href="javascript:;" onclick="mvcpage.del({url:'Seat_API?action=code_del',ids:'@dr["ID"]'})"><i class="zi zi_trashalt"></i></a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

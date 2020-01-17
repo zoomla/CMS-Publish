@@ -1,0 +1,21 @@
+﻿@model ZoomLa.Model.Shop.M_Shop_FareTlp
+@{
+    
+}
+@section head{<title>运费管理</title>}
+@section content{
+<div id="pageflag" data-nav="shop" data-ban="store"></div> 
+<nav aria-label="breadcrumb" role="navigation" class="container">
+  <ol class="breadcrumb">
+  	<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default","")">会员中心</a></li>
+	<li class="breadcrumb-item"><a href="DeliverType">运费模板</a></li>
+	<li class="breadcrumb-item active">运费管理</li>
+  </ol>
+</nav>
+<div class="container">
+    @Html.Partial("UserShopTop")
+    <form method="post" action="@MVCHelper.GetAction("DeliverAdd_Submit",Context.Request)">
+       @Html.Partial("/Areas/Admin/Views/Shop/Exp/DeliverAdd_Page.cshtml")
+    </form>
+</div>
+}

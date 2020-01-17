@@ -1,0 +1,46 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+        public string GetIsDefault(DataRow dr)
+        {
+            if (DataConverter.CLng(dr["IsDefault"]) == 1)
+            {
+                return "<i class='zi zi_check' style='color:green;'></i>";
+            }
+            else { return "<i class='zi zi_times' style='color:red;'></i>"; }
+        }
+        public string GetMsgType(DataRow dr)
+        {
+            return WxAPI.GetMsgTypeStr(DataConverter.CLng(dr["MsgType"]));
+        }
+
+}
+@{ 
+
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead>
+        <tr>
+            <td></td>
+            <td>@L.关键词</td>
+            <td>@L.类型</td>
+            <td>@L.默认</td>
+            <td>@L.回复信息</td>
+            <td>@L.操作</td>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["Filter"]</td>
+            <td>@MvcHtmlString.Create(GetMsgType(dr))</td>
+            <td>@MvcHtmlString.Create(GetIsDefault(dr))</td>
+            <td>@dr["Content"]</td>
+            <td>
+                <a href="ReplyAdd?ID=@dr["ID"]&appid=@dr["AppId"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+                <a href="javascript:;" onclick="mvcpage.del({url:'Reply_API?action=del',confirm:'@Html.Raw(L.确定要删除吗)',ids:'@dr["ID"]'});"><i class="zi zi_trashalt" title="删除"></i>@L.删除</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

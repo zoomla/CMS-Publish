@@ -1,0 +1,144 @@
+﻿
+@functions
+{
+      //获取选中状态
+        public string GetCheck(int type,DataRow dr)
+        {
+            string ids = "";
+            switch (type)
+            {
+                case 1:
+                    ids = "," + GuestConfig.GuestOption.BKOption.selGroup + ",";
+                    break;
+                case 2:
+                    ids = "," + GuestConfig.GuestOption.BKOption.CreateBKGroup + ",";
+                    break;
+                case 3:
+                    ids = "," + GuestConfig.GuestOption.BKOption.EditGroup + ",";
+                    break;
+                default:
+                    break;
+            }
+            return ids.Contains("," +dr["GroupID"] + ",") ? "checked=checked" : "";
+        }
+}
+@{ 
+    B_Group gpBll = new B_Group();
+    var option = GuestConfig.GuestOption.BKOption;
+    DataTable gpDT = gpBll.Sel();
+}
+@section head{<title>@L.百科配置</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("BKCheck",L.百科管理),
+        new Bread() {url="", text=L.百科配置,addon="" }}
+		)
+  <div class="Creat_tips list_choice">
+    <div class="alert alert-info alert-dismissible fade show">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <h4>@L.提示!</h4>
+      <p class="pl-5"> <strong> 
+          @L.提示_notice3<a href="/BaiKe/" target="_blank" class="btn btn-info">@L.百科词条</a>@L.访问该页面
+        </strong> </p>
+      <p>@L.提示_notice4</p>
+    </div>
+  </div>
+<form method="post" action="Config_Submit">
+    <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation"><a class="nav-link active" href="#auth" aria-controls="auth" role="tab" data-toggle="tab">@L.权限管理</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" href="#exp" aria-controls="exp" role="tab" data-toggle="tab">@L.奖励设定</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="auth">
+            <table class="table table-striped table-bordered table-hover sys_table">
+                <tr>
+                <th class="w12rem_lg">@L.查看权限</th>
+                <td>
+                    @foreach (DataRow dr in gpDT.Rows)
+                    {
+                         <label><input type="checkbox" name="selGroup" @(GetCheck(1,dr)) value="@dr["GroupID"]" />@dr["GroupName"]</label> 
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>@L.创建权限</th>
+                <td>
+                    @foreach (DataRow dr in gpDT.Rows)
+                    {
+                        <label><input type="checkbox" name="CreateGroup" @(GetCheck(2, dr)) value="@dr["GroupID"]" />@dr["GroupName"]</label>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>@L.编辑权限</th>
+                <td>
+                    @foreach (DataRow dr in gpDT.Rows)
+                    {
+                        <label><input type="checkbox" name="EditGroup" @(GetCheck(3,dr)) value="@dr["GroupID"]" />@dr["GroupName"]</label>
+                    }
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="exp">
+            <table class="table table-striped table-bordered table-hover sys_table">
+                <tr>
+            <th class="w12rem_lg">@L.奖励类型</th>
+            <td>
+                @MVCHelper.H_Radios("PointType_R","积分|银币|点券".Split('|'),"Point|SIcon|UserPoint".Split('|'),option.PointType)
+            </td>
+        </tr>
+        <tr>
+            <th>@L.创建奖励</th>
+            <td>
+                <input type="text" ID="CreatePoint_T" name="CreatePoint_T" value="@option.CreatePoint" class="form-control text_md num" />
+            </td>
+        </tr>
+        <tr>
+            <th>@L.编辑奖励</th>
+            <td>
+                <input type="text" ID="EditPoint_T" name="CreatePoint_T" value="@option.EditPoint" class="form-control text_md num" />
+            </td>
+        </tr>
+        <tr>
+            <th>@L.推荐奖励<span class="text-danger">*</span></th>
+            <td>
+                <input type="text" ID="RemmPoint_T" name="RemmPoint_T" value="@option.RemmPoint" class="form-control text_md num" />
+				<small class="text-muted">@L.被管理员设为推荐</small>
+            </td>
+        </tr>
+            </table>
+        </div>
+    </div>
+    <div class="text-center">
+        <input type="submit" ID="Save_B" onclick="return CheckData()"  class="btn btn-info" Text="@L.保存配置" />
+        <a href="javascript:;" onclick="clearData()" class="btn btn-outline-info">@L.重置参数</a>
+    </div>
+</form>
+
+ }
+@section script{ 
+    <script src="/JS/ZL_Regex.js"></script>
+    <script>
+        function clearData() {
+            $("input[type='text']").val('0');
+            $("input[type='checkbox']").each(function (i, v) {
+                v.checked = false;
+            });
+        }
+        function CheckData() {
+            var bl = true;
+            $(".num").each(function () {
+                if (!ZL_Regex.isNum($(this).val())) {
+                    alert("@Html.Raw(L.数据格式不正确!)");
+                    $(this).focus();
+                    bl = false;
+                    return false;
+                }
+            });
+            return bl;
+        }
+    </script>
+
+}

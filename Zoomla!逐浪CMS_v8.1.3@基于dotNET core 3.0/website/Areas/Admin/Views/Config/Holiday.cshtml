@@ -1,0 +1,63 @@
+﻿@model DataTable
+@functions{
+    public IHtmlContent ShowHDate(DataRow dr)
+    {
+        string result = "";
+        result += "<div>日期：每年" + DataConverter.CStr(dr["HDate"]) + "(" + dr["HType"] + ")" + "</div>";
+        result += "<div>范围：节前"+dr["HDate_Start"] +"天至节后"+dr["HDate_End"]+"天</div>";
+        result += "<div>起止："+Convert.ToDateTime(dr["Date_Start"]).ToString("yyyy-MM-dd")+"至"+Convert.ToDateTime(dr["Date_End"]).ToString("yyyy-MM-dd")+"</div>";
+        return MvcHtmlString.Create(result);
+    }
+    public string ShowZStatus(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["ZStatus"]) == 99)
+        {
+            return "<a href='javascript:;' onclick=\"mvcpage.post2('Holiday_API?action=unaudit','"+dr["id"]+"',{callback:'refresh'});\" title='点击禁用'>"+ComRE.Icon_OK+"</a>";
+        }
+        else
+        {
+            return "<a href='javascript:;' onclick=\"mvcpage.post2('Holiday_API?action=audit','"+dr["id"]+"',{callback:'refresh'});\" title='点击启用'>"+ComRE.Icon_Ban+"</a>";
+        }
+    }
+
+}
+@{ 
+    string apiUrl = "Holiday_API?action=";
+}
+@section head{<title>节日配置</title> }
+@section content{
+@Call.SetBread(new Bread[] { 
+  new Bread("{admin}"),
+  new Bread("Holiday", "节日配置","[<a href='HolidayAdd'>添加节日</a>]")
+})
+<div class="list_choice">
+    <table class="table table-bordered table-striped">
+        <thead><tr>
+            <th class="td_s">ID</th>
+            <th class="td_l">节日名称</th>
+            <th class="td_l">节日图片</th>
+            <th>日期</th>
+            <th class="td_m">状态</th>
+            <th class="td_l">操作</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <tr>
+            <td>@dr["ID"]</td>
+            <td>@dr["Name"]</td>
+           <td><img src="@dr["HImage"]" onerror="shownopic(this);" style="max-width:80px;max-height:80px;"/></td>
+            <td>@ShowHDate(dr)</td>
+            
+             <td>@MvcHtmlString.Create(ShowZStatus(dr))</td>
+            <td>
+                <a href="HolidayAdd?ID=@dr["ID"]" class="btn btn-info btn-sm"><i class="zi zi_pencilalt"></i></a>
+                <a href="javascript:;" onclick="mvcpage.post2('@(apiUrl+"del")', '@dr["id"]', {callback:'refresh',confirm:'@L.确定要删除吗'});" class="btn btn-danger btn-sm"><i class="zi zi_trash"></i></a>
+            </td>
+        </tr>
+    }
+  </table>
+</div>
+}
+@section script{ 
+
+}

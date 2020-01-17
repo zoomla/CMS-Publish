@@ -1,0 +1,49 @@
+﻿@model ZoomLa.Model.M_WX_APPID
+@section head{<title>@L.支付配置</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("WxAppManage",L.公众号管理),		
+        new Bread() {url=Context.Request.RawUrl(), text=L.支付配置,addon="" }})
+	<div>
+    <div class=" sysRow list_choice">
+        <form method="post" action="@MVCHelper.GetAction("WxPayConfig_Submit",Context.Request)">
+            <table class="table table-striped table-bordered table-hover sys_table">
+                <tr>
+                    <th class="w12rem_lg">@L.支付APPID</th>
+                    <td>
+                        @Html.TextBoxFor(m=>m.Pay_APPID,new {@class="form-control max20rem required" })
+					    <small class="text-muted">@L.同于公众号APPID</small>
+				    </td>
+                </tr>
+                <tr>
+                    <th>@L.商户编号</th>
+                    <td>@Html.TextBoxFor(m=>m.Pay_AccountID,new {@class="form-control max20rem required" })</td>
+                </tr>
+                <tr>
+                    <th>@L.商户密钥</th>
+                    <td>@Html.TextBoxFor(m=>m.Pay_Key,new {@class="form-control max20rem required" })</td>
+                </tr>
+                <tr><th>@L.商户证书</th>
+                    <td>@Html.TextBoxFor(m=>m.Pay_SSLPath,new {@class="form-control max20rem" })
+				    <small class="text-muted">@L.证书颁发名称</small>
+				    <span> [@L.查看颁发名称</span></td>
+                </tr>
+                <tr><th>@L.证书密码</th><td>@Html.TextBoxFor(m=>m.Pay_SSLPassword,new {@class="form-control max20rem" })
+			    <small class="text-muted">@L.默认为商户号</small>
+			    </td></tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="submit" ID="Save_B" class="btn btn-info" value="@L.保存" />
+                        <a href="WxAppManage" class="btn btn-outline-info">@L.返回</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+	</div>   
+}
+@section script{
+
+ }

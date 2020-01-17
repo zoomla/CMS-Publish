@@ -1,0 +1,37 @@
+﻿@model ZoomLa.Model.Client.M_CRMS_Attr
+@{ 
+   Layout = "~/Areas/Admin/Views/Shared/_layout.cshtml";
+        HttpRequest Request = Context.Request;
+}
+@section head{<title>@L.类别管理</title>}
+@section content{
+<div class="w-100">
+<ol id="navWrap" class="breadcrumb navbar-fixed-top w-100">
+    <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main">@L.工作台</a></li>
+    <li class="breadcrumb-item"><a href="CType">@L.客户类别</a></li>
+    <li class="breadcrumb-item"><a href="@MvcHtmlString.Create(Request.RawUrl())">@L.类别管理</a></li>
+</ol>
+<form method="post" action="@MVCHelper.GetAction("CType_Add",Context.Request)">
+<div class="container-fluid pr-0">
+<div class="row sysRow table-responsive-md">
+    <table class="table table-bordered table-striped sys_table">
+        <tr><th scope="col" class="w12rem_lg">@L.名称</th><td scope="col">@Html.TextBoxFor(m=>m.Value,new { @class = "form-control max20rem required" })</td></tr>
+        <tr><th>备注</th><td>@Html.TextAreaFor(m=>m.Remark,new { @class="form-control m50rem_50",@rows="5"})</td></tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" class="btn btn-info" value="@L.保存信息" />
+            </td>
+        </tr>
+    </table>
+</div>
+</div>
+</form>
+</div>
+    }
+@section script{
+<script>
+    $("form").validate({});
+</script>  
+    }
+

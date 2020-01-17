@@ -1,0 +1,73 @@
+﻿@model System.Data.DataTable
+@functions{
+
+        public string GetNeedLog(string needlog)
+        {
+            string result = "";
+            switch (needlog)
+            {
+                case "0":
+                    result = "允许匿名";
+                    break;
+                case "1":
+                    result = "登录用户";
+                    break;
+                case "2":
+                    result = "指定用户";
+                    break;
+                default:
+                    result = "未知";
+                    break;
+            }
+            return result;
+        }
+        public IHtmlContent GetCateName(DataRow dr)
+        {
+            string url = "";
+            url = string.Format("ShowCate({0},0)", DataConverter.CStr(dr["CateID"]));
+            string linkName = string.Format("<a href=\"javascript:;\" onclick=\"{0}\">{1}</a>", url,dr["CateName"]);
+            return MvcHtmlString.Create(linkName);
+        }
+}
+@section head{<title>@L.留言分类</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+	new Bread("{admin}"),
+    new Bread() {url="CateList", text=@L.留言分类,addon="<a href='javascript:;' onclick='ShowCate(0,0);' id='showDiv'>["+@L.添加分类+"]</a>" }},
+	Call.GetHelp(92)
+	)  
+
+<div class="list_choice">
+     <table id="EGV" class="table table-bordered table-hover table-striped list_choice">
+             <tr><td>ID</td><td>@L.留言名称</td><td>@L.访问权限</td><td>@L.留言 (@L.总数)</td><td>@L.操作</td></tr>
+   @foreach(DataRow dr in Model.Rows)
+         {
+         <tr data-layer="1" data-id="@dr["CateID"]" data-pid="0">
+                <td>@dr["CateID"]</td>
+                @*<td class="icontd"><a href="MsgList?CateID=@dr["CateID"]"></a></td>*@
+                <td><a href="MsgList?CateID=@dr["CateID"]">@GetCateName(dr)</a></td>
+                <td>@GetNeedLog(DataConverter.CStr(dr["NeedLog"]))</td>
+                <td><a href="MsgList?CateID=@dr["CateID"]">@dr["GCount"] (@dr["GCountAll"])</a></td>
+                <td class='optd'>
+                    <a href="javascript:;"  onclick="ShowCate('@dr["CateID"]',0);"><i class="zi zi_pencilalt" title="修改"></i>@L.修改 </a> 
+                    <a href="MsgList?CateID=@dr["CateID"]"><i class="zi zi_listul"></i>@L.留言列表 </a>
+                    <a href="/Guest/Default?CateID=@dr["CateID"]" target="_blank"><i class="zi zi_globe"></i>@L.浏览</a>
+                    <a href="javascript:;" onclick="mvcpage.del({url:'Cate_API?action=del',after:'refresh',confirm:'@L.确定要删除吗'});"><i class="zi zi_trashalt" title="删除"></i>@L.删除</a>
+                </td>
+            </tr>
+         }
+            </table>
+
+ </div>
+
+
+}
+@section script{
+     <script>
+         function ShowCate(id) {
+             //location.href = "BarConfig?ID=" + id + "&GType=0&PID=" + pid;
+             ShowComDiag('CateAdd?id=' + id);
+         }
+         function mybind() { CloseComDiag(); location = location; }
+    </script>   
+}

@@ -1,0 +1,69 @@
+﻿@using ZoomLa.BLL.Helper
+@{ 
+    int specCate = DataConverter.CLng(Context.Request.GetParam("cate"));
+    B_Spec specBll = new B_Spec();
+    DataTable dt = specBll.SelPage(new Com_Filter() { type = specCate.ToString() });
+    specBll.ChangeColumnToNode(dt);
+    TBTreeHelper.AddDepthColumn(dt);
+    dt = TBTreeHelper.ConverForListBox(dt);
+}
+@section  head{<title>添加至专题</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("ContentManage","内容管理"),
+new Bread(Context.Request.RawUrl(),"添加至专题")
+})
+<form method="post" action="@MVCHelper.GetAction("AddToSpec_Submit",Context.Request)">
+    <table class="table table-bordered">
+        <tr align="center">
+            <td colspan="2" class="spacingtitle">添加内容到专题
+            </td>
+        </tr>
+        <tr>
+            <td style="width:200px;">
+                <strong>选定的内容ID：</strong>
+            </td>
+            <td>
+                <input type="text" ID="TxtGeneralID" name="TxtGeneralID" class="form-control" value="@Context.Request.GetParam("id")"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>添加到目标专题：</strong>
+                <br />
+                <span style="color: Red">提示：</span>可以按住“Shift”<br />
+                或“Ctrl”键进行多个专题的选择
+            </td>
+            <td>
+                <select multiple="multiple" ID="Sepc_List" name="Spec_List" class="form-control" style="height:450px;width:300px;">
+                    @foreach (DataRow dr in dt.Rows)
+                    {
+                        <option value="@dr["NodeID"]">@dr["NodeName"]</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" class="btn btn-info"  value="执行批处理"/>
+            </td>
+        </tr>
+    </table>
+</form>
+}
+@section script{ 
+ <script>
+        function SelectAll() {
+            for (var i = 0; i < document.getElementById('<%=LstSpec.ClientID%>').length; i++) {
+                document.getElementById('<%=LstSpec.ClientID%>').options[i].selected = true;
+            }
+        }
+        function UnSelectAll() {
+            for (var i = 0; i < document.getElementById('<%=LstSpec.ClientID%>').length; i++) {
+                document.getElementById('<%=LstSpec.ClientID%>').options[i].selected = false;
+            }
+        }
+    </script>
+}

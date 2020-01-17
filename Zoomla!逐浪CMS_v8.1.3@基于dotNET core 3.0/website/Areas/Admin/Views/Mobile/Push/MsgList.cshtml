@@ -1,0 +1,39 @@
+﻿@model System.Data.DataTable
+@functions{
+    public string GetResult(DataRow dr)
+    {
+        string result = DataConverter.CStr(dr["Result"]);
+        if (result.Equals("成功")) { return "<span style='color:green;'>" + result + "</span>"; }
+        else { return "<span style='color:red;'>" + result + "</span>"; }
+    }
+
+}
+@section head{<title>@L.历史推送</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("MsgList",L.历史推送)})
+<div class="list_choice">
+    <table class="table table-bordered">
+          <thead><tr>
+    <th></th>
+    <th>@L.消息类别</th>
+    <th>@L.内容</th>
+    <th>@L.状态</th>
+    <th>@L.备注</th>
+    <th>@L.创建时间</th>
+    </tr></thead>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["MsgType"]</td>
+            <td>@dr["MsgContent"]</td>
+            <td>@MvcHtmlString.Create(GetResult(dr))</td>
+            <td>@dr["Remind"]</td>
+            <td>@dr["CDate"]</td>
+        </tr>
+    }
+    </table>
+</div>
+    }

@@ -1,0 +1,50 @@
+﻿@model ZoomLa.Model.M_User_Level
+
+@section head{<title>@L.积分等级</title> }
+@section content{ 
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+		new Bread("/{manage}/User/UserManage",L.会员管理),
+		new Bread("PointGroup",L.等级管理),
+        new Bread() {url=Context.Request.RawUrl(), text=L.积分等级,addon= "" }}
+        )
+<form method="post" action="@MVCHelper.GetAction("PointGroup_Submit",Context.Request)">
+<div class="list_choice">
+    <table class="table table-bordered">
+        <tr>
+            <th  class="w12rem_lg">@L.等级名称</th>
+            <td>
+                <input type="text" ID="Alias_T" name="Alias_T" class="form-control text_300" value="@Model.Alias"/>
+            </td>
+        </tr>
+        <tr>
+            <th>@L.等级图片</th>
+            <td>@Html.Partial("C_SFileUP",new C_SFileUP() {ID="Image",SaveType="admin",Value=Model.Image })
+                <small>@L.达到该等级展示的图标</small>
+            </td>
+        </tr>
+        <tr><th>@L.等级积分</th><td>
+           <input type="text" ID="PointRate_T" name="PointRate_T" class="form-control text_300" value="@Model.PointRate" />
+           <small>@L.超过该积分,@L.即进入该等级</small>
+        </td></tr>
+        <tr>
+            <th>@L.备注</th>
+            <td>
+                <textarea ID="Remark_T" name="Remark_T" class="form-control text_715" rows="3">@Model.Remark</textarea></td>
+        </tr>
+        <tr>
+            <th></th>
+            <td>
+                <input type="submit" ID="Save_Btn" value="@L.保存信息" class="btn btn-info" />
+                <a href="PointGroup" class="btn btn-outline-info">@L.返回列表</a>
+            </td>
+        </tr>
+    </table>
+</div>
+</form>
+}
+@section script{ 
+<style type="text/css">
+small{display:block;color:#ff6a00;}
+</style>
+}

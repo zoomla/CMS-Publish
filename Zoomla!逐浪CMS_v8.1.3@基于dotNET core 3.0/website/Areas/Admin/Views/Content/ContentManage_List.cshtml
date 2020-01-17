@@ -1,0 +1,203 @@
+﻿@using System.Web
+@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@using Microsoft.AspNetCore.Html;
+@using ZoomLaCMS.Areas.Admin.Models
+@using ZoomLa.BLL.Content.Flow
+@using ZoomLaCMS.Models.Field
+@model ZoomLaCMS.Areas.Admin.Models.VM_ContentManage
+@functions{
+    public string ShowUrl { get { return adminPath + "ShowContent?View=1&ID="; } }
+    public DataTable _SpecDT = null;
+    public DataTable SpecDT { get { if (_SpecDT == null) { _SpecDT = new B_Spec().Sel(); } return _SpecDT; } }
+    B_Content bll = new B_Content();
+    B_Content_Audit auBll = new B_Content_Audit();
+    Dictionary<int, DataTable> fieldDic = new Dictionary<int, DataTable>();
+    IHtmlContent NullHtml = MvcHtmlString.Create("");
+    string adminPath = CustomerPageAction.customPath2 + "Content/";
+    //显示模型标识图片
+    public IHtmlContent ShowModelPic(object modelid)
+    {
+        int mid = DataConverter.CLng(modelid);
+        if (Model.ModelDT == null || Model.ModelDT.Rows.Count < 1 || mid < 1) { return NullHtml; }
+        DataRow[] drs = Model.ModelDT.Select("ModelID=" + modelid);
+        if (drs.Length < 1) { return NullHtml; }
+        else
+        {
+            drs[0]["ItemName"] = DataConverter.CStr(drs[0]["ItemName"]);
+            if (drs[0] == null || string.IsNullOrEmpty(DataConverter.CStr(drs[0]["ItemIcon"]))) { return NullHtml; }
+            return MvcHtmlString.Create("<span class=\"" + drs[0]["ItemIcon"] + "\" />");
+        }
+    }
+    //显示标题
+    public IHtmlContent ShowTitle(DataRow dr)
+    {
+        int gid = DataConverter.CLng(dr["GeneralID"]);
+        int nodeid = DataConverter.CLng(dr["NodeID"]);
+        string title = StringHelper.SubStr(dr["Title"]);
+        string style = DataConverter.CStr(dr["TitleStyle"]);
+        string[] specArr = DataConvert.CStr(dr["SpecialID"]).Split(",".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+        string specHtml = "";
+        if (specArr.Length > 0)
+        {
+            foreach (string id in specArr)
+            {
+                DataRow[] drs= SpecDT.Select("SpecID='" + id + "'");
+                if (drs.Length > 0) { specHtml += " <a href='ContentManage?Special="+id+"' class='btn btn-outline-info btn-sm' title='浏览["+drs[0]["SpecName"]+"]专题'><small>"+drs[0]["SpecName"]+"</small></a> "; }
+            }
+        }
+        //-------------------------------------------------------
+        string n = "";
+        if (nodeid == Model.NodeID)
+        {
+            n = specHtml+"<a style='" + style + "' href=\""+ ShowUrl + gid + "\">" + title + "</a>";
+        }
+        else
+        {
+            n = "<strong>[<a href=\"ContentManage?NodeID=" + nodeid + "\">" + dr["NodeName"] + "</a>]</strong>"+specHtml+"<a style='" + style + "' href=\"" + ShowUrl + gid + "\">" + title + "</a>";
+        }
+        return MvcHtmlString.Create(n);
+    }
+    public IHtmlContent GetShowField(DataRow dr)
+    {
+        try
+        {
+            int modelID = DataConverter.CLng(dr["ModelID"]);
+            string tbname = DataConverter.CStr(dr["TableName"]);
+            //避免重复取多次数
+            if (!fieldDic.ContainsKey(modelID))
+            {
+                fieldDic[modelID] = DBCenter.Sel("ZL_ModelField", "ModelID=" + modelID + " AND IsChain=1", "OrderID ASC");
+            }
+            DataTable fieldDT = fieldDic[modelID];
+            DataTable valueDT = bll.GetContentByItems(tbname, DataConverter.CLng(dr["GeneralID"]));
+            if (fieldDT.Rows.Count < 1 || valueDT.Rows.Count < 1) { return NullHtml; }
+            VM_FieldModel field = new VM_FieldModel();
+            field.fieldDT = fieldDT;
+            field.valueDR = valueDT.Rows[0];
+            return Html.Partial("Fields/Index_Admin_ContentManage", field);
+        }
+        catch (Exception ex) { return MvcHtmlString.Create("<div style='color:red;'>"+ex.Message+"</div>"); }
+    }
+    public string ShowIsTop(DataRow dr)
+    {
+        if (DataConvert.CLng(dr["IsTop"]) == 0)
+        {
+            return "未置顶";
+        }
+        else
+        {
+            string html = "<span style='color:green;'>置顶</span>";
+            if (!string.IsNullOrEmpty(DataConvert.CStr(dr["IsTopTime"])))
+            {
+                html += "("+Convert.ToDateTime(dr["IsTopTime"]).ToString("yyyy/MM/dd")+")";
+            }
+            return html;
+        }
+    }
+    public string ShowIsHtml(DataRow dr)
+    {
+        string htmlLink = DataConvert.CStr(dr["HtmlLink"]);
+        if (string.IsNullOrEmpty(htmlLink)) { return ComRE.Icon_Error; }
+        else { return ComRE.Icon_OK; }
+
+    }
+    public IHtmlContent ShowAuditStatus(DataTable auditDT, DataRow dr)
+    {
+        string result = "";
+        if (auditDT.Rows.Count < 1) { return MvcHtmlString.Create(""); }
+        int gid = DataConvert.CLng(dr["GeneralID"]);
+        DataRow[] drs = auditDT.Select("Gid=" + gid + "");
+        if (drs.Length > 0)
+        {
+            result = "["+auBll.ShowOPName(DataConvert.CStr(drs[0]["name"]))+"]";
+        }
+        return MvcHtmlString.Create(result);
+
+    }
+}
+@{
+    Model.setting.cols = 10;
+    //Model.setting.page_mode = "dp";
+    Model.setting.url = "ContentManage";
+    ContentHelper conHelper = new ContentHelper();
+
+    DataTable auditDT = new DataTable();
+
+    string gids = StrHelper.PureIDSForDB(StrHelper.GetIDSFromDT(Model.setting.dt, "GeneralID"));
+    if (!string.IsNullOrEmpty(gids))
+    {
+        auditDT = auBll.SelPage(1, int.MaxValue, new Com_Filter() { gids = gids,status="0" }).dt;
+    }
+}
+<tbody id="EGV">
+    @foreach (DataRow dr in Model.setting.dt.Rows)
+    {
+        <tr ondblclick="location='@(ShowUrl+dr["GeneralID"])';" data-order="@dr["OrderID"]" data-gid="@dr["GeneralID"]">
+            <td> <input type="checkbox" name="idchk" value='@dr["GeneralID"]' /></td>
+            <td>@dr["GeneralID"]</td>
+            <td>
+                <span title="@L.预览">@ShowModelPic(dr["ModelID"]) @ShowTitle(dr)</span>
+               @*<div class="Ctitle sys_userPopver" onmouseover="ShowPopover(this)">
+                    <span class="hidden-xs">@GetPic(dr["ModelID"])@GetTitle(dr)</span>
+                    <div class="popover bs-popover-right popbox">
+                        <div class="arrow"></div>
+                        <h3 class="popover-header">
+                            内容概览<a href="javasvript:;" class="hidePopover"><i class="zi zi_times" aria-hidden="true"></i></a>
+                        </h3>
+                        <div class="popover-body">
+                            @GetShowField(dr)
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="popover-header">
+                            <span>浏览数：<span class="gray_9">@dr["Hits"]</span></span>
+                            <span>添加时间：<span class="gray_9">[@DateHelper.ToDate(dr["CreateTime"])]</span></span>
+                        </div>
+                    </div>
+                </div>*@
+            </td>
+            <td><a href="ContentManage?NodeID=@dr["NodeID"]&KeyType=1&keyWord=@(HttpUtility.UrlEncode(DataConverter.CStr(dr["Inputer"])))">@dr["Inputer"]</a></td>
+            <td>@dr["Hits"]</td>
+            <td>@Html.Raw(ShowIsTop(dr))</td>
+            <td>@Html.Raw(conHelper.GetElite(DataConverter.CStr(dr["EliteLevel"])))</td>
+            <td>@Html.Raw(ShowIsHtml(dr))</td>
+            <td>
+                @conHelper.GetStatus(DataConverter.CLng(dr["Status"]))
+                @ShowAuditStatus(auditDT,dr)
+            </td>
+            <td>
+                <a  href="javascript:;" onclick="MoveItem(this,'up')">↑@L.上移 </a>
+                <a  href="javascript:;" onclick="MoveItem(this,'down')">@L.下移↓</a>
+             <td class="posit_r">
+                <a href="EditContent?GeneralID=@dr["GeneralID"]"> <i class="zi zi_pencilalt"></i> @L.编辑</a>
+                @if (Model.filter.Status == "-2")
+    {
+                    <a href="javascript:;" onclick="mvcpage.del({ url: 'ContentManage_API?action=del', ids: '@dr["GeneralID"]',confirm:'@L.你确定将该数据删除到回收站吗'});"> <i class="zi zi_trashalt" title="@L.删除"></i></a>
+                }
+                else
+                {
+                    <a href="/Item/@(dr["GeneralID"])" target="_blank"> <i class='zi zi_globe'></i>@L.浏览</a>
+                    @if (DataConvert.CLng(dr["IsCreate"]) == 0)
+    {
+                        <a href="javascript:;" onclick="mvcpage.post({ url: 'ContentManage_Html?action=create&GeneralID=@dr["GeneralID"]', data: {},callback:'createCB'});"> <i class="zi zi_play"></i>@L.生成HTML</a>
+                    }
+                    else
+                    {
+                        <a href="javascript:;" onclick="mvcpage.post({ url: 'ContentManage_Html?action=del&GeneralID=@dr["GeneralID"]', data: {},callback:'reload'});"> <i class="zi zi_trashalt"></i>@L.删除HTML</a>
+                    }
+
+                    <a href="@(ShowUrl+dr["GeneralID"])" title="@L.预览"> <i class="zi zi_eye"></i></a>
+                    <a href="javascript:;" onclick="mvcpage.del({ url: 'ContentManage_Refresh', ids: '@dr["GeneralID"]'});"> <i class="zi zi_reg" title="@L.刷新"></i></a>
+                    <a href="javascript:;" onclick="mvcpage.del({ url: 'ContentManage_Del', ids: '@dr["GeneralID"]',confirm:'@L.你确定将该数据删除到回收站吗'});"> <i class="zi zi_trash" title="@L.删除"></i></a>
+                }
+            </td>
+            </tr>
+
+    }
+@Html.Partial("_page",Model.setting)
+<script>$(function () {iCheckInit("#EGV_wrap input[type=checkbox]");})</script>
+</tbody>

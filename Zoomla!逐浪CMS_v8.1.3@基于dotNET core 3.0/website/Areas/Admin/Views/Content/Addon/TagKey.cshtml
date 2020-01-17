@@ -1,0 +1,50 @@
+﻿@{ 
+//string content = SafeSC.ReadFileStr("/js/ICMS/tags.json");
+//int sIndex = content.IndexOf("[")+1;
+//int eIndex = content.LastIndexOf("]");
+//content = content.Substring(sIndex, (eIndex - sIndex));
+}
+@section head{<title>@L.关键词库</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Call.PA("Content/ContentManage"),L.内容管理),
+new Bread(Context.Request.RawUrl(),L.关键词库)
+})
+<form method="post" action="TagKey_Submit">
+<div class="list_choice">
+        <div style="display:flex;padding:0.5rem;background-color:#fff;border-bottom:1px solid #ddd;">
+            <div>
+                <i class="zi zi_textbook" style="font-size:3rem;margin-right:2rem;color:#999;"></i>
+            </div>
+            <div style="padding-top:0.5rem;">
+                <h4>@L.关键词库管理</h4>
+                <div style="font-size:12px;">
+                     <div>管理网站关键词库,从内容标题中自动出截取中用于检索的关键词,优化SEO</div>
+                     <div>关键词以“|”切割,保存为tags.json</div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+
+
+    <textarea id="content_t" name="content_t" style="width:100%;padding:5px 8px;margin-top:5px;" rows="30"></textarea>
+    <div class="text-center" style="margin-top:5px;">
+        <input type="submit" value="保存词库" class="btn btn-info"/>
+    </div>
+</form>
+ }
+@section script{
+<script src="/js/ICMS/tags.json?v=@(ZoomLa.BLL.Helper.DateHelper.DateToUnix(DateTime.Now))"></script>
+<script>
+    var keys = "";
+    for (var i = 0; i < ZLTags.length; i++) {
+        keys += ZLTags[i].n + "|";
+    }
+    if (keys.length > 0) { keys = keys.substr(0, keys.length-1); }
+    $("#content_t").val(keys);
+</script>
+
+ }

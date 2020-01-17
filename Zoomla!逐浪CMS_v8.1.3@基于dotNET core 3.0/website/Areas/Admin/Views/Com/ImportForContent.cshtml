@@ -1,0 +1,35 @@
+﻿@{ 
+    Layout = "_empty";
+}
+@section head{<title>内容导入</title>}
+@section content {
+<div class="d-flex flex-row">
+<form method="post" action="@MVCHelper.GetAction("ImportForContent_Submit",Context.Request)" enctype="multipart/form-data">
+    <div class="input-group">
+        <input type="file" class="form-control m50rem_50" name="file_up" id="file_up" accept=".xlsx" />
+        <span class="input-group-append">
+            <input type="submit" ID="Upload_Btn" class="btn btn-outline-info" value="上传Excel文档" onclick="return checkSub();" />
+        </span>
+    </div>
+</form>
+<form method="post" action="@MVCHelper.GetAction("ImportForContent_DownTlp",Context.Request)" style="margin-left:5px;">
+    <input type="submit" value="下载[@(Context.Request.GetParam2("FName"))]导入模板" class="btn btn-outline-info" />
+</form>
+</div>
+<div class="alert alert-info w-100 mt-2">
+    <div>1,下载模板,按照规范填写好数据</div>
+    <div>2,在本页面上传需导入的Excel文档</div>
+    <div>3,导入的内容&商品默认为未审核状态,请校正后再批量审核</div>
+</div>
+
+}
+@section script {
+    <script>
+    function checkSub() {
+        var fname = $("#file_up").val();
+        if (!fname) { alert("未选定文件"); return false; }
+        return true;
+    }
+</script>
+
+}

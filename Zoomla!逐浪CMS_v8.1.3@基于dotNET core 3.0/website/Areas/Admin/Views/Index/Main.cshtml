@@ -1,0 +1,85 @@
+﻿@using System.Data
+@using ZoomLa.SQLDAL
+@using ZoomLaCMS.Resources;
+@functions{
+    public int CPage { get { return DataConvert.CLng(Context.Request.Query["cpage"], 1); } }
+    public string model_lit = "";
+    public string page_lit = "";
+    private void MyBind()
+    {
+        string[] sizeArr = new string[] { "col-lg-2 col-md-3", "col-lg-1 col-md-1", "col-lg-2 col-md-3", "col-lg-4 col-md-4" };
+        int pageSize = 12;
+        //------------------------
+        string div = " <div class='{0} {1}' style='background:{2};'>{3}</div>";
+        string href = "<a href='{0}' target='{1}'><i class='{2}'></i> {3}</a>";
+        string hid = "d-none d-sm-block";
+        DataTable dt = DBCenter.Sel("ZL_Search", "type=1 AND State=1","OrderID ASC");
+        foreach (DataRow dr in dt.Rows)
+        {
+            dr["fileUrl"] = DataConvert.CStr(dr["fileUrl"]).ToLower().Replace("/manage/",Call.PA("")).Replace(".aspx","");
+        }
+        int pageCount = PageCommon.GetPageCount(pageSize, dt.Rows.Count);
+        for (int i = 0; i < pageSize; i++)
+        {
+            try
+            {
+                int index = (CPage - 1) * pageSize + i;
+                string labelID = "Label" + (i + 1);
+                DataRow dr = dt.Rows[index];
+
+                string name = dr["name"].ToString();
+                name = name.Length > 4 ? name.Substring(0, 3) : name;
+                string openType = DataConvert.CStr(dr["OpenType"]) .Equals("0") ? "_self" : "_blank";
+                string value = string.Format(href, dr["FileUrl"], openType, dr["ico"], dr["name"]);//链接字符串
+                string size = sizeArr[DataConvert.CLng(dr["size"])];//默认为中
+                string mobile =  DataConvert.CStr(dr["Mobile"]).Equals("1") ? "" : hid;//是否在小屏中显示
+                model_lit += string.Format(div, size, mobile, dr["BKColor"], value);
+            }
+            catch { break; }
+        }
+        page_lit = CreatePaging(pageCount, CPage);
+    }
+    public string CreatePaging(int pageCount, int cPage)
+    {
+        if (pageCount < 2) return "";
+        #region 前台最终Html
+        //<ul class="pagination">
+        //<li class="disabled"><a href="?page=1">&laquo;</a></li>
+        //<li class="active"><a href="?page=1">1 <span class="sr-only">(current)</span></a></li>
+        //<li><a href="?page=2">2 <span class="sr-only"></span></a></li>
+        //<li><a href="?page=last">&raquo;</a></li>
+        //</ul>
+        #endregion
+        pageCount = pageCount < 1 ? 1 : pageCount;
+        cPage = cPage < 1 ? 1 : cPage;
+        string pageHtml = "<nav aria-label='Page navigation' class='sysPage'><ul class='pagination'>";
+        pageHtml += "<li " + (cPage > 1 ? "" : "class='page-item disabled'") + "><a  class='page-link' href='?page=1'><svg fill='currentColor' preserveAspectRatio='xMidYMid meet' height='12' width='8' viewBox='0 0 8 12' style='vertical-align: middle;'><title id='Chevron Left'>Chevron Left</title><g fill='none' stroke='none' stroke-width='1' fill-rule='evenodd'><g transform='translate(1.000000, 1.000000)' stroke='currentColor' stroke-width='2'><polyline transform='translate(3.500000, 5.507797) rotate(90.000000) translate(-3.500000, -5.507797) ' points='-1.5 3 3.5155939 8.0155939 8.5 3.0311879'></polyline></g></g></svg></li>";
+        for (int i = 1; i <= pageCount; i++)
+        {
+            pageHtml += "<li " + (cPage != i ? "" : "class='page-item  active'") + "><a class='page-link' href='?page=" + i + "'>" + i + " <span class='sr-only'>(current)</span></a></li>";
+        }
+        pageHtml += "<li><a class='page-link' href='?page=" + pageCount + "'><svg fill='currentColor' preserveAspectRatio='xMidYMid meet' height='12' width='8' viewBox='0 0 8 13' style='vertical-align: middle;'><title id='Chevron Right'>Chevron Right</title><g fill='none' stroke='none' stroke-width='1' fill-rule='evenodd'><g transform='translate(-2.000000, 4.000000)' stroke='currentColor' stroke-width='2'><polyline transform='translate(5.500000, 2.500000) rotate(90.000000) translate(-5.500000, -2.500000)' points='10.5 5 5.5 6.66133815e-16 0.5 5'></polyline></g></g></svg></a></li></ul></nav>";
+        return pageHtml;
+    }
+
+}
+@{
+
+    MyBind();
+}
+
+@section head{
+    <title>@L.快速导航</title>
+    <link rel="stylesheet" href="/dist/css/animate.min.css" />
+    <style>
+        body { height: 100%; background: rgba(0, 114, 188, 0.02); }
+    </style>
+}
+@section content{
+    <div class="row main_nav animated" runat="server" id="navDiv">
+       @Html.Raw(model_lit)
+    </div>
+    @Html.Raw(page_lit)
+
+}
+@section script{ }

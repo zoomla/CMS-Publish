@@ -1,0 +1,57 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public DataTable FieldDT{get{return ViewBag.FieldDT;}}
+    public ZoomLa.Model.Content.M_ModelInfo modInfo { get { return ViewBag.modInfo; } }
+    public string Ignores { get { return ViewBag.Ignores; } }
+}
+@{
+      
+
+}
+@section head{<title>模型数据</title>}
+@section content{
+@Call.SetBread(new Bread[] { 
+  new Bread("{admin}"),
+  new Bread("ModelManage?ModelType="+modInfo.ModelType,"模型管理"),
+  new Bread(Context.Request.RawUrl(),"模型数据","["+modInfo.ModelName+"]")
+
+})
+
+ 
+
+
+<div class="list_choice">
+<div class="input-group" style="margin-bottom:5xp;">
+            <select ID="skey_dp" class="form-control mvcparam" style="max-width:100px;">
+                @foreach (DataRow dr in FieldDT.Rows)
+                {
+                    <option value="@dr["FieldName"]">@dr["FieldAlias"]</option>
+                }
+            </select>
+            <input type="text" id="skey" class="form-control mvcparam" placeholder="请输入关键词"/>
+            <span class="input-group-append">
+                <button type="button" class="btn btn-outline-secondary" ID="Search_Btn" onclick="mvcpage.load();"><i class="zi zi_search" zico="搜索"></i></button>
+            </span>
+        </div>
+@*<div style="margin-top:5px;">
+    @foreach (DataRow dr in FieldDT.Rows)
+    {
+        <label class="chkwrap btn btn-light" style="border:1px solid #ddd;"><input type="checkbox" name="ignore_chk" value="@dr["FieldName"]" />@dr["FieldAlias"]</label>
+    }
+    <input type="button" ID="Ignore_Btn" class="btn btn-info" value="忽略所选字段" onclick="mvcpage.load();" />
+</div>*@
+@Html.Partial("ModelData_List")
+</div>
+}
+@section script{
+<script>
+    $(function () {
+        var ignores = ",@Ignores,";
+        $("input[name='ignore_chk']").each(function () {
+            if (ignores.indexOf("," + this.value + ",") > -1) { this.checked = true; }
+        });
+        $("#page_td").attr("colspan", $("#head_tr td").length - 1);
+    })
+</script>
+
+}

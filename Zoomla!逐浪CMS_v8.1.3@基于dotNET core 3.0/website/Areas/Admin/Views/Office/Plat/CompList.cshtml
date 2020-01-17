@@ -1,0 +1,36 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>@L.公司管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+ new Bread("{admin}"),
+ new Bread(){url=Context.Request.RawUrl(),text=""+L.公司列表+"",addon="[<a href='AddComp'>"+L.创建公司+"</a>]" },
+},"{search}")
+<div class="table-responsive-md list_choice pr-1">
+    @Html.Partial(MVCHelper.ViewDir_Admin+"Office/Plat/CompList_List.cshtml")
+</div>
+	<div class="sysBtline">
+    <input type="button" ID="Dels_Btn" class="btn btn-outline-danger" value="@L.批量删除" onclick="mvcpage.bat({url:'API?action=comp_del',confirm:'@Html.Raw(L.确定要删除吗)'})"/></div>
+}
+@section script{ 
+    <script>
+        var TemDiag = new ZL_Dialog();
+        var SelUser = function (uid) {
+            TemDiag.title = "@Html.Raw(L.用户信息)";
+            TemDiag.maxbtn = false;
+            TemDiag.url = "../User/UserInfo.aspx?id=" + uid;
+            TemDiag.ShowModal();
+        }
+        $("#sel_btn").click(function (e) {
+            if ($("#sel_box").css("display") == "none") {
+                $(this).addClass("active");
+                $("#sel_box").slideDown(300);
+                $("#EGV").css("margin-top", "44px");
+            }
+            else {
+                $(this).removeClass("active");
+                $("#sel_box").slideUp(200);
+                $("#EGV").css("margin-top", "0px");
+            }
+        });
+    </script>
+}

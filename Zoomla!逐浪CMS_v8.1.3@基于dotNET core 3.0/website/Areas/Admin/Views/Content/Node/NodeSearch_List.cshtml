@@ -1,0 +1,77 @@
+﻿@using ZoomLa.BLL.Content
+@using ZoomLa.Model.Content
+@model System.Data.DataTable
+@functions{
+        B_Model modBll = new B_Model();
+    public string GetParentInfo(DataRow dr)
+    {
+        DataTable AllNodeDT = ViewBag.AllNodeDT;
+        int pid = DataConverter.CLng(dr["ParentID"]);
+        if (pid <= 0) { return "根节点"; }
+        AllNodeDT.DefaultView.RowFilter = "NodeID='" +dr["ParentID"] + "'";
+        if (AllNodeDT.DefaultView.ToTable().Rows.Count > 0)
+        {
+            string name = DataConverter.CStr(AllNodeDT.DefaultView.ToTable().Rows[0]["NodeName"]);
+            return "<a title='编辑该节点' target='_blank' href='NodeAdd?ID=" + pid + "'>" + name + "</a>";
+        }
+        else { return pid.ToString(); }
+    }
+    public string GetIconPath(DataRow dr)
+    {
+        int NodeID = DataConverter.CLng(dr["NodeID"]);
+        string models = DataConverter.CStr(dr["ContentModel"]);
+        if (string.IsNullOrEmpty(models)) { return ""; }
+        int modelid = DataConverter.CLng(models.Split(',')[0]);
+        M_ModelInfo modelMod = modBll.SelReturnModel(modelid);
+        return StringHelper.GetItemIcon(modelMod.ItemIcon);
+    }
+    //获取内容模板
+    public string GetTemplate(DataRow dr)
+    {
+        int NodeID = DataConverter.CLng(dr["NodeID"]);
+        string modelArr = DataConverter.CStr(dr["ContentModel"]);
+        string result = "";
+        string[] arr = modelArr.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < arr.Length; i++)
+        {
+            M_ModelInfo model = modBll.SelReturnModel(DataConverter.CLng(arr[i]));
+            string name = "<span class='" + model.ItemIcon + "'></span>" + model.ModelName;
+            if (string.IsNullOrEmpty(name)) continue;
+            result += name + ",";
+        }
+        return result.TrimEnd(',');
+    }
+}
+@{ 
+    string skey = ViewBag.skey;
+
+}
+<table class="table table-striped table-bordered sys_table" id="EGV">
+    <tr class="gridtitle" align="center">
+        <th class="text-center" scope="col"></th>
+        <th class="text-center" scope="col"><strong>ID</strong></th>
+        <th class="text-center" scope="col"><strong>@L.节点名称</strong></th>
+        <th class="text-center" scope="col"><strong>@L.节点类型</strong></th>
+        <th class="text-center" scope="col"><strong>@L.绑定模型</strong></th>
+        <th class="text-center" scope="col"><strong>@L.节点模板</strong></th>
+    </tr>
+    @foreach (DataRow dr in Model.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["NodeID"]"/></td>
+            <td>@MvcHtmlString.Create(StringHelper.SkeyToRed(DataConverter.CStr(dr["NodeID"]), skey))</td>
+            <td>
+                [@MvcHtmlString.Create(GetParentInfo(dr))]
+                <a href="@Call.PathAdmin("Content/ContentManage?NodeID="+dr["NodeID"])">@MvcHtmlString.Create(GetIconPath(dr))</a>
+                <a href="NodeAdd?ID=@dr["NodeID"]">@MvcHtmlString.Create(StringHelper.SkeyToRed(dr["NodeName"] + "", skey))</a>
+            </td>
+            <td>@B_Node.GetNodeType(Convert.ToInt32(dr["NodeType"]))</td>
+            <td>@MvcHtmlString.Create(GetTemplate(dr))</td>
+            <td>
+                <a href="@Call.PathAdmin("Template/TemplateEdit?filepath=/"+ HttpUtility.UrlEncode(DataConverter.CStr(dr["IndexTemplate"])))">
+                    @dr["IndexTemplate"]
+                </a>
+            </td>
+        </tr>
+    }
+</table>

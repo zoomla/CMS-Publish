@@ -1,0 +1,24 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string pageName = ""+@Html.Raw(L.IP策略)+"";
+}
+@section head{<title>@pageName</title> }
+@section content{ 
+    @Call.SetBread(new Bread[]{
+     new Bread("{admin}"),
+     new Bread(Call.PA("Extend/Safe/Default"),L.安全中心),
+     new Bread(){url=Context.Request.RawUrl(),text=pageName,addon="[<a href='SiteIPAdd'>"+L.添加IP+"</a>]" }
+    })
+<form method="post" action="@MVCHelper.GetAction("_Submit",Context.Request)">
+    <div class="list_choice">
+        @Html.Partial(MVCHelper.ViewDir_Admin+"Extend/Safe/SiteIP_List.cshtml")
+        <div>
+            <button type="button" class="btn btn-danger" onclick="mvcpage.bat({url:'API?action=ip_del',confirm:'@Html.Raw(L.确定要删除吗)'});">@L.批量删除</button>
+        </div> 
+        <div class="alert alert-info" style="margin-top:5px;">@L.指定的IP或IP号段在到期时间前不可访问网站</div>
+    </div>
+</form>
+}
+@section script{ 
+
+}

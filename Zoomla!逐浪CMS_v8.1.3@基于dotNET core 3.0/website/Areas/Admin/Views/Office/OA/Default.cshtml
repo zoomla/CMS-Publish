@@ -1,0 +1,90 @@
+﻿@functions{
+    public string GetAllowAttach(string allowAttach)
+    {
+        switch (allowAttach)
+        {
+            case "0":
+                return "不允许";
+            case "1":
+                return "允许";
+            default:
+                return "";
+        }
+    }
+
+}
+@{ 
+
+
+
+
+
+}
+@section head{<title>@L.流程管理</title> }
+@model System.Data.DataTable
+@section content{ 
+@*<li class="breadcrumb-item">@L.流程列表<a href="WorkFlow.aspx"> [添加流程]</a></li>*@
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Context.Request.RawUrl(),L.流程管理)
+},"{search}")
+
+<div class="table-responsive-md list_choice pr-1">
+<table class="table table-bordered table-striped">
+<thead><tr>
+    <th>ID</th>
+    <th>@L.流程名</th>
+    <th>@L.项目名称</th>
+    <th>@L.模型</th>
+    <th>@L.流程模板</th>
+    <th>@L.打印模板</th>
+    <th>@L.允许附件</th>
+    <th>@L.备注</th>
+    @*<th>@L.操作</th>*@
+    </tr></thead>
+
+@foreach (DataRow dr in Model.Rows)
+{
+    <tr>
+        <td>@dr["ID"]</td>
+        <td><a href="WorkFlow?proID=@dr["ID"]">@dr["ProcedureName"]</a></td>
+        <td>@dr["SponsorGroup"]</td>
+        <td>@dr["FormInfo"]</td>
+        <td>@dr["FlowTlp"]</td>
+        <td>@dr["PrintTlp"]</td>
+        <td>@GetAllowAttach(DataConverter.CStr(dr["AllowAttach"]))</td>
+        <td>@dr["Remind"]</td>
+        @*<td>
+            <a href="WorkFlow?proID=<%#Eval(" ID") %>"><i class="zi zi_pencilalt" title="编辑"></i></a>
+            <asp:LinkButton ID="LinkButton1" runat="server" CommandName="Del2" CommandArgument='<%#Eval("ID") %>' OnClientClick="return confirm('你确定要删除吗!');" ToolTip="删除"><i class="zi zi_trashalt" title="删除"></i></asp:LinkButton>
+            <a href="AddFlow.aspx?proID=<%#Eval(" ID") %>"><i class="zi zi_eye" title="查看"></i>查看步骤</a>
+            <a href="javascript:;" onclick="ShowImgDiag(<%#Eval(" ID") %>)" ><i class="zi zi_eye" title="查看"></i>查看流程图</a>
+        </td>*@
+    </tr>
+}
+</table>
+</div>
+<div class="alert alert-light">
+<div class="rd_green">@L.签章等操作权限与用户角色绑定</div></div>
+
+}
+@section script{
+<style>
+.allchk_l{display: none;}
+</style>
+<script type="text/javascript">
+    $().ready(function () {
+        $(":button").addClass("btn btn-outline-info");
+        $(":submit").addClass("btn btn-outline-secondary");
+        //$("#EGV tr:last >td>:text").css("line-height", "normal");
+        //$("#EGV tr:first >th").css("text-align", "center");
+    });
+    var diag = new ZL_Dialog();
+    function ShowImgDiag(proid) {
+        diag.title = "@Html.Raw(L.查看流程图)";
+        diag.url = "/Office/flow/ImgWorkFlow.aspx?proid=" + proid;
+        diag.maxbtn = false;
+        diag.ShowModal();
+    }
+</script>
+ }

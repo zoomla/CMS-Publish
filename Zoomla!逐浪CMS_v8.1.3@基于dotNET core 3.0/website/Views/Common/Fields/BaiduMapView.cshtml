@@ -1,0 +1,111 @@
+﻿@using ZoomLa.Model.Content
+@using ZoomLa.BLL.Content
+@functions{
+        B_Content conBll = new B_Content();
+        //用于浏览百度地图
+        //浏览模式,前端,简单,完全版
+        public string Type { get { return Context.Request.GetParam("Type"); } }
+        public string Field { get { return Context.Request.GetParam("field"); } }
+        public int Gid { get { return DataConverter.CLng(Context.Request.GetParam("Gid")); } }
+        //仅用于简单模式
+        public string Point
+        {
+            get
+            {
+                string _point = Context.Request.GetParam("Point");
+                if (string.IsNullOrEmpty(_point)) { _point = "116.404,39.915"; }
+                return _point;
+            }
+        }
+        //是否预览模式(预览模式下,出遮罩层,点击出对话框)
+        public int IsPre { get { return DataConverter.CLng(Context.Request.GetParam("IsPre")); } }
+}
+@{ 
+    string MapData_Hid = "";
+    //完全版比较复杂,不过通过地址栏传值,而是通过(Field_Hid)读取
+    if (Gid > 0 && !string.IsNullOrEmpty(Field))
+    {
+        M_CommonData model = conBll.SelReturnModel(Gid);
+        if (model == null) { function.WriteErrMsg("指定的数据不存在"); }
+        DataTable dt = ZoomLa.SQLDAL.DBCenter.Sel(model.TableName, "ID=" + model.ItemID);
+        if (dt.Rows.Count < 1 || !dt.Columns.Contains(Field)) { }
+        else { MapData_Hid = dt.Rows[0][Field].ToString(); }
+    }
+
+}
+@section head{<title>地图浏览</title>}
+@section content{
+<div id="allmap"></div>
+<div id="conver_div" title="编辑地图" style="width:100%;height:100%;position:absolute;z-index:999;top:0;cursor:pointer;display:none;"></div>
+<div style="position:fixed;left:10px;top:10px;z-index:1000;">
+	<input type="text" value="@Point" style="width:180px;font-size:12px;border:1px solid #ddd;" />
+</div>
+<input type="hidden" ID="MapData_Hid" name="MapData_Hid" value="@Html.Raw(MapData_Hid)"/>
+<div id="infowin_div"></div>
+}
+@section script{
+<script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=WRiR4XARbMRjm3NrQuP88w6P"></script>
+<script type="text/javascript">
+    $("#allmap").width($(window).width());
+    $("#allmap").height($(window).height());
+    var map = new BMap.Map("allmap");
+    var infoWin = new BMap.InfoWindow(document.getElementById("infowin_div"), { offset: new BMap.Size(0, -10)});
+    var fieldname = '@Field';
+    var type="@Type";
+    //map.enableScrollWheelZoom();
+    //map.enableInertialDragging();
+    //map.enableContinuousZoom();
+    function preMode() {
+        $("#conver_div").height(window.height);
+        $("#conver_div").show();
+    }
+    $(function () {
+        switch (type) {
+            case "simp":
+                $("#conver_div").click(function () {
+                    parent.ShowDiag("/Common/BaiduMapSimp?Field=@(Field)&Point=@(Point)", "地图定位(双击地图选择)");
+                });
+                var point = new BMap.Point(@Point);
+                var marker = new BMap.Marker(point);
+                map.addOverlay(marker);
+                map.centerAndZoom(point, 14);
+                //$("#allmap").height(window).height() 如白屏则可能高度丢失
+                break;
+            case "full":
+                $("#conver_div").click(function () {
+                    parent.ShowDiag("/Common/BaiduMap?Field=@(Field)", "地图定位");
+                });
+                MyBind();
+                break;
+        }
+        if ("@IsPre" == "1") {preMode(); }
+    });
+    function MyBind() {
+        var point = {};
+        var val = $("#MapData_Hid").val();
+        if (val == "") { val = $(parent.document).find("#txt_" + fieldname).val(); }
+        if (!val || val == "" || val == "[]") { point = new BMap.Point(116.404, 39.915); map.centerAndZoom(point, 14); return; }
+        var datas = JSON.parse(val);
+        var firstdata = datas[0];
+        point = new BMap.Point(firstdata.mark.lng, firstdata.mark.lat);
+        var addMark = function (lng, lat, src) {
+            var point = new BMap.Point(lng, lat);
+            var myIcon = new BMap.Icon(src, new BMap.Size(60, 60));
+            var mark = new BMap.Marker(point, { icon: myIcon });
+            map.addOverlay(mark);
+            return mark;
+        }
+        for (var i = 0; i < datas.length; i++) {
+            var model= datas[i];
+            var mark = addMark(model.mark.lng, model.mark.lat, model.icon);
+            mark.content = model.content;
+            mark.addEventListener("click", function () {
+                var mark = this;
+                infoWin.content = decodeURIComponent(mark.content);
+                mark.openInfoWindow(infoWin);
+            })
+        }
+        map.centerAndZoom(point, 14);
+    }
+</script>
+}

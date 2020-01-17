@@ -1,0 +1,28 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>组织结构</title> }
+@section content{ 
+    <div class="table-responsive-md pr-1">
+            <div style="margin-bottom:5px;">
+                <a href="javascript:;" onclick="node.add('@(DataConverter.CLng(Context.Request.GetParam("pid")))');" class="btn btn-info">@L.添加组织</a>
+            </div>
+        @Html.Partial( MVCHelper.ViewDir_Admin+"User/Struct/StructList_List.cshtml")
+        
+
+
+        <div >
+            <button type="button" ID="BatDel_Btn" class="btn btn-outline-danger" onclick="mvcpage.bat({ url: 'Struct_API?action=del', confirm:'@L.确定要删除吗' });" >@L.批量删除</button>
+            @*<a href="StructChart.aspx"  class="btn btn-outline-info" >@L.组织结构图</a>*@
+        </div>
+
+    </div>
+}
+@section  script{ 
+<style type="text/css">
+    #navHolder{display:none;}
+</style>
+<script>
+    var node = {};
+    node.add = function (id) { ShowComDiag("StructAdd?pid="+id,"@Html.Raw(L.添加信息)"); }
+    node.edit = function (id) { ShowComDiag("StructAdd?id="+id,"@Html.Raw(L.修改信息)"); }
+</script>
+}

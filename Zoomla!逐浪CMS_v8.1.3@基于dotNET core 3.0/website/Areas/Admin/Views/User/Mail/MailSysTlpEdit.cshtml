@@ -1,0 +1,49 @@
+﻿@{ 
+    string tlpName = Context.Request.GetParam("tlpName");
+    String content = SafeSC.ReadFileStr("/lib/html/MailTlp/" + tlpName);
+}
+@section head{
+<title>@L.修改系统模板</title>
+<script src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="/Plugins/Ueditor/ueditor.all.min.js"></script> 
+ }
+@section content{
+@Call.SetBread(new Bread[] {
+	new Bread("{admin}"),
+	new Bread("MailSysTlp",L.系统模板),
+	new Bread() {url=Context.Request.RawUrl(), text=L.修改系统模板,addon= "" }}
+	)
+<form method="post" action="@MVCHelper.GetAction("MailSysTlpEdit_Submit",Context.Request)">
+    <div class="container-fluid pr-0">
+    <div class="row sysRow list_choice table-responsive-md">
+        <table class="table table-striped table-bordered table-hover sys_table">
+            <tr>
+                <th class="w12rem_lg"><strong>@L.模板名称</strong></th>
+                <td style="text-align: left">
+                    <input type="text" ID="TxtTempName" class="form-control max20rem" readonly="readonly" value="@tlpName" /></td>
+            </tr>
+            <tr>
+                <th class="tdleft"><strong>@L.模板内容</strong></th>
+                <td>
+                    <textarea id="TxtContent" name="TxtContent" class="m50rem_50" style="height:200px;">@Html.Raw(content)</textarea>
+                </td>
+            </tr>
+            <tr><td></td>
+                <td>
+                    <input type="submit" class="btn btn-info" value="@L.保存模板"/>
+                    <a href="MailSysTlp" class="btn btn-outline-info">@L.返回列表</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    </div>
+</form>
+ }
+@section script{
+  <script>
+        $(function () {
+            UE.getEditor("TxtContent");
+        })
+    </script>
+
+ }

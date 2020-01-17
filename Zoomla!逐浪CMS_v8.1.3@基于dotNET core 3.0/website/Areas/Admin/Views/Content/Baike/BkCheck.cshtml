@@ -1,0 +1,43 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string view = ViewBag.viewDir + "BKCheck_List.cshtml";
+}
+@section head{<title>@L.词条管理</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("BKCheck",L.百科词条)
+
+},"{search}")
+    <div class="borders">
+        <ul class="nav nav-tabs list_choice">
+            <li class="nav-item"><a class="nav-link active" href="#tab-10" onclick="ShowTabss(-100)" data-toggle="tab">@L.所有词条</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab0" data-toggle="tab" onclick="ShowTabss(0)">@L.待审核</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab1" data-toggle="tab" onclick="ShowTabss(1)">@L.已审核</a></li>
+        </ul>
+    </div>
+    @Html.Partial(view)
+
+ }
+@section script{ 
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        function ShowTabss(ID) {
+            location.href = 'BkCheck?NodeID=@(Context.Request.GetParam("NodeID"))&id=' + ID + '&type=' + ID;
+        }
+        $(function () {
+            if (getParam("type")) {
+                $("li a[href='#tab" + getParam("type") + "']").parent().find("a").addClass("active").parent().siblings("li").find("a").removeClass("active");
+            }
+        })
+        function displayToolbar() {
+            $("#toolbar1").toggle("fast");
+        }
+        function ShowBKList(flow) {
+            ShowComDiag("BKList?Flow=" + flow, "@Html.Raw(L.版本浏览)");
+        }
+    </script>
+
+
+}

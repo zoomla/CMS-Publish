@@ -1,0 +1,534 @@
+﻿@using System.Data
+@using System.Web
+@using ZoomLa.Model
+@using ZoomLa.BLL.SYS
+@using ZoomLa.Common
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Helper
+@model ZoomLaCMS.Areas.Admin.Models.VM_Label
+@functions{
+
+}
+@{
+    B_Label labelBll = new B_Label();
+    ////-------------------------
+    string joinType = B_Label.GetJoinType(Model.labelMod.LabelTable);
+    string on1 = "", on2 = "";
+    B_Label.GetOnField(Model.labelMod.LabelTable, ref on1, ref on2);
+    string bread = "添加新标签";
+    ViewBag.cateDT = new B_Label().GetLabelCateListXML();
+    if (Model.labelMod.LabelID < 1)
+    {
+        DataTable labelDT = labelBll.SelAllLabel();
+        labelDT = labelDT.DefaultView.ToTable(true, "LabelName");
+        ViewBag.labelDT = labelDT;
+    }
+
+    if (!string.IsNullOrEmpty(Model.labelMod.LabelName))
+    {
+        bread = "当前标签：<a href='" + Context.Request.RawUrl() + "'>" + Model.labelMod.LabelName + "</a>";
+    }
+
+}
+@section head{
+<link rel="stylesheet" href="/Plugins/CodeMirror/lib/codemirror.css">
+<link rel="stylesheet" href="/Plugins/CodeMirror/theme/eclipse.css">
+<script src="/Plugins/CodeMirror/lib/codemirror.js"></script>
+<script src="/Plugins/CodeMirror/mode/xml.js"></script>
+<script src="/Plugins/CodeMirror/mode/javascript/javascript.js"></script>
+<script src="/Plugins/CodeMirror/addon/selection/active-line.js"></script>
+<script src="/Plugins/CodeMirror/addon/edit/matchbrackets.js"></script>
+<script src="/Plugins/CodeMirror/mode/htmlmixed.js"></script>
+<script src="/Plugins/CodeMirror/mode/css.js"></script>
+<script src="/Plugins/Third/bootstrap-select/js/bootstrap-select.js"></script>
+<link href="/Plugins/Third/bootstrap-select/css/bootstrap-select.css" rel="stylesheet" />
+<script></script>
+<style type="text/css">
+.btn-light{border:1px solid #ddd;}
+.form-control{display:inline-block;}
+.opname { position: absolute; width: 100px; font-weight: bolder; }
+.field_wrap { width: 150px; display: inline-block; position: relative; border: 1px solid #ddd; border-right: none; }
+</style>
+<style type="text/css">
+.editor { width: 100%; max-width: 100%; height: 530px; }
+#label_left { width: 445px; height: 536px; max-width: 450px; overflow-y: auto; padding: 0px; text-align: center; float: left; }
+#label_right { padding: 0px; margin-left: 450px; border-left: 1px solid #ddd; }
+.spanfixdiv1 { border-radius: 4px; background: #fff; cursor: pointer; border: 1px solid #ddd; padding: 8px; max-width: 180px; margin-right: 2px; display: inline-block; overflow-x: hidden; text-overflow: ellipsis; }
+.spanfixdiv1:hover { background-color: rgba(91, 192, 222, 0.8); color: #fff; }
+.spanfixdiv { margin: .3rem 0 .3rem 0.1rem; padding: .4rem .4rem; font-size: 0.92rem; overflow: hidden; cursor: pointer; float: left;min-width:135px;white-space:nowrap;}
+.spanfixdivchechk a { font-size: 1.2em; margin: 0px 10px 0px 5px; }
+.spanfixdivchechk:hover, .spanfixdiv:hover { background-color: rgba(91, 192, 222, 0.8); color: #fff; }
+</style>
+<title>标签管理</title>
+}
+@section content{
+    <div id="BreadDiv" class="container-fluid mysite">
+        <div class="row">
+            <ol class="breadcrumb fixed-top w-100">
+                <li class="breadcrumb-item"><a href="LabelManage">标签管理</a></li>
+                <li class="breadcrumb-item">
+                    @Html.Raw(bread)
+                    <a href="@Call.PA("Extend/DBTool/CreateTable")">[添加新表]</a>
+            </ol>
+        </div>
+    </div>
+<input type="hidden" id="labelId_hid" value="@Model.labelMod.LabelID"/>
+<form method="post" id="form1">
+    <div style="display:none;">
+        <input type="submit" ID="Save_Btn" name="Save_Btn" Text="保存" v-on:click="save();"/>
+    </div>
+    <input type="hidden" id="ds_hid" name="ds_hid"/>
+    <div class="list_choice" id="app">
+        @Html.Partial("LabelSql_0", Model)
+        @Html.Partial("LabelSql_1", Model)
+        @Html.Partial("LabelSql_2", Model)
+        @Html.Partial("LabelSql_3", Model)
+        <div class="modal fade" id="sqlModal">
+            <div class="modal-dialog">
+                <div class="modal-content" style="width:960px;">
+                    <div class="modal-header"><h4 class="modal-title">SQL语句</h4><button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                    <div class="modal-body">
+                        <textarea class="form-control" id="sql_t" style="min-height:200px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+}
+@section script{
+    <script src="/js/Plugs/base64.js"></script>
+    <script src="/js/Controls/ZL_Array.js"></script>
+    <script src="/Plugins/CodeMirror/LabelCall.js?v=12"></script>
+    <script src="/dist/vue/vue.js"></script>
+    <script src="/js/jquery.form.js"></script>
+    <script>
+        var selectpickerFlag = { "tables1": false, "tables2": false, "order": false, "where": false };
+        var selectpickerOptions = {
+                hideDisabled: true,
+                liveSearch: true,
+                maxOptions: 1,
+                noneSelectedText:"请选择",
+                noneResultsText:"无匹配的信息 {0}"
+            };
+
+        var app = new Vue({
+            el: "#app",
+            //created
+            mounted:function(){
+                var ref = this;
+                if (!ZL_Regex.isEmpty(ref.model.Param)) { ref.param.dt = ref.param.toDT(ref.model.Param); }
+                ref.model.DataSourceType = JSON.parse(ref.model.DataSourceType);
+                $('#TableList_DP,#TableList2_DP').selectpicker(selectpickerOptions);
+                setTimeout(function () { ref.updateTable('main'); ref.updateTable('second'); }, 50);
+                setTimeout(function () { ref.updateField("main"); ref.updateField("second"); }, 50);
+                $("#judge_example_div .btn").click(function () { $("#Valueroot").val($(this).data("label")); });
+            },
+            methods: {
+                //保存标签
+                save: function () {
+                    //检测各个参数是否正常填写
+                    var ref = this;
+                    $("#ds_hid").val(JSON.stringify(ref.model.DataSourceType));
+                    //$("#form1").submit();
+                    labelEditor.save();
+                    $("#form1").ajaxSubmit({
+                        url: "@MVCHelper.GetAction("LabelSql_Save",Context.Request)", success: function (data) {
+                            var model=APIResult.getModel(data);
+                            if(APIResult.isok(model)){
+                                var labelId=$("#labelId_hid").val();
+                                if (labelId == "0") { cmsAlert("标签保存成功,即将返回列表页", function () { location = "LabelManage"; });}
+                                else{ cmsAlert("标签修改成功");}
+
+                            }
+                            else{cmsAlert("保存失败:"+model.retmsg);}
+                        }
+                    });
+                },
+                changeStep: function (step) {
+                    this.step = step;
+                    this.stepCallBack();
+                },
+                next: function () {
+                    this.step++;
+                    this.stepCallBack();
+                },
+                pre: function () {
+                    this.step--;
+                },
+                stepCallBack: function () {
+                    var ref=this;
+                    if (this.step == "3" && this.step3_inited == false) {
+                        setTimeout(function () { editor.setValue($("#textContent").val()); }, 100);
+                        this.step3_inited = true;
+                    }
+                    if(this.step=="3")
+                    {
+                        $("#Field_div").html("");
+                        $("#Field_div").load("LabelSql_Field",ref.getDBInfo(),function(){
+                            InitLabelDrag();
+                        });
+                    }
+
+                },
+                cancel: function () {
+                    if (!confirm("确定要退出编辑吗?")) { return false; }
+                    location = "LabelManage";
+                },
+                updateTable: function (flag) {
+                    var ref = this;
+                    var dsname = "";
+                    var field = "";
+                    var $dp = null;
+                    switch (flag) {
+                        case "main":
+                            $dp = $("#TableList_DP");
+                            dsname =  $("#DBList_DP").val();
+                            field = "tables1";
+                            break;
+                        case "second":
+                            $dp = $("#TableList2_DP");
+                            dsname =  $("#DBList2_DP").val();
+                            field = "tables2";
+                            break;
+                    }
+                    $.post("LabelSql_API?action=tables", { "dsname": dsname }, function (data) {
+                        var model = APIResult.getModel(data);
+                        if (APIResult.isok(model)) {
+                            ref[field] = model.result;
+                            //刷拉下拉
+                            if (selectpickerFlag[field] == false) {
+                                selectpickerFlag[field] = true;
+                                setTimeout(function () { selectpickerFlag[field] = false; console.log($dp.attr("id")); $dp.selectpicker("refresh"); }, 500);
+                            }
+                           
+                        }
+                        else { console.error("tables", model.retmsg); }
+                    })
+                },
+                //step1刷新字段列表
+                updateField: function (flag) {
+                    var ref = this;
+                    var T1 = ref.model.DataSourceType.tb_m, T2 = ref.model.DataSourceType.tb_s;
+                    var dsname = $("#DBList_DP").val();
+                    var tbname = T1;
+                    var fields = "fields1";
+                    if (flag == "second") {
+                        dsname = $("#DBList2_DP").val();
+                        tbname = T2;
+                        fields = "fields2";
+                    }
+                    if (ZL_Regex.isEmpty(dsname) || ZL_Regex.isEmpty(tbname)) { ref[fields] = [];  }
+                    $.post("LabelSql_API?action=fields", { "dsname": dsname, "tbname": tbname }, function (data) {
+                        var model = APIResult.getModel(data);
+                        if (APIResult.isok(model)) {
+                            ref[fields] = model.result;
+                        }
+                        else { console.error("fields", model.retmsg); }
+                    });
+                    //修改字段的值
+                    //$("#SqlJoin_DP").val();
+                    //$("#OnField_DP").val();
+                    //$("#OnField2_DP").val();
+                    //修改了选定的表,同时更正TaleSql与FieldSql
+                    setTimeout(ref.updateTableSql,500);
+
+                },
+                //step1:表查询语句
+                updateTableSql: function () {
+                    var ref = this;
+                    var sql = "";
+                    var T1 = ref.model.DataSourceType.tb_m, T2 = ref.model.DataSourceType.tb_s;
+                    if (ZL_Regex.isEmpty(T1)) { return sql; }
+                    if (ZL_Regex.isEmpty(T2))//单表
+                    {
+                        sql = T1;
+                    }
+                    else {
+                        var join = $("#SqlJoin_DP").val();
+                        console.log(join);
+                        sql = T1 + " " + join + " " + T2;
+                        sql += " ON " + T1 + "." + $("#OnField_DP").val() + "=" + T2 + "." + $("#OnField2_DP").val();
+                    }
+                    $("#SqlTable_T").val(sql);
+                },
+                //step1:
+                updateFieldSql: function () {
+                    var ref = this;
+                    //单表则不需要前缀,多表则加前缀
+                    var fields = "";
+                    var T1 = ref.model.DataSourceType.tb_m, T2 = ref.model.DataSourceType.tb_s;
+                    var f1Arr = $("#FieldList_DP").val();
+                    var f2Arr = $("#FieldList2_DP").val();
+                    if (!ZL_Regex.isEmpty(T1)) {
+                        var prefix = T1 + ".";
+                        if (ZL_Regex.isEmpty(T2)) { prefix = ""; }
+                        for (var i = 0; i < f1Arr.length; i++) {
+                            fields += prefix + f1Arr[i] + ",";
+                        }
+                    }
+                    if (!ZL_Regex.isEmpty(T2)) {
+                        var prefix = T2 + ".";
+                        if (ZL_Regex.isEmpty(T1)) { prefix = ""; }
+                        for (var i = 0; i < f2Arr.length; i++) {
+                            fields += prefix + f2Arr[i] + ",";
+                        }
+                    }
+                    if (fields.length > 0) { fields = fields.substr(0, fields.length-1); }
+                    if (ZL_Regex.isEmpty(fields)) { fields = "*"; }
+                    $("#SqlField_T").val(fields);
+                },
+               //step2:
+                updateWhereSql: function () {
+                    var ref = this;
+                    var T1 = ref.model.DataSourceType.tb_m, T2 = ref.model.DataSourceType.tb_s;
+                    var tbname = $("#Order_Table_DP").val();
+                    if (tbname == "1") { tbname = T1; } else { tbname = T2; }
+                    //---------------------------------------------------
+                    var sql = "";
+                    if (!ZL_Regex.isEmpty($("#Where_T").val())) { sql = $("#Where_T").val()+" " + $("#Where_Join_DP").val(); }
+                    sql += " " + tbname + "." + $("#Where_Field_DP").val();
+                    var whereVal = $("#Where_Value_T").val();
+                    if (ZL_Regex.isEmpty(whereVal)) { cmsAlert("查询条件不可为空"); return false; }
+                    switch (parseInt($("#Where_OPCode_DP").val())) {
+                        case 0:
+                            sql += "=" + whereVal;
+                            break;
+                        case 1:
+                            sql += ">" + whereVal;
+                            break;
+                        case 2:
+                            sql += "<" + whereVal;
+                            break;
+                        case 3:
+                            sql += ">=" + whereVal;
+                            break;
+                        case 4:
+                            sql += "<=" + whereVal;
+                            break;
+                        case 5:
+                            sql += "<>" + whereVal;
+                            break;
+                        case 6:
+                            sql += " IN (" + whereVal + ")";
+                            break;
+                        case 7:
+                            if (whereVal.indexOf("@@") == 0) { sql += " LIKE " + whereVal; }
+                            else { sql += " LIKE '%" + whereVal + "%'"; }
+                            break;
+                        case 8:
+                            sql += " NOT IN (" + whereVal + ")";
+                            break;
+                    }
+                    $("#Where_T").val(sql);
+                },
+                updateOrderSql: function () {
+                    var ref = this;
+                    var T1 = ref.model.DataSourceType.tb_m, T2 = ref.model.DataSourceType.tb_s;
+                    var tbname = $("#Order_Table_DP").val();
+                    if (tbname == "1") { tbname = T1; } else { tbname = T2; }
+                    var sql = tbname + "." + $("#Order_Field_DP").val() + " " + $("#Order_DP").val();
+                    $("#Order_T").val(sql);
+                },
+                showSql:function(){
+                    var ref=this;
+                    var config=ref.getDBInfo();
+                    if(!ZL_Regex.isEmpty(config.where)){config.where=" WHERE "+config.where;}
+                    if(!ZL_Regex.isEmpty(config.order)){config.order=" ORDER BY "+config.order;}
+                    if(!ZL_Regex.isEmpty(config.T2))
+                    {
+                        config.sql="SELECT "+config.fields+" FROM "+config.sqlTable+" "+config.where+" "+config.order;
+
+                    }
+                    else
+                    {
+                        config.sql="SELECT "+config.fields+" FROM "+config.T1+" A "+config.where+" "+config.order;
+                    }
+                    $("#sql_t").val(config.sql);
+                    $("#sqlModal").modal("show");
+                },
+                //order,where
+                getFields:function(type){
+                    var ref=this;
+                    var table=1;
+                    switch(type)
+                    {
+                        case "order":
+                            table=ref.order_table;
+                            break;
+                        case "where":
+                            table=ref.where_table;
+                            break;
+                    }
+                    if(table==1){return ref.fields1;}
+                    else{return ref.fields2;}
+                },
+                getDBInfo:function(){
+                    return {
+                        D1:$("#DBList_DP").val(),
+                        D2:$("#DBList2_DP").val(),
+                        T1:$("#TableList_DP").val(),
+                        T2:$("#TableList2_DP").val(),
+                        fields:$("#SqlField_T").val(),
+                        sqlTable:$("#SqlTable_T").val(),
+                        where:$("#Where_T").val(),
+                        order:$("#Order_T").val(),
+                    };
+                }
+            },
+            data: {
+                step: 0,
+                step3_inited: false,//初始化次编辑器
+                //标签模型
+                model: @Html.Raw(JsonConvert.SerializeObject(Model.labelMod,new JsonSerializerSettings() {ContractResolver =new LimitPropsContractResolver(new string[] {"Content","FalseContent","EmptyContent" }, false) })),
+                //参数相关操作
+                param: {
+                    newMod: function () {
+                        return { ParamName: "", ParamValue: "", ParamType: "1", ParamDesc: "", Param: "" };
+                    },
+                    add: function () {
+                        var ref = this;
+                        var model = ref.newMod();
+                        ref.dt.push(model);
+                    },
+                    del: function (item) {
+                        var ref = this;
+                        for (var i = 0; i < ref.dt.length; i++) {
+                            if (ref.dt[i] == item) { ref.dt.splice(i, 1);  }
+                        }
+                    },
+                    move:function(item,direction){
+                          var ref=this;
+                          if(ref.dt.length<2){return;}
+                          function getIndex(list,item){ for(i=0;i<list.length;i++){if(list[i]==item){return i;}} return 0; }
+                          var sIndex=getIndex(ref.dt,item);
+                          var tIndex=0;
+                         //---------------------------------------
+                          if(direction=="up"){
+                             if(sIndex==0){return;}
+                             tIndex=sIndex-1;
+                          }
+                          else{
+                             if(sIndex>=(ref.dt.length-1)){return;}
+                             tIndex=sIndex+1;
+                          }
+                             var temp=ref.dt[sIndex];
+                             ref.dt[sIndex]=ref.dt[tIndex];
+                             ref.dt[tIndex]=temp;
+                             Vue.set(ref.dt,sIndex, ref.dt[sIndex]);
+                             //Vue.set(ref.dt, ref.dt[tIndex],tIndex);
+        
+                       },
+                    //将参数字符串转换为json数组
+                    toDT: function (paramStr) {
+                        var ref = this;
+                        var paramArr = paramStr.split('|');
+                        var list = [];
+                        console.log(paramStr);
+                        if (!paramStr || paramStr == "[]") { return list; }
+                        for (var i = 0; i < paramArr.length; i++) {
+                            var model = ref.newMod();
+                            model.ParamName = paramArr[i].split(',')[0];
+                            model.ParamValue = paramArr[i].split(',')[1];
+                            model.ParamType = paramArr[i].split(',')[2];
+                            model.ParamDesc = paramArr[i].split(',')[3];
+                            model.Param = paramArr[i].split(',')[4];
+                            list.push(model);
+                        }
+                        return list;
+                    },
+                    //用于保存
+                    toStr: function () {
+                        //mid,0,1,地图ID|width,480,1,地图宽度|Height,320,1,地图高度
+                        //name,value,type,desc
+                        var ref = this;
+                        var paramStr = "";
+                        if(!ref||!ref.dt||ref.dt.length<1){return "[]";}
+                        for (var i = 0; i < ref.dt.length; i++) {
+                            var model=ref.dt[i];
+                            paramStr+=model.ParamName+","+model.ParamValue+","+model.ParamType+","+model.ParamDesc+"|";
+                        }
+                        if(paramStr.length>0){paramStr=paramStr.substr(0,paramStr.length-1);}
+                        return paramStr;
+                    },
+                    dt: [],
+                },
+                sqlJoin:"@joinType",
+                onField1:"@on1",
+                onField2:"@on2",
+                joins: [{ value: "LEFT JOIN", name: "Left" }, { value: "INNER JOIN", name: "Inner" }, { value: "OUTER JOIN", name: "Outer" }, { value: "RIGHT JOIN", name: "Right" }],
+                tables1: [],
+                tables2: [],
+                fields1: [],
+                fields2: [],
+                where_table:"1",
+                order_table:"1"
+            }
+        });
+    </script>
+    <script>
+        //LabelCall调用
+        var diag = new ZL_Dialog();
+        function opentitle(url, title) {
+            diag.url = url;
+            diag.title = title;
+            diag.ShowModal();
+        }
+        function closeCuModal() {
+            diagLabel.CloseModal();
+        }
+        //新增Div参数块,拥有绑定功能
+        function pdrag(ev) {
+            var code = $(ev.target ? ev.target : ev.srcElement).attr("code");
+            ev.dataTransfer.setData("Text", code);
+        }
+        function VoteCheck() {
+            var validator = $("#form1").validate({ meta: "validate" });
+            return validator.form();
+        }
+        function changecate(obj) {
+            var $text = $("#LabelCate_T");
+            $text.val($(obj).val());
+        }
+        function saveEditor() {
+            labelEditor.save();
+            return true;
+        }
+        function checkLabelName()
+        {
+            if ("@Model.labelMod.LabelID" != "0") { return; }
+            var labelName = $("#LabelName_T").val().replace(/ /ig,"");
+            if (ZL_Regex.isEmpty(labelName)) { $("#LabelName_Tip").hide(); return; }
+            //----------------------------------------------
+            var labelDT =@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.labelDT));
+            for (var i = 0; i < labelDT.length; i++) {
+                if (labelName == labelDT[i].LabelName) { $("#LabelName_Tip").show(); return; }
+            }
+            $("#LabelName_Tip").hide();
+        }
+        var base64 = Base64;
+        //===================================
+
+        var labelEditor = {
+            current: "Content_T",
+            load: function (dom, id) {
+                var ref = this;
+                if (id == ref.current) {  }
+                else { $("#" + ref.current).val(editor.getValue()); }
+                $(dom).closest(".nav-tabs").find("a").removeClass("active");
+                $(dom).addClass("active");
+                //---------------------
+                ref.current = id;
+                $("#textContent").val($("#" + id).val());
+                editor.setValue($("#" + id).val());
+            },
+            save: function () {
+                var ref = this;
+                $("#" + ref.current).val(editor.getValue());
+            }
+        };
+    </script>
+}

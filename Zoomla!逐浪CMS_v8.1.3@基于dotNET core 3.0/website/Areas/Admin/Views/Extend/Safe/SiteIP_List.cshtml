@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+
+}
+<table class="table table-bordered table-striped" id="EGV">
+    <thead><tr>
+        <th></th>
+        <th>IP</th>
+        <th>@L.添加时间</th>
+        <th>@L.到期时间</th>
+        <th>@L.备注</th>
+        <th>@L.操作</th>
+        </tr></thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr>
+            <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+            <td>@dr["IP"]</td>
+            <td>@dr["CDate"]</td>
+            <td>@dr["EDate"]</td>
+            <td>@dr["Remind"]</td>
+            <td>
+                <a href="SiteIPAdd?ID=@dr["ID"]" class="btn btn-sm btn-info"><i class="zi zi_pencilalt"></i></a>
+                <a href="javascript:;" onclick="mvcpage.del({url:'API?action=ip_del',ids:'@dr["ID"]',confirm:'@Html.Raw(L.确定要删除吗)'});" class="btn btn-sm btn-danger"><i class="zi zi_trash"></i></a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+</table>

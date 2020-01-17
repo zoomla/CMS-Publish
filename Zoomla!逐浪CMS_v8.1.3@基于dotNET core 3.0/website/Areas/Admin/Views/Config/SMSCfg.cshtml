@@ -1,0 +1,138 @@
+﻿@{ 
+
+}
+@section head{<title>@L.短信配置</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("SiteInfo",@L.网站配置),
+        new Bread() {url="", text=@L.短信配置,addon="" }},
+		Call.GetHelp(4))   
+<div class="container-fluid pr-0">
+<div class="row sysRow list_choice">
+<form method="post" action="SMSConfig_Submit" style="width:100%;">
+<table class="table table-bordered sys_table">
+<tr>
+    <th class=" w12rem_lg" scope="row">@L.默认短信接口<span class="rd_red">*</span></th>
+    <td>
+       @Html.DropDownList("ddlMessageCheck_DP"
+      ,MVCHelper.ToSelectList("关闭|深圳全网|北京东时方|亿美软通|腾迅云短信|宽乐通信".Split('|'),"0|1|2|3|qcloud|kltx".Split('|'),SMSConfig.Instance.DefaultSMS)
+      ,new {@class="form-control max20rem" })
+	</td>
+</tr>
+<tbody class="smsitem" id="div_1">
+    <tr>
+        <th scope="row">@L.短信通用户<span class="rd_red">*</span></th>
+        <td>
+            <input type="text" id="TxtMssUser" name="TxtMssUser" class="form-control max20rem" value="@SMSConfig.Instance.MssUser"/>
+		</td>
+    </tr>
+    <tr>
+        <th scope="row">@L.短信通密码<span class="rd_red">*</span></th>
+        <td>
+            <input type="text" id="TxtMssPsw" name="TxtMssPsw" class="form-control max20rem" value="@SMSConfig.Instance.MssPsw"/>
+		</td>
+    </tr>
+</tbody>
+<tbody class="smsitem" id="div_2">
+    <tr>
+        <th class="td_s" scope="row">@L.东时方企业号<span class="rd_red">* </span></td></th>
+        <td><input type="text" id="txtg_eid" name="txtg_eid" class="form-control max20rem" value="@SMSConfig.Instance.G_eid"/></td>
+    </tr>
+    <tr>
+        <th scope="row">@L.东时方用户<span class="rd_red">*</span></th>
+        <td><input type="text" id="txtg_uid" name="txtg_uid" class="form-control max20rem" value="@SMSConfig.Instance.G_uid"/></td>
+    </tr>
+    <tr>
+        <th scope="row">@L.东时方密码<span class="rd_red">*</span></th>
+        <td><input type="text" id="txtg_pwd" name="txtg_pwd" class="form-control max20rem" value="@SMSConfig.Instance.G_pwd"/></td>
+    </tr>
+    <tr>
+        <th scope="row">@L.东时方通道<span class="rd_red">*</span></th>
+        <td><input type="text" id="txt_h_gate_id" name="txt_h_gate_id" class="form-control max20rem" value="@SMSConfig.Instance.G_gate_id"/></td>
+
+    </tr>
+</tbody>
+<tbody class="smsitem" id="div_3">
+    <tr>
+        <th scope="row">@L.序列号<span class="rd_red">*</span></th>
+        <td><input type="text" id="smskeyT" name="smskeyT" class="form-control max20rem" value="@SMSConfig.Instance.sms_key"/></td>
+    </tr>
+    <tr>
+        <th scope="row">@L.密码<span class="rd_red">* </span></th>
+        <td><input type="text" id="smspwdT" name="smspwdT" class="form-control max20rem" value="@SMSConfig.Instance.sms_pwd"/></td>
+    </tr>
+</tbody>
+<tbody class="smsitem" id="div_qcloud">
+    <tr><th scope="row">APPID</th><td><input type="text" ID="QC_APPID" name="QC_APPID" value="@SMSConfig.Instance.QCloud_APPID" class="form-control max20rem"/></td></tr>
+    <tr><th scope="row">APPKey</th><td><input type="text" ID="QC_APPKey" name="QC_APPKey" value="@SMSConfig.Instance.QCloud_APPKey" class="form-control max20rem"/></td></tr>
+    <tr><th scope="row">@L.签名</th><td><input type="text" ID="QC_Sign" name="QC_Sign" value="@SMSConfig.Instance.QCloud_Sign" class="form-control max20rem"/></td></tr>
+</tbody>
+
+<tr><td colspan="2" class="text-center"><strong>@L.短信模板</strong></td></tr>
+    <tr>
+        <th scope="row">@L.注册验证码文本</th>
+        <td>
+            <input type="text" ID="Tlp_Reg" name="Tlp_Reg" class="form-control max20rem" maxlength="100" value="@SMSConfig.Instance.Tlp_Reg"/>
+            <small>@L.模板示例</small>
+        </td>
+    </tr>
+     <tr>
+        <th scope="row">@L.找回密码文本</th>
+        <td>
+            <input type="text" ID="Tlp_GetBack" name="Tlp_GetBack" class="form-control max20rem" maxlength="100" value="@SMSConfig.Instance.Tlp_GetBack"/>
+            <small>@L.找回密码示例</small>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">@L.修改手机号文本</th>
+        <td>
+            <input type="text" ID="Tlp_ChangeMobile" name="Tlp_ChangeMobile" class="form-control max20rem" maxlength="100" value="@SMSConfig.Instance.Tlp_ChangeMobile"/>
+            <small>@L.修改手机号示例</small>
+        </td>
+    </tr>
+<tr><td colspan="2" class="text-center"><strong>@L.通用配置</strong></td></tr>
+<tr>
+    <th scope="row">@L.每日手机号发送次数</th>
+    <td>
+        <input type="text" ID="MaxPhoneMsg" name="MaxPhoneMsg" value="@SiteConfig.SiteOption.MaxMobileMsg" class="form-control max20rem"/>
+		<small id="MaxPhoneMsgtxt" class="text-muted">@L.为0则不按手机号限定次数</small>
+    </td>
+</tr>
+<tr>
+    <th scope="row">@L.每日IP发送次数</th>
+    <td>
+        <input type="text" ID="MaxIpMsg" name="MaxIpMsg" value="@SiteConfig.SiteOption.MaxIpMsg" class="form-control max20rem"/>
+		<small class="text-muted">@L.为0则不按IP限定次数</small>
+    </td>
+</tr>
+<tr>
+<th scope="row">@L.会员变更手机号权限</th>
+<td>
+@MVCHelper.H_Radios("userMobilAuth","短信验证|自由修改".Split('|'),"0|1".Split('|'),SiteConfig.UserConfig.UserMobilAuth)
+</td>
+</tr>
+<tr><td></td><td><input type="submit" ID="Save_Btn" value="@L.保存配置" class="btn btn-outline-info"/></td></tr>
+</table>
+</form>
+</div>
+</div>
+
+}
+@section script{ 
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+    $(function () {
+        ZL_Regex.B_Num('.num');
+        $("#ddlMessageCheck_DP").change(changeDiv);
+        changeDiv();
+    });
+    function changeDiv() {
+        var value = $("#ddlMessageCheck_DP").val();
+        $(".smsitem").hide();
+        if (value != "0") { $("#div_" + value).show(); }
+       
+    }
+</script>
+
+}

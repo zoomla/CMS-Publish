@@ -1,0 +1,46 @@
+﻿@using ZoomLa.Model.Content
+@using ZoomLa.BLL.Content
+@using System.Data
+@using ZoomLa.Common
+@using ZoomLaCMS.Control
+@{ 
+    B_Node nodeBll = new B_Node();
+    DataTable nodeDT=nodeBll.CreateForListBox();
+}
+@section head{
+<title>@L.批量配置</title> 
+<style type="text/css">
+.batch_no{display:none;}
+.nav-tabs .nav-item{position:relative;min-width:105px;}
+.nav-tabs .nav-item input{position:absolute;right:5px;top:35%;}
+</style>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("NodeManage",L.节点管理),
+new Bread("BatchNode",L.批量设置)
+},"<span style='color:red;font-size:14px;margin-left:10px;'>("+L.请勾选需要批量修改的选项卡+")</span>")
+
+ <form method="post" action="@MVCHelper.GetAction("BatchNode_Submit",Context.Request)">
+<div class="container-fluid list_choice">
+    <div class="row">
+        <div class="col-2">
+            <select class="form-control" name="NodeIDS_DP" multiple="multiple" style="height:650px;">
+                @foreach (DataRow dr in nodeDT.Rows)
+                {
+                    <option value="@dr["NodeID"]">@dr["NodeName"]</option>
+                }
+            </select>
+        </div>
+        <div class="col-10" style="padding-top:0px;">
+           @Html.Partial("/Areas/Admin/Views/Content/Node/NodeAdd_Partial.cshtml",new M_Node())
+        </div>
+    </div>
+</div>
+    </form>
+}
+@section script{
+
+
+}

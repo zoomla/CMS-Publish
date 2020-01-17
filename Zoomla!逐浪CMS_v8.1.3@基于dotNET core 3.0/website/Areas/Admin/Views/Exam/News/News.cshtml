@@ -1,0 +1,48 @@
+﻿@using ZoomLa.BLL.Exam
+@{
+  B_Publish_Node nodebll = new B_Publish_Node();
+  DataTable dt = nodebll.Sel();
+}
+@section head{<title>@L.报纸管理</title>}
+@section content{
+<style type="text/css">
+.list-group-item:hover{background-color:#0094ff;color:#fff;}
+    </style>
+	@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("News",@L.数字出版),
+        new Bread() {url="", text="<a onclick='$(\"#Publist_IF\").attr(\"src\", \"NewsAdd\");'  href='javascript:;'> ["+@L.添加报纸+"]</a><a href='javascript:;' onclick='ShowPubNode();'> ["+@L.添加分类+"]</a>",addon="" }}
+		)
+<form method="post" action="@MVCHelper.GetAction("News_Submit",Context.Request)">
+<div class="list_choice">
+    <div class="row">
+        <div id="nodelist" class="col-sm-2">
+            <ul class="list-group">
+                 <li class="list-group-item" onclick="$('#Publist_IF').attr('src','PublishDesc?Nid=0')" style="cursor:pointer;">@L.全部</li>
+                @foreach (DataRow dr in dt.Rows)
+                {
+                    <li class="list-group-item" onclick="$('#Publist_IF').attr('src','PublishDesc?Nid=@dr["ID"]')" style="cursor:pointer;">@dr["NodeName"]</li>
+                }
+            </ul>
+        </div>
+      <iframe id="Publist_IF" src="PublishDesc?Nid=0" class="col-sm-10" style="border:none;min-height:750px;"></iframe>
+      <input type="hidden" ID="CurID_Hid" name="CurID_Hid"/>
+      </div>
+
+</div>
+</form>
+}
+@section script{
+<script type="text/javascript">
+    function ShowModal() {
+        $("#edit_href").click();
+    }
+    function ShowInfo(id) {
+        $("#Publist_IF").attr("src", "PublishDesc?Nid=" + id);
+    }
+    function ShowPubNode(nid) {
+        if (!nid) { nid = 0; }
+        ShowComDiag("PubNodeAdd?id=" + nid, "@Html.Raw(L.分类管理)");
+    }
+</script>
+}

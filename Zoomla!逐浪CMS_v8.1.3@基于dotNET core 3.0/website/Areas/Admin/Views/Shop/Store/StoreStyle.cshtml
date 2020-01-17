@@ -1,0 +1,15 @@
+﻿@model  ZoomLa.SQLDAL.SQL.PageSetting
+@section head{ <title>@L.店铺样式</title>}
+@section content{ 
+@Call.SetBread( new Bread[] {
+new Bread("{admin}"),
+new Bread("StoreManage",@L.店铺管理),
+new Bread(){url="", text=""+@L.店铺样式+"<a href='StoreStyleAdd'>["+@L.添加样式+"]</a>"}
+})
+	<div class="table-responsive list_choice">
+        @Html.Partial(MVCHelper.ViewDir_Admin_Store+"StoreStyle_List.cshtml")
+	</div>
+<style>
+.allchk_l{display: none;}
+</style>
+}
