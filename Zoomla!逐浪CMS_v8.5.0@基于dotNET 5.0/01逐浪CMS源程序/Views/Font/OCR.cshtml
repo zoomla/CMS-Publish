@@ -1,0 +1,234 @@
+﻿@using ZoomLa.Components.OCR
+@using ZoomLa.Components.OCR.Extensions
+@{
+    Layout = "_cms2020Layout";
+}
+@section head{
+<title>OCR文字识别- @Call.SiteName</title>
+<style>
+.drag_file_input{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;outline:2px dashed #92b0b3;outline-offset:-10px;padding:40px 20px;background-color:#c8dadf}
+.drag_file_input input[type=file]{width:0.1px;height:0.1px;opacity:0;overflow:hidden;z-index:-1}
+</style>
+}
+@section content{
+<nav class="navbar navbar-expand-lg navbar-light font_nav">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/Font"><i class="zi zi_tmZiti163"></i>逐浪字库大师</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/">从此开始</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/webfont">Webfont</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/pay">会员升级</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ofr")">查字体</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ocr")">智能识图</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/help">使用手册</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">造字秘集</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="http://www.ziti163.com/uni" target="_blank">Unicode字码表</a></li>
+                        <li><a class="dropdown-item" href="http://p.ziti163.com" target="_blank">智图</a></li>
+                        <li><a class="dropdown-item" href="http://a.ziti163.com" target="_blank">方言</a></li>
+                        <li><a class="dropdown-item" href="http://ico.z01.com" target="_blank">zico图标</a></li>
+                        <li><a class="dropdown-item" href="https://v.ziti163.com/Class_2/Default" target="_blank">字赏</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="http://f.ziti163.com" target="_blank">逐浪字库</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="d-flex">
+                <a href="javascript:;" onClick="isSearch();"><i class="zi zi_search"></i></a>
+                <div class="btn-group ms-1">
+                    <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" aria-expanded="false"><i class="zi zi_user"></i></a>
+                    <ul class="dropdown-menu" style="transform:translateX(-115px)">
+                        <li class="dropdown-item"><a href="/user/">会员中心</a></li>
+                        <li class="dropdown-item"><a href="/User/User/Logout">退出登录</a></li>
+                    </ul>
+                </div>
+            </form>
+            <ul class="font_search">
+                <form action="https://www.ziti163.com/Search/SearchList">
+                    <i class="zi zi_searchBlack"></i>
+                    <input type="text" class="form-control" placeholder="从ziti163.com字体网检索" name="keyword" />
+                    <a onClick="isClose();" href="javascript:;"><i class="zi zi_windowclose"></i></a>
+                </form>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-xl">
+    <div id="ocr_lang" class="my-4">
+        <div class="py-1">
+            <span>1、选择语言：</span>
+            <span class="ps-2 text-info small">如未选择任何语言，则默认为英文。多语言识别需要等待更长时间。</span>
+        </div>
+        @foreach (var item in Html.GetEnumSelectList(typeof(OCRLang)))
+        {
+            <label class="me-2">
+                <input type="checkbox" value="@item.Value" @(item.Value == "0" ? "checked" : "") />
+                <span>@(((OCRLang)int.Parse(item.Value)).GetDisplay())</span>
+            </label>
+        }
+    </div>
+    <div>
+        <div class="py-1">2、上传图片</div>
+        <div class="drag_file_input">
+            <div><i class="zi zi_upload zi_2x"></i></div>
+            <input type="file" name="formFile" id="formFile" accept=".png,.jpg,.jpeg,.bmp" />
+            <label class="custom-file-label" for="formFile" style="cursor:pointer">拖拽或选择本地png、jpg、jpeg、bmp 文件</label>            
+        </div>
+    </div>
+    <div class="my-4">
+        <button class="btn btn-outline-info btn-sm float-end" onclick="clearContent()">清除</button>
+        <div class="py-1">
+            <span>3、OCR识别结果</span>
+            <span class="ps-2 text-info small flex-grow-1" id="ocr_info"></span>
+        </div>
+        <textarea id="ocr_out" class="form-control my-2" rows="16"> </textarea>
+
+        <div id="ocr_img_title" class="my-2 d-none">原图片</div>
+        <img id="ocr_img" style="max-width:100%" />
+    </div>
+</div>
+
+
+<footer class="font_end">
+<div class="container-xl">
+Powered by &copy; @(DateTime.Now.ToString("yyyy")) @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.SiteName) BY @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.Webmaster)
+</div>
+</footer>
+
+<div class="home17_kefu">
+<ul>
+<li>
+<a href="javascript:;"><i class="zi zi_tmQq"></i></a>
+<div class="home17_kefu_c" style="bottom:13rem;">
+<div class="home17_kefu_ct">在线客服<i class="zi zi_times"></i></div>
+<div class="home17_kefu_cq">
+<ul>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=184886758&site=qq&menu=yes"><i class="zi zi_tmQq"></i>京沪苏粤售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=1799661890&site=qq&menu=yes"><i class="zi zi_tmQq"></i>软件授权售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=524979923&site=qq&menu=yes"><i class="zi zi_tmQq"></i>高端订制售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=745151353&site=qq&menu=yes"><i class="zi zi_tmQq"></i>教育系统集成</a></li>
+</ul>
+</div>
+<div class="home17_kefu_cb">
+<a href="tel:13918895839">
+<h3><i class="zi zi_phone"></i>服务热线</h3>
+<p>13918895839</p>
+</a>
+</div>
+</div>
+</li>
+<li>
+<a href="javascript:;"><i class="zi zi_tmWeixin"></i></a>
+<div class="home17_kefu_c" style="bottom:10.4rem;">
+<div class="home17_kefu_ct">扫码官方微信↓<i class="zi zi_times"></i></div>
+<div><img src="https://f.ziti163.com/Template/Ziku/style/images/qrcode.jpg" alt="微信二维码" style="max-width:100%;" /></div>
+</div>
+</li>
+<li><a href="javascript:;" title="快速获取逐浪CMS官方资源"><i class="zi zi_tmGit"></i></a>
+<div class="home17_kefu_c" style="bottom:8rem;">
+<div class="home17_kefu_ct">获取逐浪源码<i class="zi zi_times"></i></div>
+<div class="home17_kefu_cq">
+<ul>
+<li><a href="https://github.com/zoomla/ZoomlaFont" target="_blank"><i class="zi zi_tmGithub"></i>GitHub主页</a></li>
+<li><a href="https://gitee.com/zoomla/ZoomlaFont" target="_blank"><i class="zi zi_tmGoogleplusg"></i>Gitee码云主页</a></li>
+</ul>
+</div>
+</div>
+</li>
+<li><a href="javascript:;"><i class="zi zi_forUp"></i></a></li>
+</ul>
+</div>
+}
+
+@section script{ 
+<script src="/js/ICMS/ZL_Common.js?v=20191029"></script>
+<script>
+$(function () {
+    checkLogin();
+})
+$(".drag_file_input").on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+})
+.on('dragover dragenter', function(e) {
+})
+.on('dragleave dragend drop', function(e) {
+})
+.on('drop', function (e) {
+    var files = e.originalEvent.dataTransfer.files;
+    $(this).find('input[type="file"]').prop('files', files);
+    uploadImg();
+});
+var langs = "0";
+$("#ocr_lang input[type=checkbox]").change(function () {
+    var ls = [];
+    $("#ocr_lang input[type=checkbox]:checked").each(function () {
+        ls.push($(this).val());
+    });
+    langs = ls.join(",");
+    if (!langs)
+        langs = "1";
+});
+$('#formFile').change(function () {
+    uploadImg();
+});
+function uploadImg() {    
+    var isLogin = checkLogin();
+    if (!isLogin) {
+        $('#formFile').val('');
+        return;
+    }
+    clearContent();
+    if ($('#formFile')[0].files[0]) {
+        $('#formFile').attr("disabled", true);
+        $("#ocr_info").text("正在上传文件识别中...");
+        let data = new FormData();
+        data.append("formFile", $('#formFile')[0].files[0]);
+        $.ajax({
+            method: "Post",
+            data: data,
+            processData: false,
+            contentType: false,
+            url: encodeURI('/font/ocrapi?lang=' + langs),
+            success: function (result) {
+                if (result.success) {
+                    $("#ocr_img_title").removeClass("d-none");
+                    $("#ocr_img").attr("src", result.path);
+                    $("#ocr_out").val(result.content);
+                    $("#ocr_info").text("识别已完成");
+                }
+                else {
+                    alert(result.error);
+                }
+                setTimeout(() => {
+                    $("#ocr_info").text("");
+                    $('#formFile').val('');
+                    $('#formFile').attr("disabled", false);
+                }, 3000);
+            },
+            error: function () {
+                $(element).attr("disabled", false);
+                alert("出现错误！可能是网络或api存在问题");
+            }
+        });
+    }
+}
+function clearContent() {
+    $("#ocr_img_title").addClass("d-none");
+    $("#ocr_img").attr("src", "");
+    $("#ocr_out").val("");
+}
+function isSearch(){
+    $(".font_search").css("opacity","1").css("z-index","1").css("right","30%").css("top","0.5rem");
+    $(".font_search .form-control").focus();
+}
+function isClose(){
+    $(".font_search").css("opacity","0").css("z-index","-1");
+}
+</script>
+}

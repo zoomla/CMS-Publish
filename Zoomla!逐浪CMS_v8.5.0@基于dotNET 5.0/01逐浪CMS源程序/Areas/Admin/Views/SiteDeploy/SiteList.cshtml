@@ -1,0 +1,121 @@
+﻿@using ZoomLa.Model.Site
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    var sites = Model.dt.AsEnumerable()
+                .Select(row => new M_SiteDeploy()
+                {
+                    ID = Convert.ToInt32(row["ID"]),
+                    Name = row["Name"].ToString(),
+                    Note = row["Note"].ToString(),
+                    PackageType = (PackageType)Convert.ToInt32(row["PackageType"]),
+                    Path = row["Path"].ToString(),
+                    RunPath = row["RunPath"].ToString(),
+                    FileStatus = (FileStatus)Convert.ToInt32(row["FileStatus"]),
+                    Interface = row["Interface"].ToString(),
+                    Log = row["Log"].ToString(),
+                    CreateDate = DateTime.Parse(row["CreateDate"].ToString())
+                });
+}
+@section head{<title>站点发布</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.RawUrl(),"站点列表")},"[<a href='SiteAdd'>"+"添加站点"+"</a>]")
+<div class="">
+<div class="alert alert-info alert-dismissible fade show">
+<button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+<h5>使用提示：</h5>
+<p>面向Node与CLI开发，基于VueJS框架，并支持随时从git、npm获取包，此模块使用需要配置站点[应用程序池-进程模型-标识]为系统管理员权限，请在合理的安全规划下使用。</p>
+</div>
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th class="td_xs"></th>
+                <th>ID</th>
+                <th>站点名称</th>
+                <th>备注说明</th>
+                @*<th>站点网址</th>*@
+                <th>创建日期</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var site in sites)
+            {
+            <tr ondblclick="location = 'SiteDetail?id=@site.ID';">
+                <td class="node_select"><input type="checkbox" name="idchk" value="@site.ID" /></td>
+                <td>@site.ID</td>
+                <td>@site.Name</td>
+                <td>@site.Note</td>
+                @*<td>@if(!string.IsNullOrWhiteSpace(site.Port)){<a href="http://localhost:@site.Port" target="_blank">http://localhost:@site.Port</a>}</td>*@
+                <td>@($"{site.CreateDate:yyyy-MM-dd HH:mm:ss}")</td>
+                <td>
+                    <a href="SiteDetail?id=@site.ID"><i class="zi zi_eye" title="查看详情"></i> 查看详情</a>
+                    <a href="javascript:;" onclick="deleteSite(@site.ID)"><i class="zi zi_trash" title="删除"></i> @L.删除</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+        @Html.Partial("_page")
+        <script>$(function () { iCheckInit(); })</script>
+    </table>
+</div>
+<button onclick="multiDelete()" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+}
+@section script{ 
+<script>
+function deleteSite(id) {
+    var a = window.confirm("您确定删除该站点吗？");
+    if (!a)
+        return;
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI('@Url.Action("SiteDelete")' + "?id=" + id),
+        success: function (result) {
+            if (result) {
+                alert("站点删除成功！");
+                window.location.reload();
+            }
+            else {
+                alert("站点删除失败，可能是数据库问题，请重新加载列表后重试~");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function multiDelete() {
+    var a = window.confirm("您确定删除这些站点吗？");
+    if (!a)
+        return;
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+
+    if (ids.length > 0) {
+        $.ajax({
+            method: "GET",
+            dataType: "json",
+            url: encodeURI('@Url.Action("SiteDeleteRange")' + "?ids=" + ids),
+            success: function (result) {
+                if (result) {
+                    alert("站点删除成功！");
+                    window.location.reload();
+                }
+                else {
+                    alert("站点删除失败，可能是数据库问题，请重新加载列表后重试~");
+                }
+            },
+            error: function () {
+                alert("服务器访问出错，可能是网络或API存在问题");
+            }
+        });
+    }
+}
+</script>
+}

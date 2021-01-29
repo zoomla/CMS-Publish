@@ -1,0 +1,426 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.BLL.API
+@using ZoomLa.BLL.CreateJS
+@using ZoomLa.BLL.Other
+@using ZoomLa.Model.Other
+@using ZoomLa.BLL.User
+@using ZoomLa.Model.User
+@using Newtonsoft.Json
+@model MyPageModel
+@functions{
+    /*
+     * 1.开始与结束时间
+     * 2.手动修改奖品数
+     * 3.汽车奖品的Name属性不能重复(三个周期)
+     * 
+     * SELECT prize,count(*) AS [Count] FROM ZL_Pub_cj GROUP BY prize
+     */
+    [Authorize(Policy = ("User"))]
+    public class MyPageModel : Page_Base
+    {
+        private static object Lockobj = new object();
+        private static string IgnoreUserIds = ",610,762,97,439,647,378,1542,1468,1457,1362,1356,1327,1691,1906,";
+        public static List<M_WX_LuckPrize> prizeList = new List<M_WX_LuckPrize>() { };
+        public static List<M_LuckUser> userList = new List<M_LuckUser>();
+        //-------
+        public int CJCost = 1;
+        public int GGK_CJCost = 25;
+        string TbName = "ZL_Pub_CJ";//抽奖结果存储
+        //报名结止时间,抽奖开始与结束时间
+        //public DateTime BMEDate = Convert.ToDateTime("2019/04/30 23:59:59");
+        public DateTime CJSDate = Convert.ToDateTime("2019/04/28 00:00:00");
+        public DateTime CJEDate = Convert.ToDateTime("2019/06/22 23:59:59");
+        //第二期=19.05.13--05.19
+        //第三期=19.05.20--05.26
+        //第三期=19.05.27--06.02
+        //第五期=19.06.03--06.09//
+        //第六期=19.06.10--06.16
+        //第七期=19.06.17--06.23
+        public string CJPeriod = "第七期";
+        //UPDATE ZL_Pub_cj SET PubInputer='第六期'  WHERE PubAddTime>'2019/06/03 xx:xx:xx' AND PubInputer='第五期'
+        public IActionResult OnGet()
+        {
+            int a = 4;
+            mu = buser.GetLogin(false);
+            return Page();
+        }
+        public ContentResult OnPost()
+        {
+            M_APIResult retMod = new M_APIResult(Failed);
+
+            try
+            {
+                if (mu.IsNull) { throw new Exception("必须登录后才可访问"); }
+
+                //是否到时间
+                //if (DateTime.Now < CJSDate) { throw new Exception("尚未到抽奖开始时间"); }
+                //if (DateTime.Now > CJEDate) { throw new Exception("已过抽奖起止时间"); }
+                //if (!DBCenter.IsExist(TbName, "PubUserID=" + mu.UserID)) { throw new Exception("未报名,无法参加该活动"); }
+                if (mu.GroupID != 2) { throw new Exception("请等待后台验证MT4/MT5账号"); }
+                string mt4 = DataConvert.CStr(DBCenter.ExecuteScala("ZL_UserBase", "mt4", "UserID=" + mu.UserID));
+
+                //-------------------------------
+                string action = GetParam("action");
+                switch (action)
+                {
+                    case "bm"://添加报名(不用)
+                        {
+                            //string TbName = "ZL_Pub_BM";
+                            //B_CodeModel codeBll = new B_CodeModel(TbName);
+                            //if (DBCenter.IsExist(TbName, "PubUserID=" + mu.UserID)) { throw new Exception("已经报过名了"); }
+                            //if (DateTime.Now > BMEDate) { throw new Exception("已过报名起止时间"); }
+                            //DataTable modDT = codeBll.SelStruct();
+                            //DataRow modDR = modDT.NewRow();
+                            //modDR["PubUserID"] = mu.UserID;
+                            //modDR["PubUserName"] = mu.UserName;
+                            //modDR["PubAddTime"] = DateTime.Now;
+                            //modDR["PubTitle"] = mu.UserName;
+                            //modDR["Pubupid"] = "1";
+                            //modDR["PubStart"] = 0;
+                            //codeBll.Insert(modDR);
+                            //retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "cj":
+                        {
+                            if (mu.Purse < CJCost) { throw new Exception("没有足够的余额"); }
+                            B_CodeModel codeBll = new B_CodeModel(TbName);
+                            DataTable modDT = codeBll.SelStruct();
+                            DataRow modDR = modDT.NewRow();
+
+
+                            //总计累加应该为100%
+
+                            if (prizeList.Count < 1)
+                            {
+                                lock (Lockobj)
+                                {
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "iPad", Count_Total = 1, Percent = 0.01 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "iWatch", Count_Total = 1, Percent = 0.01 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "Dyson", Count_Total = 2, Percent = 0.02 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "BeatsStudio3", Count_Total = 3, Percent = 0.03 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "小米扫地机器人", Count_Total = 5, Percent = 0.06 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡500元", Count_Total = 5, Percent = 0.06 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡300元", Count_Total = 20, Percent = 0.22 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "现金200元", Count_Total = 50, Percent = 0.56 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡100元", Count_Total = 100, Percent = 1.11 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "现金100元", Count_Total = 100, Percent = 1.11 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "现金50元", Count_Total = 100, Percent = 1.11 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "再接再厉", Percent = 95.70 });//剩余全为其
+                                    //缓存奖品统计,避免发出过量奖品                                                                      
+                                    foreach (var item in prizeList)
+                                    {
+                                        string where = "prize='" + item.Name + "' AND PubInputer='" + CJPeriod + "'";
+                                        item.C_Count_Now = DataConvert.CLng(DBCenter.Count(TbName, where));
+                                    }
+                                    //统计该期未中奖人次，已中奖人次
+                                    {
+
+                                        string sql = "SELECT PubUserID,PubUserName,COUNT(*)AS [Count] FROM ZL_Pub_cj WHERE PubInputer='" + CJPeriod + "' AND PubTitle='转盘抽奖' {0} GROUP BY PubUserID,PubUserName";
+                                        DataTable no_dt = DBCenter.DB.ExecuteTable(new SqlModel() { sql = string.Format(sql, "AND prize='再接再厉'") });
+                                        DataTable luck_dt = DBCenter.DB.ExecuteTable(new SqlModel() { sql = string.Format(sql, "AND prize!='再接再厉'") });
+                                        foreach (DataRow dr in no_dt.Rows)
+                                        {
+                                            int count = DataConvert.CLng(dr["count"]);
+                                            int uid = DataConvert.CLng(dr["PubUserID"]);
+                                            string uname = DataConvert.CStr(dr["PubUserName"]);
+                                            M_LuckUser userMod = userList.FirstOrDefault(p => p.uid == uid);
+                                            if (userMod == null) { userList.Add(new M_LuckUser() { uid = uid, uname = uname, zp_no = count }); }
+                                            else { userMod.zp_no = count; }
+                                        }
+                                        foreach (DataRow dr in luck_dt.Rows)
+                                        {
+                                            int count = DataConvert.CLng(dr["count"]);
+                                            int uid = DataConvert.CLng(dr["PubUserID"]);
+                                            string uname = DataConvert.CStr(dr["PubUserName"]);
+                                            M_LuckUser userMod = userList.FirstOrDefault(p => p.uid == uid);
+                                            if (userMod == null) { userList.Add(new M_LuckUser(){ uid = uid, uname = uname, zp_luck = count }) ; }
+                                            else { userMod.zp_luck = count; }
+                                        }
+                                    }
+                                }
+                            }
+                            M_LuckResult result = LuckDrawPrize(prizeList,"zp");
+                            //----------------------
+                            modDR["emails"] = mu.Email;
+                            modDR["mt4"] = mt4;
+                            modDR["PubUserID"] = mu.UserID;
+                            modDR["PubUserName"] = mu.UserName;
+                            modDR["PubAddTime"] = DateTime.Now;
+                            modDR["PubTitle"] = "转盘抽奖";
+                            modDR["Pubupid"] = "1";
+                            modDR["PubStart"] = 0;
+                            modDR["PubInputer"] = CJPeriod;
+                            modDR["Prize"] = result.prizeName;
+                            modDR["PubContent"] = result.remind;
+                            buser.MinusVMoney(mu.UserID, CJCost, M_UserExpHis.SType.Purse, "抽奖,奖品:" + result.prizeName);
+                            codeBll.Insert(modDR);
+                            retMod.result = result.prizeName;
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "cj2":
+                        {
+                            if (mu.Purse < GGK_CJCost) { throw new Exception("没有足够的余额"); }
+
+                            B_CodeModel codeBll = new B_CodeModel(TbName);
+                            DataTable modDT = codeBll.SelStruct();
+                            DataRow modDR = modDT.NewRow();
+                            List<M_WX_LuckPrize> prizeList = new List<M_WX_LuckPrize>();
+                            prizeList.Add(new M_WX_LuckPrize() { Name = "未中奖", Percent = 100 });
+                            //因为同存一张表,所以奖品名字必须不同
+                            //该用户指定周期内未中过奖,则给予奖励[extend]
+                            //PubInputer='" + CJPeriod + "' AND 
+                            string luckUser = ",217,1264,301,2058,";
+                            if (luckUser.Contains("," + mu.UserID + ","))
+                            {
+                                int count = DBCenter.Count(TbName, "PubTitle='刮刮卡' AND prize!='未中奖' AND PubUserID=" + mu.UserID);
+                                if (count < 1)
+                                {
+                                    prizeList.Clear();
+                                    if (mu.UserID == 2058)
+                                    {
+                                        prizeList.Add(new M_WX_LuckPrize() { Name = "捷豹汽车", Count_Total = 1, Percent = 1 });
+                                    }
+                                    else
+                                    {
+                                        prizeList.Add(new M_WX_LuckPrize() { Name = "宝马汽车", Count_Total = 1, Percent = 1 });
+                                    }
+
+                                }
+                            }
+                            M_LuckResult result = LuckDrawPrize(prizeList, "ggk");
+                            //----------------------
+                            modDR["emails"] = mu.Email;
+                            modDR["mt4"] = mt4;
+                            modDR["PubUserID"] = mu.UserID;
+                            modDR["PubUserName"] = mu.UserName;
+                            modDR["PubAddTime"] = DateTime.Now;
+                            modDR["PubTitle"] = "刮刮卡";
+                            modDR["PubInputer"] = CJPeriod;
+                            modDR["Pubupid"] = "1";
+                            modDR["PubStart"] = 0;
+                            modDR["Prize"] = result.prizeName;
+                            buser.MinusVMoney(mu.UserID, GGK_CJCost, M_UserExpHis.SType.Purse, "刮刮卡,奖品:" + result.prizeName);
+                            codeBll.Insert(modDR);
+                            retMod.result = result.prizeName;
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex) { retMod.retmsg = ex.Message; retMod.retcode = M_APIResult.Failed; }
+            return Content(retMod.ToString());
+        }
+        /// <summary>
+        /// 获取奖项,返回奖品名称,前端依此定位
+        /// </summary>
+        /// <param name="prizeList">可抽奖品列表</param>
+        /// <param name="type">抽奖活动名称|类型,用于特殊规则判断</param>
+        /// <param name="remind">结果备注</param>
+        /// <returns></returns>
+        private M_LuckResult LuckDrawPrize(List<M_WX_LuckPrize> prizeList,string type)
+        {
+            if (IgnoreUserIds.IndexOf("," + mu.UserID + ",") > -1)
+            {
+                if (type.Equals("zp")) { return new M_LuckResult() { prizeName = "再接再厉", remind = "ignore" }; }
+                else { return new M_LuckResult() { prizeName = "未中奖", remind = "ignore" }; }
+            }
+
+            if (prizeList.Count < 1) { throw new Exception("未初始化抽奖数据"); }
+            if (type == "zp")
+            {
+                //用户是否到了最高中奖次数
+                M_LuckUser userMod = userList.FirstOrDefault(p => p.uid == mu.UserID);
+                if (userMod == null)
+                {
+                    userMod = new M_LuckUser();
+                    userMod.uid = mu.UserID;
+                    userMod.uname = mu.UserName;
+                    userList.Add(userMod);
+                }
+                else if (userMod.zp_luck >= 2)
+                {
+                    userMod.zp_no++;
+                    return new M_LuckResult() { prizeName = "再接再厉", remind = "max" };
+                }
+            }
+            //如果中有一个奖品,则直接返回
+            if (prizeList.Count == 1)
+            {
+                return new M_LuckResult() { prizeName = prizeList[0].Name, remind = "onlyone" };
+            }
+
+            double index = new Random(System.Guid.NewGuid().GetHashCode()).NextDouble();
+            index = Convert.ToDouble((index * 100).ToString("F2"));
+            //筛选尚有奖品剩余的条目
+            List<M_WX_LuckPrize> list = prizeList.FindAll(p => (p.Count_Total == -100 || p.C_Count_Now < p.Count_Total));
+            #region 设定好Index范围
+            {
+                double totalPercent = 0, multiple = 1;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    M_WX_LuckPrize model = list[i];
+                    if (i == 0)
+                    {
+                        model.Index_Start = 0;
+                        model.Index_End = model.Index_Start + model.Percent;
+                    }
+                    else
+                    {
+                        M_WX_LuckPrize pre = list[i - 1];
+                        model.Index_Start = pre.Index_End + 0.01;
+                        model.Index_End = pre.Index_End + model.Percent;
+                    }
+                    totalPercent += model.Percent;
+                }
+                //multiple = (totalPercent / 100);
+                //for (int i = 0; i < list.Count; i++)
+                //{
+                //    list[i].Index_Start = list[i].Index_Start * multiple;
+                //    list[i].Index_End = list[i].Index_End * multiple;
+                //}
+            }
+            #endregion
+            M_WX_LuckPrize prizeMod = list.FirstOrDefault(p => (index == p.Index_Start || index == p.Index_End) || (index > p.Index_Start && index < p.Index_End));
+            if (prizeMod == null) { prizeMod = list.FirstOrDefault(p => p.Count_Total == -100); }
+            //奖品与中奖结果计入缓存
+            lock (Lockobj)
+            {
+                prizeMod.C_Count_Now++;
+                if (type == "zp")
+                {
+                    M_LuckUser userMod = userList.FirstOrDefault(p => p.uid == mu.UserID);
+                    if (prizeMod.Name == "再接再厉") { userMod.zp_no++; }
+                    else { userMod.zp_luck++; }
+                }
+            }
+            //[extend]
+            //未抽中，并且仍有奖品剩余(190514取消该逻辑)
+            //if (prizeMod.Name.Equals("再接再厉") && list.Count > 1)
+            //{
+            //    lock (Lockobj)
+            //    {
+            //        //本周期,是否连续25次未抽中
+            //        string where = "PubUserID=" + mu.UserID + " AND PubInputer='" + CJPeriod + "' AND PubTitle='转盘抽奖' ";
+            //        int count_no = DBCenter.Count(TbName, where + " AND prize='再接再厉'");
+            //        int count_ok = DBCenter.Count(TbName, where + " AND prize NOT IN ('再接再厉','未中奖')");
+
+            //        if ((count_no > 0 && count_ok > 0) && (count_no / count_ok) >= 25)
+            //        {
+            //            //从尚余奖品中随机抽出一个
+            //            list = prizeList.FindAll(p => (p.C_Count_Now < p.Count_Total));
+            //            int pindex = new Random().Next(0, list.Count);
+            //            prizeMod = list[pindex];
+            //            remind = "luck";
+            //        }
+            //    }
+            //}
+            return new M_LuckResult() { prizeName = prizeMod.Name };
+        }
+    }
+    public class M_LuckUser
+    {
+        public int uid = 0;
+        public string uname = "";
+        //已中奖次数
+        public int zp_luck = 0;
+        //未中奖次数
+        public int zp_no = 0;
+        //public int ggk_luck = 0;
+        //public int ggk_no = 0;
+    }
+    public class M_LuckResult
+    {
+        /// <summary>
+        /// 奖品名称
+        /// </summary>
+        public string prizeName = "";
+        /// <summary>
+        /// 备注,如特殊规则导致的中奖||未中奖
+        /// </summary>
+        public string remind = "";
+    }
+}
+@{ 
+    //抽奖统计计录缓存，不依靠数据库
+    Layout = "_empty";
+}
+@section head{ <title>每天，和幸运约个会</title>}
+@section content{
+ 
+<link href="/Template/Prizexm/style/global.css?Version=20190104" rel="stylesheet">
+
+<div class="container prizeActive">
+<section class="prizeHead">
+<div class="row">
+<div class="col-md-6 col-6 prizeHead_l">
+<h1>开放时间</h1>
+<p>@(Model.CJSDate.ToString("yyyy.MM.dd") + "-" + Model.CJEDate.ToString("yyyy.MM.dd"))</p>        
+</div>
+<div class="col-md-6 col-6 prizeHead_r">
+<a href="/"><img src="/Template/Prizexm/style/Images/logo2.svg" alt=""></a>
+</div>
+</div>
+</section>
+<!--prizeHead end-->
+
+<section class="prizeTwo">
+<div class="row">
+<div class="col-6">
+<div class="prizeTwo_l">
+<h1>娱乐一下</h1>
+<strong>本轮抽奖一次需花费@(Model.CJCost)XM金币</strong>
+</div>
+</div>
+<div class="col-6 prizeTwo_r">
+<a href="LuckHis">历史抽奖记录</a>
+<strong>剩余抽奖XM金币<span><span id="purse_sp">@(Model.mu.Purse.ToString("F0"))</span>币</span></strong>
+</div>
+</div>
+</section>
+<!--prizeTwo end-->
+
+<section class="prizeTurntable">
+<div class="wheel_container" wof-tag="0"> 
+<img class="rotate" id="rotate" src="/Template/Prizexm/style/Images/Rotate/turntable3.png" alt="turntable"/>
+<img  class="pointer" src="/Template/Prizexm/style/Images/Rotate/pointer.png" alt="pointer"/>
+</div>
+</section>
+<!--prizeTurntable end-->
+
+<section class="prizeStimulate">
+<div class="row">
+<div class="col-4 prizeStimulate_l">
+<h2>刺激一把</h2>
+<strong>本轮抽奖一次需花费@(Model.GGK_CJCost)XM金币</strong>
+</div>
+<div class="col-8 prizeStimulate_r">
+<img id="scratch_img" src="/Template/Prizexm/style/Images/prizeStimulate_r.png" alt="刺激一把" onclick="scratchInit();"/>
+<div id="scratch_container"></div>
+<a href="@HttpContext.Request.RawUrl()" class="btn btn-success" id="scratch_btn" style="display:none;">再来一次</a>
+</div>
+</div>
+</section>
+<p class="tip">抽奖小Tips:参与抽奖次数越多，中奖概率越高哦！</p>
+</div>
+<!--prizeActive end-->
+
+<footer class="container">Powered by@XM集团</footer>
+    @if (Model.mu.UserName.Equals("admin"))
+    {
+        <div style="display:none;">
+            @Newtonsoft.Json.JsonConvert.SerializeObject(MyPageModel.userList)
+            @Newtonsoft.Json.JsonConvert.SerializeObject(MyPageModel.prizeList)
+        </div>
+    }
+}
+@section script{
+<script src="/res/js/weui.js"></script>
+<link href="/res/css/weui.min.css" rel="stylesheet" />
+<script src="/JS/Modal/APIResult.js"></script>
+@Html.Partial("Luck_Rotate")
+@Html.Partial("Luck_Scratch")
+}

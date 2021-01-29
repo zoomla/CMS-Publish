@@ -1,0 +1,51 @@
+﻿@page
+@using ZoomLa.BLL.CreateJS
+@functions{
+    /*
+     * 1.显示已提交的互动表单(仅显示当年,仅一份)
+     * 2.草稿状态的表单允许多次修改,提交后不可修改,退回的表单可再次修改
+     * 3.查看流程进度
+     */
+    B_Pub_Info infoBll = new B_Pub_Info();
+    B_User buser = null;
+    DataTable infoDT = null;
+    public void OnGet()
+    {
+        buser = new B_User(HttpContext);
+        //根据用户类型获取表单类型???
+        M_UserInfo mu = buser.GetLogin();
+        infoDT = DBCenter.SelTop(1, "ID", "*", "ZL_Pub_jjknj", "PubUserID=" + mu.UserID, "ID DESC");
+    }
+
+}
+@{ 
+
+    Layout = null;
+}
+
+<div>
+
+@if (infoDT.Rows.Count < 1)
+{
+  <div class="text-center">
+        <i class="zi zi_envelopeOpen" style="font-size:10rem;color:#ddd;"></i>
+    <div class="alert alert-info" style="margin-top:10px;">还没有创建报告,<a href="/E/FormInfo">前往创建</a></div>
+  </div>
+}
+else
+{
+    <table class="table table-bordered">
+    <tr><td style="width:200px;">提交时间</td><td>@(infoDT.Rows[0]["PubAddTime"])</td></tr>
+    <tr><td>报告状态</td><td>@(ExForm.ShowStatus(infoDT.Rows[0]["PubStart"])) </td></tr>
+    <tr><td>社会组织名称</td><td>@(infoDT.Rows[0]["jjkmc"])</td></tr>
+    <tr><td>统一社会信用代码</td><td>@(infoDT.Rows[0]["tyskxydm"])</td></tr>
+    <tr><td>备注</td><td style="color:red;">@(infoDT.Rows[0]["PubContent"])</td></tr>
+    <tr>
+        <td></td>
+        <td>
+            <a href="/E/FormInfo?InfoID=@(infoDT.Rows[0]["ID"])" class="btn btn-info"><i class="zi zi_pencilalt"></i> 修改报告</a>
+        </td>
+    </tr>
+</table>
+}
+</div>

@@ -1,0 +1,21 @@
+﻿lightbox:
+页面单图与相册浏览,用于后端模板浏览,论坛贴子内图片浏览
+
+fancybox:
+  Func:Can display images, HTML elements, SWF movies, Iframes and also Ajax requests
+  http://fancyapps.com/fancybox/3/
+
+tn3:
+弹性相册,用于相册浏览,支持全屏,已有改进后的页面使用
+D:\Code\NetCoreCMS\ZoomLaCMS\Pages\E\Save\Gallery.cshtml
+
+
+magazine2:
+FD集团所用,带放大缩小，
+PreViewByMG
+
+h5:
+图片等整合声景浏览
+
+尚缺整合:
+1.图片编辑裁剪

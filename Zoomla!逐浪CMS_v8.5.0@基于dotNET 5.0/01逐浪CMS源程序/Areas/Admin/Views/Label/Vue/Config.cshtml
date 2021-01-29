@@ -1,0 +1,18 @@
+﻿@section head{<title>Vue配置</title> }
+@section content{ 
+<form method="post" action="Config_Submit">
+<table class="table table-bordered">
+    <tr><td class="td_m">目录拷贝</td><td>
+         <textarea class="form-control" rows="5" name="VUE_DirCopy">@SiteConfig.SiteOption.VUE_DirCopy</textarea>
+         <div><small>来源目录=目标目录,以换行分隔</small></div>
+         <div><small>格式示例 ：/wwwroot/vue/=/zoomlacli/src/views/</small></div>
+         </td></tr>
+    <tr><td></td><td>
+        <input type="submit" class="btn btn-info" value="保存信息"/>
+        </td></tr>
+</table>
+</form>
+}
+@section script{ 
+
+}

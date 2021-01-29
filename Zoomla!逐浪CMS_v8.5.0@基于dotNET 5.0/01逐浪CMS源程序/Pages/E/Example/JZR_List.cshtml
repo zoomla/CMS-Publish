@@ -1,0 +1,65 @@
+﻿@functions{
+    public string ShowStatus(DataRow dr)
+    {
+        string result = DataConvert.CStr(dr["ZStatus"]);
+        switch (DataConvert.CLng(dr["ZStatus"]))
+        {
+            case (int)ZLEnum.ConStatus.UnAudit:
+                result = "未审核";
+                break;
+            case (int)ZLEnum.ConStatus.Audited:
+                result = "已审核";
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+}
+@{
+     PageSetting setting = ViewData["setting"] as PageSetting;
+ }
+<div id="EGV">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="td_xs"></th>
+                <th class="td_s">ID</th>
+                <th class="td_m">姓名</th>
+                <th class="td_m">电话</th>
+                <th class="td_m">年龄</th>
+                <th class="td_m">性别</th>
+                <th class="td_m">推荐人</th>
+                <th class="td_m">状态</th>
+                <th class="td_l">添加日期</th>
+                <th class="td_l">操作 </th>
+            </tr>
+        </thead>
+        @foreach (DataRow dr in setting.dt.Rows)
+        {
+            <tr>
+                <td><input type="checkbox" name="idchk" value="@dr["ID"]"/></td>
+                <td>@dr["ID"]</td>
+                <td>@dr["name"]</td>
+                <td>@dr["mobile"]</td>
+                <td>@dr["age"]</td>
+                <td>@dr["sex"]</td>
+                <td><a href="javascript:;" onclick="user.showuinfo('@dr["CUser"]');">@dr["CUName"]</a></td>
+                <td>@ShowStatus(dr)</td>
+                <td>@dr["CDate"]</td>
+                <td>
+                    @if (DataConvert.CLng(dr["ZStatus"]) == 0)
+                    {
+                        <button type="button" class="btn btn-info btn-sm" onclick="mvcpage.post2('?action=audit', '@dr["ID"]');">审核</button>
+                    }
+                    else if (DataConvert.CLng(dr["ZStatus"]) == 99)
+                    {
+                        <button type="button" class="btn btn-warning btn-sm" onclick="mvcpage.post2('?action=unaudit', '@dr["ID"]');">取消审核</button>
+                    }
+                </td>
+            </tr>
+        }
+        @Html.Partial("_page",setting)
+    </table>
+</div>

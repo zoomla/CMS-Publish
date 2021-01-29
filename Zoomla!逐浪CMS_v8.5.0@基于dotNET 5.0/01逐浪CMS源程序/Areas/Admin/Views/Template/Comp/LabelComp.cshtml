@@ -1,0 +1,128 @@
+﻿@model ZoomLaCMS.Control.C_Model
+@{
+    B_Label labelBll = new B_Label();
+    B_FunLabel bfun = new B_FunLabel();
+    DataTable cateDT = labelBll.GetLabelCateListXML();//自定义标签
+    DataTable fieldDT = labelBll.GetSourceLabelXML(); //字段标签
+    {
+        DataRow dr = cateDT.NewRow();
+        dr["name"] = "选择标签类型";
+        cateDT.Rows.InsertAt(dr, 0);
+    }
+    {
+        DataRow dr = fieldDT.NewRow();
+        dr["LabelName"] = "请选择数据源标签";
+        dr["LabelID"] = 0;
+        fieldDT.Rows.InsertAt(dr, 0);
+    }
+}
+<style>
+.spanfixdiv1{border-radius:4px;background:#fff;cursor:pointer;border:1px solid #ddd;padding:8px;max-width:180px;margin-right:2px;display:inline-block;overflow-x:hidden;text-overflow:ellipsis}
+.spanfixdiv1:hover{background-color:rgba(91,192,222,0.8);color:#fff}
+.spanfixdiv{margin:.3rem 0 .3rem 0.1rem;padding:.4rem .4rem;font-size:0.92rem;overflow:hidden;cursor:pointer;float:left;min-width:135px;white-space:nowrap}
+.spanfixdivchechk a{font-size:1.2em;margin:0px 10px 0px 5px}
+.spanfixdivchechk:hover,.spanfixdiv:hover{background-color:rgba(91,192,222,0.8);color:#fff}
+</style>
+<ul class="nav nav-tabs top_opbar mb-0">
+    <li class="nav-item"><a class="nav-link active" href="#Tabs0" data-bs-toggle="tab">自定标签</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Tabs1" data-bs-toggle="tab">字段标签</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Tabs2" data-bs-toggle="tab">系统标签</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Tabs3" data-bs-toggle="tab">扩展函数</a></li>
+</ul>
+<div class="row sysRow table-responsive-md">
+    <div class="col-md-4 LabelCallTab_l">
+        <div class="tab-content">
+            <div class="tab-pane active" id="Tabs0" runat="server">
+                <div class="card">
+                    <div class="card-header">
+                        @Html.DropDownList("CustomLabel_DP", MVCHelper.ToSelectList(cateDT, "name", "name"), new { @class = "form-select", onchange = "GetCustom(this);" })
+                    </div>
+                    <div class="card-body" id="CustomLabel_div"></div>
+                </div>
+            </div>
+            <div class="tab-pane" id="Tabs1">
+                <div class="card">
+                    <div class="card-header">
+                        @Html.DropDownList("Field_DP", MVCHelper.ToSelectList(fieldDT, "LabelName", "LabelID"), new { @class = "form-select", onchange = "GetField(this);" })
+                    </div>
+                    <div class="card-body" id="Field_div"></div>
+                </div>
+            </div>
+            <div class="tab-pane ps-3" id="Tabs2">
+                <div class="list-group">
+                    <div id="lblSys">
+                        @Html.Raw(bfun.GetSysLabel())
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane ps-3" id="Tabs3">
+                <div class="list-group">
+                    <div id="lblFun">
+                        @Html.Raw(bfun.GetFunLabel())
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 p-0">
+        @Html.Raw(SafeSC.ReadFileStr("/lib/html/label.html"))
+    </div>
+</div>
+
+<div class="modal fade" id="label_modal" tabindex="-1" aria-labelledby="tag_dialog_title" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="h5 modal-title" id="label_modal_title"></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body" style="height:auto;overflow-y:auto;" id="label_modal_body">
+                <iframe id="label_modal_iframe" style="width:100%;">44</iframe>
+            </div>
+            <div class="modal-footer" id="label_modal_footer">
+                <button type="button" id="label_modal_submit" class="btn btn-outline-info">引用</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/Controls/ZL_Dialog.js"></script>
+<script src="/js/Controls/ZL_Array.js"></script>
+<script src="/js/Plugs/sea.js"></script>
+<script src="/js/Plugs/base64.js"></script>
+<script src="~/res/js/bootstrap.bundle.min.js"></script>
+<script src="/js/ICMS/LabelCall.js"></script>
+<script>
+// 创建模态框全局变量，用于LabelCall.js调用
+    var labelModal = new bootstrap.Modal(document.getElementById('label_modal'), {
+    keyboard: false
+});
+var base64 = Base64;
+$("#lblFun div").each(function () {
+    $(this).click(function () {
+        var code = $(this).attr("code");
+        insertText(code);
+        
+    })
+});
+    function selFont() {
+        var url = "SelFont";
+        comdiag.maxbtn = false;
+        comdiag.width = "modal-sm";
+        ShowComDiag(url, "引用webfont-基于逐浪字库");
+    }
+$(function () {
+	labelMDEditor.init('@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.value))');
+});
+$("#lblSys div").each(function () {
+    $(this).click(function () {
+        insertText($(this).attr("code"));
+    });
+});
+//$("#lblFun div").each(function () {
+//    $(this).click(function () {
+//        insertText($(this).attr("code"));
+//    });
+//});
+</script>

@@ -1,0 +1,133 @@
+﻿@{ 
+    string pavl = ViewContext.HttpContext.Request.Query["pval"];
+}
+@section head{ 
+    <title>自定义下载</title>
+}
+@section content{ 
+        <table class="table table-bordered table-striped table-hover mb-2">
+            <thead>
+                <tr>
+                    <th scope="col">文件地址</th>
+                    <th scope="col">文件名</th>
+                    <th scope="col" style="width:10rem;">货币类型</th>
+                    <th scope="col">价格</th>
+                    <th scope="col">有效期（分钟）</th>
+                    <th scope="col">下载数</th>
+                </tr>
+            </thead>
+            <tbody id="downtb">
+            </tbody>
+        </table>
+        <div class="input-group ms-1">
+            <input type="button" class="btn btn-outline-info" value="再加一个" onclick="AddTr()" />
+            <input type="button" class="btn btn-outline-info" value="保存修改" onclick="TableToJson()" />
+        </div>
+        <div class="alert alert-info mt-2">价格为0则可免费下载,时间为0则购买永久有效</div>
+}
+@section script{ 
+    <script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        $("#ranstr").val(GetRanPass(10))
+        function GetRanPass(length) {
+            var iteration = 0; var password = ""; var randomNumber; if (special == undefined) { var special = false; }
+            while (iteration < length) {
+                randomNumber = (Math.floor((Math.random() * 100)) % 94) + 33; if (!special) {
+                    if ((randomNumber >= 33) && (randomNumber <= 47)) { continue; }
+                    if ((randomNumber >= 58) && (randomNumber <= 64)) { continue; }
+                    if ((randomNumber >= 91) && (randomNumber <= 96)) { continue; }
+                    if ((randomNumber >= 123) && (randomNumber <= 126)) { continue; }
+                }
+                iteration++; password += String.fromCharCode(randomNumber);
+            }
+            return password;
+        }
+        var result = [];
+        var pavl = "@pavl";
+            pavl = pavl.replace(/&quot;/g, "\"");
+        pavl = JSON.parse(pavl);
+        $(function () {
+            var text = parent.$("#" + pavl.name).val();
+            if (text != "") {
+                var json = JSON.parse(text);
+                var a=0;
+                for (var i = 0; i < json.length; i++) {
+                    //alert(JSON.stringify(json[i]));
+                    if (json[i].url != undefined) {
+                        a++;
+                        alert(i+" "+a );
+                        //alert(JSON.stringify(json[i]));
+                        AddTr();
+                        $("table tr").each(function (a) {
+                            if (a) {
+                                alert(json[i].url);
+                                $(this).find('td:eq(0) input').val(json[i].url);
+                                $(this).find('td:eq(1) input').val(json[i].fname);
+                                //$(this).find('td:eq(2) select').val(json[i - 1].ptype);
+                                //$(this).find('td:eq(3) input[name=price]').val(json[i - 1].price);
+                                //$(this).find('td:eq(3) input[name=ranstr]').val(json[i - 1].ranstr);
+                                //$(this).find('td:eq(4) input').val(json[i - 1].hour);
+                                //$(this).find('td:eq(5) input').val(json[i - 1].count);
+                            }
+                        })
+                    }
+
+                }
+                
+            }
+            var index = $("[name=url]").length;
+            if (index == 0) {
+                AddTr();
+            }
+        })
+        var trtlp = "<tr>"
+            + "<td scope='row'><div class='input-group'><button type='button' class='btn btn-info' onclick='RemoveTr(this)'>移除</button><input type='text' class='form-control text_300' name='url' value='下载地址index'/></div></td>"
+            + "<td><input type='text' class='form-control text_x' value='文件index' /></td>"
+            + "<td><select name='ptype' class='form-control text_x form-select' ><option value='purse'>余额</option><option selected='selected' value='sicon'>银币</option><option value='point'>积分</option></select></td >"
+            + "<td><input type='text' name='price' class='form-control text_x' value='0' /><input type='hidden' name='ranstr' value='GetRan'/></td>"
+            + "<td><input type='text' class='form-control text_x' value='0' /></td>"
+            + "<td><input type='text' class='form-control text_x' value='0' /></td></tr>"
+        function AddTr() {
+            var index = $("[name=url]").length + 1;
+            var tr = trtlp.replace(/index/g, index)
+            var tr = tr.replace(/GetRan/g, GetRanPass(10))
+            $("#downtb").append(tr);
+        }
+        var diag = new ZL_Dialog();
+        function TableToJson() {
+
+            var text = parent.$("#" + pavl.name).val();
+            if (text != "") {
+                var json = JSON.parse(text);
+                text = "";
+                for (var i = 0; i < json.length; i++) {
+                    if (json[i].url == undefined) {
+                        text +=","+ JSON.stringify(json[i]);
+                    }
+                }
+            }
+            
+            $("table tr").each(function (i) {
+                if (i > 0) {
+                    var tb = {};
+                    tb.url = $(this).find('td:eq(0) input').val();
+                    tb.fname = $(this).find('td:eq(1) input').val();
+                    tb.ptype = $(this).find('td:eq(2) select').val();
+                    tb.price = $(this).find('td:eq(3) input[name=price]').val();
+                    tb.ranstr = $(this).find('td:eq(3) input[name=ranstr]').val();
+                    tb.hour = $(this).find('td:eq(4) input').val();
+                    tb.count = $(this).find('td:eq(5) input').val();
+                    result.push(tb);
+                }
+                    
+            })
+            text = "[" + JSON.stringify(result).replace(/\[|]/g, '') + text +"]";
+            parent.$("#" + pavl.name).val(text);
+            parent.diag.CloseModal();
+            
+        }
+        function RemoveTr(obj) {
+            $(obj).closest("tr").remove();
+        }
+    </script>
+}

@@ -1,0 +1,91 @@
+﻿@using System.Web
+@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.BLL.Helper
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@using Microsoft.AspNetCore.Html;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+    public DataTable RoleDT
+    {
+        get
+        {
+            if (ViewBag.RoleDT == null)
+            { ViewBag.RoleDT = ZoomLa.SQLDAL.DBCenter.Sel("ZL_Role"); }
+            return ViewBag.RoleDT;
+        }
+
+    }
+    public string GetRoleName(DataRow dr)
+    {
+        if (IsSuper(dr)) { return "超级管理员"; }
+        string ids = DataConverter.CStr(dr["AdminRole"]);
+        if (string.IsNullOrEmpty(ids)) { return ""; }
+        DataRow[] drs = RoleDT.Select("'" + ids + "' LIKE '%,'+RoleID+',%'");
+        ids = "";
+        foreach (DataRow item in drs)
+        {
+            ids += item["RoleName"].ToString() + ",";
+        }
+        return ids.Trim(',');
+    }
+    public string GetUserName(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["AddUserID"]) > 0)
+            return "<a href='UserInfo?id=" + dr["AddUserID"] + "'>查看</span>";
+        return "<span style='color:gray;'>无</span>";
+    }
+    public bool IsSuper(DataRow dr)
+    {
+        return (DataConverter.CLng(dr["AdminID"]) == 1);
+    }
+    public string GetUserNames(DataRow dr)
+    {
+        if (DataConverter.CLng(dr["AddUserID"]) > 0)
+            return "<a href='UserInfo?id=" + dr["AddUserID"] + "' class='dropdown-item'><i class='zi zi_eye'></i> 关联会员</a>";
+        return "<span style='color:gray;' class='dropdown-item'>无</span>";
+    }
+}
+@{
+
+}
+
+<tbody id="EGV">
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr ondblclick="location='AdminAdd?id=@dr["AdminId"]'" title="双击修改">
+            <td class="node_select"><input name="idchk" type="checkbox" title="全选" value="@dr["AdminID"]" /></td>
+            <td>@dr["AdminId"]</td>
+            <td>@(DataConverter.CLng(dr["IsLock"]) == 1 ? "锁定" : "正常")</td>
+            <td><a href="AdminAdd?id=@dr["AdminId"]">@dr["AdminName"]</a></td>
+            <td>@dr["AdminTrueName"]</td>
+            <td>@GetRoleName(dr)</td>
+            <td>@MvcHtmlString.Create(GetUserName(dr))</td>
+            <td>@dr["LastLoginIP"]</td>
+            <td>@dr["LastModifyPwdTime"]</td>
+            <td>@dr["CDate"]</td>
+            <td>@dr["LastLogoutTime"]</td>
+            <td>@dr["LoginTimes"]</td>
+            <td>
+                <div class="btn-group">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a href="AdminAdd?ID=@dr["AdminID"]" class="dropdown-item"><i class="zi zi_pencilalt" title="修改"></i> 管理操作</a></li>
+                        <li>@MvcHtmlString.Create(GetUserNames(dr))</li>
+                        <li></li>
+                        @if (!IsSuper(dr))
+                        {
+                            <li><a href="javascript:;" class="dropdown-item" onclick="mvcpage.del({ url: 'Admin_API?action=del', confirm: '@Html.Raw(L.确定要删除该管理员)','ids':'@dr["AdminID"]'});"><i class="zi zi_trashalt" zico="垃圾箱竖条"></i>删除</a></li>
+                        }
+                    </ul>
+                </div>
+                
+                
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page", Model)
+</tbody>

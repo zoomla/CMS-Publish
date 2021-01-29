@@ -1,0 +1,135 @@
+﻿@using ZoomLa.SQLDAL
+@model ZoomLa.Model.Project.M_Project
+@functions{
+    public string getStatus(int i)
+    {
+        string str = "";
+        switch (i)
+        {
+            case 1:
+                str = "待办的";
+                break;
+            case 2:
+                str = "进行中";
+                break;
+            case 3:
+                str = "已完成";
+                break;
+            case 4:
+                str = "已拒绝";
+                break;
+            default:
+                break;
+        }
+        return str;
+    }
+    public string GetClass(int i)
+    {
+        string str = "";
+        switch (i)
+        {
+            case 0:
+                str = "未指定";
+                break;
+            case 1:
+                str = "紧急";
+                break;
+            case 2:
+                str = "正常";
+                break;
+            case 3:
+                str = "次要";
+                break;
+            case 4:
+                str = "淘汰";
+                break;
+            default:
+                break;
+        }
+        return str;
+    }
+}
+@section head{
+    <title>项目详情</title>
+    <link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+    <script src="/Plugins/Ueditor/ueditor.config.js" charset="utf-8"></script>
+    <script src="/Plugins/Ueditor/ueditor.all.min.js" charset="utf-8"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Controls/ZL_Webup.js?v=1"></script>
+}
+@section content{
+    <div class=" w-75 m-auto">
+        @Html.ActionLink("编辑", "Project_Add", new { id = ViewContext.HttpContext.Request.Query["id"] }, new { @class = "input-group-text float-end" })
+        @Html.ActionLink("创建问题", "Project_Add", "Blog", new { ids = @ViewContext.HttpContext.Request.Query["id"] }, new { @class = "input-group-text float-end" })
+        <div>@Model.ProName</div>
+        <div><span style="color:@Model.Color;">@Model.Color</span> @getStatus(Model.Status) @Model.UserName 创建于 @Model.CreaeTime</div>
+        <hr />
+    </div>
+    <div class="row w-75 m-auto">
+        <div class="col-8">
+            <div>@MvcHtmlString.Create(Model.Content)</div>
+            <hr />
+        </div>
+        <div class="col-4">
+            <div class="input-group mb-1">
+                负责人 @Model.Principal
+            </div>
+            <div class="input-group mb-1">
+                参与者 @Model.Participant
+            </div>
+            <div class="input-group mb-1">
+                状态 @getStatus(Model.Status)
+            </div>
+            <div class="input-group mb-1">
+                颜色 @Model.Color
+            </div>
+            <div class="input-group mb-1">
+                项目简介 @Model.Synopsis
+            </div>
+            <div class="input-group mb-1">
+                附属文件 @Model.Files
+            </div>
+            <div class="input-group mb-1">
+                缩略图 @Model.Thumbnail
+            </div>
+            <div class="input-group mb-1">
+                组图 @Model.Photos
+            </div>
+            <div class="input-group mb-1">
+                级别 @GetClass(Model.Class)
+            </div>
+            <div class="input-group mb-1">
+                推荐 @Model.Recommend
+            </div>
+            <div class="input-group mb-1">
+                关联项目 @Model.Source
+            </div>
+            <div class="input-group mb-1">
+                计划开始日期 @Model.StartDate
+            </div>
+            <div class="input-group mb-1">
+                计划结束日期 @Model.EndDate
+            </div>
+        </div>
+    </div>
+}
+@section script{
+    <script type="text/javascript" src="/JS/DatePicker/WdatePicker.js"></script>
+    <script src="/JS/Controls/ZL_Webup.js"></script>
+    <link href="/JS/Controls/ZL_Webup.css" />
+    @MvcHtmlString.Create(Call.GetUEditor("Comment", 2))
+    <script>
+        $(function () {
+            setactive("项目");
+        })
+        function something(type, value) {
+            $.post("", {
+                type: type,
+                value: value
+            })
+        };
+        //remove leftnav
+        var child = document.getElementById("leftnav");
+        child.parentNode.removeChild(child);
+    </script>
+}

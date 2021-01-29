@@ -1,0 +1,124 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{$SiteName/}</title>
+<meta name="Keywords" content="" />
+<meta name="Description" content="">
+{ZL:Boot()/}
+<link href="{$CssDir/}global.css?Version={ZL.Label id="前端样式版本号"/}" rel="stylesheet"/>
+<script src="/js/scrolltopcontrol.js" type="text/javascript"></script>
+
+{ZL:GetCSS(1,0)/}
+</head>
+<body>
+{ZL.Label id="全站头部"/}
+
+<div class="myBanner">
+<div class="container">
+<h3><br/><br/>逐浪软件</h3><br/>
+支持大数据与云计算的全平台网站构建系统。
+</div>
+</div><!--内页通栏banner广告位 -->
+<div class="news_body" id="vueApp">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 col-12">
+                <div class="news_mySites">
+                <nav aria-label="breadcrumb" role="navigation">
+                <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">首页</a></li>
+                <li class="breadcrumb-item"><a v-bind:href="'/Class_223/Default?nid='+node.NodeID">{{node.NodeName}}</a></li>
+                <li class="breadcrumb-item active">正文</li>
+                </ol>
+                </nav>
+                </div><!--面包屑导航结束 -->
+                <div class="myContent_l">
+                <h1>{{conMod.Title}}</h1>
+                <div class="myAbbr">
+                <span id="CreateTime">发表：{{conMod.CreateTime.split('T')[0]}}</span> <span id="Hits">浏览数：0</span>
+                </div>
+                <div class="myContent" v-html="conMod.content"></div>
+ 
+                <div class="conKeyword">
+                </div>
+
+    
+                <!--con_share end-->
+
+                <div class="mood">
+                <form name="form2" method="post" action="/PubAction">
+
+                <ul class="list-unstyled">
+                <li><br/><span id="b1"><span id="bb1"></span></span><br/><img src="{$CssDir/}Images/b1.gif" /><br/>欠扁<br/><input type="radio" name="Mood"  onClick="mood(1)" value="1"></li>
+                <li><br/><span id="b2"><span id="bb2"></span></span><br/><img src="{$CssDir/}Images/b2.gif" /><br/>超赞<br/><input type="radio" name="Mood" onClick="mood(2)" value="2"></li>
+                <li><br/><span id="b3"><span id="bb3"></span></span><br/><img src="{$CssDir/}Images/b3.gif" /><br/>支持<br/><input type="radio" name="Mood"  onClick="mood(3)" value="3"></li>
+                <li><br/><span id="b4"><span id="bb4"></span></span><br/><img src="{$CssDir/}Images/b4.gif" /><br/>难过<br/><input type="radio" name="Mood" onClick="mood(4)" value="4"></li>
+                <li><br/><span id="b5"><span id="bb5"></span></span><br/><img src="{$CssDir/}Images/b5.gif" /><br/>搞笑<br/><input type="radio" name="Mood" onClick="mood(5)" value="5"></li>
+                <li><br/><span id="b6"><span id="bb6"></span></span><br/><img src="{$CssDir/}Images/b6.gif" /><br/>扯淡<br/><input type="radio" name="Mood"  onClick="mood(6)" value="6"></li>
+                <li><br/><span id="b7"><span id="bb7"></span></span> <br/><img src="{$CssDir/}Images/b7.gif" /><br/>不解<br/><input type="radio" name="Mood" onClick="mood(7)" value="7"></li>
+                <li><br/><span id="b8"><span id="bb8"></span></span><br/><img src="{$CssDir/}Images/b8.gif" /><br/>头晕<br/><input type="radio" name="Mood" onClick="mood(8)" value="8"></li>
+                </ul>
+                <div class="clearfix"></div>
+                <div style="display:none"> <input type="submit" name="button1" id="button1" value="提交"> </div>
+                </form>
+                <div>
+                </div>
+                </div>
+
+                </div>
+                </div>
+                <div class="col-12 col-sm-3">
+                        <div class="news_list">
+                        <div class="news_list_t"><h2>分享</h2><div class="clearfix"></div></div>
+                        <div class="news_share">
+                        <div class="bdsharebuttonbox">
+                        <a class="bds_more" href="#" data-cmd="more"></a>
+                        <a title="分享到QQ空间" class="bds_qzone" href="#" data-cmd="qzone"></a>
+                        <a title="分享到新浪微博" class="bds_tsina" href="#" data-cmd="tsina"></a>
+                        <a title="分享到腾讯微博" class="bds_tqq" href="#" data-cmd="tqq"></a>
+                        <a title="分享到人人网" class="bds_renren" href="#" data-cmd="renren"></a>
+                        <a title="分享到微信" class="bds_weixin" href="#" data-cmd="weixin"></a>
+                        </div>
+                        </div>
+                        </div>
+                        <div class="news_list">
+                        <div class="news_list_t"><h2>热门文章</h2><div class="clearfix"></div></div>
+                        <div class="news_list_c">
+                        <ul class="list-unstyled"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!--主体结束 -->
+<div class="Assis_Div"></div>
+
+{ZL.Label id="全站底部"/}
+
+
+<script src="/res/vue/vue.js"></script>
+<script src="/js/Modal/APIResult.js"></script>
+<script src="/js/ICMS/cmsJsonP.js"></script>
+<script>
+    cmsJsonP.apiUrl = "https://f.ziti163.com/API/Content.ashx?action=";
+    var vueApp = new Vue({
+        el: "#vueApp",
+        data: {
+            conMod: {CreateTime:""},
+            node: {}
+        },
+        methods: {
+            
+        },
+        mounted: function () {
+            var ref = this;
+            cmsJsonP.content_get({ "id": "{$GetRequest(gid)$}" }, function (ret) {
+                ref.conMod = ret.result[0]; $("title").text(ref.conMod.Title);
+                cmsJsonP.node_get({ id: ref.conMod.NodeID }, function (ret) { ref.node = ret.result; });
+            })
+        }
+    })
+</script>
+</body>
+</html>

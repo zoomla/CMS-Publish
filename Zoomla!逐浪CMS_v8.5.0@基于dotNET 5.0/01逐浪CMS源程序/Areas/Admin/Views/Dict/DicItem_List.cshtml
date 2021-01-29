@@ -1,0 +1,29 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "DicItem_API?action=";
+}
+<div id="EGV">
+    <table class="table table-bordered table-hover table-sm table-striped">
+        <thead>
+            <tr>
+                <th scope="col" class="td_xs"></th>
+                <th scope="col">ID</th>
+                <th scope="col">字典项目</th>
+                <th scope="col" class="td_m">操作</th>
+            </tr>
+        </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+    <tr>
+        <td class="node_select"><input type="checkbox" name="idchk" value='@dr["DicID"]' /></td>
+        <td>@dr["DicID"]</td>
+        <td><a id="item_@dr["DicID"]">@dr["DicName"]</a></td>
+        <td>
+            <a href="javascript:;" onclick="showAdd('@dr["DicID"]');"><i class="zi zi_pencilalt"></i> 编辑</a>
+            <a href="javascript:;" onclick="mvcpage.del({ids:'@dr["DicID"]', url:'@(apiUrl+"del")',confirm:'确实要删除吗'});"><i class="zi zi_trash"></i>删除</a>
+        </td>
+    </tr>
+    }
+    @Html.Partial("_page")
+    </table>
+</div>

@@ -1,0 +1,30 @@
+﻿@model ZoomLa.Model.M_GuestBookCate
+@{ 
+    Layout = "_empty";
+
+}
+@section head{<title>分类管理</title>}
+@section content{ 
+<link type="text/css" href="/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script src="/res/js/bootstrap-switch.js"></script>
+
+    <form method="post" action="@MVCHelper.GetAction("CateAdd_Submit",Context.Request)">
+    <table class="table table-bordered table-striped">
+        <tr><td style="width:150px;">名称</td><td>@Html.TextBoxFor(m=>m.CateName,new {@class="form-control max20rem" })</td></tr>
+        <tr><td>审核模式</td><td>@MVCHelper.H_Check("Status",Model.Status==1,new {@class="switchChk",value="1" })</td></tr>
+        <tr><td>未审核内容</td><td>
+             @MVCHelper.H_Radios("IsShowUnaudit","全部展示|审核后才可见".Split('|'),"1|0".Split('|'),Model.IsShowUnaudit.ToString())
+            <div><small>未审核的内容是否在前端列表中显示</small></div>
+            </td></tr>
+        <tr><td>发贴限制</td><td>
+            @MVCHelper.H_Radios("NeedLog","允许匿名|必须登录".Split('|'),"0|1".Split('|'),Model.NeedLog.ToString())
+            </td></tr>
+        <tr><td>简介</td><td>@Html.TextAreaFor(m=>m.Desc,new {@class="form-control" })</td></tr>
+        <tr><td></td><td><input type="submit" class="btn btn-info" value="保存信息"/></td></tr>
+    </table>
+</form>
+}
+@section script{ 
+
+
+}

@@ -1,0 +1,11 @@
+推荐使用zico矢量图标系统，官网http://ico.z01.com
+引用方法：
+<link href="http://ico.z01.com/res/css/zico.min.css" rel="stylesheet"/>
+
+通过引用下面一行，可以直接调用“逐浪云”高端webfont字体库，或访问www.ziti163.com/webfont获取自定义字体。
+@import url("https://code.z01.com/Zfonts.css");
+
+在线云字体：www.ziti163.com/webfont
+
+开发资源：http://code.z01.com
+

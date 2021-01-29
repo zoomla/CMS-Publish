@@ -1,0 +1,75 @@
+﻿@using ZoomLa.BLL.Plat
+@using ZoomLa.SQLDAL;
+@{
+    B_Plat_Group pgBll = new B_Plat_Group();
+}
+@functions{
+    B_User buser = new B_User();
+    protected string GetManageName(string ids)
+    {
+        string result = "";
+        DataTable dt = buser.SelectUserByIds(ids);
+        if (dt == null) { return ""; }
+        foreach (DataRow row in dt.Rows)
+        {
+            result += row["HoneyName"].ToString() + ",";
+        }
+        return result.Trim(',');
+    }
+    protected string che(string ids,string memberids)
+    {
+        string[] idArry = memberids.Trim().Split(",");
+        string str = "";
+        for (int i = 0; i < idArry.Length; i++)
+        {
+            if (ViewContext.HttpContext.Request.Query["UserID"] == idArry[i])
+            {
+                str = "checked";
+            }
+        }
+        return str;
+    }
+}
+@section content{
+    <form method="post" action="@MVCHelper.GetAction("Department_Submit",Context.Request)">
+        <table class="table table-bordered table-striped sys_table">
+            <tr><th class="w1rem"></th><th class="td_s">ID</th><th>名称</th><th>管理员</th></tr>
+            @foreach (DataRow dr in pgBll.Sel().Rows)
+            {
+                var v = dr["ManageIDS"];
+                if (ViewContext.HttpContext.Request.Query["idt"] == "1")
+                {
+                    v = dr["MemberIDS"];
+                }
+                <tr>
+                    <td class="node_select"><input type="checkbox" id="idchk_@dr["ID"]" name="idchk_@dr["ID"]" value="@dr["ID"]" @che(dr["ID"].ToString(), v.ToString()) onclick="add(@dr["ID"])" /></td>
+                    <td>@dr["ID"]<input id="text_@dr["ID"]" name="text_@dr["ID"]" type="hidden" value="0" /></td>
+                    <td>@dr["GroupName"]</td>
+                    <td>@GetManageName(DataConverter.CStr(dr["ManageIDS"]))</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="4" >
+                    <div class="input-group text-center">
+                        <input type="submit" class="input-group-text" value="确定" onclick="closeDiag()"/>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+    </form>
+}
+@section script{
+    <script>
+        function add(id) {
+            $("#idchk_" + id).change(function () {
+                if ($("#idchk_" + id).is(":checked")) {
+                    $("#text_" + id).val("1");
+                }
+                else {
+                    $("#text_" + id).val("2")
+                }
+            });
+        }
+    </script>
+}

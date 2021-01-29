@@ -1,0 +1,86 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using Newtonsoft.Json.Linq
+@using Newtonsoft.Json
+@using ZoomLa.BLL.User.Addon
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        /*
+         * 1.已经绑定微信的用户,不可重绑         （须后台管理员先做解绑操作 ）
+         * 2.该openid如已绑定其他用户,则给予提示 （须后台管理员先做解绑操作 ）
+         */
+        // /BindWX?state=1
+        public string state { get { return GetParam("state"); } }
+        public string Code { get { return Request.GetParam("code"); } }
+        public IActionResult OnGet()
+        {
+            throw new Exception("closed");
+            if (string.IsNullOrEmpty(state)) { return WriteErr("未指定绑定的用户信息"); }
+            if (string.IsNullOrEmpty(Code))
+            {
+                ReadyToBind();
+            }
+            else
+            {
+                B_UserAPP appBll = new B_UserAPP();
+                WxAPI wxapi = WxAPI.Code_Get("公众号");
+                string result = APIHelper.GetWebResult("https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + wxapi.AppId.APPID + "&secret=" + wxapi.AppId.Secret + "&code=" + Code + "&grant_type=authorization_code");
+                JObject obj = (JObject)JsonConvert.DeserializeObject(result);
+                string openid = obj["openid"].ToString();
+                M_UserAPP umod = appBll.SelModelByOpenID(openid, "wechat");
+                if (umod != null)
+                {
+                    M_UserInfo muInfo = buser.GetUserByUserID(DataConvert.CLng(state));
+                    return WriteErr("微信已绑定用户[" + muInfo.UserName + "],不可重复绑定",ExHelper.ToApp("/user/info"));
+                }
+                else
+                {
+                    M_UserInfo muInfo = buser.GetUserByUserID(DataConvert.CLng(state));
+                    if (muInfo.IsNull) { return WriteErr("绑定的用户ID[" + state + "]不存在"); }
+                    M_Uinfo baseInfo = buser.GetUserBaseByuserid(muInfo.UserID);
+                    umod = appBll.SelModelByUid(muInfo.UserID, "wechat");
+                    if (umod != null) { return WriteErr("需绑定的目标用户ID[" + state + "],已绑定了其他微信,请先联系管理员进行解绑"); }
+                    umod = new M_UserAPP();
+                    umod.UserID = muInfo.UserID;
+                    umod.SourcePlat = "wechat";
+                    umod.OpenID = openid;
+                    appBll.Insert(umod);
+                    muInfo.CompanyName = openid;
+                    baseInfo.ICQ = openid;
+                    buser.UpdateByID(muInfo);
+                    buser.UpdateBase(baseInfo);
+                    buser.SetLoginState(muInfo);
+                    Response.Redirect(ExHelper.ToApp("/user/info"));
+                }
+            }
+            return Page();
+        }
+        private void ReadyToBind()
+        {
+            WxAPI wxapi = WxAPI.Code_Get("公众号");
+            string redirect_uri = SiteConfig.SiteInfo.SiteUrl + "/E/wxmp/BindWX";
+            string api = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + wxapi.AppId.APPID + "&redirect_uri=" + redirect_uri + "&response_type=code&scope=snsapi_userinfo&state=" + state + "#wechat_redirect";
+            HttpContext.Response.Redirect(api);
+        }
+    }
+}
+@{ 
+    Layout = "~/Areas/Admin/Views/Shared/_layout.cshtml";
+    //string url= ContextHelper.FullUrl(HttpContext.Request); ;
+    //WxAPI api = WxAPI.Code_Get(1);
+    //string wxappid = api.AppId.APPID;
+    //string timeStamp = WxAPI.HP_GetTimeStamp();
+    //string sign = api.JSAPI_GetSign(api.JSAPITicket, WxAPI.nonce, timeStamp, url);
+    //string result= "appId: \"" + api.AppId.APPID + "\",timestamp:\"" + timeStamp + "\" , nonceStr:\"" + WxAPI.nonce + "\", signature:\"" + sign + "\"";
+    int hdId = DataConvert.CLng(HttpContext.Request.GetParam("hdid"));
+    WxAPI.Code_Get();
+
+}
+@section head{<title>微信绑定</title> }
+@section content{ 
+  
+}
+@section script{}

@@ -1,0 +1,113 @@
+﻿@model ZoomLa.Model.M_ServiceSeat
+@using ZoomLa.BLL.Chat
+@using ZoomLa.Model.Chat
+@using ZoomLa.BLL.User
+@functions{
+    //客户端聊天,会将在线用户均抽取出来
+    public string NoFace = "onerror='this.src=\'/Images/userface/noface.png\';'";
+    public string Login = "visitor";//登录模式
+    public M_OnlineUser user { get { return ViewBag.user; } }
+}
+@{ 
+
+
+
+}
+@section head{<title>在线聊天_客服端</title>}
+@section content{
+<div class="container">
+    <div class="chat_top">
+        <span id="uinfo_name"></span>
+        <span class="chat_top_r" style="margin-left:5px;"  title="点击关闭聊天窗口"><a href="javascript:;" onclick="closechat();"><i class="zi zi_times"></i></a></span>
+        <span class="chat_top_r" style="margin-right:5px;" title="点击查看历史记录"><a href="javascript:;" onclick="ShowHistory();"><i class="zi zi_listalt"></i>历史记录</a></span>
+    </div>
+    <div class="chat_main">
+        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 hidden-xs chat_main_r" style="padding: 0">
+            <div class="chat_main_rt">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-bs-toggle="tab">在线用户</a></li>
+                </ul>
+            </div>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="home">
+                    <div class="chat_main_rc">
+                        <ul class="media-list" id="user_list">
+              
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12 chat_main_l" style="padding: 0">
+            <div class="chat_container">
+                <div id="chat_body_list"></div>
+                <div id="mymsg">
+                    <textarea id="content" style="height: 135px;"></textarea>
+                    <div class="chat_send">
+                        <span class="remindgray">支持Ctrl+Enter快捷键发送信息</span>
+                        <button type="button" id="sendbtn" class="btn btn-primary float-end" disabled="disabled" onclick="SendMsg();">发送</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <input type="hidden" ID="UserID_Hid" />
+</div>
+<div style="float: left; padding-left: 10px; display: none;">
+    <input type="button" value="获取在线用户" onclick="GetOnlineList();" />
+    <div>
+        <audio src="/Plugins/Third/Chat/msg.mp3" id="msg_ad" />
+    </div>
+    <ul>
+        <li>
+            <img id="myfaceimg" style="width: 80px; height: 80px;" onerror="shownoface(this);" /></li>
+        <li>名字:<input type="text" id="myname_t" /></li>
+        <li>ID:<input type="text" id="myid_t" /></li>
+        <li>在线用户：<textarea id="onlineids_text" style="height: 100px;"></textarea>
+        </li>
+        <li>与谁聊:<input type="text" id="ReceUser_Hid" />
+            <input type="button" value="测试" onclick="testF();" />
+            <input type="button" value="接收" onclick="GetMsg();" />
+        </li>
+        <li>获取在线用户:</li>
+    </ul>
+    <input type="text" id="test_fid" />
+    <button type="button" onclick="AddFriend()">添加好友</button>
+</div>
+}
+@section script{
+<script>
+var cs = {};
+cs.allOnline = function () {
+    curChat.post("cs_allonline", {}, function (data) {
+        if (!curChat.isEmpty(data)) {
+            var list = JSON.parse(data);
+            var ids = "";
+            //不存在则补上,存在则更新状态
+            for (var i = 0; i < list.length; i++) {
+                var uid=list[i].UserID;
+                ids +=uid + ",";
+                if ($("#list_item_" + uid).length < 1) {
+                    var tlp = curChat.tlp_fill(curChat.tlp_online, list[i]);
+                    $("#user_list").append(tlp);
+                }
+            }
+            curChat.UpdateOnline(ids);
+        }
+    });
+}
+$(function () {
+    cs.allOnline();
+    setInterval(cs.allOnline, 10000);
+})
+</script>
+<script>
+    VisitorToLogin('@Html.Raw(Model.S_Name)','@Model.S_AdminID');
+    SetMyInfo('@user.UserID','@Html.Raw(user.UserName)','@user.UserFace');BeginInit();
+</script>
+}

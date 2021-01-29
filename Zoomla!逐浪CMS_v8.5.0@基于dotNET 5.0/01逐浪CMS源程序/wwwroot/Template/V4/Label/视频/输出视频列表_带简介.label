@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>163</LabelID>
+    <LabelName>输出视频列表_带简介</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>视频</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID,86,1,节点ID|TitieNum,30,1,标题长度|ShowNum,10,1,调用数|Sym,70,1,简介长</LabelParam>
+    <LabelTable>ZL_CommonModel LEFT JOIN ZL_C_video ON ZL_CommonModel.ItemID=ZL_C_video.ID</LabelTable>
+    <LabelField>ZL_CommonModel.GeneralID,ZL_CommonModel.NodeID,ZL_CommonModel.Title,ZL_C_video.pic,ZL_C_video.synopsis</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID)  and status=99</LabelWhere>
+    <LabelOrder>ZL_CommonModel.CreateTime DESC</LabelOrder>
+    <LabelContent>{Repeate} &lt;li class="media"&gt; &lt;a class="pull-left" href="{ZL:GetInfoUrl({Field="GeneralID"/})/}"&gt; &lt;img class="media-object" src="{ZL:GetPicUrl({Field="pic"/})/}" alt="{Field="Title"/}"&gt; &lt;/a&gt; &lt;div class="media-body"&gt; &lt;h4 class="media-heading"&gt;&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}"&gt;{ZL:CutText({Field="Title"/},@TitieNum,)/}&lt;/a&gt;&lt;/h4&gt; &lt;p&gt;{ZL:CutText({Field="synopsis"/},@TitieNum,)/}&lt;/p&gt; &lt;/div&gt; &lt;/li&gt;{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo />
+    <addroot>循环计算</addroot>
+    <setroot />
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>0</IsOpen>
+    <FalseContent />
+    <EmptyContent />
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_C_video"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

@@ -1,0 +1,56 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    DataTable cateDt = ViewBag.cateDt;
+    M_GuestBookCate cateMod = ViewBag.cateMod;
+    M_UserInfo mu = ViewBag.mu;
+}
+@section head{
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+<link href="/theme/css/V4user.css" rel="stylesheet" />
+<title>留言中心首页</title>
+<style type="text/css">.pagination {display:inline-block;}</style>
+}
+@section content{
+    @Html.Partial("MasterView")
+<div class="container ask_breadcrumb">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="/">网站首页</a></li>
+<li class="breadcrumb-item"><a href="/Guest/Default">留言中心</a></li>
+<li class="breadcrumb-item active" aria-current="page"><span>@cateMod.CateName</span></li>
+</ol>
+</nav>
+</div>
+    @Html.Partial("Default_List", Model)
+<div class="container" style="margin-top:10px;">
+    @if (cateMod.CateID > 0)
+    {
+         @Html.Partial("Guest_Editor", new C_Model() { mode = cateMod.NeedLog.ToString(),addon="main", formAction = "/Guest/Add" })
+    }
+    else
+    {
+			
+        <div id="addDiv" class="container text-center margin_t5">
+		    <a class="btn btn-secondary" href="/Guest/Default?CateID=1"><i class="zi zi_pencilalt"></i> 发表留言</a>
+        </div>
+    }
+</div>
+}
+@section script{
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+$(function () {
+    $("#lmenu@(cateMod.CateID)").addClass("active");
+
+    $.validator.addMethod("content", function (value, element) {
+        var txt = UE.getEditor("Content").getContentTxt();
+        if (ZL_Regex.isEmpty(txt)) { return false; }
+        else { return true; }
+    }, "内容不能为空");
+    $("form").validate();
+})
+</script>
+}

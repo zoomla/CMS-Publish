@@ -1,0 +1,153 @@
+﻿@* 
+copyright file="Pub_Edit.cshtml" company="上海Zoomla!逐浪CMS团队" 
+版权所有:🏢江西逐浪软件科技有限公司  🏅🏅🏅20年专注研发==>商城|ERP|字库|高端门户与人工智能 
+官方网站:🚀 www.z01.com 
+联系方式:☎ 13177777714  😎 wechat: zoomla 
+文件描述:🔧 用于编辑用户已提交的互动模型内容页
+创建时间:⏰2020年09月12日,18:35
+*@ 
+
+@using System.Text.RegularExpressions
+@model DataRow
+@{
+    // 设置隐藏字段
+    var hideColumn = new[] {
+        "ID",
+        "Pubupid",
+        "PubUserName",
+        "PubUserID",
+        "PubContentid",
+        "PubInputer",
+        "Parentid",
+        "PubIP",
+        "Pubnum",
+        "Pubstart",
+        "PubAddTime",
+        "cookflag",
+        "PubAddon"
+    };
+    var pub = new B_Pub().SelReturnModel(int.Parse(Model["Pubupid"].ToString()));
+    var dt = new B_ModelField().SelByModelID(pub.PubModelID);
+    var fields = dt.AsEnumerable().Select(row => new M_ModelField
+    {
+        FieldID = Convert.ToInt32(row["FieldID"]),
+        ModelID = Convert.ToInt32(row["ModelId"]),
+        FieldName = row["FieldName"].ToString(),
+        FieldAlias = row["FieldAlias"].ToString(),
+        FieldTips = row["FieldTips"].ToString(),
+        Description = row["Description"].ToString(),
+        IsNotNull = row["IsNotNull"].ToString() == "1",
+        IsSearchForm = row["IsSearchForm"].ToString() == "1",
+        FieldType = row["FieldType"].ToString(),
+        Content = row["Content"].ToString(),
+        OrderID = int.Parse(row["OrderId"].ToString()),
+        ShowList = row["ShowList"].ToString() == "1",
+        ShowWidth = int.Parse(row["ShowWidth"].ToString()),
+        IsShow = row["IsShow"].ToString() == "1",
+        IsView = row["IsView"].ToString() == "1",
+        IsDownField = int.Parse(row["IsDownField"].ToString()),
+        DownServerID = int.Parse(row["DownServerID"].ToString()),
+        RestoreField = int.Parse(row["RestoreField"].ToString()),
+        Sys_type = row["Sys_type"].ToString() == "1",
+        IsCopy = int.Parse(row["IsCopy"].ToString()),
+        Islotsize = row["Islotsize"].ToString() == "1",
+        IsChain = row["IsChain"].ToString() == "1",
+    });
+
+    // 设置固定字段
+    var commomFields = new Dictionary<string, string>();
+    commomFields["ID"] = "ID";
+    commomFields["Pubupid"] = "互动编号";
+    commomFields["PubUserName"] = "用户名";
+    commomFields["PubUserID"] = "用户ID";
+    commomFields["PubContentid"] = "内容ID";
+    commomFields["PubInputer"] = "录入者";
+    commomFields["Parentid"] = "父级ID";
+    commomFields["PubIP"] = "IP地址";
+    commomFields["Pubnum"] = "参与人数";
+    commomFields["Pubstart"] = "	开始";
+    commomFields["PubTitle"] = "互动标题";
+    commomFields["PubContent"] = "互动内容";
+    commomFields["PubAddTime"] = "添加时间";
+    commomFields["Optimal"] = "评价";
+    commomFields["cookflag"] = "cookflag";
+    commomFields["PubRemind"] = "备注";
+    commomFields["PubAddon"] = "互动附加";
+}
+<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link href="/theme/css/V4user.css?version=@(ZoomLa.BLL.BLLCommon.Version_JS)" rel="stylesheet" />
+<link type="text/css" rel="stylesheet" href="/res/css/weui.min.css" />
+<title>编辑互动 </title>
+</head>
+<body>
+<div id="pub_edit" class="container-xl mt-4">
+    @if (Model == null)
+    {
+        <div>无法在系统中找到该条目</div>
+    }
+    else
+    {
+        <form>
+            <ul class="fd_body" style="padding-left:0;">
+                @foreach (DataColumn col in Model.Table.Columns)
+                {
+                    if (commomFields.ContainsKey(col.ColumnName))
+                    {
+                        <li class="fd_item @(hideColumn.Contains(col.ColumnName) ? "d-none" : "")">
+                            <div class="fd_item_head"><div class="fd_alias">@commomFields[col.ColumnName]</div><span class="fd_item_req">*</span></div>
+                            <input class="form-control" type="text" id="@col.ColumnName" name="@col.ColumnName" value="@Model[col.ColumnName]" />
+                        </li>
+                    }
+                    else
+                    {
+                        var filed = fields.SingleOrDefault(m => m.FieldName == col.ColumnName);
+                        <li class="fd_item @(hideColumn.Contains(col.ColumnName) ? "d-none" : "")">
+                            <div class="fd_item_head"><div class="fd_alias">@(filed.FieldAlias ?? "")</div><span class="fd_item_req">@(filed.IsNotNull ? "*" : "")*</span></div>
+                            <input class="form-control" type="text" id="@col.ColumnName" name="@col.ColumnName" value="@Model[col.ColumnName]" />
+                        </li>
+                    }
+                }
+            </ul>
+            @foreach (DataColumn col in Model.Table.Columns)
+            {
+            }
+        </form>
+    }
+<div class="text-center">
+    <button type="button" onclick="savePub()" class="btn btn-info">保存</button>
+    <button type="button" onclick="cancelEdit()" class="btn btn-outline-secondary">取消</button>
+</div>
+</div>
+</body>
+
+<script>
+function savePub() {
+    var url = "@Url.Action("Pub_Save")";
+    $.ajax({
+        method: "POST",
+        url: encodeURI("@Url.Action("Pub_Save")"),
+        data: $("#pub_edit form").serialize(),
+        success: function (result) {
+            if (result) {
+                alert("编辑成功");
+                cancelEdit();
+                window.location.reload();
+            }
+            else {
+                alert("发生错误");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function cancelEdit(){
+    window.location.href = "ManagePub?pubid=7";//返回网址定义
+    //$("#EGV").removeClass("d-none");
+    //$("#pub_edit").remove();
+}
+</script>

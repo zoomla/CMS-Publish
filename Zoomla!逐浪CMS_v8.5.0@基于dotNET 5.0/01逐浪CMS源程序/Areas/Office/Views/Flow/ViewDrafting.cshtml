@@ -1,0 +1,64 @@
+﻿@model ZoomLa.Model.M_OA_Document
+@{ 
+    M_MisProcedure proceMod = ViewBag.proceMod;
+}
+@functions{
+    public string GetUserName(string ids)
+    {
+        string UserName = "|";
+        string[] idarry = ids.Trim().Split(",");
+        for (int i = 0; i < idarry.Length; i++)
+        {
+            if (!string.IsNullOrEmpty(idarry[i]))
+            {
+                UserName += DBCenter.ExecuteScala("ZL_user", "UserName", "UserID=" + idarry[i]).ToString() + "|";
+            }
+
+        }
+        return UserName;
+    }
+}
+@section head{<title>公文预览</title> }
+@section content{ 
+<div class="draftnav"><a href="/Office/Index/Main">行政公文</a>/@Model.Title</div>
+<div class="panel panel-primary" style="margin:10px;">
+    <div class="panel-heading"><h3 class="panel-title">操作成功</h3></div>
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <tr><td class="td_md">标题</td><td><label>@Model.Title</label></td></tr>
+            <tr><td>主题词</td><td>@Model.Keywords</td></tr>
+            <tr><td>添加人</td><td>@Model.UserName</td></tr>
+            <tr><td>添加时间</td><td>@Model.CreateTime</td></tr>
+            <tr><td>@proceMod.FirstStep.ReferUser_Alias</td>
+                <td>@GetUserName(proceMod.FirstStep.ReferUser)</td>
+            </tr>
+            <tr id="CCUser_Tr">
+                <td>@proceMod.FirstStep.CCUser_Alias</td>
+                <td>@GetUserName(proceMod.FirstStep.CCUser)</td>
+            </tr>
+            <tr id="HelpUser_Tr">
+                <td>@proceMod.FirstStep.HelpUser_Alias</td>
+                <td>@GetUserName(proceMod.FirstStep.HelpUser)</td>
+            </tr>
+            <tr>
+                <td class="td_md">操作</td>
+                <td>
+                    <a href="FlowApply?appID=@(Model.ID)" class="btn btn-primary">修改文档</a>
+                    <a href="ApplyList?view=3" class="btn btn-primary">文档管理</a>
+                    @*<input type="button" id="preViewBtn" class="btn btn-primary" onclick="disWin(@Model.ProID);" value="预览流程" />*@
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+}
+@section  script{ 
+<script src="/JS/Controls/ZL_Array.js"></script>
+<script>
+function disWin(proid) {
+    var iTop = (window.screen.availHeight - 30 - 550) / 2;
+    var iLeft = (window.screen.availWidth - 10 - 960) / 2;
+    var myWin = window.open('/Office/PreViewProg?proID=' + proid, 'newwindow', 'height=550, width=960,top=' + iTop + ',left=' + iLeft + ',toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no');
+}
+</script>
+}

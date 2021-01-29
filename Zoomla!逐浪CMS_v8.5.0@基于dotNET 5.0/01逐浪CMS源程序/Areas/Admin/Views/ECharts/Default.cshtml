@@ -1,0 +1,74 @@
+﻿@section head{<title>流程设计</title> }
+@{
+    M_Content_Chart chartMod = new M_Content_Chart();
+    string GetStype(string stype)
+    {
+        return chartMod.GetTypeStr(stype);
+    }
+}
+@model ZoomLa.SQLDAL.SQL.PageSetting;
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("/{manage}/Main","工作台"),
+    new Bread("Default","智慧图表"),
+    new Bread() {url="Default", text="图表列表<a href='EchartList'> [创建图表]</a>",addon="" }}
+    )
+
+    <div class="container-fluid pe-0">
+        <div class="row sysRow table-responsive">
+            <table class="table table-striped table-bordered table-hover" id="EGV">
+                <tr>
+                    <th scope="col" class="w1rem"></th>
+                    <th scope="col">ID</th>
+                    <th scope="col">图表名称</th>
+                    <th scope="col">图表类型</th>
+                    <th scope="col">创建时间</th>
+                    <th scope="col">@L.操作</th>
+                </tr>
+                @foreach (DataRow dr in Model.dt.Rows)
+                {
+                    <tr>
+                        <td class="excel_no node_select"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                        <td>@dr["ID"]</td>
+                        <td> <a class="edit_a" href="ShowM?ID=@dr["ID"]" target="_blank">@dr["TName"]</a></td>
+                        <td>  <a href="?stype=@dr["SType"]" title="点击创建">@GetStype(dr["SType"].ToString())</a></td>
+                        <td class="td_l">@dr["CDate"]</td>
+                        <td class="excel_no td_l">
+                            <a href="ShowM?ID=@dr["ID"]" target="_blank" title="预览"><span class="zi zi_eye" title="预览"></span></a>
+                            <a href="AddChart?ID=@dr["ID"]&type=@dr["SType"]&tag=@dr["Tag"]" class="option_style"><i class="zi zi_pencilalt"></i></a>
+                            <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'Chart_Del', confirm: '@Html.Raw(L.确定要删除吗)',after:function(){location=location;} });"><i class="zi zi_trashalt"></i>@L.删除</a>
+                            <a href="ChartCite?ID=@dr["ID"]" title="引用"><span class="zi zi_sharealt"></span> 引用</a>
+                        </td>
+                    </tr>
+                }
+                @Html.Partial("_page", Model)
+            </table>
+        </div>
+    </div>
+    <div class="sysBtline">
+        <input type="button" value="@Html.Raw(L.批量删除)" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'Chart_Del', confirm: '@Html.Raw(L.确定要批量移除吗)',after:function(){location=location;} });" />
+    </div>
+}
+@section script{
+<script>
+    $().ready(function () {
+        $(".option_area").click(function (e) {
+            if ($(this).find(".option_box_hid").length > 0) {
+                $(".option_box").addClass("option_box_hid");
+                $(this).find(".option_box").removeClass("option_box_hid");
+            }
+            else {
+                $(this).find(".option_box").addClass("option_box_hid");
+            }
+        });
+        $("#EGV tr").dblclick(function () {
+            if ($(this).find(".edit_a")[0]) {
+                location.href = $(this).find(".edit_a").attr("href");
+            }
+        });
+    });
+</script>
+}
+
+
+

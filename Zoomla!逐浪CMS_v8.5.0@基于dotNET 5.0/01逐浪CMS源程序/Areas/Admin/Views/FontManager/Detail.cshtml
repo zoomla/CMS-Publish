@@ -1,0 +1,182 @@
+﻿@using ZoomLa.Model.Font
+@model DataTable
+@{
+    var font = (M_Font_Write)ViewData["Font"];
+    var words = (List<Tuple<string, string>>)ViewData["Words"];
+    var isPublish = Model.Rows.Count > 0;
+}
+@functions{
+    char UnicodeToChar(string unicode)
+    {
+        return (char)int.Parse(unicode.Substring(2), System.Globalization.NumberStyles.HexNumber);
+    }
+}
+@section head{ <title>字体管理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Url.Action("Index"),"字体管理"),
+        new Bread("", "字体详情")})
+    <table class="table table-bordered table-hover sys_table">
+        <tr>
+            <th class="w6rem_lg">字体名称</th>
+            <td>@font.FontName <span class="text-warning" id="hi"><i class="zi zi_diamond zi_load"></i>@(font.VipType > 0 ? "(全创作)" : " ")</span></td>
+        </tr>
+        <tr>
+            <th>字体作者</th>
+            <td>@font.UserName</td>
+        </tr>
+        <tr>
+            <th>字体描述</th>
+            <td>@font.Remind</td>
+        </tr>
+        <tr>
+            <th>字体类型</th>
+            <td>
+                @switch (font.ZType)
+                {
+                    case 0:
+                        <span>英文字母符号集（共178字）</span>
+                        break;
+                    case 1:
+                        <span>小学语文350生字及字母（共457字）</span>
+                        break;
+                    case 2:
+                        <span>《现代汉语常用字表》中常用汉字2500字和次常用汉字1000字集合及英文字符（共3007字）</span>
+                        break;
+                    case 3:
+                        <span>GB2312国标规范6791汉字及英文字母符号（共6880字）</span>
+                        break;
+                    default:
+                        <span>未知字体</span>
+                        break;
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>创建时间</th>
+            <td>@($"{font.CDate:yyyy-MM-dd HH:mm:ss}")</td>
+        </tr>
+        <tr>
+            <th>已写数量</th>
+            <td>@font.CompletedNum</td>
+        </tr>
+        <tr>
+            <th>发布历史</th>
+            <td>
+                @if (isPublish)
+                {
+                    @foreach (DataRow row in Model.Rows)
+                    {
+                        <div class="my-1">
+                            <a href="@Url.Action("Download", "FontCreation")?id=@row["ID"]" title="下载" class=""><i class="zi zi_download"></i></a>
+                            <a href="javascript:;" onclick="deleteFile(@row["ID"])" title="删除" class=""><i class="zi zi_trash"></i></a>
+                            <span> @row["FileName"].ToString() @row["FileSize"].ToString()</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <span>暂无发布历史</span>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>发布预览</th>
+            <td><a target="_blank" href="@($"/FontCreation/views/{font.ID}/")"><i class="zi zi_globe"></i> 点击浏览</a></td>
+        </tr>
+        <tr>
+            <th>最近书写</th>
+            <td>
+                @if (words.Count > 0)
+                {
+                    <div class="d-flex flex-row flex-wrap">
+                        @foreach (var word in words)
+                        {
+                            <div style="position:relative;width:120px;height:120px;background-image:url('@word.Item2');background-size:100%;border:1px dashed skyblue;margin:10px;">
+                                <div class="d-flex flex-row justify-content-between text-end small" style="margin:95px 10px 0 10px;">
+                                    <span>@word.Item1</span>
+                                    <span>@UnicodeToChar(word.Item1)</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span>尚未完成任何字</span>
+                }
+            </td>
+        </tr>
+    </table>
+    <div class="text-center">
+        @if (font.VipType == 0)
+        {
+            <a class="mx-2 btn btn-info" href="javascript:;" onclick="upgradeFont(@font.UserID, @font.ID)" title="将该字体升级为全创作">升级字体</a>
+        }
+        else {  }
+        <a class="mx-2 btn btn-info" href="javascript:;" onclick="deleteAllFiles(@font.ID)" title="清空所有发布历史文件">清空文件</a>
+        <a class="mx-2 btn btn-outline-info" href="@Url.Action("Index")" title="返回字体列表">返回列表</a>
+    </div>
+}
+@section script{
+<script src="~/js/Plugs/base64.js"></script>
+<script>
+$(function () {
+    if (@font.VipType== 0)
+        $('#hi').hide();
+    else
+        $('#hi').show();
+});
+function deleteFile(id) {
+    var a = window.confirm("您确定删除该发布记录吗？该文件将从服务器中永久删除");
+    if (!a)
+        return;
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI('@Url.Action("DeleteFile")' + "?id=" + id),
+        success: function (result) {
+            if (result.status) {
+                alert("文件删除成功！");
+                window.location.reload();
+            }
+            else {
+                alert(result.error);
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function deleteAllFiles(id) {
+    var a = window.confirm("您确定删除这些文件吗？这些文件将从服务器中永久删除");
+    if (!a)
+        return;
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI('@Url.Action("DeleteFiles")' + "?id=" + id),
+        success: function (result) {
+            if (result.status) {
+                alert("已删除所有发布文件！");
+                window.location.reload();
+            }
+            else {
+                alert(result.error);
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function upgradeFont(userId, fontId) {
+    let a = window.confirm("你确定将改字库升级为全创作吗？");
+    if (a) {
+        window.location.href = encodeURI("@Url.Action("Upgrade")?userId=" + userId + "&fontId=" + fontId);
+    }
+}
+    </script>
+}

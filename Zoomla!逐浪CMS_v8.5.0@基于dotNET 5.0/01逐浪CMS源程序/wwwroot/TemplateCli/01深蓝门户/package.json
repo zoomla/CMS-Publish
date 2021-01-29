@@ -1,0 +1,77 @@
+{
+  "name": "zcli-001",
+  "version": "0.1.1",
+  "private": false,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "bootstrap-vue": "^2.1.0",
+    "clipboard": "^2.0.6",
+    "core-js": "^3.6.5",
+    "highlight": "^0.2.4",
+    "highlight.js": "^10.1.2",
+    "highlightjs-line-numbers.js": "^2.8.0",
+    "jquery": "^3.5.1",
+    "swiper": "5.4.5",
+    "vue": "^2.6.11",
+    "vue-awesome-swiper": "^3.1.3",
+    "vue-highlightjs": "^1.3.3",
+    "vue-hljs-with-line-number": "^1.0.5",
+    "vue-jsonp": "^0.1.8",
+    "vue-meta": "^2.4.0",
+    "vue-router": "^3.2.0",
+    "vuex": "^3.4.0",
+    "zico": "^1.9.1"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.7.0",
+    "@vue/cli-plugin-babel": "~4.4.0",
+    "@vue/cli-plugin-eslint": "~4.4.0",
+    "@vue/cli-plugin-router": "~4.4.0",
+    "@vue/cli-plugin-vuex": "~4.4.0",
+    "@vue/cli-service": "~4.4.0",
+    "babel-eslint": "^10.1.0",
+    "bootstrap": "^4.3.1",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "mutationobserver-shim": "^0.3.3",
+    "popper.js": "^1.16.0",
+    "portal-vue": "^2.1.6",
+    "sass": "^1.19.0",
+    "sass-loader": "^8.0.0",
+    "vue-cli-plugin-bootstrap-vue": "^0.6.0",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "jquery": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {
+      "no-unused-vars": 0,
+      "no-unreachable": 0
+    }
+  },
+  "author": "Shanghai  Zoomla!CMS Software co.,ltd",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoomla/zcli-001.git"
+  },
+  "homepage": "https://www.z01.com",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

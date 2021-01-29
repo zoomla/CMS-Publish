@@ -1,0 +1,55 @@
+﻿@model string
+@{ 
+    Layout = "_cms2020Layout";
+}
+@section head{ 
+<title>出现错误</title>
+<link rel="stylesheet" href="~/res/css/animate.min.css"/>
+}
+@section content{ 
+<div class="vw-100 vh-100 d-flex flex-column">
+<nav class="navbar navbar-expand-lg navbar-light font_nav">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/Font"><i class="zi zi_tmZiti163"></i>逐浪字库大师</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/">从此开始</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/webfont">Webfont</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/pay">会员升级</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ofr")">查字体</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ocr")">智能识图</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/help">使用手册</a></li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">造字秘集</a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="http://www.ziti163.com/uni" target="_blank">Unicode字码表</a></li>
+                <li><a class="dropdown-item" href="http://p.ziti163.com" target="_blank">智图</a></li>
+                <li><a class="dropdown-item" href="http://a.ziti163.com" target="_blank">方言</a></li>
+                <li><a class="dropdown-item" href="http://ico.z01.com" target="_blank">zico图标</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="http://f.ziti163.com" target="_blank">逐浪字库</a></li>
+            </ul>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <a href="javascript:;" onClick="isSearch();"><i class="zi zi_search"></i></a>
+        <a href="/user/"><i class="zi zi_user"></i></a>
+      </form>
+                    <ul class="font_search">
+                <form action="https://www.ziti163.com/Search/SearchList">
+                    <i class="zi zi_searchBlack"></i>
+                    <input type="text" class="form-control" placeholder="从ziti163.com字体网检索" name="keyword" />
+                    <a onClick="isClose();" href="javascript:;"><i class="zi zi_windowclose"></i></a>
+                </form>
+            </ul>
+    </div>
+  </div>
+</nav>
+<div class="flex-grow-1 d-flex justify-content-center align-items-center text-center">
+    @Model
+</div>
+</div>
+}

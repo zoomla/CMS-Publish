@@ -1,0 +1,147 @@
+﻿@using ZoomLa.Model.Font
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    IEnumerable<M_Font_Write> fonts = Model.dt.AsEnumerable()
+                                 .Select(row => new M_Font_Write()
+                                 {
+                                     ID = Convert.ToInt32(row["ID"]),
+                                     FontName = row["FontName"].ToString(),
+                                     CompletedNum = Convert.ToInt32(row["CompletedNum"]),
+                                     ZType = Convert.ToInt32(row["ZType"]),
+                                     ZStatus = (FontStatus)Convert.ToInt32(row["ZStatus"]),
+                                     Remind = row["Remind"].ToString(),
+                                     UserID = Convert.ToInt32(row["UserID"]),
+                                     VipType = Convert.ToInt32(row["VipType"].ToString()),
+                                     UserName = row["UserName"].ToString(),
+                                     CDate = DateTime.Parse(row["CDate"].ToString()),
+                                 });
+}
+@functions{
+    bool IsPublish(FontStatus status)
+    {
+        return (status & FontStatus.Published) > 0;
+    }
+    bool IsDeleted(FontStatus status)
+    {
+        return (status & FontStatus.Deleted) > 0;
+    }
+}
+@section head{ <title>字体管理</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Url.Action("Index"),"字体管理")})
+<div class="table-responsive table_box">
+<table class="table table-bordered table-hover table-striped" id="EGV">
+    <thead>
+        <tr>
+            <th class="td_xs"></th>
+            <th>操作</th>
+            <th >ID</th>
+            <th>字体名称</th>
+            <th>完成数量</th>
+            <th>字体类型</th>
+            <th>字体状态</th>
+            <th>用户ID</th>
+            <th>用户名称</th>
+            <th>创建日期</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var font in fonts)
+        {
+        <tr ondblclick="location = 'Detail?id=@font.ID'" title="双击查看详情">
+            <td class="node_select"><input type="checkbox" name="idchk" value="@font.ID" /></td>
+            <td>
+                <div class="btn-group">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a href="Detail?id=@font.ID" class="dropdown-item"><i class="zi zi_eye" title="查看字体详情"></i> 详情</a></li>
+                        <li><a href="javascript:;" onclick="deleteFont(@font.ID)" class="dropdown-item"><i class="zi zi_trash" title="删除字体"></i> @L.删除</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td>@font.ID</td>
+            <td data-bs-toggle="tooltip" title="双击查看详情">@font.FontName</td>
+            <td>@font.CompletedNum</td>
+            <td>@(font.VipType >= 1 ? "全创作" : "免费")</td>
+            <td>
+                @if (IsDeleted(font.ZStatus))
+                {
+                    <span>已删除</span>
+                }
+                else if (IsPublish(font.ZStatus))
+                {
+                    <span>已发布</span>
+                }
+            </td>
+            <td>@font.UserID</td>
+            <td><a href="javascript:;" onclick="user.showuinfo(@font.UserID)">@font.UserName</a></td>
+            <td>@font.CDate</td>
+        </tr>
+        }
+    </tbody>
+    @Html.Partial("_page")
+    <script>$(function () { iCheckInit(); })</script>
+</table>
+<button onclick="multiDelete()" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+</div>
+}
+@section script{
+    <script>
+function deleteFont(id) {
+    var a = window.confirm("您确定删除该字体吗？");
+    if (!a)
+        return;
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI('@Url.Action("Delete")' + "?id=" + id),
+        success: function (result) {
+            if (result) {
+                alert("字体删除成功！");
+                window.location.reload();
+            }
+            else {
+                alert("字体删除失败，可能是数据库问题，请重新加载列表后重试~");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function multiDelete() {
+    var a = window.confirm("您确定删除这些字体吗？");
+    if (!a)
+        return;
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+
+    if (ids.length > 0) {
+        $.ajax({
+            method: "GET",
+            dataType: "json",
+            url: encodeURI('@Url.Action("DeleteRange")' + "?ids=" + ids),
+            success: function (result) {
+                if (result) {
+                    alert("字体删除成功！");
+                    window.location.reload();
+                }
+                else {
+                    alert("字体删除失败，可能是数据库问题，请重新加载列表后重试~");
+                }
+            },
+            error: function () {
+                alert("服务器访问出错，可能是网络或API存在问题");
+            }
+        });
+    }
+}
+    </script>
+}

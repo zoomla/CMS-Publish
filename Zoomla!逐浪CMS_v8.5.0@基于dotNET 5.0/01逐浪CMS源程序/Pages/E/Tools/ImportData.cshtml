@@ -1,0 +1,200 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.BLL
+@using ZoomLa.BLL.Content
+@using ZoomLa.BLL.CreateJS
+@using ZoomLa.BLL.Helper.Addon
+@using ZoomLa.Model
+@using ZoomLa.Model.Content
+@using System.Data.SqlClient
+@model PageModel
+@functions{
+    [Authorize(Policy = ("Admin"))]
+    public class PageModel : Page_Base
+    {
+        B_Model modBll = new B_Model();
+        B_Node nodeBll = new B_Node();
+        B_Content conBll = new B_Content();
+        /*
+        * Access访问:
+        * 1.必须安装引擎
+        * 2.必须在应用程序池中,设为32位
+        */
+        //SqlBase db_source = SqlBase.CreateHelper("access","Provider=Microsoft.Jet.OLEDB.4.0;Data Source=D:\\Code\\MVC\\ZoomLa.WebSite\\Tools\\Other\\old.mdb;");
+        //来源,目标数据库
+        SqlBase db_source = CreateHelper("mssql", "Data Source=win04;Initial Catalog=fada_old;User ID=test;Password=test;");
+        SqlBase db_target = CreateHelper("mssql", "Data Source=win16;Initial Catalog=fadajz_com;User ID=fadajz_com_f;Password=fadajz_com_password10987G;");
+
+
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            return Page();
+        }
+        public IActionResult OnPostNodeAndArticle()
+        {
+            B_CodeModel artBll = new B_CodeModel("ZL_C_Article");
+            DataTable artDT = artBll.SelStruct();
+            {
+                DataTable nodeDT = db_source.ExecuteTable(new SqlModel("SELECT * FROM NT_News_Class", null));
+                DataTable conDT = db_source.ExecuteTable(new SqlModel("SELECT * FROM NT_News", null));
+                //添加一个节点,筛选出原节点下的文章,同步写入
+                List<M_Node> nodeList = new List<M_Node>();
+                foreach (DataRow nodeDR in nodeDT.Rows)
+                {
+                    M_Node node = new M_Node();
+                    node.NodeName = DataConvert.CStr(nodeDR["ClassCName"]);
+                    node.NodeDir = PinYin.GetFirstPinYin(node.NodeName);
+                    node.Tips = DataConvert.CStr(nodeDR["ClassID"]);//旧服务器ID(用于与ParnetID对应)
+                    string paretnId = DataConvert.CStr(nodeDR["ParentID"]);//ParentID
+                    if (!paretnId.Equals("0"))
+                    {
+                        node.ParentID = nodeList.FirstOrDefault(p => p.Tips.Equals(paretnId)).NodeID;
+                    }
+                    else //放到指定的 old节点下,默认可不需 
+                    {
+                        node.ParentID = 53;
+                    }
+                    node.CUser = 1;
+                    node.CUName = "admin";
+                    node.ContentModel = "2";//默认绑定内容模型
+                    node.NodeID = nodeBll.Insert(node);
+                    nodeList.Add(node);
+                    DataRow[] conDRS = conDT.Select("ClassID='" + node.Tips + "'");//筛选节点下的内容
+                    foreach (DataRow conDR in conDRS)
+                    {
+                        M_CommonData conMod = new M_CommonData();
+                        DataRow artMod = artDT.NewRow();
+                        conMod.Title = DataConvert.CStr(conDR["NewsTitle"]);
+                        //conMod.Subtitle = DataConvert.CStr(conDR["Intro"]).Trim();
+                        conMod.CreateTime = DataConvert.CDate(conDR["CreatTime"]);
+                        //conMod.TopImg = DataConvert.CStr(conDR["PhotoUrl"]);
+                        conMod.NodeID = node.NodeID;
+                        conMod.Hits = DataConvert.CLng(conDR["Click"]);
+                        conMod.TaskInfo = DataConvert.CStr(conDR["NewsID"]);//旧ID,用于后期核 对
+
+                        conMod.ModelID = 2;
+                        conMod.TableName = "ZL_C_Article";
+                        conMod.Status = 99;
+                        conMod.InfoID = 1;
+                        conMod.Inputer = "admin";
+                        //此处可对内容做处理,如抽出TopImg,修改图片链接等
+                        artMod["Content"] = DataConvert.CStr(conDR["Content"]);
+                        artMod["Author"] = DataConvert.CStr(conDR["Editor"]);
+
+                        conMod.OrderID = conMod.ItemID = artBll.Insert(artMod);
+                        conBll.insert(conMod);
+                    }
+                }
+                throw new Exception("操作完成");
+            }
+            return Page();
+        }
+        public IActionResult OnPostUser()
+        {
+            string sql = "SELECT *,'test1' AS Question,'fasfafwtas' AS Answer,1 AS GroupID FROM ZL_User";
+            DataTable dt = db_source.ExecuteTable(new SqlModel(sql, null));
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = dt.Rows[i];
+                if (dr["EMAIL"] == DBNull.Value || string.IsNullOrEmpty(dr["EMAIL"].ToString()))
+                { dr["EMAIL"] = "test123@foxmail.com"; }
+            }
+            using (SqlBulkCopy bulk = new SqlBulkCopy(db_target.ConnectionString))
+            {
+                bulk.BatchSize = 1000;
+                bulk.DestinationTableName = "ZL_User";
+                bulk.ColumnMappings.Add("USER_ID", "UserID");
+                bulk.ColumnMappings.Add("USERNAME", "UserName");
+                bulk.ColumnMappings.Add("REALNAME", "HoneyName");
+                bulk.ColumnMappings.Add("PASSWORD", "UserPwd");
+                //bulk.ColumnMappings.Add("GROUP_ID", "GroupID");
+                bulk.ColumnMappings.Add("EMAIL", "Email");
+                bulk.ColumnMappings.Add("REGISTER_TIME", "RegTime");
+                bulk.ColumnMappings.Add("REGISTER_IP", "RegisterIP");
+                //-----默认值区
+                bulk.ColumnMappings.Add("Question", "Question");
+                bulk.ColumnMappings.Add("Answer", "Answer");
+                bulk.ColumnMappings.Add("GroupID", "GroupID");
+                bulk.WriteToServer(dt);
+            }
+            return Page();
+        }
+        //导入论坛节点与贴子数据
+        public IActionResult OnPostBar()
+        {
+            DataTable dt = new DataTable();
+            /*---------------------------贴吧,论坛数据导入-------------------------------------------------*/
+            //---------------------栏目数据
+            //dt = MySqlHelper.ExecuteTable(MySQLConnStr, CommandType.Text, "SELECT *,0 AS ParentID,1 AS GType,0 AS NeedLog,1 AS Status FROM bbs_forum", null);
+            //using (SqlBulkCopy bulk = new SqlBulkCopy(targetcon))
+            //{
+            //    bulk.BatchSize = 1000;
+            //    bulk.DestinationTableName = "ZL_Guestcate";
+            //    bulk.ColumnMappings.Add("Forum_ID", "Cateid");//bbs_formum
+            //    bulk.ColumnMappings.Add("Title", "Catename");
+            //    //默认值区
+            //    bulk.ColumnMappings.Add("ParentID", "ParentID");//0
+            //    bulk.ColumnMappings.Add("GType", "GType");//1
+            //    bulk.ColumnMappings.Add("NeedLog", "NeedLog");//0
+            //    bulk.ColumnMappings.Add("Status", "Status");//1
+            //    bulk.WriteToServer(dt);
+            //}
+
+            //---------------------贴子数据
+            //*formumid为0的是精品线路与游记攻略
+            //dt = MySqlHelper.ExecuteTable(sourceCon, CommandType.Text, "SELECT *,0 AS ReplyID,0 AS ReplyUserID,0 AS Pid,1 AS Status,1 AS MsgType  FROM ZL_Guest_Bar2", null);
+            using (SqlBulkCopy bulk = new SqlBulkCopy(db_target.ConnectionString))//bbs_topic
+            {
+                bulk.BatchSize = 1000;
+                bulk.DestinationTableName = "ZL_Guest_Bar";
+                bulk.ColumnMappings.Add("FORUM_ID", "CateID");//forum_id
+                bulk.ColumnMappings.Add("Title", "Title");
+                bulk.ColumnMappings.Add("POST_CONTENT", "MsgContent");
+                //bulk.ColumnMappings.Add("POSTER_IP", "IP");
+                bulk.ColumnMappings.Add("CREATE_TIME", "CDate");
+                bulk.ColumnMappings.Add("CREATE_TIME", "R_CDate");
+                bulk.ColumnMappings.Add("CREATER_ID", "CUser");
+                bulk.ColumnMappings.Add("USERNAME", "CUName");
+                //默认值区
+                bulk.ColumnMappings.Add("ReplyID", "ReplyID");//0 
+                bulk.ColumnMappings.Add("ReplyUserID", "ReplyUserID");//0 
+                bulk.ColumnMappings.Add("Pid", "Pid");//0 默认主贴
+                bulk.ColumnMappings.Add("Status", "Status");//1
+                bulk.ColumnMappings.Add("MsgType", "MsgType");//1
+                bulk.WriteToServer(dt);
+                return Page();
+            }
+        }
+        private static SqlBase CreateHelper(string dbtype, string connStr)
+        {
+            SqlBase db = SqlBase.CreateHelper(dbtype);
+            db.ConnectionString = connStr;
+            return db;
+        }
+    }
+}
+@{ 
+       Layout = "_empty";
+}
+@section head{ }
+@section content{ 
+<div class="input-group" style="margin-bottom:5px;">
+    <form method="post">
+        <button type="submit" class="btn btn-info" asp-page-handler="NodeAndArticle">导入节点与内容</button>
+        <button type="submit" class="btn btn-info" asp-page-handler="User">导入用户</button>
+        <button type="submit" class="btn btn-info" asp-page-handler="User">导入贴吧</button>
+    </form>
+</div>
+@if (Model.setting != null)
+{
+    @Html.Partial("FormManage_List")
+}
+
+
+}
+@section script{ }

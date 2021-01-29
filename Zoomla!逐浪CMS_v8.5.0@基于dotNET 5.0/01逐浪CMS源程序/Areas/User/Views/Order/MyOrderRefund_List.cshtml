@@ -1,0 +1,55 @@
+﻿@using System.Data
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.Shop
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    Model.cols = 7;
+    Model.Check = false;
+    B_Order_Repair repBll = new B_Order_Repair();
+
+    string getStatus(string status)
+    {
+        switch (status)
+        {
+            case "0":
+                {
+                    return "退款中";
+                }
+            case "1":
+                {
+                    return "已同意";
+                }
+            case "-1":
+                {
+                    return "已拒绝";
+                }
+        }
+        return status;
+    }
+}
+<div id="EGV" class="mt-2">
+    <table class="table table-bordered table-striped">
+        <tr><td class="td_s">编号</td><td>商品名称</td><td>订单金额</td><td>申请时间</td><td width="10%">退款进度</td><td>退款原因</td></tr>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr>
+                <td>@dr["ID"]</td>
+                @{
+                    DataTable dt = DBCenter.Sel("ZL_CartProView", "CartID =" + dr["ID"]);
+                    DataRow cdr = dt.Rows[0];
+                    <td>
+                        <img src="@(function.GetImgUrl(cdr["Thumbnails"]))" class="img50" />
+                        @cdr["Proname"]
+                    </td>
+                }
+                <td>@dr["Receivablesamount"]</td>
+                <td>@DateHelper.ToDate(dr["CDate"])</td>
+                <td>@getStatus(dr["ZStatus"].ToString())</td>
+                <td>@dr["UserRemind"]</td>
+            </tr>
+        }
+        @Html.Partial("_page", Model)
+    </table>
+</div>

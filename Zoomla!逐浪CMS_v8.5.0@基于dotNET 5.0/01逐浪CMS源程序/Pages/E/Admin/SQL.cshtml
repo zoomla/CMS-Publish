@@ -1,0 +1,65 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@model PageModel
+@functions{
+    [Authorize(Policy = ("Admin"))]
+    public class PageModel : Page_Base
+    {
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            string err = "";
+            M_AdminInfo adminMod = B_Admin.GetLogin(HttpContext);
+            if (adminMod == null) { return Content("无访问权限"); }
+            string SQL = EncryptHelper.Base64Decrypt(Request.Form["sql"]);
+            DataTable dt = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(SQL)) { dt = DBCenter.ExecuteTable(SQL); }
+                else { throw new Exception("未指定需要查询的参数"); }
+            }
+            catch (Exception ex)
+            {
+                dt = null;
+                err = ex.Message;
+            }
+            ViewData["dt"] = dt;
+            ViewData["err"] = err;
+            return new PartialViewResult()
+            {
+                ViewName = "Default_Result",
+                ViewData = ViewData,
+                TempData = TempData
+            };
+        }
+        public IActionResult OnPostSave()
+        {
+            return Page();
+        }
+    }
+}
+@{ 
+     Layout = "/Areas/Admin/Views/Shared/_layout.cshtml";
+}
+@section head{ <title></title>}
+@section content{
+    <div class="input-group" style="margin-bottom:5px;">
+        <input type="text" class="form-control mvcparam" id="uname" placeholder="请输入关键词" />
+        <span class="input-group-append"><input type="button" class="btn btn-info" onclick="mvcpage.load();" value="筛选数据" /></span>
+        <form method="post">
+            <button type="submit" class="btn btn-info" asp-page-handler="Save">提交事件</button>
+        </form>
+    </div>
+    @if (Model.setting != null)
+    {
+      @Html.Partial("FormManage_List")
+    }
+}
+@section script{
+
+
+}

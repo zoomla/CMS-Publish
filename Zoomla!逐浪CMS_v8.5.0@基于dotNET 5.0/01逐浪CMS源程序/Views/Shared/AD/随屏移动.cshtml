@@ -1,0 +1,12 @@
+﻿@using ZoomLa.Model.Extend
+@using ZoomLa.BLL.Extend
+@model ZoomLa.Model.Extend.M_AD_Info
+@{ 
+
+}
+<style>
+ @Html.Raw(Model.Style)
+</style>
+<div class="carousel_wrap_@Model.ID @(Model.ZStatus == 0 ? "d-none" : "")" style="position:fixed;right:20px;top:50px;z-index:999;">
+@Html.Raw(Model.Html)
+</div>

@@ -1,0 +1,17 @@
+﻿@using ZoomLa.Model.Extend
+@using ZoomLa.BLL.Extend
+@model System.String
+@{
+    B_AD_Zone zoneBll = new B_AD_Zone();
+    B_AD_Info infoBll = new B_AD_Info();
+    M_AD_Zone zoneMod = zoneBll.SelModelByName(Model);
+    M_AD_Info infoMod = zoneMod.ZStatus > 0 ? infoBll.SelModelByWeight(zoneMod) : new M_AD_Info() { ZStatus = 0 };
+}
+@if (infoMod == null)
+{
+    <div class="alert alert-info">尚未为版位添加广告</div>
+}
+else
+{
+    @Html.Partial("/Views/Shared/AD/" + zoneMod.ZType + ".cshtml", infoMod)
+}

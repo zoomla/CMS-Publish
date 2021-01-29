@@ -1,0 +1,134 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using System.Collections.Generic;
+@using System.Data;
+@using System.Data.SqlClient;
+@using ZoomLa.BLL;
+@using ZoomLa.BLL.API;
+@using ZoomLa.Common;
+@using ZoomLa.Model;
+@using ZoomLa.Safe;
+@using ZoomLa.SQLDAL;
+@using ZoomLa.SQLDAL.SQL;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@using ZoomLa.AppCode.Verify;
+@using ZoomLa.Model.Content.H5;
+@using ZoomLa.BLL.Content.H5;
+@using ZoomLa.Extend.WXAPP;
+@using System.Text
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        public override int Mid { get { return DataConvert.CLng(GetParam("id")); } }
+        M_APIResult ret = new M_APIResult(M_APIResult.Failed);
+        B_H5_Item itemBll = new B_H5_Item();
+        public IActionResult OnGet()
+        {
+            return ActionDeal();
+        }
+        public IActionResult OnPost()
+        {
+            return ActionDeal();
+        }
+        //============================================================================================================
+        private IActionResult ActionDeal()
+        {
+            try
+            {
+                //list|del放入h5中
+                switch (action)
+                {
+                    case "img_list":
+                        {
+                            //DBCenter.SelWithField("ZL_C_Photo", "PhotoUrl", "author='" + GetParam("id2") + "'");
+                            if (string.IsNullOrEmpty(GetParam("gid"))) { throw new Exception("未指定GID"); }
+                            DataTable dt = DBCenter.JoinQuery("PhotoUrl", "ZL_CommonModel", "ZL_C_Photo", "A.ItemID=B.ID", "A.TableName =  'ZL_C_Photo' and A.GeneralID="+ GetParam("gid"));
+                            ret.result = JsonConvert.SerializeObject(dt);
+                            ret.retcode = 1;
+                        }
+                        break;
+                    case "upload":
+                        {
+                            return Content(WXAPPHelper.UploadFiles(HttpContext));
+                        }
+                    case "user_islogin":
+                        {
+                            if (mu.UserID > 0) { ret.result = "1"; }
+                            ret.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "h5_new":
+                        {
+                            M_H5_Item model = itemBll.New();
+                            model.UserID = mu.UserID;
+                            model.UserName = mu.UserName;
+                            ret.result = JsonConvert.SerializeObject(model);
+                            ret.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "h5_add"://update
+                        {
+                            //暂完全以前端为准
+                            M_H5_Item model = JsonConvert.DeserializeObject<M_H5_Item>(GetParam("model"));
+                            if (model == null || model.id > 0)
+                            {
+                                itemBll.UpdateByID(model);
+                            }
+                            else
+                            {
+                                model.UserID = mu.UserID;
+                                model.UserName = mu.UserName;
+                                model.id = itemBll.Insert(model);
+                            }
+                            ret.result = model.id.ToString();
+                            ret.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "h5_get":
+                        {
+                            M_H5_Item model = itemBll.SelReturnModel(Mid);
+                            ret.result = JsonConvert.SerializeObject(model);
+                            ret.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "tlp_list":
+                        {
+                            DataTable dt = DBCenter.SelWithField(itemBll.TbName, "id,title,coverImage", "isTemplate=1", "ID DESC");
+                            ret.result = JsonConvert.SerializeObject(dt);
+                            ret.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "tlp_get":
+                        {
+                            M_H5_Item model = itemBll.SelReturnModel(Mid);
+                            ret.result = JsonConvert.SerializeObject(model);
+                            ret.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "pagetlp_list":
+                        break;
+                    case "pagetlp_get":
+                        break;
+                    default:
+                        throw new Exception("接口[" + action + "]不存在");
+                }
+
+            }
+            catch (Exception ex) { ret.retmsg = ex.Message; ret.retcode = M_APIResult.Failed; }
+            return Content(ret.ToString());
+        }
+    }
+
+    public class Person
+    {
+        public string url { get; set; }
+        public string desc { get; set; }
+        public string link { get; set; }
+    }
+}
+@{
+    Layout = null;
+}

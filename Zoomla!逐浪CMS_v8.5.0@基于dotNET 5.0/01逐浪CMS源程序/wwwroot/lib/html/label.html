@@ -1,0 +1,69 @@
+﻿<link rel="stylesheet" href="/Plugins/Markdown/css/editormd.min.css" />
+<style>
+#label_menu{flex-wrap:wrap}
+#label_menu a{display:inline-flex;justify-content:center;align-items:center;width:30px;height:30px;color:black;padding:2px;margin:0 2px;text-decoration:none;user-select:none}
+#label_menu span{font-weight:600;user-select:none}
+</style>
+<div class="d-flex flex-row flex-warp" id="label_menu">
+	<a title="链接锚" href="javascript:insertText('<a href=&quot;&quot;></a>');"><i class="zi zi_link"></i></a>
+	<a title="DIV块" href="javascript:insertText('<div>内容</div>');"><span>D</span></a>
+	<a title="SPAN块" href="javascript:insertText('<span>内容</span>');"><span>S</span></a>
+	<a title="P段落" href="javascript:insertText('<p>内容</p>');"><i class="zi zi_paragraph"></i></a>
+	<a title="有序列表" href="javascript:insertText('<ol>内容</ol>');"><i class="zi zi_alignleft" zico="左对齐"></i></a>
+	<a title="无序列表" href="javascript:insertText('<ul>内容</ul>');"><i class="zi zi_aligncenter"></i></a>
+	<a title="图片标签" href="javascript:insertText('<img src=&quot;图片路径&quot; alt=&quot;图片描述&quot; />');"><i class="zi zi_fileGraph"></i></a>
+	<a title="无断行空格" href="javascript:insertText('&amp;nbsp;');"><i class="zi zi_menu zi_rotate90"></i></a>
+	<a title="简单粗体" href="javascript:insertText('<b>内容</b>');"><span>B</span></a>
+	<a title="标准粗体" href="javascript:insertText('<strong>内容</strong>');"><i class="zi zi_bold"></i></a>
+	<a title="斜体" href="javascript:insertText('<i>内容</i>');"><i class="zi zi_italic"></i></a>
+	<a title="下划线" href="javascript:insertText('<u>内容</u>');"><i class="zi zi_underline"></i></a>
+	<a title="换行标识" href="javascript:insertText('<br />');"><i class="zi zi_leveldownalt zi_rotate90"></i></a>
+	<a title="表格" href="javascript:insertText('<TABLE><TR>	<TD></TD></TR></TABLE>');"><i class="zi zi_thead"></i></a>
+	<a title="标题" href="javascript:insertText('<h1></h1>');"><i class="zi zi_heading" zico="头部标识"></i></a>
+	<a title="注释" href="javascript:insertText('<!--  -->');"><span>//</span></a>
+	<a title="标签内容循环" href="javascript:insertText('{Repeate}{/Repeate}');"><i class="zi zi_sync"></i></a>
+	<a title="标签内计数器" href="javascript:insertText('{ZL:jsq}');"><i class="zi zi_calculator"></i></a>
+</div>
+<div id="editor">
+	<textarea style="display:none;"></textarea>
+</div>
+<script src="/Plugins/Markdown/editormd.min.js"></script>
+<script type="text/javascript">
+var labelMDEditor = {
+	instance: null,
+	init: function (content) {
+		let str = String(content);
+		this.instance = editormd("editor", {
+			theme: "default",
+			mode: "text/html",
+			value: str,
+			wacth: false,
+			toolbar: false,
+			codeFold: true,
+			width: "100%",
+			height: 600,
+			placeholder: "开始编程!",
+			path: '/Plugins/Markdown/lib/',
+			onload: function () {
+				$("#editor .CodeMirror").css("width", "100%");
+			},
+			onresize: function () {
+				$("#editor .CodeMirror").css("width", "100%");
+			}
+		});
+	}
+};
+$("#editor")
+	.on("dragover", false)
+	.on("dragenter", false)
+	.on("drop", function(e){
+		var txt = e.originalEvent.dataTransfer.getData("text");
+		insertText(txt);
+	});
+function insertText(html){
+	labelMDEditor.instance.insertValue(html);
+}
+function getValue(){
+	return $("#editor textarea.editormd-markdown-textarea").val();
+}
+</script>

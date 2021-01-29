@@ -1,0 +1,68 @@
+﻿@using System.Data
+@{
+    string text = "接口状态";
+}
+@section head{<title>@L.接口说明</title> }
+@section content{
+<body>
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("UserManage",L.用户管理),
+new Bread(Context.Request.RawUrl(),L.整合接口)
+})
+
+    <div class="">
+        <div class="card sys_prebox">
+            <div class="card-header "><span class="margin_l5">@L.接口说明</span></div>
+            <div class="card-body">
+                <div>
+				<strong>@L.使用说明：</strong> @L.跨站接入操作
+				</div>
+                <div>
+                    1,@L.添加授权网站<br>
+                    2,@L.目标网站接口调用<br>
+                    3,@L.使用提供的接口完成功能
+                </div>
+                <div class="divline"></div>
+                <div><strong>1、@L.查询示例：</strong></div>
+                <div>
+                      @L.首先添加WebSerives引用<a href="http://win05:86/API/Center.asmx" target="_blank">http://win05:86/API/Center.asmx</a> <br>
+                      @L.命名空间可自定义 (<span class="rd_green">C#@L.是原生支持</span>)
+                <pre class="brush:c#;toolbar:false">ZLAPI.CenterSoapClient client = new ZLAPI.CenterSoapClient();<br>string result = client.Select("key", "ZL_User", "UserName,UserID", "UserID&lt;10", "UserID DESC", null);<br>@L.返回:[{"UserName":"admin","UserID":1}];<br></pre>   
+                </div>
+                <div class="divline"></div>
+                <div><strong>2、@L.添加一条问答</strong></div>
+                <div>
+                    <pre class="brush:c#;toolbar:false">ZLAPI.CenterSoapClient client = new ZLAPI.CenterSoapClient();<br>ZLAPI.M_Ask askMod = new ZLAPI.M_Ask();<br>askMod.UserId = 1;<br>askMod.UserName = "test";<br>askMod.Qcontent = "@L.问答内容";<br>askMod.Supplyment = "@L.补充提问";<br>askMod.AddTime = DateTime.Now;<br>askMod.Score = 5;<br>int result = client.AddAsk(key,askMod);<br>@L.返回问答</pre>
+                </div>
+
+                <div><strong>3、跨站调用</strong></div>
+                <div>
+                    <pre class="brush:c#;toolbar:false">其调用源为：https://domain.com/API/Content.ashx?action=node_list&nid=12
+		    或https://domain.com/API/Content?action=node_list&nid=12
+		    形式，分别对应MVC与.NETcore版本，并参照V4方案下的“v8跨站api”模板示例进行跨站信息引用，从而进行web、小程序、APP等多平台交互。
+		    此调用必须在本页开启接口方可使用，否则无权颁发调用，以确保安全。
+		    </pre>
+                </div>
+
+            </div>
+        </div>
+        <div style="margin-top:5px;text-align:center;">
+            <form method="post" action="@MVCHelper.GetAction("WSApi_Submit",Context.Request)">
+                 <input type="submit" class="btn btn-outline-info btn-lg" value="@(SiteConfig.SiteInfo.APIClose?"开启API接口":"关闭API接口")" />
+            </form>
+        </div>
+    </div>
+
+<script>
+    var siteconf = {
+        path: "/Admin/",
+        updir: "/uploadfiles/"
+    };
+</script>
+
+</body>
+
+
+ }
+@section script{ }

@@ -1,0 +1,191 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using Newtonsoft.Json
+@model HdDataChart
+@functions{
+    [Authorize(Policy = ("User"))]
+    public class HdDataChart : Page_Base
+    {
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+    }
+    public int Chart_GetByDate(DataTable dt, DateTime date)
+    {
+        DataRow[] drs= dt.Select("Date=#"+date.ToString("MM/dd/yyyy")+"#");
+        if (drs.Length > 0) { return DataConvert.CLng(drs[0]["num"]); }
+        else { return 0; }
+    }
+    //生成数组给予前端展示
+    public IHtmlContent Chart_ToData(DataTable dt, string field)
+    {
+        List<string> list = new List<string>();
+        foreach (DataRow dr in dt.Rows)
+        {
+            list.Add(DataConvert.CStr(dr[field]));
+        }
+        return MvcHtmlString.Create(JsonConvert.SerializeObject(list));
+    }
+}
+@{ 
+    Layout = "~/Areas/User/Views/Shared/_layout.cshtml";
+    DateTime sdate = DateTime.Now.AddDays(-7);// DataConvert.CDate(hdInfo["hd_date_begin"]);
+    DataTable dt = new DataTable();
+    dt.Columns.Add("date", typeof(DateTime));
+    dt.Columns.Add("xais", typeof(string));
+    dt.Columns.Add("view", typeof(int));
+    dt.Columns.Add("bm", typeof(int));
+    dt.Columns.Add("order", typeof(int));
+    DataTable view, bm, order;
+    {
+        string tbname = "ZL_Ex_HdView";
+        string field = "CDate";
+        string sql = "SELECT CONVERT(varchar(10),DATEADD(hour,12,[" + field + "]),101) AS Date,COUNT(ID)AS [Num] FROM " + tbname + " WHERE InfoID='" + Model.Mid + "' GROUP BY CONVERT(varchar(10),DATEADD(hour,12,[" + field + "]),101)";
+        view = DBCenter.ExecuteTable(sql);
+    }
+    {
+        string tbname = "ZL_Pub_HdBM";
+        string field = "PubAddTime";
+        string sql = "SELECT CONVERT(varchar(10),DATEADD(hour,12,[" + field + "]),101) AS Date,COUNT(ID)AS [Num] FROM " + tbname + " WHERE PubContentID='" + Model.Mid + "' GROUP BY CONVERT(varchar(10),DATEADD(hour,12,[" + field + "]),101)";
+        bm = DBCenter.ExecuteTable(sql);
+    }
+    {
+        string tbname = "ZL_OrderInfo";
+        string field = "AddTime";
+        string sql = "SELECT CONVERT(varchar(10),DATEADD(hour,12,[" + field + "]),101) AS Date,COUNT(ID)AS [Num] FROM " + tbname + " WHERE Remind1='" + Model.Mid + "' GROUP BY CONVERT(varchar(10),DATEADD(hour,12,[" + field + "]),101)";
+        order = DBCenter.ExecuteTable(sql);
+    }
+    //活动开始至今,最多30天
+    for (int i = 30; i > 0; i--)
+    {
+        DateTime date = DateTime.Now.AddDays(-i);
+        //如小于开始时间,则不计入
+        if (date < sdate) { continue; }
+        DataRow dr = dt.NewRow();
+        dr["date"] = date;
+        dr["xais"] = date.ToString("MM/dd");
+
+        dr["view"] = Chart_GetByDate(view, date);
+        dr["bm"] = Chart_GetByDate(bm, date);
+        dr["order"] = Chart_GetByDate(order, date);
+        dt.Rows.Add(dr);
+    }
+    //throw new Exception(JsonConvert.SerializeObject(dt));
+}
+@section head{ <title>报表</title>}
+@section content{ 
+<style type="text/css">
+.item{border:1px solid #ddd;background-color:#fff;line-height:50px; display:flex;
+    box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 5px 0px, rgba(0, 0, 0, 0.0784314) 0px 2px 10px 0px;
+
+}
+.item .title{width:60px;font-size:1.2rem;}
+.item ul{list-style-type:none;margin-bottom:0px !important;}
+.item ul li{float:left;margin-right:20px;}
+</style>
+<div id="pageflag" data-nav="edu" data-ban="ke"></div>
+<div class="container">
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Default", "")">会员中心</a></li>
+    <li class="breadcrumb-item"><a href="@HttpContext.Request.RawUrl()">报表</a></li>
+</ol>
+<div>
+    @*<div>
+        <span>时间：</span>
+        <div>
+            <a href="">全部</a>
+        </div>
+    </div>*@
+    <div class="item">
+        <div class="title">营销：</div>
+        <ul>
+            <li>总访问：<span>0</span></li>
+            <li>总访客：<span>0</span></li>
+        </ul>
+    </div>
+    <div class="item">
+        <div class="title">蓄客：</div>
+        <ul>
+            <li>总售票：<span>0</span></li>
+            <li>总验票：<span>0</span></li>
+            <li>未验票：<span>0</span></li>
+        </ul>
+    </div>
+    <div class="item">
+        <div class="title">业绩：</div>
+        <ul>
+            <li>总订单：<span>0</span></li>
+            <li>总金额：<span>0</span></li>
+            <li>已收金额：<span>0</span></li>
+        </ul>
+    </div>
+    <div class="item">
+        <div id="chart1" class="echart" style="width:100%;height:500px;"></div>
+    </div>
+</div>
+</div>
+
+
+}
+@section script{ 
+<script src="~/lib/ECharts/echarts.js?v=1"></script>
+
+<script>
+    var option1 = {
+    title: {
+        text: '访客&报名&订单量'
+    },
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+        data: ['浏览数', '报名数',"订单数"]
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {}
+        }
+    },
+    xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        //data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        data:@Chart_ToData(dt,"xais")
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [
+        {
+            name: '浏览数',
+            type: 'line',
+            stack: '总量',
+             data:@Chart_ToData(dt,"view")
+        },
+        {
+            name: '报名数',
+            type: 'line',
+            stack: '总量',
+            data:@Chart_ToData(dt,"bm")
+        },
+       {
+            name: '订单数',
+            type: 'line',
+            stack: '总量',
+            data:@Chart_ToData(dt,"order")
+        }
+
+    ]
+    };
+     var myChart1 = echarts.init(document.getElementById('chart1'));
+     myChart1.setOption(option1);
+</script>
+}

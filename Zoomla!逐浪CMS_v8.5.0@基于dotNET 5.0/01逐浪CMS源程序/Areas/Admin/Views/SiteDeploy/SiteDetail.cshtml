@@ -1,0 +1,357 @@
+﻿@using System.Collections.Generic
+@using ZoomLa.Model.Site
+@using ZoomLa.Components.IOHelper.Extensions
+@model M_SiteDeploy
+@{ 
+    if (Model.RunPath.StartsWith("/") && Model.RunPath.Length > 1)
+        Model.RunPath = Model.RunPath.Substring(1);
+    if (Model.RunPath.EndsWith("/") && Model.RunPath.Length > 1)
+        Model.RunPath = Model.RunPath.Remove(Model.RunPath.Length - 1);
+    var siteBasePath = (string)ViewData["SiteBasePath"];
+    var packageInfo = VueSiteHelper.GetPackageInfo(System.IO.Path.Combine(siteBasePath, Model.Path));
+    var packs = (IEnumerable<SitePackage>)ViewData["PackageList"];
+    var downloadType = 0;
+}
+@section head{<title>站点详情</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.Path.Value.Replace("Detail", "List", StringComparison.OrdinalIgnoreCase), "站点列表"),
+    new Bread(Context.Request.RawUrl(),"站点详情")},"[<a href='SiteAdd'>"+"添加站点"+"</a>]"))
+<div class="">
+<table class="table table-bordered sys_table">
+    <tr>
+        <th class="w12rem_lg">站点名称</th>
+        <td>@Model.Name</td>
+    </tr>
+    <tr>
+        <th>备注说明</th>
+        <td>@Model.Note</td>
+    </tr>
+    <tr>
+        <th>文件目录</th>
+        <td>@ViewData["SiteFolderName"]@Model.Path</td>
+    </tr>
+    <tr>
+        <th>资源目录</th>
+        <td>@(System.IO.Path.Combine("/dist/", Model.RunPath, Model.AssetsPath).Replace("\\", "/"))/</td>
+    </tr>
+    <tr>
+        <th>数据接口</th>
+        <td>
+            <span>@Model.Interface</span>
+            <button onclick="setSiteApi(@Model.ID)" class="ms-4 btn btn-outline-info btn-sm">@(string.IsNullOrWhiteSpace(Model.Interface) ? "设置默认API" : "更新默认API")</button>
+            <div class="text-info small">如需自行设置API，请转至 <a href="SiteEdit?id=@Model.ID">修改站点</a> 页面</div>
+        </td>
+    </tr>
+    <tr>
+        <th>包安装源</th>
+        <td>
+            <span>@(Model.PackageType == PackageType.Npm ? "npm" : "yarn")</span>
+        </td>
+    </tr>
+    <tr>
+        <th>维护操作</th>
+        <td>
+            <div>
+                <div class="py-1"><span><i class="zi zi_floderOpen me-1"></i>src</span>
+                @if((Model.FileStatus & FileStatus.Src) == 0)
+                {
+                    <i class="zi zi_times me-1" style="color:red"></i>
+                }
+                else
+                {
+                    <i class="zi zi_check me-1" style="color:green"></i>
+                }
+                </div>
+                <div class="py-1"><span><i class="zi zi_floderOpen me-1"></i>node_modules</span>
+                @if((Model.FileStatus & FileStatus.Node) == 0)
+                {
+                    <i class="zi zi_times me-1" style="color:red"></i>
+                    <button class="ms-4 btn btn-outline-info btn-sm" onclick="disableAfterClick(this); initialPacks(@Model.ID);">初始化包</button>
+                    <span class="px-2 text-info small">包初始化需要一定时间，执行后请耐心等待...</span>
+                }
+                else
+                {
+                    <i class="zi zi_check me-1" style="color:green"></i>
+                    <button class="ms-4 btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#addPackageModal">添加包</button>
+                }
+                </div>
+                <div class="py-1"><span><i class="zi zi_floderOpen me-1"></i>dist</span>
+                @if((Model.FileStatus & FileStatus.Dist) == 0)
+                {
+                    <i class="zi zi_times me-1" style="color:red"></i>
+                    <button class="ms-4 btn btn-outline-info btn-sm" onclick="disableAfterClick(this); buildSite(@Model.ID);">生成发布包</button>
+                }
+                else
+                {
+                    <i class="zi zi_check me-1" style="color:green"></i>
+                    <button class="ms-4 btn btn-outline-info btn-sm" onclick="disableAfterClick(this); buildSite(@Model.ID);">重新生成发布包</button>
+                }
+                </div>
+                <div class="py-1"><span><i class="zi zi_file me-1"></i>package.json</span>
+                @if((Model.FileStatus & FileStatus.Package) == 0)
+                {
+                    <i class="zi zi_times me-1" style="color:red"></i>
+                    <a class="ms-4 btn btn-outline-info btn-sm" onclick="disableAfterClick(this); buildSite(@Model.ID);">重新生成发布包</a>
+                }
+                else
+                {
+                    <i class="zi zi_check me-1" style="color:green"></i>
+                    <button class="ms-4 btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#packageModal">查看package.json</button>
+                }
+                </div>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th>站点发布</th>
+        <td>
+            <span>目录: @(string.IsNullOrWhiteSpace(Model.RunPath) ? "/" : Model.RunPath)</span>
+            <span class="text-info small ps-2">修改目录请转至 <a href="SiteEdit?id=@Model.ID">修改站点</a> 页面</span>
+            <button class="btn btn-outline-info btn-sm mx-2" onclick="disableAfterClick(this); publishSite(@Model.ID);">发布站点</button>
+            @if ((Model.FileStatus & FileStatus.Published) != 0)
+            { <a class="btn btn-outline-info btn-sm mx-2" target="_blank" href="@($"{Context.Request.Host}{(string.IsNullOrWhiteSpace(Model.RunPath) || Model.RunPath == "/" ? "" : "/" + Model.RunPath)}")">查看站点</a> }
+            else {<span class="text-danger small">该操作会覆盖发布目录下的文件</span>}
+        </td>
+    </tr>
+    <tr>
+        <th>站点下载</th>
+        <td>
+            <label class="me-2">@Html.RadioButtonFor(m => downloadType, 0, new { @onchange = "setDownloadType(0)" }) 所有文件</label>
+            @if ((Model.FileStatus & FileStatus.Dist) == 0)
+            { <label class="me-2"><input disabled type="radio"/> 仅发布文件<span class="ms-1 text-info small">请先生成发布包</span></label> }
+            else { <label class="me-2">@Html.RadioButtonFor(m => downloadType, 1, new { @onchange = "setDownloadType(1)" }) 仅发布文件<span class="ms-1 text-info small">请在生成最新发布包后下载</span></label> }
+            <a class="btn btn-outline-info btn-sm" id="btn_sitedownload" target="_blank" href="@(@Url.Action("SiteDownload") + $"?id={Model.ID}&type={downloadType}")"><span class="zi zi_download me-1"></span>下载</a>
+        </td>
+    </tr>
+    <tr>
+        <th>创建时间</th>
+        <td>@($"{Model.CreateDate:yyyy-MM-dd HH:mm:ss}")</td>
+    </tr>
+</table>
+<!-- package.json弹窗 -->
+<div class="modal fade" id="packageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">站点package.json的主要信息</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered table-striped">
+            <tbody>
+                <tr><th colspan="2">摘要</th></tr>
+                <tr><td>name</td><td>@packageInfo.Name</td></tr>
+                <tr><td>version</td><td>@packageInfo.Version</td></tr>
+                <tr><th colspan="2">脚本scripts</th></tr>
+                @foreach (var kvp in packageInfo.Scripts)
+                {<tr><td>@kvp.Key</td><td>@kvp.Value</td></tr>}
+                <tr><th colspan="2">依赖包dependencies</th></tr>
+                @foreach (var kvp in packageInfo.Dependencies)
+                {<tr><td>@kvp.Key</td><td>@kvp.Value</td></tr>}
+                <tr><th colspan="2">开发依赖包devDependencies</th></tr>
+                @foreach (var kvp in packageInfo.DevDependencies)
+                {<tr><td>@kvp.Key</td><td>@kvp.Value</td></tr>}
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 添加包弹窗 -->
+<div class="modal fade" id="addPackageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">添加包</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <i class="zi zi_times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <span class="text-info small">安装可能需要一点时间。</span>
+        <span class="text-danger small">请勿重复安装。</span>
+        <!-- npm包列表 -->
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>版本</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var pack in packs)
+            {
+                <tr>
+                    <td>@pack.Name</td>
+                    <td>@pack.Version</td>
+                    <td><button class="btn btn-outline-info btn-sm" onclick="installPack(@Model.ID, '@pack.Install', 0)">安装</button></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 站点日志输出弹窗 -->
+<div class="modal fade" id="siteLogModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">站点日志</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div class="modal-body">
+        @foreach (var line in Model.Log.Split(Environment.NewLine))
+        {<div>@line</div>}
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 指令命令行输出弹窗 -->
+<div class="modal fade" id="commandOutputModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">指令输出信息</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+      </div>
+      <div id="commandOutputModalBody" class="modal-body">
+      </div>
+    </div>
+  </div>
+</div>
+<div class="text-center">
+    <a class="mx-2 btn btn-info" href="SiteEdit?id=@Model.ID" title="修改站点信息">修改站点</a>
+    <button class="mx-2 btn btn-info"  data-bs-toggle="modal" data-bs-target="#siteLogModal" title="查看站点日志">站点日志</button>
+    <a class="mx-2 btn btn-outline-info" href="SiteList" title="返回站点列表">返回列表</a>
+</div>
+</div>
+}
+@section script{ 
+<script charset="utf-8">
+function initialPacks(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI("@Url.Action("ExecuteCommand")?id=" + id + "&type=1"),
+        success: function (result) {
+            if (result.status) {
+                alert("所有包初始化成功！");
+                window.location.reload();
+            }
+            else {
+                showCommandOutputModal(result.data);
+                alert("初始化失败，错误信息详见弹出框");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function installPack(id, cmd) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI("@Url.Action("ExecuteCommand")?id=" + id + "&type=1&cmd=" + cmd),
+        success: function (result) {
+            if (result.status) {
+                alert("包安装成功！");
+                window.location.reload();
+            }
+            else {
+                showCommandOutputModal(result.data);
+                alert("包安装失败，错误信息详见弹出框");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function buildSite(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI("@Url.Action("ExecuteCommand")?id=" + id + "&type=2"),
+        success: function (result) {
+            if (result.status) {
+                alert("发布包创建成功！");
+                window.location.reload();
+            }
+            else {
+                showCommandOutputModal(result.data);
+                alert("发布包创建失败，错误信息详见弹出框");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    })
+}
+function showCommandOutputModal(data) {
+    var strs = data.split('\n');
+    var html = "<div>";
+    for (var i = 0; i < strs.length; i++) {
+        html += "<div>" + strs[i] + "</div>";
+    }
+    html += "</div>";
+    $('#commandOutputModalBody').append(html);
+    $('#commandOutputModal').modal('show');
+}
+function setSiteApi(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI("@Url.Action("SetDefaultApi")?id=" + id),
+        success: function (result) {
+            if (result) {
+                alert("Api设置成功！");
+                window.location.reload();
+            }
+            else {
+                alert("Api设置失败，可能是Api配置文件存在问题");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function setDownloadType(type) {
+    $('#i_downloadtype').val(type);
+    var str = $("#btn_sitedownload").prop("href");
+    str = str.replace(/type=\d/gi, "type=" + type);
+    $("#btn_sitedownload").prop("href", str);
+}
+function publishSite(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: encodeURI("@Url.Action("SitePublish")?id=" + id),
+        success: function (result) {
+            if (result) {
+                alert("发布站点成功！");
+                window.location.reload();
+            }
+            else {
+                alert("发布站点失败，请先创建发布！");
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    }); 
+}
+function disableAfterClick(e) {
+    $(e).attr('disabled', true);
+}
+</script>
+}

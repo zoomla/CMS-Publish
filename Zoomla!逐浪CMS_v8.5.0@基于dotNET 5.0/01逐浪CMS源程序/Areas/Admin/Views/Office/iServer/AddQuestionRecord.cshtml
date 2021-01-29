@@ -1,0 +1,210 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Model.Client
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.BLL.Content
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Client
+@using Newtonsoft.Json
+@functions{
+B_User ull = new B_User();
+}
+@{
+M_IServer server = new M_IServer();
+B_Model modBll = new B_Model();
+PageSetting conSetting = ViewBag.conSetting;
+Layout = "~/Areas/Admin/Views/Shared/_layout.cshtml";
+string json = JsonConvert.SerializeObject(ViewBag.linkDT);
+if (string.IsNullOrEmpty(json) || json == "null") { json = "[]"; }
+HttpRequest Request = Context.Request;
+}
+@section head{
+<title>添加问题</title>
+<script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="~/Plugins/Ueditor/ueditor.all.js"></script>
+<script src="/res/vue/vue.js"></script>
+}
+@model ZoomLa.Model.Client.M_CRMS_Client
+@section content{
+@Call.SetBread(new Bread[] {
+    new Bread("/{manage}/Main.aspx","工作台"),
+    new Bread("BiServer","有问必答"),
+    new Bread() {url="AddQuestionRecord", text="添加问题记录",addon="" }}
+    )
+<input type="hidden" ID="OrderID" value="@Context.Request.GetParam("OrderID")"/>
+<div class="container-fluid pe-0">
+<div class="row sysRow table-responsive">
+<form method="post" action="@MVCHelper.GetAction("AddQuestionRecord_Submit",Context.Request)">
+    <table class="table table-sm table-striped table-bordered table-hover sys_table">
+        <tr>
+            <th>问题标题 <span class="text-danger">*</span></th>
+            <td><input type="text" ID="txtTitle" name="txtTitle" Class="form-control max20rem" />
+            </td>
+        </tr>
+        <tr>
+         <th scope="col" class="w12rem_lg">会员帐号<span class="text-danger">*</span></th>
+         <td id="link_body" scope="col">
+             <input type="text" hidden ID="txtUserName" name="txtUserName" Class="form-control max20rem" value="@ull.GetLogin().UserName" />
+             <button type="button" class="btn btn-link" onclick="link_show()">+选择会员</button>
+                <span class="btn" v-for="item in list">
+                    <span v-if="list.length<2" id="ff">{{item.name}}</span>
+                    <span hidden><span id="UserNames">{{item.name}}</span></span>
+                </span>
+         </td>
+        </tr>
+        <tr>
+            <th>处理状态<span class="text-danger">*</span></th>
+            <td>@MVCHelper.H_Radios("State", "未解决|处理中|已解决".Split('|'), "未解决,处理中,已解决".Split(','), server.State)</td>
+        </tr>
+        <tr>
+            <th>
+                优先等级 <span class="text-danger">*</span>
+            </th>
+            <td>
+                @MVCHelper.H_Radios("Priority", "低|中|高".Split('|'), "低,中,高".Split(','), server.Priority)
+            </td>
+        </tr>
+        <tr>
+            <th>提交来源 <span class="text-danger">*</span></th>
+            <td class="d-flex flex-row">
+                <select id="DropDownList3" name="DropDownList3" Class="form-control max20rem form-select">
+                    <option value="电话" Selected="Selected">电话</option>
+                    <option value="E-mail">E-mail</option>
+                    <option value="网页表单">网页表单</option>
+                    <option value="直接面谈">直接面谈</option>
+                    <option value="其它">其它</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>电话/E-mail</th>
+            <td><input type="text" ID="txtRootInfo" name="txtRootInfo" Class="form-control max20rem" /></td>
+        </tr>
+        <tr>
+            <th>问题类别 <span class="text-danger">*</span></th>
+            <td>
+                <select id="DropDownList4" name="DropDownList4" Class="form-control max20rem form-select">
+                    <option Selected="Selected" Value="咨询">咨询</option>
+                    <option Value="投诉">投诉</option>
+                    <option Value="建议">建议</option>
+                    <option Value="要求">要求</option>
+                    <option Value="界面使用">界面使用</option>
+                    <option Value="bug报告">bug报告</option>
+                    <option Value="订单">订单</option>
+                    <option Value="财务">财务</option>
+                    <option Value="域名">域名</option>
+                    <option Value="主机">主机</option>
+                    <option Value="邮局">邮局</option>
+                    <option Value="DNS">DNS</option>
+                    <option Value="MSSQL">MSSQL</option>
+                    <option Value="MySQL">MySQL</option>
+                    <option Value="IDC">IDC</option>
+                    <option Value="网站推广">网站推广</option>
+                    <option Value="网站制作">网站制作</option>
+                    <option Value="其它">其它</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>问题内容<span class="text-danger">*</span></th>
+            <td>
+                <textarea id="Content_T" name="Content_T" class="m50rem_50" style=" height:400px">@Context.Request.GetParam("con")</textarea>
+                @MvcHtmlString.Create(Call.GetUEditor("Content_T", 4))
+            </td>
+        </tr>
+        <tr>
+            <th>附注（内部使用）</th>
+            <td><input type="text" ID="Remind_L" name="Remind_L" Class="form-control m50rem_50" Rows="6" /></td>
+        </tr>
+        <tr>
+            <th>附属图片</th>
+            <td>
+                <input type="button" id="upfile_btn" class="btn btn-outline-info" value="上传图片" />
+                <div class="mt-3 uploader" id="uploader"><ul class="filelist"></ul></div>
+                <input type="hidden" ID="Attach_Hid" name="Attach_Hid" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-center">
+                <input type="submit" OnClick="return setcontent();" Class="btn btn-info" value="保存记录" />
+                <a href="BiServer" class="btn btn-outline-info">返回列表</a>
+            </td>
+        </tr>
+    </table>
+</form>
+</div>
+</div>
+}
+@section script{
+<script type="text/javascript" src="/js/Common.js"></script>
+<script type="text/javascript" src="/js/zh-CN/attachment.js"></script>
+<script type="text/javascript" src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_Array.js?v=1"></script>
+<script src="/JS/Controls/ZL_PCC.js?v=1"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Content.js?v=20160514"></script>
+<script src="/res/vue/vue.js"></script>
+<script>
+$(function () {
+    ZL_Webup.config.json.accept = 'img';
+    $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+})
+function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+function fn_CheckLoginSearch(theForm) {
+    if (!fn_CheckRequired(theForm.login, "登录帐号"))
+        return false;
+    return true;
+}
+function fn_CheckSupportTicket(theForm) {
+    if (theForm.source_type.options[theForm.source_type.selectedIndex].value == 'phone'
+        || theForm.source_type.options[theForm.source_type.selectedIndex].value == 'email') {
+        if (!fn_CheckRequired(theForm.source, "电话或者E-mail"))
+            return false;
+    }
+    if (!fn_CheckRequired(theForm.title, "问题标题"))
+        return false;
+    if (!fn_CheckRequired(theForm.content, "问题内容"))
+        return false;
+    return true;
+}
+function setcontent() {
+var f = $('#UserNames').text();
+$('#txtUserName').val(f);
+$("#Content_T").val(UE.getEditor("Content_T").getContent());
+}
+function link_show() {
+ShowComDiag("../CRM/ClientListDiag", "关联会员");
+}
+var linkApp = new Vue({
+    el: "#link_body",
+    data: {list:@MvcHtmlString.Create(json)},
+    methods: {        //回调方法
+        cb: function (list) {
+            CloseComDiag();
+            linkApp.list = null;
+            linkApp.list = ArrCOM.merge(linkApp.list,list);
+        },
+        del: function (item) {
+            var list=linkApp.list;
+            for (var i = 0; i < list.length; i++) {
+                if(item==list[i]){list.splice(i,1);break;}
+            }
+        },
+        getIds: function () {
+            if (!linkApp) { return ""; }
+            var ids = "";
+            var list = linkApp.list;
+            if (!list || list.length < 1) { return ids; }
+            for (var i = 0; i < list.length; i++) {
+                ids += list[i].id + ",";
+            }
+            return ids.substr(0, ids.length - 1);
+        }
+    },
+});
+</script>
+}

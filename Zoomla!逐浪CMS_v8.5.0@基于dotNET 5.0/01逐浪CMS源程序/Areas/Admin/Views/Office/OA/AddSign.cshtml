@@ -1,0 +1,270 @@
+﻿@{ 
+//    protected B_Admin badmin = new B_Admin();
+//protected B_User buser = new B_User();
+//protected B_OA_Sign signBll = new B_OA_Sign();
+//protected M_OA_Sign signMod = new M_OA_Sign();
+//public int Mid { get { return DataConverter.CLng(Request.QueryString["ID"]); } }
+//protected void Page_Load(object sender, EventArgs e)
+//{
+//    if (!IsPostBack)
+//    {
+//        if (Mid > 0)
+//        {
+//            editBtn.Visible = true;
+//            saveBtn.Visible = false;
+//            signMod = signBll.SelReturnModel(DataConverter.CLng(Request.QueryString["ID"]));
+//            signNameT.Text = signMod.SignName;
+//            SFile_Up.FileUrl = signMod.VPath;
+//            SignPwd_T.Attributes.Add("value", signMod.SignPwd);
+//            signKeyT.Text = signMod.SignKey;
+//            BindUser_T.Text = buser.GetUserNameByIDS(signMod.OwnUserID.ToString());
+//            BindUser_Hid.Value = signMod.OwnUserID.ToString();
+//            statusChk.Checked = signMod.Status == 1 ? true : false;
+//            remindT.Text = signMod.Remind;
+//        }
+//        else
+//        {
+//            SignPwd_T.Attributes.Add("value", "111111");
+//        }
+//    }
+//    Call.SetBreadCrumb(Master, "<li><a href='" + CustomerPageAction.customPath2 + "Main.aspx'>工作台</a></li><li><a href='OAConfig.aspx'>OA配置</a></li><li><a href='SignManage.aspx'>签章管理</a></li><li class='active'>添加签章</a></li>");
+//}
+////保存
+//protected void saveBtn_Click(object sender, EventArgs e)
+//{
+//    if (DataConverter.CLng(BindUser_Hid.Value) == 0)
+//        Page.ClientScript.RegisterStartupScript(this.GetType(), "", "alert('用户不存在!!');", true);
+//    else
+//    {
+//        string filePath = OAConfig.SignPath + "/" + BindUser_T.Text + "/";
+//        if (!Directory.Exists(filePath))
+//        {
+//            SafeSC.CreateDir(function.PToV(filePath));
+//        }
+//        SFile_Up.SaveUrl = filePath;
+//        signMod.VPath = SFile_Up.SaveFile();
+//        signMod.SignName = signNameT.Text.Trim();
+//        signMod.SignPwd = SignPwd_T.Text;
+//        signMod.SignKey = function.GetRandomString(12);
+//        signMod.OwnUserID = DataConverter.CLng(BindUser_Hid.Value);
+//        signMod.Status = statusChk.Checked ? 1 : 0;
+//        signMod.CreateMan = B_Admin.GetLogin().AdminId;
+//        signMod.CreateTime = DateTime.Now;
+//        signMod.Remind = remindT.Text.Trim();
+//        signBll.Insert(signMod);
+//        function.WriteSuccessMsg("添加成功", "SignManage.aspx");
+//    }
+//}
+////修改
+//protected void editBtn_Click(object sender, EventArgs e)
+//{
+//    signMod = signBll.SelReturnModel(Mid);
+//    int userid = DataConverter.CLng(BindUser_Hid.Value);
+//    if (userid == 0)
+//        Page.ClientScript.RegisterStartupScript(this.GetType(), "", "alert('用户不存在!!');", true);
+//    else
+//    {
+//        signMod.SignName = signNameT.Text.Trim();
+//        signMod.SignPwd = SignPwd_T.Text;
+//        signMod.OwnUserID = userid;
+//        signMod.Status = statusChk.Checked ? 1 : 0;
+//        signMod.CreateMan = B_Admin.GetLogin().AdminId;
+//        signMod.CreateTime = DateTime.Now;
+//        signMod.Remind = remindT.Text.Trim();
+//        string filePath = OAConfig.SignPath + "/" + BindUser_T.Text + "/";
+//        if (!Directory.Exists(filePath))
+//        {
+//            SafeSC.CreateDir(function.PToV(filePath));
+//        }
+//        SFile_Up.SaveUrl = filePath;
+//        signMod.VPath = SFile_Up.SaveFile();
+//        signBll.UpdateByID(signMod);
+//        Page.ClientScript.RegisterStartupScript(this.GetType(), "", "alert('修改成功!!');window.location.href='SignManage.aspx';", true);
+//        signBll.UpdateByID(signMod);
+//        function.WriteSuccessMsg("修改成功", "SignManage.aspx");
+
+//    }
+//}
+
+}
+
+@section head{  <title>添加电子签名</title>}
+@section content{ 
+	@Call.SetBread(new Bread[] {
+		new Bread("/{manage}/Main.aspx","工作台"),
+        new Bread("OAConfig.aspx","OA配置"),
+		new Bread("SignManage.aspx","签章管理"),
+        new Bread() {url="", text="添加签章",addon="" }}
+		)
+    <div class="container-fluid pe-0">
+        <div class="row sysRow">
+            <form method="post" action="@MVCHelper.GetAction("AddSign_Submit",Context.Request)">
+                <table class="table table-striped table-bordered table-hover sys_table">
+                    <tr>
+                        <th scope="col" class="w12rem_lg">签章名 <span class="text-danger">*</span></th>
+                        <td scope="col">
+                            <input type="text" Class="form-control max20rem" id="signNameT" name="signNameT" value="@Model.SignName"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>签章图</th>
+                        <td>
+                            @*<ZL:SFileUp ID="SFile_Up" runat="server" />*@
+                            <!--支持手写输入,支持指定类型过滤,支持图片预览,支持多个控件共同使用,-->
+                            <div class="sfile_body" id="SFile_Up_body">
+                                <div class="sfile_view" style="display:none;">
+                                    <img src="#" class="sfile_img" style="width: 100px; height: 100px;" />
+                                </div>
+                                <div class="sfile_updiv">
+                                    <div class="input-group">
+                                        <input name="ctl00$Content$SFile_Up$FVPath_T" type="text" id="FVPath_T" class="form-control max20rem sfile_t" />
+                                        <a href="javascript:;" class="btn btn-info sfile_selbtn rounded-end"><i class="zi zi_floderOpen" aria-hidden="true"></i></a>
+                                        <a href="javascript:;" class="btn btn-secondary sfile_clsbtn" style="display:none;"><i class="zi zi_trashalt"></i> 清除</a>
+                                    </div>
+                                    <input type="file" name="ctl00$Content$SFile_Up$FileUp_File" id="FileUp_File" class="sfile_up" style="display: none;" />
+                                </div>
+                            </div>
+                            <script>
+
+                                var SFile = function (conf) {
+                                    var ref = this;
+                                    ref.conf = conf;
+                                    ref.conf.$body = $(this.conf.id + "_body");
+                                    ref.conf.$text = this.conf.$body.find(".sfile_t");//上传文件名称(仅显示文件名)
+                                    ref.conf.$up = this.conf.$body.find(".sfile_up");//用于上传的input
+                                    ref.conf.$view = this.conf.$body.find(".sfile_view");//预览div
+                                    ref.conf.$img = this.conf.$body.find(".sfile_img");
+                                    ref.conf.$clsbtn = this.conf.$body.find(".sfile_clsbtn");
+                                    ref.conf.$selbtn = this.conf.$body.find(".sfile_selbtn");
+                                    ref.conf.$selbtn.click(function () { ref.conf.$up.click(); });
+                                    ref.conf.$clsbtn.click(function () { ref.clear(); });
+                                    ref.conf.$up.change(function (e) {
+                                        //取消选择
+                                        if (e.target.files.length < 1) { return; }
+                                        var filename = $(this).val();
+                                        var reader = new FileReader();
+                                        ref.conf.$text.val(ref.getfname(filename, 100));
+                                        reader.onload = function (e) { ref.showimg(e.target.result); }
+                                        reader.readAsDataURL(e.target.files[0]);
+                                        if (filename && filename != "") { ref.conf.$clsbtn.show(); }
+                                        else { ref.conf.$clsbtn.hide(); }
+                                    });
+                                    //如果text中不为空, 且为图片,则显示预览
+                                    ref.conf.fname = ref.conf.$text.val();
+                                    ref.showimg(ref.conf.fname);
+                                    if (ref.conf.fname && ref.conf.fname != "") { ref.conf.$clsbtn.show(); }
+                                };
+                                SFile.prototype.iswebimg = function (fname) {
+                                    if (!fname || fname == "") { return false; }
+                                    fname = fname.toLowerCase();
+                                    if (fname.indexOf("data:image/") > -1)//base64
+                                    {
+                                        return true;
+                                    }
+                                    else if (fname.indexOf(".") > 0) {
+                                        var start = fname.lastIndexOf(".");
+                                        var ext = fname.substring((start + 1), fname.length);//jpg|png|gif
+                                        return (ext == "jpg" || ext == "png" || ext == "gif")
+                                    }
+                                    else { return false; }
+                                }
+                                //显示图片预览
+                                SFile.prototype.showimg = function (fname) {
+                                    var ref = this;
+                                    if (ref.iswebimg(fname)) {
+                                        ref.conf.$view.show();
+                                        ref.conf.$img.attr("src", fname);
+                                    }
+                                }
+                                SFile.prototype.getfname = function (fname, num) {
+                                    fname = fname.replace(/\\/g, "/");
+                                    if (fname.indexOf("/") > -1 || fname.indexOf("\\") > -1) {
+                                        var s = fname.lastIndexOf("/") + 1;
+                                        fname = fname.substring(s, fname.length);
+                                    }
+                                    if (num && num > 1 && fname.length > num) { fname = fname.substring(0, (num - 1)) + ".."; }
+                                    return fname;
+                                }
+                                //清空已指定的元素
+                                SFile.prototype.clear = function () {
+                                    var ref = this;
+                                    ref.conf.$view.hide();
+                                    ref.conf.$clsbtn.hide();
+                                    ref.conf.$up.val("");
+                                    ref.conf.$text.val("");
+                                }
+
+                                new SFile({ ftype: "All", id: "#SFile_Up" });
+                            </script>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>签章密码</th>
+                        <td>
+                            <input type="Password" Class="form-control max20rem" id="SignPwd_T" name="SignPwd_T" value="@Model.SignPwd"/>
+                            <small class="text-muted">默认为111111</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>密钥</th>
+                        <td>
+                            <input type="text" Class="form-control max20rem" id="signKeyT" name="signKeyT" disabled="disabled" />
+                            <small class="text-muted">提示:勿需填,添加时自动生成</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>绑定用户</th>
+                        <td>
+                            <div class="input-group">
+                                <input type="text" Class="form-control max20rem" id="BindUser_T" name="BindUser_T" value="@Model.VPath"/>
+                                <input type="button" onclick="user.sel('BindUser', 'user', '')" value="选择用户" class="btn btn-info" />
+                            </div>
+                            <input type="hidden" id="BindUser_Hid" name="BindUser_Hid" value="@Model.OwnUserID"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>状态</th>
+                        <td>
+                            <input type="CheckBox" id="statusChk" name="statusChk" value="1" checked="checked" value="@Model.Status"/><span>启用</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>备注</th>
+                        <td>
+                            <input type="text" ID="remindT" name="remindT" style="height:100px" Class="form-control max20rem" value="@Model.Remind"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>操作</th>
+                        <td>
+                            <input type="submit" id="saveBtn" name="saveBtn" Class="btn btn-info" value="保存" OnClick="return saveBtn_Click();" />
+                            @*<input type="submit" id="editBtn" name="editBtn" Class="btn btn-info" value="修改" OnClick="return saveBtn_Click();" />*@
+                            <input type="button" value="返回" class="btn btn-outline-info" name="back" onclick="history.back();" />
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div id="div_share" class="panel panel-primary" style="display: none; position: absolute; z-index: 3;">
+        <div class="panel-heading">
+            <span style="float: right; cursor: pointer;" onclick="hidediv()" title="关闭">关闭</span><h3 class="panel-title">选择会员</h3>
+        </div>
+        <div class="panel-body">
+            <iframe id="userIframe" style="z-index: 2; visibility: inherit; overflow: auto; overflow-x: hidden; width: 100%; height: 300px;" name="main_right" src="/Office/Mail/SelUser.aspx?Type=Radio" frameborder="0"></iframe>
+        </div>
+    </div>
+    <input type="hidden" id="dataField" name="dataField"/>
+}
+@section script{ 
+    <script src="/JS/Controls/ZL_Array.js"></script>
+    <script src="/JS/Plugs/angular.min.js"></script>
+    <script>
+        user.hook["BindUser"] = userdeal;
+        function userdeal(list, select) {
+            $("#" + select + "_T").val(list[0].UserName);
+            $("#" + select + "_Hid").val(list[0].UserID);
+            if (comdiag != null) { CloseComDiag(); }
+        }
+    </script>
+}

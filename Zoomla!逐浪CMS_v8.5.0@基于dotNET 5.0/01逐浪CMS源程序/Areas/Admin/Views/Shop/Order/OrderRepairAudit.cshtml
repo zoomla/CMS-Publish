@@ -1,0 +1,88 @@
+﻿@using ZoomLa.BLL.Shop;
+@model ZoomLa.SQLDAL.SQL.PageSetting;
+@functions{
+    B_Order_Repair repBll = new B_Order_Repair();
+    public string GetCret(string CretType)
+    {
+        string[] types = CretType.ToString().Split(',');
+        string str = "";
+        foreach (string item in types)
+        {
+            str += item.Equals("1") ? L.发票 : L.检测报告;
+            str += ",";
+        }
+        return str.Trim(',');
+    }
+    public string GetStatus(string Status)
+    {
+        return repBll.ShowStatus(Status);
+    }
+    public string GetServieType(string ServiceType)
+    {
+        return repBll.ShowServerType(ServiceType);
+    }
+}
+@section head{
+<title>退货返修</title>
+}
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("ProductManage",@L.商城管理),
+    new Bread("OrderList",@L.订单管理),
+    new Bread(){url="OrderRepairAudit", text=@L.返修单审核}
+    })
+    <ul class="nav nav-tabs">
+        <li class="nav-item" id="nav_-100"><a class="nav-link" href="OrderRepairAudit">@L.全部</a></li>
+        <li class="nav-item" id="nav_0"><a class="nav-link" href="OrderRepairAudit?status=0">@L.未审核</a></li>
+        <li class="nav-item" id="nav_99"><a class="nav-link" href="OrderRepairAudit?status=99">@L.已审核</a></li>
+    </ul>
+    <div class="container-fluid pe-0">
+        <div class="row sysRow table-responsive">
+            <table class="table table-striped table-bordered" id="EGV">
+                <tr>
+                    <th scope="col" class="w1rem"></th>
+                    <th scope="col">商品信息</th>
+                    <th scope="col">退货数</th>
+                    <th scope="col">申请凭据</th>
+                    <th scope="col">客户姓名</th>
+                    <th scope="col">联系方式</th>
+                    <th scope="col">取件时间</th>
+                    <th scope="col">审核状态</th>
+                    <th scope="col">创建时间</th>
+                    <th scope="col">@L.操作</th>
+                </tr>
+                @foreach (DataRow dr in Model.dt.Rows)
+                {
+            <tr>
+                <td class="excel_no node_select"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td> <img src="@ZoomLa.Common.function.GetImgUrl(@dr["Thumbnails"])" class="img_50" />@dr["Proname"].ToString()</td>
+                <td>@dr["Pronum"]</td>
+                <td>@GetServieType(dr["ServiceType"].ToString())</td>
+                <td>@GetCret(dr["CretType"].ToString())</td>
+                <td>@dr["UserName"]</td>
+                <td>@dr["Phone"]</td>
+                <td>@GetStatus(dr["Status"].ToString())</td>
+                <td>@dr["TakeTime"]</td>
+                <td class="excel_no td_l">
+                    <a href="RepairDeailt?ID=@dr["ID"]"><i class="zi zi_eye"></i>查看详情</a>
+                </td>
+            </tr>
+                }
+                @Html.Partial("_page", Model)
+            </table>
+        </div>
+    </div>
+    <div class="btn-group">
+        <input type="button" value="@Html.Raw(L.批量审核)" class="btn btn-outline-secondary" onclick="mvcpage.bat({url: 'Audit_Btn_Click', confirm: '@Html.Raw("确定要批量审核吗")',after:function(){location=location;} });" />
+        <input type="button" value="@Html.Raw(L.解除审核)" class="btn btn-outline-secondary" onclick="mvcpage.bat({url: 'UnAudit_Btn_Click', confirm: '@Html.Raw("确定要批量解除吗")',after:function(){location=location;} });" />
+        <input type="button" value="@Html.Raw(L.批量删除)" class="btn btn-outline-secondary" onclick="mvcpage.bat({url: 'Del_Btn_Click', confirm: '@Html.Raw(L.确定要批量移除吗)',after:function(){location=location;} });" />
+    </div>
+
+}
+@section script{
+    <script>
+        $(function () {
+            $("#nav_@ViewBag.Status").find("a").addClass("active");
+        })
+    </script>
+}

@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MarkDown编辑器</title>
+<link rel="stylesheet" href="/Plugins/Markdown/css/editormd.min.css" />
+<link rel="stylesheet" href="/res/css/zico.min.css" 
+<link rel="stylesheet" href="/res/css/bootstrap.min.css" />
+<script src="/res/js/bootstrap.bundle.min.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/Plugins/Markdown/editormd.js?v=1"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/Modal/APIResult.js"></script>
+</head>
+<body>
+    <div style="margin-bottom:1rem;">
+        <a href="javascript:;" class="btn btn-outline-info btn-sm" onclick="getMDFile()" style="display:none">下载此MD</a>
+        <!--<input type="text" id="fileName" style="width: 300px;min-width:300px; display:none;" />-->
+        <input type="file" id="MDFile" onchange="importMD(this.files[0])" hidden />
+    </div>
+    <div id="editormd">
+<textarea style="display: none;" id="content_md" name="content_md"></textarea>
+    </div>
+
+    <script type="text/javascript">
+        //判断是否显示上传下载按钮
+        var toolbar = [
+            "chart", "upfile", "exfile", "savafile", "undo", "redo", "|",
+            "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+            "h1", "h2", "h3", "h4", "h5", "h6", "|",
+            "list-ul", "list-ol", "hr", "|",
+            "link", "reference-link", "image", "html2md", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+            "goto-line", "watch", "preview", "fullscreen", "clear", "search", "|",
+            "help"
+        ];
+        if (getParam("flag") == 1) {//1为关闭相应按钮   2为不关闭
+            toolbar = [
+                "undo", "redo", "|",
+                "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                "h1", "h2", "h3", "h4", "h5", "h6", "|",
+                "list-ul", "list-ol", "hr", "|",
+                "link", "reference-link", "image", "html2md", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+                "goto-line", "watch", "preview", "fullscreen", "clear", "search", "|",
+                "help"
+            ];
+        }
+
+        var diag = new ZL_Dialog();
+        //获取parnet中用于保存数据的控件
+        var id = getParam("id");
+        var $source = $(parent.document).find("#" + id + "_src");
+        var $html = $(parent.document).find("#" + id);
+
+        //---------------
+        $("#content_md").val($source.val());
+        $("#editormd").height($(window).height());
+        var editor = editormd("editormd", {
+            path: "/Plugins/Markdown/lib/",
+            //autoHeight: true,
+            //width: 1920,
+            height: (parseInt($(window).height()) - 20),
+            htmlDecode: "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启
+            //toolbar  : false,             //关闭工具栏
+            //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+            saveHTMLToTextarea: true,    // 保存 HTML 到 Textarea
+            searchReplace: true,
+            //watch : false,                // 关闭实时预览  默认开启
+            emoji: true,
+            taskList: true,
+            autoFocus: true,//是否初始化后获取焦点
+            flowChart: true,
+            toolbarModes: {},
+            sequenceDiagram: true,
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png"],
+            imageUploadURL: "/IO/MarkDown_API?action=upload",
+            onload: function () { if (parent && parent.loadImg) { parent.loadImg(editor.getHTML()); } },
+            onchange: function () {
+                $source.val(editor.getValue());
+                $html.val(editor.getHTML());
+                //用于AddContent,更新TopImg
+                if (parent && parent.loadImg) { parent.loadImg(editor.getHTML()); }
+            },
+            toolbarIcons: function () {
+                return toolbar
+            },
+            success: function () { }
+        });
+        editormd.emoji = {
+            path: "http://www.emoji-cheat-sheet.com/graphics/emojis/",
+            //path: "../markdown/plugins/emoji-dialog/emoji/",
+            ext: ".png"
+        };
+        function AutoHeight() { diag.AutoHeight(); }
+
+        //将本地MD文件传渲染到前台
+        function importMD(FileData) {
+            var fileName = $("#MDFile").val();
+            var fileType = fileName.substr(fileName.lastIndexOf("."));
+            if (fileType != ".md" && fileType != ".txt") {
+                alert("文件类型错误，请选择 .md 或者 .txt 类型文件！");
+                return false;
+            }
+            var formdata = new FormData();
+            formdata.append("file", FileData);
+            $.ajax({
+                type: 'POST',
+                url: '/User/UploadMarkDown/ImportMDFile',
+                data: formdata,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    editor.setMarkdown(res);
+                    ////将文件名给到展示标签中
+                    //var filePath = $("#MDFile").val();
+                    //var test1 = filePath.lastIndexOf("/"); //对路径进行截取
+                    //var test2 = filePath.lastIndexOf("\\"); //对路径进行截取
+                    //var test = Math.max(test1, test2)
+                    //if (test < 0) {
+                    //    $("#fileName").val(filePath);
+                    //} else {
+                    //    $("#fileName").val(filePath.substring(test + 1)); //赋值文件名
+                    //}
+                    //$("#fileName").attr("style", "display:inline-block;border-radius:.25rem;");
+
+                    $("#MDFile").val("");
+                },
+                error: function (a, b, c) { alert(c); }
+            });
+        }
+        //下载编辑器上的MD数据
+        function getMDFile() {
+            var text = editor.getValue();
+            if (text == "" || text == undefined || text == null) {
+                alert("不可下载-原因可能是暂未存储内容!");
+                return;
+            }
+
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = now.getMonth() + 1;
+            var day = now.getDate();
+            var hh = now.getHours();
+            var mm = now.getMinutes();
+            var ss = now.getSeconds();
+            var filename = "MD" + year + month + day + hh + mm + ss + ".md";
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+        }
+        //在父元素设置MD数据
+        function updataMDText(MDText) {
+            editor.setMarkdown(MDText);
+        }
+
+        $(".zi_times").hide();
+
+    </script>
+</body>
+</html>

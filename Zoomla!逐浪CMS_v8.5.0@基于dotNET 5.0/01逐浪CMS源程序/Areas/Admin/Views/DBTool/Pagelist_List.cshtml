@@ -1,0 +1,39 @@
+﻿@using System.Data;
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.SYS
+@using System.Web
+@using ZoomLa.Common
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public IHtmlContent GetModelIcon(DataRow dr)
+    {
+        string icon = DataConverter.CStr(dr["ItemIcon"]);
+        return MvcHtmlString.Create(StringHelper.GetItemIcon(icon));
+    }
+}
+@{
+
+}
+<tbody id="EGV">
+  @foreach (DataRow item in Model.dt.Rows)
+    {
+    <tr class="align-middle" ondblclick="location='PageAdd?id=@item["id"]'" title="双击修改">
+        <td class="node_select"><input type="checkbox" name="idchk" value="@item["id"]" /></td>
+        <td>
+            <div class="btn-group">
+                <a class="dropdown-toggle" style="color:#999;" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a href="PageAdd?id=@item["id"]"  class="dropdown-item" title="修改配置"><i class="zi zi_pencilalt"></i> @L.修改</a></li>
+                    <li><a href="javascript:;" onclick="deletelist(@item["id"])"  class="dropdown-item" title="删除记录"><i class="zi zi_trash"></i> @L.删除</a></li>
+                </ul>
+            </div>
+        </td>
+        <td>@item["id"]</td>
+        <td data-bs-toggle="tooltip" title="" data-original-title="双击修改">@item["Title"]</td>
+        <td>@item["Content"]</td>
+        <td>@DateHelper.ToDate(item["Cdate"])</td>
+        <td>@item["UserID"]</td>
+    </tr>
+    }
+    @Html.Partial("_page")
+</tbody>

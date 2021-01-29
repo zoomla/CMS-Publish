@@ -1,0 +1,174 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Model.Client
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.BLL.Content
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Client
+@using Newtonsoft.Json
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+B_CRMS_Attr attrBll = new B_CRMS_Attr();
+B_Model modBll = new B_Model();
+DataTable valueDT = ViewBag.valueDT;
+DataTable fieldDT = ViewBag.fieldDT;
+DataTable ctypeDT = attrBll.Sel("ctype");
+PageSetting conSetting = ViewBag.conSetting;
+Layout = "~/Areas/Admin/Views/Shared/_layout.cshtml";
+string json = JsonConvert.SerializeObject(ViewBag.linkDT);
+if (string.IsNullOrEmpty(json) || json == "null") { json = "[]"; }
+HttpRequest Request = Context.Request;
+}
+@functions{
+    public string GetUserName(string UserId)
+    {
+        B_User buser = new B_User();
+        return buser.GetUserByUserID(DataConverter.CLng(UserId)).UserName;
+    }
+}
+@section head{
+    <title>客户管理</title>
+    <script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+    <script src="~/Plugins/Ueditor/ueditor.all.js"></script>
+}
+@section content{
+<div>
+<nav class="fix-top">
+    <ol id="navWrap" class="breadcrumb">
+        <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main">工作台</a></li>
+        <li class="breadcrumb-item"><a href="ClientList">客户列表</a></li>
+        <li class="breadcrumb-item active"><a href="@MvcHtmlString.Create(Request.RawUrl())">客户管理</a></li>
+</ol>
+</nav>
+<div class="list_chroe"></div>
+<div class="card-header text-center">@ViewBag.MData.ClientName <a onclick="user.showuinfo(@ViewBag.MData.LinkIds)" href="javascript:;" id="h">(@ViewBag.MData.UserName)</a>的信息</div>
+<div class="mt-1">
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link active" href="#client" aria-controls="client" data-bs-toggle="tab">客户信息</a></li>
+    <li class="nav-item"><a class="nav-link" href="#extend" aria-controls="extend" data-bs-toggle="tab">扩展信息</a></li>
+    <li class="nav-item"><a class="nav-link" href="#Service_record" aria-controls="Service_record" data-bs-toggle="tab">服务记录</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active table-responsive" id="client">
+        <table class="table table-bordered table-hover table-sm table-striped sys_table">
+            <tr>
+                <th class="w12rem_lg">客户类型</th>
+                <td id="link_body"> @MVCHelper.H_Checks("ClientType", ctypeDT, "id", "value", ViewBag.MData.ClientType)</td>
+                <th class="">联系电话 <span class="text-danger">*</span></th>
+                <td>
+                    @ViewBag.MData.Phone
+                </td>
+            </tr>
+            <tr>
+                <th>省份</th>
+                <td>
+                    @(ViewBag.MData.Province+" "+ ViewBag.MData.City+" "+ ViewBag.MData.County)
+                </td>
+                <th>详细地址</th>
+                <td></td>
+            </tr>
+            <tr>
+                <th>客户级别</th>
+                <td>
+                    @ViewBag.MData.ClientLevel
+                </td>
+                <th>行业</th>
+                <td>@ViewBag.MData.ClientClass</td>
+            </tr>
+            <tr>
+                <th>邮政编码</th>
+                <td>@ViewBag.MData.ZipCode</td>
+                <th>传真</th>
+                <td>@ViewBag.MData.Fax</td>
+            </tr>
+            <tr>
+                <th>公司网址</th>
+                <td>@ViewBag.MData.WebSiteUrl</td>
+                <th>微博</th>
+                <td>@ViewBag.MData.MicroBlogUrl</td>
+            </tr>
+            <tr><th>备注</th><td colspan="3">@ViewBag.MData.Remind</td></tr>
+        </table>
+    </div>
+    <div class="tab-pane" id="extend">
+        <ul style="list-style: none;padding:0;">
+            @Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(fieldDT, valueDT))
+        </ul>
+    </div>
+    <div class="tab-pane" id="Service_record">
+        @Html.Partial("ServiceRecord_List", Model)
+        <input type="button" class="btn btn-outline-secondary" value="批量删除" onclick="mvcpage.bat({url: 'BServer_Del', confirm: '@Html.Raw(L.确定要批量移除吗)' ,after:function(){location=location;} });" />
+        <a href="javasrcipt:;" onclick="link_show()" id="link_body">+ 添加服务记录</a>
+    </div>
+    <div style="height:55px;"></div>
+    <div class="Conent_fix">
+        <a href="ClientAdd?ID=@ViewBag.MData.ID" class="btn btn-info">修改信息</a>
+        <a href="ClientList" class="btn btn-outline-info">返回列表</a>
+    </div>
+    <div></div>
+</div>
+</div>
+</div>
+}
+@section script{
+    <script src="/JS/ICMS/area.js"></script>
+    <script src="/JS/Controls/ZL_Array.js?v=1"></script>
+    <script src="/JS/Controls/ZL_PCC.js?v=1"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/ZL_Content.js?v=20160514"></script>
+    <script src="/res/vue/vue.js"></script>
+    <script>
+    $(function () {
+    var h = $('#h').text();
+    if (h == "()") {
+        $('#h').hide();
+    }
+    $("form").validate();
+    var pcc = new ZL_PCC("Province", "City", "County");
+    if ("@ViewBag.MData.ID" != "0") {
+        pcc.SetDef("@ViewBag.MData.Province", "@ViewBag.MData.City", "@ViewBag.MData.County");
+    }
+    pcc.ProvinceInit();
+});
+function showAddContact(id) {
+    if (!id) { id = 0;}
+    ShowComDiag("ContactAdd?Cid=@(ViewBag.MData.ID)&ID="+id, "联系人管理");
+}
+function ContactAddSuccess() {
+    mvcpage.load({ url: "contact?cid=@ViewBag.MData.ID", target: "EGV" });
+    CloseComDiag();
+}
+function link_show() {
+    ShowComDiag("AddServiceRecord?ID=@ViewBag.MData.ID&@ViewBag.MData.UserName", "添加服务记录");
+}
+var linkApp = new Vue({
+    el: "#link_body",
+    data: {list:@MvcHtmlString.Create(json)},
+    methods: {        //回调方法
+        cb: function (list) {
+            location.reload();
+            //$("[aria-controls='Service_record']").tab('show');
+            CloseComDiag();
+            linkApp.list = ArrCOM.merge(linkApp.list,list);
+        },
+        del: function (item) {
+            var list=linkApp.list;
+            for (var i = 0; i < list.length; i++) {
+                if(item==list[i]){list.splice(i,1);break;}
+            }
+        },
+        getIds: function () {
+            if (!linkApp) { return "@ViewBag.MData.LinkIds"; }
+            var ids = "";
+            var list = linkApp.list;
+            if (!list || list.length < 1) { return ids; }
+            for (var i = 0; i < list.length; i++) {
+                ids += list[i].id + ",";
+            }
+            return ids.substr(0, ids.length - 1);
+        }
+    },
+});
+    </script>
+}

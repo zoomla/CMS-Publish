@@ -1,0 +1,99 @@
+﻿@functions{
+    // public partial class ISReplyAdd : System.Web.UI.Page
+    //{
+    //    B_IServerReply repBll = new B_IServerReply();
+    //    B_IServer isBll = new B_IServer();
+    //    public int Qid { get { return DataConverter.CLng(ViewState["Qid"]); }set { ViewState["Qid"] = value; } }
+    //    public int Mid { get { return DataConverter.CLng(Request.QueryString["ID"]); } }
+    //    protected void Page_Load(object sender, EventArgs e)
+    //    {
+    //        if (!IsPostBack)
+    //        {
+    //            MyBind();
+    //        }
+    //    }
+    //    private void MyBind()
+    //    {
+    //        if (Mid > 0)
+    //        {
+    //            M_IServerReply repMod = repBll.SelReturnModel(Mid);
+    //            Qid = repMod.QuestionId;
+    //            Content_T.Text = repMod.Content;
+    //        }
+    //        else
+    //        {
+    //            Qid = DataConverter.CLng(Request.QueryString["Qid"]);
+    //        }
+    //        M_IServer isMod = isBll.SelReturnModel(Qid);
+    //        QTitle_L.Text = isMod.Title;
+    //    }
+
+    //    protected void Save_Btn_Click(object sender, EventArgs e)
+    //    {
+    //        M_AdminInfo adminMod = B_Admin.GetLogin();
+    //        M_IServerReply repMod = new M_IServerReply();
+
+    //        if (Mid > 0) { repMod = repBll.SelReturnModel(Mid); }
+    //        repMod.AdminID = adminMod.AdminId;
+    //        repMod.UserName = adminMod.AdminName;
+    //        repMod.Path = Attach_Hid.Value;
+    //        repMod.Content = Content_T.Text;
+    //        if (string.IsNullOrEmpty(repMod.Content)) { function.WriteErrMsg("内容不能为空"); }
+    //        if (repMod.Id > 0) { repBll.UpdateByID(repMod); }
+    //        else
+    //        {
+    //            repMod.QuestionId = Qid;
+    //            repBll.Add(repMod);
+    //        }
+    //        function.Script(this,"refresh();");
+    //    }
+    //}
+
+}
+
+@section head{<title>回复管理</title>
+    <script src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script src="/Plugins/Ueditor/ueditor.all.min.js"></script> }
+@model ZoomLa.Model.M_IServer;
+@section content{
+    <form method="post" action="@MVCHelper.GetAction("ISReplyAdd_Submit",Context.Request)">
+        <div style="min-height:600px;">
+            <table class="table table-bordered table-striped">
+                <tr><td class="td_m">问题</td><td><label ID="QTitle_L">@Model.Title</label></td></tr>
+                @{ if (ViewBag.repMod != null)
+                    {
+                     <tr><td colspan="2"><textarea style="height:300px;" ID="Content_T" name="Content_T">@ViewBag.repMod.Content</textarea>@MvcHtmlString.Create(Call.GetUEditor("Content_T", 2))</td></tr>
+                    }
+                    else { 
+                     <tr><td colspan="2"><textarea style="height:300px;" ID="Content_T" name="Content_T"></textarea>@MvcHtmlString.Create(Call.GetUEditor("Content_T", 2))</td></tr>
+                    
+                    }
+                }
+               
+                <tr style="display:none;">
+                    <td>附件</td>
+                    <td>
+                        <input type="button" id="upfile_btn" class="btn btn-primary" value="选择文件" />
+                        <div style="margin-top: 10px;" id="uploader" class="uploader">
+                            <ul class="filelist"></ul>
+                        </div>
+                        <input ID="Attach_Hid" />
+                        <asp:Label ID="lblMessage" runat="server" ForeColor="Red" Text=""></asp:Label>
+                    </td>
+                </tr>
+                <tr><td></td><td><input type="submit" value="保存信息" class="btn btn-info" /></td></tr>
+            </table>
+        </div>
+    </form>
+}
+@section script{
+
+    <style type="text/css">
+        #navHolder {
+            display: none;
+        }
+    </style>
+    <script>
+        function refresh() { parent.location = parent.location; }
+    </script>
+}

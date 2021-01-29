@@ -1,0 +1,20 @@
+﻿
+@{ 
+    DataTable dt = (DataTable)ViewData["dt"];
+    string err = ZoomLa.Common.DataConverter.CStr(ViewData["err"]); 
+}
+@if (dt != null)
+{
+    <table class="table table-bordered table-striped">
+        <thead><tr> @foreach (DataColumn dc in dt.Columns)
+        {<td>@dc.ColumnName</td>} </tr></thead>
+        @foreach (DataRow dr in dt.Rows)
+        {
+            <tr>@foreach (DataColumn dc in dt.Columns) {<td>@dr[dc.ColumnName]</td> }</tr>
+        }
+    </table>
+}
+else
+{
+    <div id="remind_div" class="alert alert-danger" style="margin:10px;">@err</div>
+}

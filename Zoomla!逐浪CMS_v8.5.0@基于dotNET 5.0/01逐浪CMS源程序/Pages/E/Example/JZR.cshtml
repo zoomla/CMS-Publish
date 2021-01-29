@@ -1,0 +1,62 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@model PageModel
+@functions{
+    [Authorize(Policy = ("Admin"))]
+    public class PageModel : Page_Base
+    {
+        public IActionResult OnGet()
+        {
+            GetData();
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            string ids = GetParam("ids");
+            //switch (action)
+            //{
+            //    case "audit":
+            //        SafeSC.CheckIDSEx(ids);
+            //        DBCenter.UpdateSQL(jzrBll.TbName, "ZStatus=99", "ID IN (" + ids + ")");
+            //        break;
+            //    case "unaudit":
+            //        SafeSC.CheckIDSEx(ids);
+            //        DBCenter.UpdateSQL(jzrBll.TbName, "ZStatus=0", "ID IN (" + ids + ")");
+            //        break;
+            //    default:
+            //        GetData();
+            //        return new PartialViewResult()
+            //        {
+            //            ViewName = "JZR_List",
+            //            ViewData = ViewData,
+            //            TempData = TempData
+            //        };
+            //        break;
+            //}
+            return Content(Success.ToString());
+        }
+        private void GetData()
+        {
+            //setting = jzrBll.SelPage(CPage, PSize, new Com_Filter()
+            //{
+            //    skey=GetParam("skey"),
+            //    uname=GetParam("uname")
+            //});
+        }
+    }
+}
+@{ 
+       Layout = "~/Areas/Admin/Views/Shared/_layout.cshtml";
+}
+@section head{ }
+@section content{ 
+<div class="input-group" style="margin-bottom:5px;">
+    <input type="text" class="form-control mvcparam" id="skey" placeholder="请输入姓名" />
+    <input type="text" class="form-control mvcparam" id="uname" placeholder="请输入推广人"/>
+    <span class="input-group-append"><input type="button" class="btn btn-info" onclick="mvcpage.load();" value="筛选数据" /></span>
+</div>
+  @Html.Partial("JZR_List")
+
+}
+@section script{ }

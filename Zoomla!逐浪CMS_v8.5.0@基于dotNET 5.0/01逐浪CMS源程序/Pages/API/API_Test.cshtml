@@ -1,0 +1,56 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using System.Collections.Generic;
+@using System.Data;
+@using System.Data.SqlClient;
+@using ZoomLa.BLL;
+@using ZoomLa.BLL.API;
+@using ZoomLa.Common;
+@using ZoomLa.Model;
+@using ZoomLa.Safe;
+@using ZoomLa.SQLDAL;
+@using ZoomLa.SQLDAL.SQL;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@using ZoomLa.AppCode.Verify;
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        public override int Mid { get { return DataConvert.CLng(GetParam("id")); } }
+        M_APIResult ret = new M_APIResult(M_APIResult.Failed);
+        public IActionResult OnGet()
+        {
+            return ActionDeal();
+        }
+        public IActionResult OnPost()
+        {
+            return ActionDeal();
+        }
+        //============================================================================================================
+        private IActionResult ActionDeal()
+        {
+            try
+            {
+                switch (action)
+                {
+                    case "add":
+                        break;
+                    default:
+                        throw new Exception("接口["+action+"]不存在");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.retcode = M_APIResult.Failed;
+                ret.retmsg = ex.Message;
+            }
+            return Content(ret.ToString());
+        }
+    }
+}
+@{ 
+    Layout = null;
+}

@@ -1,0 +1,47 @@
+﻿@{ 
+    string fname = ViewBag.fname;
+    string fcontent = ViewBag.fcontent;
+}
+@section head{
+<title>CSS编辑</title>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("TemplateSet","模板风格"),
+        new Bread("CssManage","风格管理"),
+        new Bread() {url=Context.Request.RawUrl(), text="CSS编辑",addon="" }})
+<form method="post" action="CSSEdit_Submit?filepath=@ViewBag.FilePath" id="form1">
+    <div class="">
+        <div class="card card-info">
+            <div class="card-header">
+                <div class="input-group max20rem">
+                    <span class="input-group-prepend"><span class="input-group-text">风格名称：</span></span>
+                    @if (!string.IsNullOrEmpty(fname))
+                    {<label class="form-control text-end disabled">@fname</label> }
+                    else {<input id="TxtFilename" name="TxtFilename" class="form-control text-end" value="@fname"/> }
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="basic-addon2">.css</span>
+                    </div>
+                </div>
+            </div>
+            <textarea hidden id="textContent" name="textContent"></textarea>
+            <div class="card-body" style="padding:0px;">
+                @Html.Raw(SafeSC.ReadFileStr("/lib/html/label.html"))
+            </div>
+            <div class="card-footer text-center">
+                <button type="submit" onclick="$('#textContent').val(getValue())" class="btn btn-outline-info">保存风格</button>
+            </div>
+        </div>
+    </div>
+</form>
+}
+@section script{ 
+<script type="text/javascript">
+$(function () {
+    labelMDEditor.init('@Html.Raw(HttpUtility.JavaScriptStringEncode(fcontent))');
+    $("#label_menu").removeClass("d-flex");
+    $("#label_menu").css("display", "none");
+});
+</script>
+}

@@ -1,0 +1,101 @@
+﻿@using ZoomLa.SQLDAL
+@using System.Data
+@using ZoomLa.Model.Client;
+@model ZoomLa.Model.M_Trademark
+@{
+    DataTable factoryList = DBCenter.Sel("ZL_Manufacturers");
+}
+<table class="table table-bordered table-hover table-striped sys_table">
+    <tr>
+        <th scope="row" class="w12rem_lg">商标名称</th>
+        <td class="rq_row">
+            @Html.TextBox("Trname", Model.Trname, new { @class = "form-control max20rem required" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">所属厂商</th>
+        <td>
+            @Html.DropDownListFor(m => m.Producer, MVCHelper.ToSelectList(factoryList, "Producername", "ID", Model.Producer.ToString()), new { @class = "form-control max20rem form-select" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">商标类别</th>
+        <td>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.TrClass, "国际一线", new { id = "TrClass1", @class = "form-check-input" })
+                <label class="form-check-label" for="TrClass1">国际一线</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.TrClass, "中国名牌", new { id = "TrClass2", @class = "form-check-input" })
+                <label class="form-check-label" for="TrClass2">中国名牌</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.TrClass, "新晋网红", new { id = "TrClass3", @class = "form-check-input" })
+                <label class="form-check-label" for="TrClass3">新晋网红</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.TrClass, "创业品牌", new { id = "TrClass4", @class = "form-check-input" })
+                <label class="form-check-label" for="TrClass4">创业品牌</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.TrClass, "OEM厂商", new { id = "TrClass5", @class = "form-check-input" })
+                <label class="form-check-label" for="TrClass5">OEM厂商</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.TrClass, "非知名品牌", new { id = "TrClass6", @class = "form-check-input" })
+                <label class="form-check-label" for="TrClass6">非知名品牌</label>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">是否使用</th>
+        <td>
+            @Html.TextBox("Isuse", Model.Isuse, new { @class = "form-control max20rem" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">是否名牌</th>
+        <td>
+            @Html.TextBox("Istop", Model.Istop, new { @class = "form-control max20rem" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">是否推荐</th>
+        <td>
+            @Html.TextBox("Isbest", Model.Isbest, new { @class = "form-control max20rem" })
+        </td>
+    </tr>
+
+    <tr>
+        <th scope="row">品牌简介</th>
+        <td>
+            <textarea id="content_t" name="content_t" style="height:240px;width:100%;">@Model.TrContent</textarea>
+        </td>
+    </tr>
+
+    <tr>
+        <th scope="row">标志LOGO</th>
+        <td>
+            @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "TrPhoto", SaveType = "admin", Value = Model.TrPhoto })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">更新时间</th>
+        <td>
+            @Html.TextBox("Addtime", Model.Addtime, new { @class = "form-control max20rem", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })
+        </td>
+    </tr>
+    <tr><td></td><td><input type="submit" ID="Save_Btn" value="保存信息" onclick="return scope.save();" class="btn btn-info" /></td></tr>
+</table>
+<script src="/Plugins/Ueditor/ueditor.config.js" charset="utf-8"></script>
+<script src="/Plugins/Ueditor/ueditor.all.min.js" charset="utf-8"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<link type="text/css" href="/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script type="text/javascript" src="/res/js/bootstrap-switch.js"></script>
+<script src="~/js/SelectCheckBox.js"></script>
+@MvcHtmlString.Create(Call.GetUEditor("content_t", 2))
+<script type="text/javascript">
+    $("form").validate({});
+</script>

@@ -1,0 +1,37 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    
+}
+<div id="EGV">
+<table class="table table-bordered table-hover table-sm table-striped">
+<thead>
+   <tr>
+       <th scope="row" class="w1rem"></th>
+       <th scope="row">ID</th>
+       <th scope="row">@L.分类</th>
+       <th scope="row">@L.分级选项</th>
+       <th scope="row">@L.备注</th>
+       <th scope="row" class="td_l">@L.操作</th>
+   </tr>
+</thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+<tr ondblclick="ShowComDiag('GCateAdd?id=@dr["CateID"]','');">
+    <td class="node_select"><input type="checkbox" name="idchk" value="@dr["CateID"]" /></td>
+    <td>@dr["CateID"]</td>
+    <td>@dr["CateName"]</td>
+    <td>@dr["GradeField"]</td>
+    <td>@dr["Remark"]</td>
+    <td>
+        <a href="javascript:;" onclick="ShowComDiag('GCateAdd?id=@dr["CateID"]','');"><i class="zi zi_pencilalt"></i></a>
+        <a href="javascript:;" onclick="mvcpage.del({url:'GCate_API?action=del',confirm:'@L.确定要删除吗',ids:'@dr["CateID"]'});"><i class="zi zi_trashalt"></i></a>
+        <a href="GradeOption?CateID=@dr["CateID"]"><i class="zi zi_listul"></i>@L.下级选项</a>
+    </td>
+</tr>
+}
+@Html.Partial("_page")
+</table>
+<div class="mt-1">
+<input type="button" ID="BatDel_Btn" onclick="mvcpage.bat({url:'GCate_API?action=del',confirm:'@L.确定要删除吗'});" value="@L.批量删除"  class="btn btn-outline-secondary" />
+</div>
+</div>

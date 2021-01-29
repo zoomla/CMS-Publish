@@ -1,0 +1,350 @@
+﻿@model ZoomLa.Model.M_OA_Document
+@functions{
+
+    public string Getjs(string tbName)
+    {
+        string value = "<script>$(function () {";
+        DataTable dt = DBCenter.ExecuteTable("select name from syscolumns where id=object_id('" + tbName + "') order by colorder");
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            if (i > 6)
+            {
+                string ModelId = DBCenter.ExecuteScala("ZL_Model", "ModelID", "TableName='" + tbName + "'").ToString();
+                string fieldtype = DBCenter.ExecuteScala("ZL_ModelField", "FieldType", "FieldName='" + dt.Rows[i]["name"] + "' And ModelId=" + ModelId).ToString();
+                string Content = DBCenter.ExecuteScala("ZL_ModelField", "Content", "FieldName='" + dt.Rows[i]["name"] + "' And ModelId=" + ModelId).ToString();
+                switch (fieldtype)
+                {
+                    case "ListBoxType":
+                        {
+                            switch (Content.Substring(0, 1))
+                            {
+                                case "2":
+                                    value += "$('#fd_tr_" + dt.Rows[i]["name"] + " select').val('" + DBCenter.ExecuteScala(tbName, dt.Rows[i]["name"].ToString(), "ID=" + Model.ItemID) + "');";
+                                    break;
+                                default:
+                                    value += "for (var i = 0; i < 10; i++) {var name = $('#txt_bcqx_' + i).val();if ('" + DBCenter.ExecuteScala(tbName, dt.Rows[i]["name"].ToString(), "ID=" + Model.ItemID) + "' == name) {$('#txt_bcqx_' + i).attr('checked','')}}";
+                                    break;
+                            }
+                        }
+                        break;
+                    default:
+                        value += "$('#txt_" + dt.Rows[i]["name"] + "').val('" + DBCenter.ExecuteScala(tbName, dt.Rows[i]["name"].ToString(), "ID=" + Model.ItemID) + "');";
+                        break;
+                }
+            }
+        }
+        value += "})</script>";
+        return value;
+    }
+    public string GetUrl()
+    {
+        string url = "gid=" + ViewBag.itemid;
+        if (string.IsNullOrEmpty(ViewBag.itemid))
+        {
+            url = "ID=" + ViewContext.HttpContext.Request.Query["Appid"];
+        }
+        return url;
+    }
+
+    public string GetstepName()
+    {
+        string stepName = "";
+        stepName = DBCenter.ExecuteScala("ZL_MisProLevel", "stepName", "stepNum="+Model.CurStepNum+" And BackOption=0 And ProID="+Model.ProID).ToString();
+        return stepName;
+    }
+}
+@*<%@ Register Src="~/Office/Tlp/defTlp.ascx" TagPrefix="oa" TagName="defTlp" %>
+<%@ Register Src="~/Office/Tlp/send.ascx" TagPrefix="oa" TagName="send" %>
+<%@ Register Src="~/Office/Tlp/rece.ascx" TagPrefix="oa" TagName="rece" %>*@
+@{ 
+    B_User buser = new B_User(Context);
+    M_MisProcedure proceMod = ViewBag.proceMod;
+    DataTable Dsign =ViewBag.sign;
+    M_MisProLevel stepMod = ViewBag.stepMod;
+    string Appid= ViewContext.HttpContext.Request.Query["Appid"];
+    B_MisProLevel proBll = new B_MisProLevel();
+    
+
+}
+@section head{<title>流程审批</title> }
+@section content{ 
+<ol id="BreadNav" class="breadcrumb navbar-fixed-top">
+            <li><a href="/Office/Main">办公管理</a></li>
+            <li><a href="../Flow/FlowList">流程列表</a></li>
+            <li><a href="<%=Request.RawUrl %>">流程审批</a>
+                 <span title="打印公文"><a href="/Office/Flow/Print?appID=@Appid" target="_blank">
+                    <img class="startprint" onclick="doprint()" alt="" src="/Template/V4/style/images/print-btn.png" /></a></span>
+            </li>
+        </ol>
+<div style="margin-top:60px;">
+            @*<asp:Panel runat="server" ID="OAForm_Div">
+                <oa:send runat="server" id="ascx_send" visible="false" />
+                <oa:rece runat="server" id="ascx_rece" visible="false" />
+                <oa:deftlp runat="server" id="ascx_def" visible="false" />
+            </asp:Panel>*@
+    @Html.Partial("/Areas/Office/Views/Comp/Tlp/" + proceMod.FlowTlp + ".cshtml")
+            <table class="table table-bordered table-striped">
+                <tr id="formop_tr">
+                    <td class="text-end">操作</td>
+                    <td colspan="5">
+                        @*<asp:Button runat="server" ID="SaveForm_Btn" Text="修改表单" OnClick="SaveForm_Btn_Click" CssClass="btn btn-primary"  Visible="false"/>*@
+                        @*<button type="button" id="SaveForm_Btn" onclick="SaveForm_Ben_Click" class="btn btn-primary" visible="false">修改表单</button>*@
+                        @Html.ActionLink("修改表单", "FlowApply","Flow",new { appID=ViewContext.HttpContext.Request.Query["Appid"] },new { @class="btn btn-primary"})
+                        <button type="button" id="ChangeUser_Btn" class="btn btn-primary" onclick="disChangeUser();" visible="false">人员管理</button>
+                        <button type="button" id="publicAttach_Manage_Btn" onclick="disPublicAttachManage();" class="btn btn-primary" visible="false">附件管理</button>
+                        <input type="button" value="显示公文" onclick="TogWord();" class="btn btn-info" id="wordbtn" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6">
+                        <iframe src="/Office/Flow/official?@GetUrl()" class="wordifr"></iframe>
+                    </td>
+                </tr>
+            <tr>
+                <td class="text-end">发起人：</td><td>@*<asp:Label runat="server" ID="SendMan_L"></asp:Label>*@
+                    <input type="text" id="SendMan_L" name="SendMan_L" value="@Model.UserName" class="form-control max20rem" /> 
+                </td>
+                <td class="text-end">当前步骤：</td><td>@*<asp:Label runat="server" ID="stepNameL"></asp:Label>*@
+                    <input type="text" id="stepNameL" name="stepNameL" value="@GetstepName()" class="form-control max20rem" /> 
+                </td>
+                <td class="text-end">发文时间：</td><td>@*<asp:Label runat="server" ID="createTimeL"></asp:Label>*@
+                    <input type="text" id="createTimeL" name="createTimeL" value="@Model.SendDate" class="form-control max20rem" /> 
+                </td>
+            </tr>
+           <tr>
+               <td class="text-end">@*<asp:Label runat="server" ID="ReferUser_Alias" Text="主办人" />*@
+                   <span>主办人：</span></td>
+               <td colspan="7">
+                   <div class="input-group">
+                       @*<asp:Label runat="server" ID="ReferUser_HasHQ_L" />*@
+                       <input type="text" id="ReferUser_t" name="ReferUser_t" class="form-control text_300" value="@buser.GetUserNameByIDS(stepMod.ReferUser)" disabled />
+                       <input type="hidden" ID="ReferUser_Hid" name="ReferUser_Hid" value="@stepMod.ReferUser" />
+                       @*<asp:Label runat="server" ID="ReferUser_NoHQ_L" />*@
+                       @*<input type="text" id="ReferUser_NoHQ_L" name="ReferUser_NoHQ_L" class="form-control max20rem" />*@
+                   </div>
+               </td>
+           </tr>
+            <tr id="CCUser_Tr">
+                <td class="text-end">@*<asp:Label runat="server" ID="CCUser_Alias" Text="协办人" />*@
+                    <span>协办人：</span></td>
+                <td colspan="7">
+                    <div class="input-group">
+                        @*<asp:Label runat="server" ID="CCUser_HasHQ_L" />*@
+                        <input type="text" id="CCUser_t" name="CCUser_t" class="form-control text_300" value="@buser.GetUserNameByIDS(stepMod.CCUser)" disabled />
+                        <input type="hidden" ID="CCUser_Hid" name="CCUser_Hid" value="@stepMod.CCUser" />
+                        @*<asp:Label runat="server" ID="CCUser_NoHQ_L" />*@
+                        @*<input type="text" id="CCUser_NoHQ_L" name="CCUser_NoHQ_L" class="form-control max20rem" />*@
+                    </div>
+                </td>
+            </tr>
+            <tr id="HelpUser_Tr">
+                <td class="text-end">@*<asp:Label runat="server" ID="HelpUser_Alias" Text="辅办人" />*@
+                    <span>辅办人：</span></td>
+                <td colspan="7">@*<asp:Label runat="server" ID="HelpUser_L" />*@
+                    <input type="text" id="HelpUser_t" name="HelpUser_t" class="form-control text_300" value="@buser.GetUserNameByIDS(stepMod.HelpUser)" disabled />
+                    <input type="hidden" ID="HelpUser_Hid" name="HelpUser_Hid" value="@stepMod.HelpUser" />
+                </td>
+            </tr>
+            <tbody id="audit_body">
+       @*<tr><td class="text-end">公文编辑器：</td><td><input type="button" onclick="ShowWord();" class="btn btn-info" value="打开公文" /></td></tr>*@
+            <tr>
+                <td class="text-end">附件：</td>
+                <td id="publicAttachTD" colspan="7">
+                <div style="margin-top:10px;" id="uploader" class="uploader"><ul class="filelist"></ul></div>
+                <input type="text" id="Attach_Hid" hidden />
+                @*<asp:HiddenField runat="server" ID="Attach_Hid" />*@</td>
+            </tr>
+            <tr id="signTr" visible="false">
+                <td class="text-end">签章：</td>
+                <td colspan="7">
+                    @if (Dsign!=null)
+                    {
+                        @Html.DropDownListFor(m => m.SignID, MVCHelper.ToSelectList(Dsign, "SignName", "ID", Model.SignID), new { @class = "form-control text_300 form-select " })
+                    }
+                    else
+                    {
+                        <span id="signTrRemind" visible="false">你尚未配置个人签章</span>
+                    }
+                    @*<asp:RadioButtonList runat="server" ID="signRadio" RepeatDirection="Horizontal"></asp:RadioButtonList>*@
+                </td>
+            </tr>
+            <tr id="remindTr"><td class="text-end">审核意见：</td>
+                <td colspan="7">
+                @*<asp:TextBox runat="server" ID="remindT" TextMode="MultiLine" Width="500px" Height="100px" />*@
+                <input type="text" id="remindT" textmode="MultiLine" class="form-control max20rem"/>
+                </td>
+            </tr>
+            @switch (Model.ProType)
+            {
+                case 1:
+                    {
+                        <tr id="AdminFree_OP_Tr" visible="false">
+                            <td class="text-end">公文流程：</td>
+                            <td colspan="7">
+                    
+                                @*<asp:Repeater runat="server" ID="SelRefer_RPT" EnableViewState="false">
+                                    <ItemTemplate>
+                                        <input type="button" value="<%#Eval("StepName") %>" class="btn btn-primary opBtn" onclick="disWin('<%#Eval("ID")%>');" />
+                                    </ItemTemplate>
+                                </asp:Repeater>*@
+                                <button type="button" id="AF_FileView_Btn" class="btn btn-warning opBtn" onclick="disFileView();" visible="false">文件传阅</button>
+                                @Html.ActionLink("文件归档", "AF_Sure_Btn_Click", new { Appid = Appid },new { @class = "btn btn-warning opBtn", onclick= "return confirm('确定归档文件吗!!')" })
+                            </td>
+                        </tr>
+                    }
+                    break;
+                case 2:
+                    {
+                        <tr id="Free_OP_Tr" visible="false">
+                            <td class="text-end">自由流程：</td>
+                            <td colspan="7">
+                                <input type="button" id="Free_Next_Btn" value="继续流转" class="btn btn-primary" onclick="disWin();" />
+                                @Html.ActionLink("文件归档", "Free_Sure_Btn_Click",new { Appid = Appid },new { @class = "btn btn-primary opBtn", onclick= "return confirm('确定归档文件吗!!')" })
+                            </td>
+                        </tr>
+                    }
+                    break;
+                default:
+                    break;
+            }
+            @switch (Model.Status)
+            {
+                case 98:
+                case -1:
+                case 105:
+                    {
+                        <tr id="ccOPBar" visible="false">
+                            <td class="text-end">操作：</td>
+                            <td colspan="7">
+                                @*<asp:Button runat="server" CssClass="btn btn-primary" ID="ccUser_Btn" Text="批复" OnClick="ccUser_Btn_Click" OnClientClick="return CCUserCheck();"/>*@
+                                <input type="button" class="btn btn-primary" id="ccUser_Btn" value="批复" />
+                                @*<asp:Label ID="RemindInfo_L" runat="server" Text="您已经处理过该文件了！！" ForeColor="Red" Visible="false"></asp:Label>*@
+                                <span>您已经处理过该文件了！！</span>
+                            </td>
+                        </tr>
+                    }
+                    break;
+                default:
+                    {
+                        <tr id="opBar_Tr" visible="false"><td class="text-end">操作：</td>
+                            <td colspan="7">
+                                <div class="float-start" id="refer_op_wrap" visible="false">
+                                    @Html.ActionLink("同意", "agreeBtn_Click", new { Appid=Appid }, new { @class = "btn btn-primary opBtn", onclick = "return confirm('请点击确认同意!!')" })
+                                    @Html.ActionLink("拒绝", "rejectBtn_Click", new { Appid = Appid }, new { @class = "btn btn-primary opBtn", onclick = "return confirm('请点击确认拒绝!!')" })
+                                </div>
+                                <div class="float-start margin_l5" runat="server" id="rollback_touser_wrap" visible="false">
+                                    @Html.ActionLink("退稿回发起人", "RollBackToUser_Btn_Click",new { Appid = Appid },new { @class= "btn btn-warning", onclick= "return confirm('确定要退回发起人吗?')" })
+                                </div>
+                                <div class="input-group text_300 float-start margin_l5" id="rollback_dp_wrap" visible="false">
+                                    <span class="opSpan input-group-addon">回退至</span>
+                                    @Html.DropDownListFor(m => m.CurStepNum, MVCHelper.ToSelectList(DBCenter.Sel("ZL_MisProLevel", "BackOption=0 And ProID=" + Model.ProID + " And stepNum<" + Model.CurStepNum), "stepName", "stepNum", Model.CurStepNum.ToString()), new { @class = "form-control text_300 form-select ", id="htbz" })
+                                    @*<select class="form-control form-select" id="rollBackDP">
+                                        <option></option>
+                                    </select>*@
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-warning opBtn" onclick="Getshow('ht')">回退</button>
+                                    </span>
+                                </div>
+                                <!--只能转交给之后的步骤-->
+                                <div class="input-group text_300 float-start margin_l5" id="zj_wrap" visible="false">
+                                    <span class="input-group-addon opSpan"> 转交至</span>
+                                    @*<asp:DropDownList runat="server" ID="zjDP" class="form-control"></asp:DropDownList>*@
+                                    @Html.DropDownListFor(m => m.CurStepNum, MVCHelper.ToSelectList(DBCenter.Sel("ZL_MisProLevel","BackOption=0 And ProID="+Model.ProID+" And stepNum>"+Model.CurStepNum), "stepName", "stepNum", Model.CurStepNum.ToString()), new { @class = " form-control text_300 form-select ",id="zjbz" })
+                                    @*<select class="form-control form-select" id="zjDP">
+                                        <option></option>
+                                    </select>*@
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-warning opBtn" onclick="Getshow('zj')">转交</button>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    break;
+            }
+        </tbody>
+        </table>
+    </div>
+}
+@section script{ 
+<style type="text/css">
+#AllID_Chk {display:none;}
+.wordifr {border:1px solid #000;width:100%;width:1px;height:1px;}
+</style>
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script src="/JS/ICMS/ZL_Common.js"></script>
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script src="/JS/ZL_Regex.js"></script>
+<script>
+    var diagUrl = "/office/flow/";
+    var appid = "@ViewContext.HttpContext.Request.Query["Appid"]";
+    function disWin(id) {
+        ShowComDiag('FreeProNext?AppID=' + appid + '&StepID=' + id, "");
+    }
+    function disFileView()
+    {
+        ShowComDiag(diagUrl + "FileView?appid=" + appid, "公文传阅");
+    }
+    function disPublicAttachManage() {
+        ShowComDiag(diagUrl + "FileAttachManage?appid=" + appid, "附件管理");
+    }
+    function disChangeUser(){
+        ShowComDiag(diagUrl + "ChangeUser?appid=" + appid,"人员管理");
+    }
+    //回复不能为空
+    function CCUserCheck() {
+        if (ZL_Regex.isEmpty($("#remindT").val())) { alert("审核意见不能为空!"); return false; }
+    }
+    function TogWord(isshow) {//true显示
+        var $ifr = $(".wordifr");
+        if ($ifr.width() > 2)
+        { $ifr.css("width", "1px"); $ifr.css("height", "1px"); $("#wordbtn").val("显示公文"); }
+        else
+        { $ifr.css("width", "100%"); $ifr.css("height", "700px"); $("#wordbtn").val("隐藏公文"); }
+    }
+    function ShowWord() {
+        //ShowDiag("/Plugins/Office/office.aspx?ID=<%=appID%>", "查看正文");
+        var $ifr = $(".wordifr");
+        $ifr.css("width", "100%"); $ifr.css("height", "700px"); $("#wordbtn").val("隐藏公文");
+    }
+    function sureF(s) {
+        if (confirm(s)) {
+            $(".opBtn").each(function () { o = this; setTimeout(function () { o.disabled = true; }, 100); });
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    function Getshow(type) {
+        switch (type) {
+            case "zj":
+                if (confirm("确定要转交吗!!")) { let stepNum = $("#zjbz").val(); location.href = "zjBtn_Click?Appid=@Model.ID&StepNum=" + stepNum; }
+                break;
+            case "ht":
+                if (confirm('确定要回退吗!!')) { let stepNum = $("#htbz").val(); location.href = "rollBackBtn_Click?Appid=@Model.ID&StepNum=" + stepNum; }
+                break;
+            default:
+        }
+    //    let bool = true;
+    //    if (id == 98) { if (!confirm("请点击确认同意!!")) { bool = false } }
+    //    if (id == -1) { if (!confirm("请点击确认拒绝!!")) { bool = false } }
+    //    if (bool) {
+    //        $.ajax({
+    //            type: "post",
+    //            url: "FlowAudit_Click",
+    //            data: { id: id },
+    //            success: function (data) {
+    //                location.href = data;
+    //            },
+    //            error: function () {
+    //                alert("错误");
+    //            }
+    //        })
+    //    }
+    }
+</script>
+ @MvcHtmlString.Create(Getjs(Model.TableName))
+}

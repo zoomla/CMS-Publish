@@ -1,0 +1,55 @@
+﻿@*
+    copyright file="Pagelist.cshtml" company="上海Zoomla!逐浪CMS团队"
+    版权所有:🏢江西逐浪软件科技有限公司  🏅🏅🏅20年专注研发==>商城|ERP|字库|高端门户与人工智能
+    官方网站:🚀 www.z01.com
+    联系方式:☎ 13177777714  😎 wechat: zoomla
+    文件描述:🔧对应控制器 \ZoomLaCMS\Areas\Admin\Controllers\Extend\DBToolController.cs
+    创建时间:⏰2020年09月22日,18:39
+*@
+
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{<title>消息列表</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.RawUrl(), "数据配置"),
+    new Bread(),
+    },"[<a href='PageAdd'>添加消息</a>]")
+    <div class="table-responsive-md" id="EGV">
+        <table class="table table-striped table-sm table-hover table-bordered" id="EGV_wrap">
+            <tr>
+                <th class="td_xs"></th>
+                <th class="td_s">@L.操作</th>
+                <th class="td_s"><span class="zlsort" data-field="modelid">ID</span></th>
+                <th>页面地址</th>
+                <th>备注</th>
+                <th>创建时间</th>
+                <th>会员ID</th>
+            </tr>
+            @Html.Partial("Pagelist_List", Model)
+        </table>
+        <button onclick="multiDelete()" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+    </div>
+}
+@section script{
+    <script>
+function deletelist(id) {
+    var a = window.confirm("您确定要删除这条消息记录吗？");
+    if (!a)
+        return;
+    window.location.href = encodeURI('@Url.Action("PagelistDelete")?id=' + id);
+}
+function multiDelete() {
+    var a = window.confirm("您确定要删除这些消息吗？");
+    if (!a)
+        return;
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+    window.location.href = encodeURI('@Url.Action("PagelistDelete")?id=' + ids);
+}
+    </script>
+}

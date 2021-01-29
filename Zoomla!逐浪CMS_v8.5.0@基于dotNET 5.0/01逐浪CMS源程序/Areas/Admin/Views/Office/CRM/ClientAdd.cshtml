@@ -1,0 +1,220 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Model.Client
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.BLL.Content
+
+@using ZoomLa.SQLDAL.SQL
+@using ZoomLa.BLL.Client
+@using Newtonsoft.Json
+@model ZoomLa.Model.Client.M_CRMS_Client
+@{
+    B_CRMS_Attr attrBll = new B_CRMS_Attr();
+    B_Model modBll = new B_Model();
+    DataTable valueDT = ViewBag.valueDT;
+    DataTable fieldDT = ViewBag.fieldDT;
+    DataTable ctypeDT = attrBll.Sel("ctype");
+    PageSetting conSetting = ViewBag.conSetting;
+    Layout = "~/Areas/Admin/Views/Shared/_layout.cshtml";
+    string json = JsonConvert.SerializeObject(ViewBag.linkDT);
+    if (string.IsNullOrEmpty(json) || json == "null") { json = "[]"; }
+    HttpRequest Request = Context.Request;
+}
+@section head{
+<title>客户管理</title>
+<script src="~/Plugins/Ueditor/ueditor.config.js"></script>
+<script src="~/Plugins/Ueditor/ueditor.all.js"></script>
+}
+@section content{
+<div class="">
+<nav aria-label="breadcrumb" role="navigation" class="fixed-top">
+<ol id="navWrap" class="breadcrumb fixed-top w-100" style="padding:.75rem 1rem;">
+    <li class="breadcrumb-item"><a href="@(CustomerPageAction.customPath2)I/Main">工作台</a></li>
+    <li class="breadcrumb-item"><a href="ClientList">客户列表</a></li>
+    <li class="breadcrumb-item active"><a href="@MvcHtmlString.Create(Request.RawUrl())">客户管理</a>
+    </li><div id="help" class="float-end"><a onclick="help_show('47')" title="帮助"><i class="zi zi_questioncircle"></i></a></div>
+    </ol>
+</nav>
+<div class="list_choice"></div>
+<form method="post" action="@MVCHelper.GetAction("Client_Add",Context.Request)">
+<ul class="nav nav-tabs">
+<li class="nav-item"><a class="nav-link active" href="#client" data-bs-toggle="tab">客户信息</a></li>
+@*<li class="nav-item"><a  class="nav-link" href="#contact" data-bs-toggle="tab">联系人</a></li>*@
+<li class="nav-item"><a class="nav-link" href="#extend" data-bs-toggle="tab">扩展信息</a></li>
+</ul>
+<div class="tab-content">
+<div class="tab-pane active table-responsive" id="client">
+<table class="table table-bordered table-hover table-striped sys_table">
+<tr>
+    <th class="td_m">客户类型</th>
+    <td colspan="3">
+        @MVCHelper.H_Checks("ClientType", ctypeDT, "id", "value", Model.ClientType)
+    </td>
+</tr>
+<tr>
+    <th style="width:10%;">客户名称 <span class="text-danger">*</span></th>
+    <td id="link_body" style="width:40%;">
+        @Html.TextBoxFor(m => m.ClientName, new { @class = "form-control max20rem required" })
+        <button type="button" class="btn btn-link" onclick="link_show()" id="hui">+关联会员</button>
+        <span class="alert" id="Only">@Model.UserName</span>
+        <span class="btn" v-for="item in list">
+            <span v-if="list.length<2">{{item.name}}</span>
+            <span hidden><span id="UserNames">{{item.name}}</span></span>
+            <span hidden><span id="Userid">{{item.id}}</span> </span>
+        </span>
+        <input type="hidden" id="UserName" name="UserName" value="@Model.UserName" />
+        <input type="hidden" id="LinkIds" name="LinkIds"/>
+    </td>
+    <th style="width:10%;">联系电话 <span class="text-danger">*</span></th>
+    <td style="width:40%;">
+        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control max20rem required mobile" })
+        <small class="text-muted">手机或座机号码,座机格式:010-1234567</small>
+    </td>
+</tr>
+<tr>
+    <th>省份</th>
+    <td>
+        <div class="input-group" style="width:400px;">
+            <select id="Province" name="Province" class="form-control"></select>
+            <select id="City" name="City" class="form-control"></select>
+            <select id="County" name="County" class="form-control"></select>
+            <input type="hidden" id="Province2" value="@Model.Province" />
+            <input type="hidden" id="City2" value="@Model.City" />
+            <input type="hidden" id="County2" value="@Model.County" />
+        </div>
+    </td>
+    <th>详细地址</th>
+    <td></td>
+</tr>
+<tr>
+    <th>客户级别</th>
+    <td>
+        @Html.DropDownListFor(m => m.ClientLevel,
+MVCHelper.ToSelectList("重点客户|普通客户|非优先客户".Split('|'), "重点客户|普通客户|非优先客户".Split('|'), Model.ClientLevel),
+new { @class = "form-control max20rem disabled form-select" })
+    </td>
+    <th>行业</th>
+    <td>@Html.TextBoxFor(m => m.ClientClass, new { @class = "form-control max20rem" })</td>
+</tr>
+<tr>
+    <th>邮政编码</th>
+    <td>@Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control max20rem digits", maxlength = 6 })</td>
+    <th>传真</th>
+    <td>@Html.TextBoxFor(m => m.Fax, new { @class = "form-control max20rem" })</td>
+</tr>
+<tr>
+    <th>公司网址</th>
+    <td>@Html.TextBoxFor(m => m.WebSiteUrl, new { @class = "form-control max20rem url" })</td>
+    <th>微博</th>
+    <td>@Html.TextBoxFor(m => m.MicroBlogUrl, new { @class = "form-control max20rem url" })</td>
+</tr>
+<tr><th>备注</th><td colspan="3">@Html.TextAreaFor(m => m.Remind, new { @class = "form-control" })</td></tr>
+</table>
+</div>
+<div class="tab-pane pt-2" id="contact">
+    @if (conSetting != null && conSetting.dt.Rows.Count > 0)
+    {@Html.Partial("Contact_List", conSetting);
+}
+else
+{<div class="alert alert-info">无联系人信息</div>}
+    @if (Model.ID > 0)
+    {
+        <div>
+            <input type="button" value="添加联系人" class="btn btn-outline-info" onclick="showAddContact();" />
+            <input type="button" value="批量删除" class="btn btn-outline-danger" onclick="mvcpage.bat({url: 'contact_del', confirm: '确定要批量移除吗' });" />
+        </div>
+    }
+</div>
+<div class="tab-pane" id="extend">
+    <ul style="list-style: none;padding:0;">
+        @Html.Partial("Fields/Index_User_AddContent", new VM_FieldModel(fieldDT, valueDT))
+    </ul>
+</div>
+</div>
+<div class="text-center">
+<input type="submit" value="保存信息" class="btn btn-info" onclick="GetID()" />
+<a href="ClientList" class="btn btn-outline-info">返回列表</a>
+
+</div>
+</form>
+</div>
+}
+@section script{
+<script src="/JS/ICMS/area.js"></script>
+<script src="/JS/Controls/ZL_Array.js?v=1"></script>
+<script src="/JS/Controls/ZL_PCC.js?v=1"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/ZL_Content.js?v=20160514"></script>
+<script src="/res/vue/vue.js"></script>
+<script>
+$(function () {
+    var Only = $('#Only').text();
+    if (Only != "") {
+        $('#hui').css('color', 'gray');
+    }
+})
+function GetID() {
+    var g = $('#UserNames').text();
+    var gs = $('#Userid').text();
+    if (g != '' && g != undefined && g != '') {
+        $("#UserName").val(g);
+        $("#LinkIds").val(gs);
+    }
+}
+$(function () {
+    $("form").validate();
+    var pcc = new ZL_PCC("Province", "City", "County");
+    if ("@Model.ID" != "0") {
+        // pcc.SetDef("@Model.Province", "@Model.City", "@Model.County");
+        var Province = $("#Province2").val();
+        var City = $("#City2").val();
+        var County = $("#County2").val();
+        pcc.SetDef(Province, City, County);
+    }
+    pcc.ProvinceInit();
+});
+function showAddContact(id) {
+    if (!id) { id = 0;}
+    ShowComDiag("ContactAdd?Cid=@(Model.ID)&ID="+id, "联系人管理");
+}
+function ContactAddSuccess() {
+    mvcpage.load({ url: "contact?cid=@Model.ID", target: "EGV" });
+    CloseComDiag();
+}
+function link_show() {
+    var Only = $('#Only').text();
+    if (Only == "") {
+        ShowComDiag("ClientListDiag?Cid=@Model.ID", "关联会员");
+    }
+}
+var linkApp = new Vue({
+    el: "#link_body",
+    data: {list:@MvcHtmlString.Create(json)},
+    methods: {
+    //回调方法
+    cb: function (list) {
+        CloseComDiag();
+        linkApp.list=null;
+        linkApp.list = ArrCOM.merge(linkApp.list,list);
+    },
+    del: function (item) {
+        var list=linkApp.list;
+        for (var i = 0; i < list.length; i++) {
+            if(item==list[i]){list.splice(i,1);break;}
+        }
+    },
+    getIds: function () {
+        if (!linkApp) { return "@Model.LinkIds"; }
+        var ids = "";
+        var list = linkApp.list;
+        if (!list || list.length < 1) { return ids; }
+        for (var i = 0; i < list.length; i++) {
+            ids += list[i].id + ",";
+        }
+        return ids.substr(0, ids.length - 1);
+    }
+    },
+});
+</script>
+}

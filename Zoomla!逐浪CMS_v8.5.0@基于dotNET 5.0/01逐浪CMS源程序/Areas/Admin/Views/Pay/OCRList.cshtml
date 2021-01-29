@@ -1,0 +1,107 @@
+﻿@using ZoomLa.Model.OCR
+@using ZoomLa.Components.OCR
+@using ZoomLa.Components.OCR.Extensions
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    var list = Model.dt.AsEnumerable()
+        .Select(row => new M_OCR()
+        {
+            ID = int.Parse(row["ID"].ToString()),
+            Type = (OCRType)int.Parse(row["Type"].ToString()),
+            UserID = int.Parse(row["UserID"].ToString()),
+            UserName = row["UserName"].ToString(),
+            PicPath = row["PicPath"].ToString(),
+            Languages = row["Languages"].ToString(),
+            Content = row["Content"].ToString(),
+            CDate = DateTime.Parse(row["CDate"].ToString()),
+        })
+        .ToList();
+}
+@section head{<title>OCR管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(), "OCR列表"),
+        new Bread(),
+        }, "[<a href='OCR'>" + "OCR识别" + "</a>]")
+<div class="table-responsive table_box" id="EGV">
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th class="td_xs"></th>
+            <th>@L.操作</th>
+            <th>ID</th>
+            <th>类型</th>
+            <th>用户ID</th>
+            <th>用户名</th>
+            <th>识别语言</th>
+            <th>图片路径</th>
+            <th>创建时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in list)
+        {
+            <tr ondblclick="location='OCRView?id=@item.ID'" title="双击查看">
+                <td class="node_select"><input type="checkbox" name="idchk" value="@item.ID" /></td>
+                <td>
+                    <div class="btn-group">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a href="OCRView?id=@item.ID" class="dropdown-item"><i class="zi zi_file"></i> 查看详情</a></li>
+                            <li><a href="javascript:;" onclick="deleteOCR(@item.ID)" class="dropdown-item"><i class="zi zi_trash" title="删除记录"></i> @L.删除</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td>@item.ID</td>
+                <td>
+                    @{ 
+                        switch (item.Type)
+                        {
+                            case OCRType.Backend:
+                                <span>后台创建</span>
+                                break;
+                            case OCRType.Api:
+                                <span>api创建</span>
+                                break;
+                            default:
+                                <span>未知</span>
+                                break;
+                        }
+                    }
+                </td>
+                <td>@item.UserID</td>
+                <td>@item.UserName</td>
+                <td>@item.GetLangsString()</td>
+                <td><a target="_blank" href="@item.PicPath">@item.PicPath</a></td>
+                <td>@(item.CDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+            </tr>
+        }
+    </tbody>
+    @Html.Partial("_page")
+</table>
+</div>
+<button onclick="multiDelete()" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+}
+@section script{
+<script>
+function deleteOCR(id) {
+    var a = window.confirm("您确定要删除该OCR记录吗？");
+    if (!a)
+        return;
+    window.location.href = encodeURI('@Url.Action("OCRDelete")?ids=' + id);
+}
+function multiDelete() {
+    var a = window.confirm("您确定要删除这些OCR记录吗？");
+    if (!a)
+        return;
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+    window.location.href = encodeURI('@Url.Action("OCRDelete")?ids=' + ids);
+}
+</script>
+}

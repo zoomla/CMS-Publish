@@ -1,0 +1,95 @@
+﻿@model ZoomLa.Model.Font.M_Font_Write
+@{ 
+    Layout = "_cms2020Layout";
+    var files = (DataTable)ViewData["Files"];
+    var vipLevel = (int)ViewData["VipLevel"];
+    var fullFontLeft = (int)ViewData["FullFontLeft"];
+    var fullFontUsed = (int)ViewData["FullFontUsed"];
+}
+@section head{ 
+<title>字体详情- @Call.SiteName</title>
+<link rel="stylesheet" href="~/res/css/animate.min.css"/>
+}
+@section content{ 
+<div class="font_create">
+<div class="container-xl font_create_box">    
+<div class="row">
+<div class="col-md-6 col-12 font_create_box_l">
+    <h1>@Model.FontName</h1>
+    <ul>
+        <li>
+            基于：
+            @switch (Model.ZType)
+            {
+                case 0:
+                    <span>英文字母符号集（共178字）</span>
+                    break;
+                case 1:
+                    <span>小学语文350生字及字母（共457字）</span>
+                    break;
+                case 2:
+                    <span>《现代汉语常用字表》中常用汉字2500字和次常用汉字1000字集合及英文字符（共3007字）</span>
+                    break;
+                case 3:
+                    <span>GB2312国标规范6791汉字及英文字母符号（共6880字）</span>
+                    break;
+                default:
+                    <span>未知字体</span>
+                    break;
+            }创作
+        </li>
+        <li class="mt-2"><span class="text-warning" id="t"><i class="zi zi_diamond zi_load" id="c"></i>@(Model.VipType >= 1 ? "全创作" : "免费")</span>  已写字数:@Model.CompletedNum</li>
+        <li class="mt-2"><a href="@($"/FontCreation/views/{Model.ID}/")" target="_blank"><i class="zi zi_globe"></i> 预览字体效果[最近一次发布]</a></li>
+        <li class="mt-2"><a href="@Url.Action("Index")/WordList?id=@Model.ID"><i class="zi zi_paintbrush"></i> 点此进入字库书写创作控制台</a></li>
+    </ul>
+
+    <div class="btn-group">
+        <a class="btn btn-info" href="@Url.Action("Index")">返回首页</a>
+        <a class="btn btn-outline-info" href="@Url.Action("Index")#/myfont">管理我的创作</a>
+    </div>
+    @if(Model.VipType == 0 && vipLevel > 0)
+    {
+        <div class="mt-2">
+            <div>您是@(vipLevel == 3 ? "聚合认证" : (vipLevel == 2 ? "全发布" : "云设计"))尊贵用户，共全创作[@fullFontUsed]套字体。</div>
+            @if(fullFontLeft > 0)
+            {
+                <div>您可以<a href="@Url.Action("Upgrade")?id=@Model.ID">点此升级</a>该字体。</div>
+            }
+            else
+            {
+                <div>您的套餐字体已耗尽，无法升级该字体。</div>
+            }
+        </div>
+    }
+</div>
+<div class="col-md-6 col-12 font_create_box_r font_create_box_r_Detail">
+    <p>@Model.Remind</p>
+    发布历史：
+    <ul>
+        @if (files == null || files.Rows.Count == 0)
+        {
+            <li><strong>暂无发布历史</strong></li>
+        }
+        else
+        {
+            @foreach (DataRow row in files.Rows)
+            {
+                <li><a href="@Url.Action("Download")?id=@row["ID"]" title="下载" class=""><i class="zi zi_download"></i></a> @row["FileName"].ToString() @row["FileSize"].ToString()</li>
+            }
+        }
+    </ul>
+</div>
+</div>
+</div>
+</div>
+}
+@section script{ 
+<script>
+$(function () {
+if (@Model.VipType== 0) {
+    $('#t').removeClass("text-warning");
+    $('#c').removeClass("zi zi_diamond zi_load");
+}
+})
+</script>
+}

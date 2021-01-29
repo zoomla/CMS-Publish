@@ -1,0 +1,45 @@
+﻿@using ZoomLa.BLL.SYS
+@using ZoomLa.Model.SYS
+@using System.Reflection
+@using System.IO
+@using ZoomLa.SQLDAL
+@using System.Text.RegularExpressions
+@using ZoomLa.Components
+@functions{
+
+
+
+}
+@{
+ 
+
+}
+
+@section  head{ 
+}
+@section  content{
+<div id="app">
+
+</div>
+
+ }
+@section script{
+<script>
+    
+    function test() {
+        return new Promise((resolve) => {
+            $.post("/API/Content?action=node_list", {}, function (data) {
+                resolve(data);
+            });
+        });
+        //var num = 1;
+        //return new Promise((resolve, reject) => {
+        //    setTimeout(() => { num > 0.5 ? resolve(num) : reject(num); }, 1000);
+        //});
+
+    }
+    //function test() {return $.when("info"); }
+    test().then(function (data) { console.log("a1", data); return "123123"; }).then(function (data) { console.log("a2", data); });
+</script>
+
+}

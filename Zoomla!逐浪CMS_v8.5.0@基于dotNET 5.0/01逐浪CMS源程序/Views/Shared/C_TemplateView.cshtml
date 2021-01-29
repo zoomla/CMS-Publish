@@ -1,0 +1,55 @@
+﻿<!--用于内容管理|黄页申请等处,绑定模板,暂一个页面只允许使用一个-->
+@using System.Data
+@model ZoomLaCMS.Control.C_TemplateView
+@{ 
+    if (Model.dt.Columns.Contains("rname")) { Model.dt.Columns["rname"].ColumnName = "TemplateName"; }
+}
+<style>
+.tlp_div{}
+.tlp_item{float:left;margin-right:5px;margin-bottom:5px;border:2px solid #ddd;padding:5px;overflow:hidden;cursor:pointer;border-radius:3px;}
+.tlp_item.active{border:2px solid #9ac7f0;}
+.tlp_item:hover{border:2px solid #9ac7f0;}
+.tlp_item img{width: 100%;}
+.tlp_item .title{margin-top:5px;text-align:center;font-size:1rem;}
+</style>
+<div class="template">
+    <ul class="list-unstyled">
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <li class="tlp_item" title="单击选中模板" onclick="tlpList.choose(this);" data-id="@dr["TemplateID"]" data-url="@dr["TemplateUrl"]">
+                <div><img onerror="shownopic(this);" style="" src="@dr["templatepic"]"></div>
+                <div class="title">@dr["TemplateName"]</div>
+            </li>
+        }
+    </ul>
+<div>
+    <input type="hidden" id="TempleID_Hid" name="TempleID_Hid" value="@Model.selid" />
+    <input type="text" id="TempleUrl_Hid" name="TempleUrl_Hid" value="@Model.selurl" class="form-control" placeholder="请选择需要绑定的样式"/>
+</div>
+</div>
+<script>
+var tlpList = {
+    choose: function (dom) {
+        var $dom = $(dom);
+        if ($dom.hasClass("active")) { return; }
+        $(".tlp_item").removeClass("active");
+        $dom.addClass("active");
+
+        $("#TempleID_Hid").val($dom.data("id"));
+        $("#TempleUrl_Hid").val($dom.data("url"));
+    },
+    init: function () {
+        if ("@Model.selid") {
+            $(".tlp_item").each(function () {
+                var $this = $(this);
+                if ($this.data("id") == "@Model.selid") { $this.addClass("active"); }
+            });
+        } else {
+            $(".tlp_item:first").click();
+        }
+
+    }
+};
+
+$(function () { tlpList.init(); })
+</script>

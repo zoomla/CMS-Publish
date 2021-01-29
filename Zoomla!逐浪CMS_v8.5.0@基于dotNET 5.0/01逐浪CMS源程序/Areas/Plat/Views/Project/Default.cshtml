@@ -1,0 +1,188 @@
+﻿@using ZoomLa.SQLDAL
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetName(string id)
+    {
+        string str = "";
+        DataTable dt = DBCenter.Sel("ZL_User");
+        foreach (DataRow dr in dt.Rows)
+        {
+            string[] idArry = id.Trim().Split(",");
+            for (int i = 0; i < idArry.Length; i++)
+            {
+                if (idArry[i] == dr["UserID"].ToString())
+                {
+                    str += dr["UserName"].ToString() + " ";
+                }
+            }
+        }
+        return str;
+    }
+    public string GetStatus(string i)
+    {
+        string str = "";
+        switch (i)
+        {
+            case "1":
+                str = "待办的";
+                break;
+            case "2":
+                str = "进行中";
+                break;
+            case "3":
+                str = "已完成";
+                break;
+            case "4":
+                str = "已拒绝";
+                break;
+        }
+        return str;
+    }
+    public string GetClass(string i)
+    {
+        string str = "";
+        switch (i)
+        {
+            case "0":
+                str = "未指定";
+                break;
+            case "1":
+                str = "紧急";
+                break;
+            case "2":
+                str = "正常";
+                break;
+            case "3":
+                str = "次要";
+                break;
+            case "4":
+                str = "淘汰";
+                break;
+            default:
+                break;
+        }
+        return str;
+    }
+}
+@section head{
+<title>项目</title>
+<style> .Obody { background: #fff; }</style>
+}
+@section content{
+    <div class="container-xl" hidden>
+        @Html.ActionLink("添加项目", "Project_Add", new { }, new { @class = "input-group-text float-end" })
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <td>ID</td>
+                <td>项目名称</td>
+                <td>创建者ID</td>
+                <td>创建者名称</td>
+                <td>负责人</td>
+                <td>参与者</td>
+                <td>状态</td>
+                <td>颜色</td>
+                <td>项目简介</td>
+                <td>项目内容</td>
+                <td>创建时间</td>
+                <td>级别</td>
+                <td>推荐</td>
+                <td>操作</td>
+            </tr>
+            @foreach (DataRow dr in Model.dt.Rows)
+            {
+                <tr ondblclick="location = 'ProjectList?id=@dr["ID"]';">
+                    <td>@dr["ID"]</td>
+                    <td>@dr["ProName"]</td>
+                    <td>@dr["UserID"]</td>
+                    <td>@dr["UserName"]</td>
+                    <td>@GetName(dr["Principal"].ToString())</td>
+                    <td>@GetName(dr["Participant"].ToString())</td>
+                    <td>@GetStatus(dr["Status"].ToString())</td>
+                    <td>@dr["Color"]</td>
+                    <td>@dr["Synopsis"]</td>
+                    <td>@dr["Content"]</td>
+                    <td>@dr["CreaeTime"]</td>
+                    <td>@GetClass(dr["Class"].ToString())</td>
+                    <td>@dr["Recommend"]</td>
+                    <td>@Html.ActionLink("编辑", "Project_Add", new { id = dr["ID"] }) @Html.ActionLink("添加看板", "Board_Add", new { ids = dr["ID"] }) @Html.ActionLink("看板", "Board", new { ids = dr["ID"] }) @Html.ActionLink("删除", "", new { }, new { @onclick = "del(" + dr["ID"] + ")" })</td>
+                </tr>
+            }
+        </table>
+    </div>
+
+
+
+    <div class="project_banner">
+        <h1>日事日毕  日清日高
+            <div class="w-100"></div>
+            @Html.ActionLink("添加项目", "Project_Add", new { }, new { @class = "Project_btn" })
+        </h1>
+    </div>
+
+        <div class="container-xl project_ject">
+            <ul>
+                @foreach (DataRow dr in Model.dt.Rows)
+                { 
+                    <li>
+                        <div class="project_title">
+                            <div class="project_title_left">
+                                <div class="project_title_sign"><i class="zi zi_circle"></i></div>
+                                <div class="project_title_id">@dr["ID"]</div>
+                                <div class="project_title_proname">@dr["ProName"]</div>
+                                <div class="project_title_grade"><i class="zi zi_starLine"></i><i class="zi zi_starLine"></i><i class="zi zi_starLine"></i></div>
+                                <ul>
+                                    <li>创建者：<strong>@dr["UserName"]</strong></li>
+                                    <li>负责人：<strong>@GetName(dr["Principal"].ToString())</strong></li>
+                                    <li>参与者：<strong>@GetName(dr["Participant"].ToString())</strong></li>
+                                    <li>状态：<strong>@GetStatus(dr["Status"].ToString())</strong></li>
+                                    <li><i class="zi zi_clock"></i> @dr["CreaeTime"]</li>
+                                </ul>
+                            </div>
+                            <div class="project_title_right">
+                                <div class="dropdown show">
+                                    <a class=" " href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="zi zi_fly"></i></a>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" href="#"><i class="zi zi_edit"></i> 编辑</a>
+                                        @Html.ActionLink("看板管理", "Board", new { ids = dr["ID"]}, new { @class = "dropdown-item" })
+                                        @Html.ActionLink("添加看板", "Board_Add", new { ids = dr["ID"]}, new { @class = "dropdown-item" })
+                                        <a class="dropdown-item" href="#"><i class="zi zi_trashalt"></i> 删除</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project_con_list">
+                            <a href="ProjectList?id=@dr["ID"]">
+                                @Html.Raw(@dr["Content"])
+                            </a>
+                        </div>
+                    </li>
+}
+
+
+
+            </ul>
+        </div>
+
+
+}
+@section script{
+    <script>
+        function del(id) {
+            if (confirm("确定要删除吗？")) {
+                $.post("/Plat/Project/Project_Del", {
+                    status: "0",
+                    id: id
+                    //},
+                    //function (msg) {
+                    //    alert(msg);
+                })
+                window.location.reload();
+            }
+        }
+
+        setactive("项目");
+        //remove leftnav
+        var child = document.getElementById("leftnav");
+        child.parentNode.removeChild(child);
+    </script>
+}

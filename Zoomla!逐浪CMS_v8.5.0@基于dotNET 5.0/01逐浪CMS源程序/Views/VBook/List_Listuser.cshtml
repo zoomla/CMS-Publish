@@ -1,0 +1,57 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@using ZoomLa.BLL.Helper
+@using ZoomLa.SQLDAL;
+@functions{
+    public DataTable uid()
+    {
+        DataTable tb = DBCenter.Sel("ZL_H5_Item", "UserID=" + ViewBag.mu,"Cdate desc");
+        return tb;
+    }
+}
+@if (@ViewBag.mu>0)
+{
+<div class="container-xl vbook">
+<h2>我的作品</h2>
+<div id="EGV">
+    <ul class="vbook_ul">
+        <li class="col-md-2 col-6" onclick="showAdd();" style="cursor:pointer;" title="点击创建">
+            <div class="liBox">
+                <div style="padding-top:120px;"><i class="zi zi_plus zi_3x"></i></div>
+                <div class="info"></div>
+                <div class="footer"><a href="javascript:;">创建新作品</a></div>
+            </div>
+        </li>
+        @foreach (DataRow dr in uid().Rows)
+        {
+    <li class="col-md-2 col-4">
+        <div class="liBox">
+            <div class="img" title="编辑" onclick="toEdit(@dr["ID"]);">
+                    <div class="bk" style="background-image:url('@dr["coverImage"]');"></div>
+                    <img src="@dr["coverImage"]" onerror="shownopic(this);" />
+                </div>
+                <div class="info">
+                    <div>序号：@dr["ID"]</div>
+                    <div>标题：@dr["title"]</div>
+                    <div>时间：@DateHelper.ToDate(dr["CDate"])</div>
+                </div>
+                <div class="footer">
+                    <a title="修改标题" href="javascript:;" onclick="showAdd(@dr["ID"])"><i class="zi zi_pencilalt"></i></a>
+                    <a title="设计页面" href="javascript:;" onclick="toEdit(@dr["ID"])"><i class="zi zi_laptop"></i></a>
+                    <a title="浏览" href="PreViewByMG?ID=@dr["ID"]" target="_blank"><i class="zi zi_eye"></i></a>
+                    <a title="删除" href="javascript:;" onclick="mvcpage.post2({ url: 'API?action=del', data: {ids:'@dr["ID"]'},callback:'reload',confirm:'确定要删除吗'});"><i class="zi zi_trash"></i></a>
+                </div>
+            </div>
+</li>
+        }
+    </ul>
+    @*<div class="text-center">@Html.Partial("_page2")</div>*@
+</div>
+</div>
+}
+else
+{
+<div class="container-xl mt-2">
+    <div class="alert alert-primary" role="alert">
+        当前用户没登录， <a href="/User/Login?ReturnUrl=/VBook/" class="alert-link">马上登录</a>去创作属于自己的H5相册作品吧！</div>
+    </div>
+}

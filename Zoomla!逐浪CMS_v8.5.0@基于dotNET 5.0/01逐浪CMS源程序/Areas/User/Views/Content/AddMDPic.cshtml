@@ -1,0 +1,192 @@
+﻿@using System.Data;
+@using ZoomLa.SQLDAL
+@using ZoomLa.BLL
+@using ZoomLaCMS.Models.Field
+@using ZoomLa.Model
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq;
+@model ZoomLa.Model.Content.M_CommonData
+@{
+    DataTable ds = (DataTable)ViewBag.ds;
+    string action = MVCHelper.GetAction(Url.Action("MDPic_Add", "Content"), Context.Request);
+    M_Node nodeMod = ViewBag.nodeMod;
+    string op = Model.GeneralID > 0 ? "修改" : "添加";
+    VM_FieldModel vmMod = new VM_FieldModel(Model.ModelID, Model.NodeID, new ModelConfig() { Source = ModelConfig.SType.UserContent }, Model.GeneralID);
+    vmMod.fieldDT.DefaultView.RowFilter = "IsNotNull=true AND FieldName NOT IN ('Title','NodeID','tablename','Subtitle')";
+    DataTable mustDT = vmMod.fieldDT.DefaultView.ToTable(true, "FieldName", "FieldAlias", "FieldType");
+}
+@section head{
+<title>@(op+nodeMod.NodeName)</title>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+<script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+<script src="/js/Controls/ZL_Webup.js"></script>
+<link href="/theme/css/v4style.css" rel="stylesheet" />
+<style>
+.u_nav,.page_ban,.u_top{display:none;}
+</style>
+}
+@section content{
+<div id="pageflag" data-nav="content" data-ban="cnt"></div>
+<div class="container">
+<nav aria-label="breadcrumb" role="navigation">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Index","")">会员中心</a></li>
+<li class="breadcrumb-item"><a href="Mycontent?NodeID=@Model.NodeID">上传图片</a></li>
+<li class="breadcrumb-item active"><a href="javascript:;" title="百度翻译" id="BaiduTrans_a"><i class="zi zi_book"></i></a></li>
+</ol>
+</nav>
+</div>
+<form action="@action&MD=1" method="post">
+<div class="container-xl addcontent">
+<div id="Tabs0" class="tab-pane active manage_content">
+<ul class="fd_body ps-0">
+@foreach (DataRow dr in vmMod.fieldDT.Rows)
+{
+    vmMod.fieldMod = new M_ModelField().GetModelFromReader(dr);
+    //FieldModel fdmod = new FieldModel(vmMod.fieldMod.Content);
+    //int maxcount = DataConverter.CLng(fdmod.GetValue("maxcount"), 5);
+    //string name = vmMod.fieldMod.FieldName;
+    if (vmMod.fieldMod.FieldType == "Images")
+    {
+        DataRow mdr = vmMod.valueDR;
+        JArray arr = new JArray();
+        string value = "";
+        if (mdr != null) {
+            value = mdr["PhotoUrl"].ToString().Trim(',');
+            if (!string.IsNullOrEmpty(value) && value != "[]")
+            {
+                value = "[" + value.TrimStart('[').TrimEnd(']').TrimEnd(',') + "]";
+                arr = JsonConvert.DeserializeObject<JArray>(value);
+            }
+        }
+
+<li class="fd_item" id="fd_item_PhotoUrl">
+<div class="fd_item_head">
+    <div class="fd_alias">&#x56FE;&#x7247;&#x5730;&#x5740;</div>
+    <a href="javascript:;" style="float:right;margin-right:10px;" class="opened" onclick="field.toggle(this);">
+        <i class="zi zi_circleRightBold" style="font-size:18px;" title="收缩"></i>
+        <i class="zi zi_circleDownLong" style="font-size:18px;" title="展开"></i>
+    </a>
+</div>
+<div class="fd_item_field">
+    <ul data-id='txt_PhotoUrl' id="ul_PhotoUrl" class="preview_img_ul">
+        @if (arr.Count > 0)
+        {
+            foreach (JObject jobj in arr)
+            {
+                <li class='margin_l5'><img src='@(jobj["url"].ToString().Substring(0, 4).Equals("http")?jobj["url"]:"/UploadFiles/"+jobj["url"])' class='preview_img' /><div class='file-panel' style='height: 0px;'><span class='cancel' title='删除'>删除</span><span class='editpic' title='编辑'>编辑</span></div></li>
+            }
+        }
+    </ul>
+    <div class="clearfix"></div><div>
+        <textarea id="txt_PhotoUrl" name="txt_PhotoUrl" class="form-control w-100 mb-2" style="height: 110px">@value</textarea>
+    </div>
+    <div class='btn-group' style="padding-left:0px;padding-top:2px;">
+        <input type='button' class='btn btn-outline-info' value='批量上传' onclick='UpFileDiag({"field":"images","nodeid":97,"inputid":"PhotoUrl","name":"PhotoUrl","uploaddir":"/UploadFiles/","iswater":"0"});' />
+        <input type='button' class='btn btn-outline-info' value='组图排序' onclick='SortImg({"field":"images","nodeid":97,"inputid":"PhotoUrl","name":"PhotoUrl","uploaddir":"/UploadFiles/","iswater":"0"})' />
+    </div>
+
+    <span></span>
+    <div></div>
+</div>
+</li>
+}
+}
+
+
+<li class="fd_item" id="fd_item_synopsis">
+<div class="fd_item_head">
+<div class="fd_alias">标题</div>
+<a href="javascript:;" style="float:right;margin-right:10px;" class="opened" onclick="field.toggle(this);">
+    <i class="zi zi_circleRightBold" style="font-size:18px;" title="收缩"></i>
+    <i class="zi zi_circleDownLong" style="font-size:18px;" title="展开"></i>
+</a>
+</div>
+<div class="fd_item_field">
+<textarea name="Title" id="Title" class="form-control fd_textarea" style='height:60px;width:100%;max-width:100%;'>@Model.Title</textarea>
+<span></span>
+<div></div>
+</div>
+</li>
+<li class="fd_item" id="fd_item_source" style="display:none">
+<div class="fd_item_head">
+<div class="fd_alias">&#x6765;&#x6E90;</div>
+<span class="fd_item_req">*</span>                <a href="javascript:;" style="float:right;margin-right:10px;" class="opened" onclick="field.toggle(this);">
+    <i class="zi zi_circleRightBold" style="font-size:18px;" title="收缩"></i>
+    <i class="zi zi_circleDownLong" style="font-size:18px;" title="展开"></i>
+</a>
+</div>
+<div class="fd_item_field">
+<select class="form-control fd_select m50rem_50" name="txt_source"><option value="本站原创">本站原创</option><option value="佚名">佚名</option><option value="无名氏">无名氏</option><option value="网友投稿">网友投稿</option></select>                    <span></span>
+<div></div>
+</div>
+</li>
+</ul>
+</div>
+
+<div class="text-center">
+<input type="submit" class="btn btn-info" value="@ViewBag.op" />
+<a href="javascript:history.go(-1)" class="btn btn-outline-info">返回列表</a>
+</div>
+</div>
+</form>
+<script>
+$(function () {
+//导航处理
+$("#usernav1 ul li").removeClass("active").siblings().eq(1).addClass("active");
+})
+</script>
+}
+@section script{
+    <script>
+var zlconfig = {
+adminPath: "@CustomerPageAction.customPath2",
+updir: "@ZoomLa.Components.SiteConfig.SiteOption.UploadDir.ToLower()",
+duptitlenum: "@ZoomLa.Components.SiteConfig.SiteOption.DupTitleNum",
+modelid: "@Model.ModelID"
+};
+    </script>
+    <script src="/JS/OAKeyWord.js"></script>
+    <script src="/JS/DatePicker/WdatePicker.js"></script>
+    <script src="/JS/chinese.js"></script>
+    <script src="/JS/Common.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/ICMS/tags.json"></script>
+    <script src="/JS/ZL_Content.js?v=20180530"></script>
+    <script src="/JS/Plugs/transtool.js"></script>
+    <script>
+$(function () {
+Tlp_initTemp();
+$("#BaiduTrans_a").TransTools({ top: 120 });
+$("#txt_Edit,#txt_pages").parents("tr").hide();
+$("form").validate();
+
+$("form").submit(function () {
+    if (ZL_Regex.isEmpty($("#Title").val()))
+    {
+        $("#Title").focus(); return false;
+    }
+    var mustDT = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(mustDT));
+    for (var i = 0; i < mustDT.length; i++) {
+        var item = mustDT[i];
+        var value = $("[name=txt_" + item.FieldName + "]").val();
+        if (ZL_Regex.isEmpty(value)) { alert("[" + item.FieldAlias + "]字段的值不允许为空"); return false; }
+    }
+
+
+    return true;
+});
+});
+function OnTemplateViewCheck(value) { $("#TxtTemplate_hid").val(value); }
+
+var field = {};
+field.toggle = function (btn) {
+var $item = $(btn).closest(".fd_item");
+var css = btn.className;
+if (css.indexOf("opened") > -1) { btn.className = btn.className.replace("opened", "colled"); $item.find(".fd_item_field").slideUp("fast"); }
+else { btn.className = btn.className.replace("colled", "opened"); $item.find(".fd_item_field").slideDown("fast"); }
+
+}
+    </script>
+
+}

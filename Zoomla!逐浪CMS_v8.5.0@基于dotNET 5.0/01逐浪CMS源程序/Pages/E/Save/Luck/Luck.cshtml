@@ -1,0 +1,392 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.BLL.API
+@using ZoomLa.BLL.CreateJS
+@using ZoomLa.BLL.Other
+@using ZoomLa.Model.Other
+@using ZoomLa.Model.User
+@using Newtonsoft.Json
+@using ZoomLa.Model.User
+@model MyPageModel
+@functions{
+    /*
+     * 1.开始与结束时间
+     * 2.手动修改奖品数
+     * 3.汽车奖品的Name属性不能重复(三个周期)
+     * 
+     * SELECT prize,count(*) AS [Count] FROM ZL_Pub_cj GROUP BY prize
+     */
+    [Authorize(Policy = ("User"))]
+    public class MyPageModel : Page_Base
+    {
+        private static object Lockobj = new object();
+        private static List<M_WX_LuckPrize> prizeList = new List<M_WX_LuckPrize>() {};
+        //-------
+        public int CJCost= 1;
+        public int GGK_CJCost = 25;
+        string TbName = "ZL_Pub_CJ";//抽奖结果存储
+        //报名结止时间,抽奖开始与结束时间
+        //public DateTime BMEDate = Convert.ToDateTime("2019/04/30 23:59:59");
+        public DateTime CJSDate = Convert.ToDateTime("2019/04/28 00:00:00");
+        public DateTime CJEDate = Convert.ToDateTime("2019/06/22 23:59:59");
+        public string CJPeriod = "第一期";
+        public IActionResult OnGet()
+        {
+            mu = buser.GetLogin(false);
+            return Page();
+        }
+        public ContentResult OnPost()
+        {
+            M_APIResult retMod = new M_APIResult(Failed);
+
+            try
+            {
+                if (mu.IsNull) { throw new Exception("必须登录后才可访问"); }
+
+                //是否到时间
+                //if (DateTime.Now < CJSDate) { throw new Exception("尚未到抽奖开始时间"); }
+                //if (DateTime.Now > CJEDate) { throw new Exception("已过抽奖起止时间"); }
+                //if (!DBCenter.IsExist(TbName, "PubUserID=" + mu.UserID)) { throw new Exception("未报名,无法参加该活动"); }
+                if (mu.GroupID != 2) { throw new Exception("请等待后台验证MT4/MT5账号"); }
+                string mt4 = DataConvert.CStr(DBCenter.ExecuteScala("ZL_UserBase", "mt4", "UserID=" + mu.UserID));
+
+                //-------------------------------
+                string action = GetParam("action");
+                switch (action)
+                {
+                    case "bm"://添加报名(不用)
+                        {
+                            //string TbName = "ZL_Pub_BM";
+                            //B_CodeModel codeBll = new B_CodeModel(TbName);
+                            //if (DBCenter.IsExist(TbName, "PubUserID=" + mu.UserID)) { throw new Exception("已经报过名了"); }
+                            //if (DateTime.Now > BMEDate) { throw new Exception("已过报名起止时间"); }
+                            //DataTable modDT = codeBll.SelStruct();
+                            //DataRow modDR = modDT.NewRow();
+                            //modDR["PubUserID"] = mu.UserID;
+                            //modDR["PubUserName"] = mu.UserName;
+                            //modDR["PubAddTime"] = DateTime.Now;
+                            //modDR["PubTitle"] = mu.UserName;
+                            //modDR["Pubupid"] = "1";
+                            //modDR["PubStart"] = 0;
+                            //codeBll.Insert(modDR);
+                            //retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "test_"://[delete]
+                        {
+                            //B_CodeModel codeBll = new B_CodeModel(TbName);
+                            //DataTable modDT = codeBll.SelStruct();
+                            //DataRow modDR = modDT.NewRow();
+
+                            //List<M_WX_LuckPrize> prizeList = new List<M_WX_LuckPrize>();
+                            ////总计累加应该为100%
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "iPad", Count_Total = 1, Percent = 0.01 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "iWatch", Count_Total = 1, Percent = 0.01 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "Dyson", Count_Total = 2, Percent = 0.02 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "BeatsStudio3", Count_Total = 3, Percent = 0.03 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "小米扫地机器人", Count_Total = 5, Percent = 0.06 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡500元", Count_Total = 5, Percent = 0.06 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡300元", Count_Total = 20, Percent = 0.22 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "现金200元", Count_Total = 50, Percent = 0.56 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡100元", Count_Total = 100, Percent = 1.11 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "现金100元", Count_Total = 100, Percent = 1.11 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "现金50元", Count_Total = 100, Percent = 1.11 });
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "再接再厉", Percent = 95.70 });//剩余全为其
+
+
+                            //for (int i = 0; i < 10000; i++)
+                            //{
+                            //    string prize = LuckDrawPrize(prizeList);
+                            //    modDR["emails"] = mu.Email;
+                            //    modDR["mt4"] = mt4;
+                            //    modDR["PubUserID"] = mu.UserID;
+                            //    modDR["PubUserName"] = mu.UserName;
+                            //    modDR["PubAddTime"] = DateTime.Now;
+                            //    modDR["PubTitle"] = "转盘抽奖";
+                            //    modDR["Pubupid"] = "1";
+                            //    modDR["PubStart"] = 0;
+                            //    modDR["PubInputer"] = CJPeriod;
+                            //    modDR["Prize"] = prize;
+                            //    codeBll.Insert(modDR);
+                            //}
+                        }
+                        break;
+                    case "cj":
+                        {
+                            if (mu.Purse < CJCost) { throw new Exception("没有足够的余额"); }
+                            B_CodeModel codeBll = new B_CodeModel(TbName);
+                            DataTable modDT = codeBll.SelStruct();
+                            DataRow modDR = modDT.NewRow();
+
+
+                            //总计累加应该为100%
+
+                            if (prizeList.Count < 1)
+                            {
+                                lock (Lockobj)
+                                {
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "iPad", Count_Total = 1, Percent = 0.01 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "iWatch", Count_Total = 1, Percent = 0.01 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "Dyson", Count_Total = 2, Percent = 0.02 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "BeatsStudio3", Count_Total = 3, Percent = 0.03 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "小米扫地机器人", Count_Total = 5, Percent = 0.06 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡500元", Count_Total = 5, Percent = 0.06 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡300元", Count_Total = 20, Percent = 0.22 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "现金200元", Count_Total = 50, Percent = 0.56 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "京东礼品卡100元", Count_Total = 100, Percent = 1.11 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "现金100元", Count_Total = 100, Percent = 1.11 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "现金50元", Count_Total = 100, Percent = 1.11 });
+                                    prizeList.Add(new M_WX_LuckPrize() { Name = "再接再厉", Percent = 95.70 });//剩余全为其
+                                                                                                           //获取数据统计填充
+                                    foreach (var item in prizeList)
+                                    {
+                                        string where = "prize='" + item.Name + "' AND PubInputer='" + CJPeriod + "'";
+                                        item.C_Count_Now = DataConvert.CLng(DBCenter.Count(TbName, where));
+                                    }
+                                }
+                            }
+                            string remind = "";
+                            string prize = LuckDrawPrize(prizeList,ref remind);
+                            //----------------------
+                            modDR["emails"] = mu.Email;
+                            modDR["mt4"] = mt4;
+                            modDR["PubUserID"] = mu.UserID;
+                            modDR["PubUserName"] = mu.UserName;
+                            modDR["PubAddTime"] = DateTime.Now;
+                            modDR["PubTitle"] = "转盘抽奖" ;
+                            modDR["Pubupid"] = "1";
+                            modDR["PubStart"] = 0;
+                            modDR["PubInputer"] = CJPeriod;
+                            modDR["Prize"] = prize;
+                            modDR["PubContent"] = remind;
+                            buser.MinusVMoney(mu.UserID, CJCost, M_UserExpHis.SType.Purse, "抽奖,奖品:" + prize);
+                            codeBll.Insert(modDR);
+                            retMod.result = prize;
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "cj2":
+                        {
+                            if (mu.Purse < GGK_CJCost) { throw new Exception("没有足够的余额"); }
+
+                            B_CodeModel codeBll = new B_CodeModel(TbName);
+                            DataTable modDT = codeBll.SelStruct();
+                            DataRow modDR = modDT.NewRow();
+
+                            List<M_WX_LuckPrize> prizeList = new List<M_WX_LuckPrize>();
+                            prizeList.Add(new M_WX_LuckPrize() { Name = "未中奖", Percent = 100 });
+                            //因为同存一张表,所以奖品名字必须不同
+                            //prizeList.Add(new M_WX_LuckPrize() { Name = "宝马汽车", Count_Total = 1, Percent = 1 });
+                            string remind = "";
+                            string prize = LuckDrawPrize(prizeList,ref remind);
+                            //----------------------
+                            modDR["emails"] = mu.Email;
+                            modDR["mt4"] = mt4;
+                            modDR["PubUserID"] = mu.UserID;
+                            modDR["PubUserName"] = mu.UserName;
+                            modDR["PubAddTime"] = DateTime.Now;
+                            modDR["PubTitle"] = "刮刮卡" ;
+                            modDR["PubInputer"] = CJPeriod;
+                            modDR["Pubupid"] = "1";
+                            modDR["PubStart"] = 0;
+                            modDR["Prize"] = prize;
+                            buser.MinusVMoney(mu.UserID, GGK_CJCost, M_UserExpHis.SType.Purse, "刮刮卡,奖品:" + prize);
+                            codeBll.Insert(modDR);
+                            retMod.result = prize;
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex) { retMod.retmsg = ex.Message;retMod.retcode = M_APIResult.Failed; }
+            return Content(retMod.ToString());
+        }
+        //根据算法获取奖项,返回奖品名称,前端依此定位
+        private string LuckDrawPrize(List<M_WX_LuckPrize> prizeList,ref string remind)
+        {
+            double index = new Random(System.Guid.NewGuid().GetHashCode()).NextDouble();
+            index = Convert.ToDouble((index*100).ToString("F2"));
+            //筛选尚有奖品剩余的条目
+            List<M_WX_LuckPrize> list = prizeList.FindAll(p => (p.Count_Total == -100 || p.C_Count_Now < p.Count_Total));
+            #region 设定好Index范围
+            {
+                double totalPercent = 0, multiple = 1;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    M_WX_LuckPrize model = list[i];
+                    if (i == 0)
+                    {
+                        model.Index_Start = 0;
+                        model.Index_End = model.Index_Start + model.Percent;
+                    }
+                    else
+                    {
+                        M_WX_LuckPrize pre = list[i - 1];
+                        model.Index_Start = pre.Index_End + 0.01;
+                        model.Index_End = pre.Index_End + model.Percent;
+                    }
+                    totalPercent += model.Percent;
+                }
+                //multiple = (totalPercent / 100);
+                //for (int i = 0; i < list.Count; i++)
+                //{
+                //    list[i].Index_Start = list[i].Index_Start * multiple;
+                //    list[i].Index_End = list[i].Index_End * multiple;
+                //}
+            }
+            #endregion
+            M_WX_LuckPrize prizeMod = list.FirstOrDefault(p => (index == p.Index_Start || index == p.Index_End) || (index > p.Index_Start && index < p.Index_End));
+            if (prizeMod == null) { prizeMod = list.FirstOrDefault(p => p.Count_Total == -100); }
+            lock (Lockobj)
+            {
+                prizeMod.C_Count_Now++;
+            }
+            //[extend]
+            //未抽中，并且仍有奖品剩余
+            if (prizeMod.Name.Equals("再接再厉") && list.Count > 1)
+            {
+                lock (Lockobj)
+                {
+                    //本周期,是否连续25次未抽中
+                    string where = "PubUserID=" + mu.UserID + " AND PubInputer='" + CJPeriod + "' AND PubTitle='转盘抽奖' ";
+                    int count_no = DBCenter.Count(TbName, where + " AND prize='再接再厉'");
+                    int count_ok = DBCenter.Count(TbName, where + " AND prize NOT IN ('再接再厉','未中奖')");
+
+                    if ((count_no > 0 && count_ok > 0) && (count_no / count_ok) >= 25)
+                    {
+                        //从尚余奖品中随机抽出一个
+                        list = prizeList.FindAll(p => (p.C_Count_Now < p.Count_Total));
+                        int pindex = new Random().Next(0, list.Count);
+                        prizeMod = list[pindex];
+                        remind = "luck";
+                    }
+                }
+            }
+            return prizeMod.Name;
+        }
+    }
+}
+@{ 
+    //抽奖统计计录缓存，不依靠数据库
+    Layout = "_empty";
+}
+@section head{ <title>每天，和幸运约个会</title>}
+@section content{
+<div class="container prizeActive">
+<section class="prizeHead">
+<div class="row">
+<div class="col-md-6 col-6 prizeHead_l">
+<h1>开放时间</h1>
+<p>@(Model.CJSDate.ToString("yyyy.MM.dd")+"-"+Model.CJEDate.ToString("yyyy.MM.dd"))</p>        
+</div>
+<div class="col-md-6 col-6 prizeHead_r">
+<a href="/"><img src="/Plugins/Luck/Images/xm/logo2.svg" alt=""></a>
+</div>
+</div>
+</section>
+<!--prizeHead end-->
+
+<section class="prizeTwo">
+<div class="row">
+<div class="col-6">
+<div class="prizeTwo_l">
+<h1>娱乐一下</h1>
+<strong>本轮抽奖一次需花费@(Model.CJCost)XM金币</strong>
+</div>
+</div>
+<div class="col-6 prizeTwo_r">
+<a href="LuckHis">历史抽奖记录</a>
+<strong>剩余抽奖XM金币<span><span id="purse_sp">@(Model.mu.Purse.ToString("F0"))</span>币</span></strong>
+</div>
+</div>
+</section>
+<!--prizeTwo end-->
+
+<section class="prizeTurntable">
+<div class="wheel_container" wof-tag="0"> 
+<img class="rotate" id="rotate" src="/Plugins/Luck/Images/Rotate/turntable3.png" alt="turntable"/>
+<img  class="pointer" src="/Plugins/Luck/Images/Rotate/pointer.png" alt="pointer"/>
+</div>
+</section>
+<!--prizeTurntable end-->
+
+<section class="prizeStimulate">
+<div class="row">
+<div class="col-4 prizeStimulate_l">
+<h2>刺激一把</h2>
+<strong>本轮抽奖一次需花费@(Model.GGK_CJCost)XM金币</strong>
+</div>
+<div class="col-8 prizeStimulate_r">
+<img id="scratch_img" src="/Plugins/Luck/Images/xm/prizeStimulate_r.png" alt="刺激一把" onclick="scratchInit();"/>
+<div id="scratch_container"></div>
+<a href="@HttpContext.Request.RawUrl()" class="btn btn-success" id="scratch_btn" style="display:none;">再来一次</a>
+</div>
+</div>
+</section>
+<p class="tip">抽奖小Tips:参与抽奖次数越多，中奖概率越高哦！</p>
+</div>
+<!--prizeActive end-->
+
+}
+@section script{
+<script src="/res/js/weui.js"></script>
+<link href="/res/css/weui.min.css" rel="stylesheet" />
+<script src="/JS/Modal/APIResult.js"></script>
+<style type="text/css">
+.prizeActive { padding-top: 2rem; padding-left: 2rem; padding-right: 2rem; background: #B41E23; min-height: 40rem; }
+.prizeActive .tip { margin-bottom: 0; line-height: 2.4rem; color: #fff; text-align: center; font-size: 1.08rem; font-weight: bold; }
+
+.prizeHead_l { color: #fff; }
+.prizeHead_l h1 { font-weight: bold; }
+.prizeHead_l p { margin-bottom: 0; font-size: 1.18rem; }
+
+.prizeHead_r { text-align: right; }
+.prizeHead_r img { width: 16rem; }
+
+.prizeTwo { margin-top: 2rem; }
+
+.prizeTwo_l { padding-top: 1rem; padding-left: 1rem; padding-bottom: 1rem; background: #F6BFC0; border-top-left-radius: 1.4rem; border-top-right-radius: 1.4rem; }
+.prizeTwo_l h1 { color: #f00; /*font-family:"ZoomlaXingtiJ3";*/ font-size: 1.82rem; }
+.prizeTwo_l strong { padding: 0.2rem 1rem; line-height: 2.8rem; border: 1px solid #fff; border-radius: 2rem; }
+
+.prizeTwo_r { text-align: right; }
+.prizeTwo_r a { display: block; margin-left: auto; width: 10rem; line-height: 2rem; color: #fff; font-size: 1.08rem; text-align: center; border: 1px solid #fff; border-radius: 2rem; }
+.prizeTwo_r strong { display: block; margin-top: 1rem; color: #fff; }
+.prizeTwo_r span { font-size: 2rem; }
+
+.prizeTurntable { padding-top: 9rem; padding-bottom: 1rem; min-height: 45rem; background: #F6BFC0; border-bottom-left-radius: 1.4rem; border-bottom-right-radius: 1.4rem; }
+
+.wheel_container { position: relative; margin-left: auto; margin-right: auto; width: 25rem; height: 25rem; }
+.wheel_container img:nth-child(1) { width: 28rem; height: 28rem; transform: rotate(279.1deg); transform-origin: 50% 50% 0px; }
+.wheel_container img:nth-child(2) { position: absolute; top: 8rem; left: 9.4rem; width: 9rem; height: 11rem; cursor: pointer; }
+
+.prizeStimulate { padding-top: 3rem; margin-top: 3rem; min-height: 23rem; background: #F6BFC0; border-radius: 1.4rem; }
+
+.prizeStimulate_l { padding-top: 3rem; text-align: center; }
+.prizeStimulate_l h2 { padding-left: 1rem; color: #f00; font-size: 1.82rem; text-align: left; }
+.prizeStimulate_l strong { padding: 0.2rem 1rem; line-height: 2.8rem; border: 1px solid #fff; border-radius: 2rem; }
+
+.prizeStimulate_r { padding-top: 1rem; padding-bottom: 1rem; padding-right: 1rem; }
+.prizeStimulate_r a { display: block; text-align: center; font-weight: bold; }
+
+.prizeRegular { padding: 2rem; margin-top: 1rem; background: #7D1E1E; }
+
+
+.cj_tip { min-height: 4rem; line-height: 2rem; color: #f00; }
+.cj_tip h1 { padding-left: 0.6rem; margin-bottom: 0; color: #000; font-size: 1.48rem; border-left: 4px solid #f00; }
+
+.prizeBox h2 { line-height: 3rem; text-align: center; font-size: 1.4rem; }
+.prizeBox p { line-height: 4rem; color: #f00; font-size: 1.4rem; text-align: center; }
+
+.regularPrize { margin-top: 7rem; min-height: 7rem; border: 4px dashed #f00; border-radius: 0.6rem; }
+.regularPrize p { margin-bottom: 0; font-size: 1rem; }
+
+.regularPrize_tit { margin-left: 0.4rem; margin-top: 0.4rem; margin-right: 0.4rem; line-height: 2.8rem; background: #ffcb01; color: #f00; font-size: 1.08rem; font-weight: bold; border-radius: 0.6rem; }
+.regularPrize_tit i { padding-left: 0.4rem; font-size: 1.48rem; }
+
+
+</style>
+@Html.Partial("Luck_Rotate")
+@Html.Partial("Luck_Scratch")
+}

@@ -1,0 +1,402 @@
+﻿@using System.Web
+@using System.Data
+@using ZoomLa.BLL.User
+@using ZoomLa.BLL.Plat
+@using ZoomLa.Model.Client;
+@using  ZoomLa.BLL.Client;
+@model ZoomLa.Model.M_UserInfo
+@functions{
+    public string getMemberIDS()
+    {
+        B_Plat_Group pgBll = new B_Plat_Group();
+        string v = "";
+        foreach (DataRow dr in pgBll.Sel().Rows)
+        {
+            string[] idArry = dr["MemberIDS"].ToString().Trim().Split(",");
+            for (int i = 0; i < idArry.Length; i++)
+            {
+                if (Model.UserID.ToString() == idArry[i])
+                {
+                    v += "<span class='badge bg-primary'>" + dr["GroupName"] + "</span> ";
+                }
+            }
+        }
+        return v;
+    }
+}
+@{
+
+    M_UserInfo uinfo = Model;
+    DataTable gpDT = new B_Group().Sel();
+    if (string.IsNullOrEmpty(Model.UserFace)) { Model.UserFace = "/images/UserFace/noface.png"; }
+
+    B_User_Plat upBll = new B_User_Plat();
+    B_Plat_Comp compBll = new B_Plat_Comp();
+    DataTable compDT = compBll.Sel();
+    {
+        DataRow dr = compDT.NewRow();
+        dr["CompName"] = "未归属";
+        dr["ID"] = 0;
+        compDT.Rows.InsertAt(dr, 0);
+    }
+    M_User_Plat upMod = upBll.SelReturnModel(Model.UserID);
+    if (upMod == null) { upMod = new M_User_Plat(); }
+
+    B_CRMS_Client clientBll = new B_CRMS_Client();
+    M_CRMS_Client clientMod = clientBll.SelModelByUid(uinfo.UserID);
+
+    B_User_Level ulvBll = new B_User_Level();
+    DataTable vipdt = ulvBll.Sel();
+
+    B_Plat_Group pgBll = new B_Plat_Group();
+}
+@section head{
+<title>用户信息</title>
+<style type="text/css">
+.zi_circleDowns, .zi_circleRights {display: none;}
+.fd_item {border-bottom: 1px solid #999;padding-bottom: 5px;}
+</style>
+}
+
+@section content{
+@if (DataConverter.CStr(Context.Request.GetParam("show")).Equals("diag")) { }
+else
+{
+@Call.SetBread(new Bread[] {
+new Bread("/{manage}/Main","工作台"),
+new Bread("UserManage","会员管理"),
+new Bread() {url="", text="会员信息",addon="当前用户:" + uinfo.UserName }}
+)
+<div class=""></div>
+}
+
+<ul class="nav nav-tabs">
+<li class="nav-item"><a class="nav-link active" href="#Tabs0" onclick="tab1()" data-bs-toggle="tab">基本信息</a></li>
+<li class="nav-item"><a class="nav-link" href="#Tabs1" data-bs-toggle="tab" onclick="tab2()">联系信息</a></li>
+@*<li class="nav-item"><a class="nav-link" href="#Tabs2" data-bs-toggle="tab" onclick="tab3()">扩展信息</a></li>*@
+<li class="nav-item"><a class="nav-link" href="#Tabs3" data-bs-toggle="tab" onclick="tab3()">能力中心</a></li>
+</ul>
+@{ Html.BeginForm(FormMethod.Post, new { action = "UserInfo_Submit?ID=" + Model.UserID, id = "form1" });}
+<div class="tab-content container-fluid pe-0">
+<div class="tab-pane active row sysRow table-responsive-md" id="Tabs0">
+    <table class="table table-striped table-bordered sys_table" >
+        <tr>
+            <th scope="col" class="w12rem_lg">用户头像</th>
+            <td scope="col" colspan="3">
+                @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "UserFace", SaveType = "admin", Value = Model.UserFace })
+            </td>
+        </tr>
+        <tr>
+            <th scope="col" class="w12rem_lg">用户名</th>
+            <td scope="col" colspan="3">
+                <div class="input-group" role="group" aria-label="user login">
+                    <input type="text" class="form-control text_300" disabled="disabled" value="@uinfo.UserName" />
+                        <a href="UserLogin?uname=@(HttpUtility.UrlEncode(uinfo.UserName) + "&upwd=" + uinfo.UserPwd)" class="input-group-text" target="_blank"><i class="zi zi_externalLinkalt" zico="外部链接"></i> 以此会员登录</a>
+                </div>
+                @*<a href="javascript:;" onclick='$("#UserFace_SFile_body .sfile_selbtn").click();' class="btn btn-info margin_l5" title="修改头像"><i class="zi zi_pencilalt" zico="笔黑"></i> 修改头像</a>*@
+            </td>
+        </tr>
+        <tr>
+            <th>用户密码</th>
+            <td colspan="3">
+                <div class="input-group mb-3">
+                <span class="input-group-text">登录密码</span>
+            @Html.TextBox("NewPwd", "", new { @placeholder = "不修改则不输入", @class = "form-control max20rem" })
+                <span class="input-group-text">支付密码</span>
+            @Html.TextBox("PayPwd", "", new { placeholder = "不修改则不输入", @class = "form-control max20rem" })
+            @*<div class="input-group-append">
+                    <input type="button" ID="ClearPayPwd_Btn" Text="清空支付密码" class="btn btn-outline-info" OnClick="ClearPayPwd_Btn_Click" />
+                </div>*@
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>资金管理</th>
+            <td colspan="3">
+                <div class="btn-group">
+                    <a href="UserExp?UserID=@(uinfo.UserID)&type=1" class="btn btn-outline-secondary" title="管理资金">资金：@(uinfo.Purse)</a>
+                    <a href="UserExp?UserID=@(uinfo.UserID)&type=2" class="btn btn-outline-secondary" title="管理银币">银币：@(uinfo.SilverCoin)</a>
+                    <a href="UserExp?UserID=@(uinfo.UserID)&type=3" class="btn btn-outline-secondary" title="管理积分">积分：@uinfo.UserExp</a>
+                    <a href="UserExp?UserID=@(uinfo.UserID)&type=4" class="btn btn-outline-secondary" title="管理点券">点券：@uinfo.UserPoint</a>
+                    <a href="UserExp?UserID=@(uinfo.UserID)&type=5" class="btn btn-outline-secondary" title="管理虚拟币">虚拟币：@uinfo.DummyPurse</a>
+                    <a href="UserExp?UserID=@(uinfo.UserID)&type=6" class="btn btn-outline-secondary" title="管理信誉值">信誉值：@uinfo.UserCreit</a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>用户信息</th>
+            <td colspan="3">
+                <div class="input-group mb-3">
+                        <span class="input-group-text">ID</span>
+                    <label class="form-control w12rem_lg">@(uinfo.UserID)</label>
+                        <span class="input-group-text">会员组</span>
+                    @Html.DropDownListFor(m => m.GroupID, MVCHelper.ToSelectList(gpDT, "GroupName", "GroupID", Model.GroupID.ToString()), new { @class = "form-control max20rem form-select" })
+                        <span class="input-group-text">真实姓名</span>
+                    @Html.TextBoxFor(m => m.HoneyName, new { @class = "form-control max20rem" })
+                        <span class="input-group-text">Email</span>
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control max20rem email" })
+                        <span class="input-group-text">手机</span>
+                    @Html.TextBoxFor(m => m.UserBase.Mobile, new { @class = "form-control max20rem mobile", maxlength = "13" })
+                </div>
+            </td>
+        </tr>
+        <tr>
+                <th>会员等级</th>
+                <td colspan="3">
+                    @Html.DropDownListFor(m => m.VIP, MVCHelper.ToSelectList(vipdt, "Alias", "ID", Model.VIP.ToString()), "请选择会员等级", new { @class = "form-control max20rem form-select" })
+
+                    @*@MVCHelper.H_Radios("level_rad","1|2|3".Split("|"), "1|2|3".Split("|"))*@
+                </td>
+            </tr>
+        <tr >
+            <th>提示问题<span class="text-danger">*</span></th>
+            <td>@Html.TextBoxFor(m => m.Question, new { @class = "form-control max20rem" })
+                
+            </td>
+            <th class="w12rem_lg">问题答案<span class="text-danger">*</span></th>
+            <td>@Html.TextBoxFor(m => m.Answer, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>最后登录时间</th>
+            <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(uinfo.LastLoginTimes)</td>
+            <th>最后登录IP</th>
+            <td>@(uinfo.LastLoginIP)</td>
+        </tr>
+        <tr>
+            <th>最近活跃时间</th>
+            <td>@ZoomLa.BLL.Helper.DateHelper.ToDate(uinfo.LastActiveTime)</td>
+            <th>密码修改时间</th>
+            <td>@uinfo.LastPwdChangeTime</td>
+        </tr>
+        <tr>
+            <th>消费积分</th>
+            <td>@Html.TextBoxFor(m => m.ConsumeExp, new { @class = "form-control max20rem" })</td>
+            <th>卖家积分</th>
+            <td>@Html.TextBoxFor(m => m.boffExp, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th class="text-end">CRM管理</th>
+            <td colspan="3">
+                @if (clientMod != null)
+                {
+                <a class="btn btn-outline-info" href="/Admin/CRM/ClientView?ID=@clientMod.ID">客户[健昌家园]深度管理</a>
+                }
+                else
+                {
+                    <a href="UPClient?UserID=@uinfo.UserID" class="btn btn-outline-info btn-sm">升级为客户</a>
+                }
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="tab-pane row sysRow table-responsive-md" id="Tabs1">
+    <table class="table table-striped table-bordered sys_table">
+        <tr>
+            <th scope="col" class="w12rem_lg">真实姓名</th>
+            <td>@Html.TextBoxFor(m => m.TrueName, new { @class = "form-control max20rem" })</td>
+            <th scope="col" class="w12rem_lg">性别</th>
+            <td scope="col" class="text-start">
+                @MVCHelper.H_Radios("UserSex", "男|女".Split('|'), "False|True".Split('|'), Model.UserBase.UserSex.ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>出生日期</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.BirthDay, new { @class = "form-control max20rem" })</td>
+            <th>办公电话</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.OfficePhone, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>家庭电话</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.HomePhone, new { @class = "form-control max20rem" })</td>
+            <th>传真</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.Fax, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr class="tdbg">
+            <th>省市县</th>
+            <td class="text-start d-flex flex-row">
+                <select id="selprovince" class="form-control w12rem_lg form-select" name="selprovince"></select>
+                <select id="selcity" class="form-control w12rem_lg form-select" name="selcity"></select>
+                <select id="selcoutry" class="form-control w12rem_lg form-select" name="selcoutry"></select>
+                <input type="hidden" id="Adress_Hid" name="Adress_Hid" value="@(uinfo.UserBase.Province + "," + uinfo.UserBase.City + "," + uinfo.UserBase.County)" />
+            </td>
+            <th>推荐人(ID)</th>
+            <td>@Html.TextBoxFor(m => m.ParentUserID, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>联系地址</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.Address, new { @class = "form-control max20rem" })</td>
+            <th>邮政编码</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.ZipCode, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>身份证号码</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.IDCard, new { @class = "form-control max20rem" })</td>
+            <th>个人主页</th>
+            <td>@Html.TextBoxFor(m => m.seturl, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>QQ号码</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.QQ, new { @class = "form-control max20rem" })</td>
+            <th>自填微信</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.Yahoo, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>公司名称</th>
+            <td>@Html.TextBoxFor(m => m.CompanyName, new { @class = "form-control max20rem" })</td>
+            <th>职位</th>
+            <td>@Html.TextBoxFor(m => m.UserBase.Position, new { @class = "form-control max20rem" })</td>
+        </tr>
+        <tr>
+            <th>公司简介</th>
+            <td>@Html.TextBoxFor(m => m.CompanyDescribe, new { @class = "form-control max20rem" })</td>
+            <th></th>
+            <td></td>
+        </tr>
+    </table>
+</div>
+<div class="tab-pane row sysRow  table-responsive-md" id="Tabs3">
+    <table class="table table-striped table-bordered sys_table">
+        <tr>
+            <th class="w12rem_lg">所属公司</th>
+            <td class="w-50">
+                @Html.DropDownList("Plat_CompID", MVCHelper.ToSelectList(compDT, "CompName", "ID", upMod.CompID.ToString()), new { @class = "form-control form-select" })
+            </td>
+            @*<th>真实姓名</th>
+            <td><input type="text" name="Plat_TrueName" class="form-control" value="@upMod.TrueName" /></td>
+        </tr>
+        <tr>*@
+            <th>职务</th>
+            <td>
+                <input type="text" name="Plat_Post" class="form-control" value="@upMod.Post" />
+            </td>
+        <tr>
+            <th>部门</th>
+            <td>                
+                <div class="input-group">
+                    <input type="hidden" name="Plat_text" class="form-control" disabled="disabled" value="@upMod.GroupName" />
+                    <span class="form-control">@MvcHtmlString.Create(getMemberIDS())</span>
+                    <input type="button" class="input-group-text" onclick="selFont('1')" value="选择部门" />
+                </div>
+            </td>
+            <th></th>
+            <td></td>
+            @*<th>管理</th>
+            <td>
+                @{ 
+                    var v = ",";
+                    foreach (DataRow dr in pgBll.Sel().Rows)
+                    {
+                        string[] idArry = dr["ManageIDS"].ToString().Trim().Split(",");
+                        for (int i = 0; i < idArry.Length; i++)
+                        {
+                            if (Model.UserID.ToString() == idArry[i])
+                            {
+                                v+= dr["GroupName"]+",";
+                            }
+                        }
+                    }
+                }
+                <div class="input-group">
+                    <input type="text" name="Plat_text" class="form-control" disabled="disabled" value="@v" />
+                    <input type="button" class="input-group-text" onclick="selFont('2')" value="管理部门" />
+                </div>
+            </td>*@
+        </tr>
+        <tr>
+            <td colspan="4" class="text-center">
+                <input type="submit" value="保存能力中心信息" class="btn btn-info" onclick='mvcpage.help.submit({ formid: "form1", "url": "@MVCHelper.GetAction("UserInfo_PlatSubmit",Context.Request)" });' />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="text-center">
+    <div class="btn-group text-center">
+        <input type="submit" value="确认修改" class="btn btn-outline-info" />
+        <a href="DelUserPost_Btn_Click?UserID=@Model.UserID" ID="DelUserPost_Btn" onclick="javascript:return confirm('确定要删除吗!!');" class="btn btn-info">删除此用户帖子</a>
+        <a href="UserManage" class="btn btn-outline-info">返回列表</a>
+    </div>
+</div>
+</div>
+@{ Html.EndForm();}
+}
+@section script{
+<script src="/js/ICMS/area.js"></script>
+<script src="/js/Controls/ZL_PCC.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script src="/js/Modal/APIResult.js"></script>
+<script src="/js/ZL_Content.js"></script>
+<script src="/js/SelectCheckBox.js"></script>
+<script src="/js/Controls/ZL_Dialog.js"></script>
+<script>
+    
+$(function () {
+    //$("#UserFace_SFile_body img").css("width","60px").css("height","60px");
+    $("#mf_body").find(".fd_td_r").attr("colspan", "3");
+    $("#txtMoney,#txtUserCrite,#txtSilverCoin,#txtPoint,#txtUserPoint,#txtPurm").attr("disabled", true);
+    //检测用户邮箱
+    $("#tbEmail").change(function () {
+        if ($("#OldEmail_Hid").val() == $(this).val()) {
+            $(".existemail").hide();
+            $("#BtnSubmit").removeAttr("disabled");
+
+        }
+        $.post("/API/UserCheck", { action: "ExistEmail", email: $(this).val() }, function (data) {
+            var model = APIResult.getModel(data);
+            if (APIResult.isok(model)) {
+                $(".existemail").hide();
+                $("#BtnSubmit").removeAttr("disabled");
+            }
+            else {
+                $(".existemail").show();
+                $("#BtnSubmit").attr("disabled", "disabled");
+            }
+        })
+    });
+    //---------------------
+    var pcc = new ZL_PCC("selprovince", "selcity", "selcoutry");
+    var defstrs = $("#Adress_Hid").val().split(',');
+    if (defstrs.length > 0 && defstrs[0] != "") { pcc.SetDef(defstrs[0], defstrs[1], defstrs[2]); }
+    pcc.ProvinceInit();
+    pcc.$province.change(area);
+    pcc.$city.change(area);
+    pcc.$county.change(area);
+});
+function SetPassWord(id) {
+    $("#" + id).val(GetRanPass(6));
+}
+function area() {
+    $("#tbProvince").val($("#selprovince").val());
+    $("#tbCity").val($("#selcity").val());
+    $("#tbCoutry").val($("#selcoutry").val());
+}
+function tab2() {
+    $("#tbTrueName").focus();
+}
+function tab1() {
+    $("#txtHoneyName").focus();
+}
+function tab3() {
+    $("#txtMoney").focus();
+}
+function changeFace(obj) {
+    $("#UserFace_Img").attr("src", obj.value);
+    $("#UserFace_Hid").val(obj.value);
+    $("#UserFace_SFile_body .sfile_img").attr("src", obj.value);
+}
+$("#FileUp_File").change(function () {
+    $("#UserFace_Hid").val("");
+});
+    function closeDiag() { CloseComDiag(); }
+    function selFont(id) {
+        var url = "Department?UserID=@Model.UserID&idt=" + id;
+        comdiag.maxbtn = false;
+        comdiag.width = "modal-sm";
+        if (id == 1) {
+            ShowComDiag(url, "选择部门");
+        }
+        if (id==2) {
+            ShowComDiag(url, "选择管理");
+        }
+    }
+</script>
+}

@@ -1,0 +1,52 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+}
+@{
+
+}
+@section head{<title>结构整理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+                new Bread("{admin}"),
+                new Bread() {url=Context.Request.RawUrl(), text=L.用户角色,addon="<a href='Structure_List'> [结构整理]</a>" }})
+    <table class="table table-bordered table-striped table-hover" id="EGV">
+        <thead>
+            <tr>
+                <th class="w1rem" scope="col"></th>
+                <th scope="col">ID</th>
+                <th scope="col">父级ID</th>
+                <th scope="col">@L.名称</th>
+                <th scope="col">@L.创建时间</th>
+                <th scope="col">@L.成员数量</th>
+                <th scope="col">@L.操作</th>
+            </tr>
+        </thead>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <tr ondblclick="location = 'StructMember?id=@dr["ID"]';">
+                <td class="node_select" scope="row" ><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                <td scope="row" >@dr["ID"]</td>
+                <td scope="row" >@dr["ParentID"]</td>
+                <td scope="row" ><a href="javascript:;" onclick="node.edit(@dr["ID"]);"> @dr["Name"]</a></td>
+                <td scope="row" >@dr["AddTime"]</td>
+                <td scope="row" >@(DataConverter.CStr(dr["UserIDS"]).Split(",".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).Length)</td>
+                <td scope="row" >
+                    <a href="javascript:node.add(@dr["ID"]);"><i class="zi zi_plus"></i></a>
+                    <a href="javascript:node.edit(@dr["ID"]);" title="修改"><i class="zi zi_pencilalt"></i></a>
+                    <a href="StructMember?id=@dr["ID"]" title="成员管理"><i class="zi zi_useralt"></i></a>
+                    <a href="javascript:;" onclick="mvcpage.del({url:'Struct_API?action=del',ids:'@dr["ID"]',confirm:'@L.确定要删除吗'})"><i class='zi zi_trashalt'></i></a>
+                </td>
+            </tr>
+        }
+        @Html.Partial("_page")
+    </table>
+    <button type="button" ID="BatDel_Btn" class="btn btn-outline-danger" onclick="mvcpage.bat({ url: 'Struct_API?action=del', confirm:'@L.确定要删除吗' });">@L.批量删除</button>
+}
+@section script{
+<script>
+var node = {};
+node.add = function (id) { ShowComDiag("StructAdd?pid="+id,"@Html.Raw(L.添加信息)"); }
+node.edit = function (id) { ShowComDiag("StructAdd?id=" + id, "@Html.Raw(L.修改信息)"); }
+</script>
+}

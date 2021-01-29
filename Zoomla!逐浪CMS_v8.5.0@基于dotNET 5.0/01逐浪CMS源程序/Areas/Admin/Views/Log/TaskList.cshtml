@@ -1,0 +1,32 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    Layout = "_safe";
+}
+@section head {<title>@L.任务队列</title>}
+@section content {
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(),L.任务列表)},"[<a href='TaskAdd'>"+L.添加任务+"</a>]")
+<div class="Creat_tips">
+    <div class="alert alert-info alert-dismissible fade show">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+        <h5>@L.提示：</h5>
+        基于Hanfire的任务执行系统，如果未执行AggregatedCounter、Counter、dob.Hash、dbo.Job、dbo.JobParameter等基础表的安装，则需要执行<a href="/help.html" target="_blank">相应T-SQL脚本</a>重建之。
+        <p>
+            <span>自动发布内容:C#方法： ZL_Task_Content.Add(模型ID,节点ID,"参照现有Gid内容,参照现有Gid内容",数量,自定义标题：后缀0为数字自增长，不为0则添加至文章标题末尾)。</span><br />
+            <span>自动取审内容:C#方法： ZL_Task_Content.Check("GID",状态码) ，指定id写法 ("GID,GID,GID,GID",0),范围id写法 (开始GID:结束GID,0)，结束GID要大于开始GID  状态:0：取消审核|-2：删除|99:审核通过，对应为审核状态码，如取审为：0。</span><br />
+            <span>自动生成主页:C#方法： ZL_Task_Content.P_content(状态码,数量)  ， 状态：Newest 是发布最新的内容，数量是要发布几篇 | IDRegion 是按照GID发布，(类型,开始GID,结束GID)，结束GID要大于开始GID   </span><br />
+            <span>自动推荐内容或停止推荐:C#方法： ZL_Task_Content.Elite("GID",状态码),指定id写法 ("GID,GID,GID,GID",0),范围id写法 (开始GID:结束GID,0)  状态：1是推荐 | 0是取消推荐</span><br />
+            <hr /><span>自动商品发布：ZL_Task_shop_add...</span><br/>
+            <span>商品自动上架或下架:C#方法： ZL_Task_Product.Sale(GID,状态码) 指定id写法 ("GID,GID,GID,GID",0),范围id写法 (开始GID:结束GID,0)， 状态：1:开始销售|0:停止销售|:2：删除</span><br />
+            <span>自动注册会员：C#方法 ZL_Task_User.Add(用户名,密码) ， 默认是普通会员</span><br />
+            <span>自动删除会员：C#方法 ZL_Task_User.Del(id,状态码)，指定id写法 ("GID,GID,GID,GID",del),范围id写法 (开始GID:结束GID,del)， 状态：del=删除</span>
+        </p>
+    </div>
+</div>
+<div class="table_box">
+@Html.Partial("Task_List")
+</div>
+}
+@section script {
+}

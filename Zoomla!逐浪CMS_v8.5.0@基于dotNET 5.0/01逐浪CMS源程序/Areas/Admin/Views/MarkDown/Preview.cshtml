@@ -1,0 +1,106 @@
+﻿@using System.Text;
+@using ZoomLa.Model.MarkDown;
+@model M_MarkDown
+@section head{<title>MarkDown文档后台预览</title> }
+@{
+    var content = System.IO.File.ReadAllText(Model.MDPath);
+}
+@section content{
+<style>
+.container-md{width:748px;margin:10px auto}
+ #sidebar{width:400px;height:100%;position:fixed;top:0;right:0;overflow:hidden;background:#fff;z-index:100;padding:18px;border:1px solid #ddd;border-top:none;border-bottom:none}
+.add_title {color: #FFFFFF;}
+.mask {position: absolute;display: none;}
+.add_title {width: 95px;height: 42px;line-height: 40px;float: left;text-align: center;border-radius: 5%;cursor: pointer;   }
+</style>
+<div class="ribbon_green">文档预览</div>
+ @if (Model.MDlocation == "Right")
+ {
+<div id="sidebar">
+    <h4 class="mt-5">目录</h4>
+    <div class="markdown-body editormd-preview-container" id="custom-toc-container">#custom-toc-container</div>
+</div>
+ } 
+@if (Model.MDlocation == "Left")
+ {
+<div id="sidebar" style="right:inherit;left:0;">
+    <h4 class="mt-5">目录</h4>
+    <div class="markdown-body editormd-preview-container" id="custom-toc-container">#custom-toc-container</div>
+</div>
+ }
+ else
+ {
+ }
+<div id="ZoomlaMD" class="ZoomlaMDcon">
+<div id="test-editormd-view">
+    <textarea style="display:none;" name="test-editormd-markdown-doc"></textarea>
+</div>
+<hr />
+@Call.Label(Context, "{ZL.Label id=\"全站底部\"/}")
+</div>
+<div class="Conent_fix">
+    <div class="btn-group" role="group" aria-label="Markdown Edit">
+        <a href="MD?id=@Model.ID" class="btn btn-secondary"><i class="zi zi_pencilalt"></i> 修改文档</a>
+        <a href="index" class="btn btn-outline-secondary"><i class="zi zi_pathLeft"></i> 返回列表</a>
+        <a href="/PreView/md?id=@Model.ID" target="_blank" class="btn btn-outline-secondary"><i class="zi zi_globe"></i> 前端浏览</a>
+        <a href="javascript:;" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="复制文档浏览网址" data-clipboard-text="@ViewBag.mdrul"><i class="zi zi_copy"></i> 复制地址</a>
+
+    </div>
+    <a href="javascript:;" onclick="mdDelete('@Model.ID')"><i class="zi zi_times"></i>删除</a>
+    <a href="javascript:;" id="toTop" onclick="Control.Scroll.ToTop();"> <i class="zi zi_upload"></i>Top</a>
+</div>
+}
+@section script{
+
+<script src="/js/Controls/Control.js"></script>
+<script src="/Plugins/Markdown/lib/marked.min.js"></script>
+<script src="/Plugins/Markdown/lib/prettify.min.js"></script>
+<script src="/Plugins/Markdown/lib/raphael.min.js"></script>
+<script src="/Plugins/Markdown/lib/underscore.min.js"></script>
+<script src="/Plugins/Markdown/lib/sequence-diagram.min.js"></script>
+<script src="/Plugins/Markdown/lib/flowchart.min.js"></script>
+<script src="/Plugins/Markdown/lib/jquery.flowchart.min.js"></script>
+<script src="/Plugins/Markdown/editormd.js"></script>
+<script src="~/js/ICMS/ZL_Common.js"></script>
+<script>
+//function delback() { window.location = '@Url.Action("Index")'; }
+$(function () {
+    $('#ZoomlaMD').addClass("@Model.MDPosition");
+    document.body.style.backgroundColor = "@Model.MDColor";
+    let md = '@Html.Raw(HttpUtility.JavaScriptStringEncode(content))';
+    console.log(md);
+    let testEditormdView = editormd.markdownToHTML("test-editormd-view", {
+        markdown: md,
+        htmlDecode: "style,script,iframe",
+        tocm: true,    // Using [TOCM]
+        emoji: true,
+        taskList: true,
+        atLink: false,
+        tex: true,  // 默认不解析
+        flowChart: true,  // 默认不解析
+        tocContainer: "#custom-toc-container", // 自定义 ToC 容器层
+        sequenceDiagram: true,  // 默认不解析
+    });
+    $("#test-editormd-view table").addClass("table table-striped table-bordered");
+});
+
+var clipboard = new ClipboardJS('.btn');
+clipboard.on('success', function(e) {
+    console.info('Action:', e.action);
+    console.info('Text:', e.text);
+    console.info('Trigger:', e.trigger);
+    alert("复制成功");
+    e.clearSelection();
+});
+clipboard.on('error', function(e) {
+    console.error('Action:', e.action);
+    console.error('Trigger:', e.trigger);
+});
+function mdDelete(id) {
+    var a = window.confirm("您确定要删除此MarkDown吗？");
+    if (!a)
+        return;
+    window.location.href = encodeURI('@Url.Action("Dels")?ids=' + id);
+}
+</script>
+}

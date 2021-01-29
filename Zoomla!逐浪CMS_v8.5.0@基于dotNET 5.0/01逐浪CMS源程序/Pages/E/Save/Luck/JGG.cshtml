@@ -1,0 +1,313 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.Model.Other
+@using ZoomLa.BLL.Other
+@using ZoomLa.BLL.API
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        /*
+        *1.奖品分离保存
+        *此为最新
+        */
+        public int HdID { get { return DataConvert.CLng(GetParam("hdid")); } }
+        public DataRow hdInfo = null;
+        public DataTable lotItems = new DataTable();
+        public DataRow lotInfo = null;
+        public DataRow pointInfo = null;
+        public int point = 0, point_mu = 0;//抽奖所需积分,用户现有积分
+        private int emptyCount = 0;
+        B_WX_LuckDrawList logBll = new B_WX_LuckDrawList();
+        public IActionResult OnGet()
+        {
+            //mu = ExHelper.SetLogin(HttpContext, mu);
+            //hdInfo = B_Ex_Hd.SelReturnModel(HdID);
+            //GetData();
+            //CommonReturn ret = B_Ex_Hd.IsAllowLottery(hdInfo);
+            //if (!ret.isok) { return WriteErr(ret.err); }
+            //if (lotInfo == null) { return WriteErr("抽奖信息不存在"); }
+            ////{ img: 'j1.png', title: '谢谢参与' }
+            //lotItems = SelLotItems();
+            //if (emptyCount == 8) { return WriteErr("未定义奖品"); }
+            //lotItems = lotItems.DefaultView.ToTable(false,"ID,Name,Image".Split(','));
+            return Page();
+        }
+
+        //{ img: 'j1.png', title: '谢谢参与' }
+        public IActionResult OnPost()
+        {
+            M_APIResult ret = new M_APIResult(M_APIResult.Failed);
+            switch (action)
+            {
+                case "draw":
+                    {
+                        GetData();
+                        if (point_mu < point) { ret.retmsg = "用户活动积分不足";return Content(ret.ToString()); }
+                        M_WX_LuckPrize prize = B_WX_LuckDraw.LuckDrawPrize(GetPrizeList());
+                        logBll.Insert(new M_WX_LuckDrawList()
+                        {
+                            LuckID = HdID,
+                            UserID = mu.UserID,
+                            UserName = mu.HoneyName,
+                            PrizeID = prize.ID,
+                            PrizeName = prize.Name
+                        });
+                        //B_Ex_Point.MinusPoint(mu.UserID, HdID,point, "互动抽奖");
+                        ret.retcode = M_APIResult.Success;
+                        ret.result = prize.Index.ToString();
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return Content(ret.ToString());
+        }
+        //运算必须的数据
+        private void GetData()
+        {
+            //lotInfo = B_Ex_HdYX.SelModelByPubId(HdID, "抽奖");
+            //pointInfo = B_Ex_Point.SelReturnModel(HdID, mu.UserID);
+            //if (lotInfo != null && pointInfo != null)
+            //{
+            //    point = DataConvert.CLng(lotInfo["CJPoint"]);
+            //    point_mu = DataConvert.CLng(pointInfo["Score"]);
+            //}
+        }
+        private DataTable SelLotItems()
+        {
+            //这里需扩建奖品表,将其分离出来
+            //DataTable lotItems = B_HdYX_LotItem.SelPage(1, 8, new Com_Filter()
+            //{
+            //    pid = HdID
+            //}).dt;
+            DataTable lotItems = new DataTable();
+            //谢谢参与个数,已用使用中奖概念
+            int maxCount = 8;
+            emptyCount = maxCount - lotItems.Rows.Count;
+            int percentHas = DataConvert.CLng(lotItems.Compute("SUM(percent)", ""));
+            int index = 0;
+            while (lotItems.Rows.Count < maxCount)
+            {
+                DataRow dr = lotItems.NewRow();
+                dr["ID"] = 0 - index - 1;//使用负数作为ID标识(0开始)
+                dr["Image"] = "/Plugins/Luck/Images/JGG/j1.png";
+                dr["Name"] = "谢谢参与";
+                //[谢谢参与],平分剩下的比率
+                int percent=DataConvert.CLng((10000 - percentHas) / emptyCount);
+                if (percent < 0) { percent = 0; }
+                dr["Percent"] = percent;
+                dr["Num"] = -100;
+                lotItems.Rows.Add(dr);
+                index++;
+            }
+            return lotItems;
+        }
+        private List<M_WX_LuckPrize> GetPrizeList()
+        {
+            lotItems = SelLotItems();
+            //------------------格式转换
+            List<M_WX_LuckPrize> prizeList = new List<M_WX_LuckPrize>();
+            double percent = 0;
+            int index = 1;
+            foreach (DataRow dr in lotItems.Rows)
+            {
+                var prize = new M_WX_LuckPrize()
+                {
+                    ID = DataConvert.CLng(dr["ID"]),
+                    Index = index,
+                    Image = DataConvert.CStr(dr["Image"]),
+                    Name = DataConvert.CStr(dr["Name"]),
+                    Count_Total = DataConvert.CLng(dr["Num"]),
+                    Percent = (DataConvert.CDouble(dr["Percent"]) / 100)//填值是1-10000,所以需要处理
+                };
+                percent += prize.Percent;
+                //总计累加应该为100
+                prizeList.Add(prize);
+                index++;
+            }
+            //return WriteErr(percent.ToString());
+            foreach (var prize in prizeList)
+            {
+                string where = "LuckID=" + HdID + " AND PrizeID=" + prize.ID;
+                prize.C_Count_Now = DataConvert.CLng(DBCenter.Count("ZL_WX_LuckDrawList", where));
+            }
+
+            return prizeList;
+        }
+        
+    }
+}
+@{
+    Layout = "~/Areas/User/Views/Shared/_empty.cshtml";
+
+    int isStart = 1;
+    string isStartTip = "";
+    if (Model.point_mu < Model.point) { isStart = -1;isStartTip = "积分不足"; }
+}
+@section head{<title>九宫格抽奖</title> }
+@section content{
+<div id="app">
+    <div style="display:flex;padding:5px 8px;">
+        <div><img src="@Model.mu.UserFace" onerror="shownoface(this);" style="width:70px;height:70px;"/></div>
+        <div style="margin-left:5px;color:#fff;">
+            <div>@Model.mu.HoneyName</div>
+            <div><i class="zi zi_diamond"></i> <span>{{point_mu}}</span> (每次抽奖消耗{{point}}积分)</div>
+        </div>
+    </div>
+    <div class="lottery-box">
+        <div class="lottery">
+            <div class="lottery-item">
+                <div class="lottery-start">
+                    <div class="box" @@click="startLottery" v-if="isStart===1">
+                        <p><b>抽奖</b></p>
+                        <p>消耗{{point}}积分</p>
+                    </div>
+                    <div class="box gray" v-if="isStart===-1">
+                        <p>@(isStartTip)</p>
+                    </div>
+                </div>
+                <ul>
+                    <li v-for="(item,i) in list" :class="i==index?'on':''">
+                        <div class="box">
+                            <p><img :src="item.Image" alt=""></p>
+                            <p>{{item.Name}}</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mask" v-if="showToast"></div>
+        <div class="lottery-alert" v-if="showToast">
+            <h1>抽奖结果</h1>
+            <p><img :src="list[index].Image" alt=""></p>
+            <h2>{{list[index].Name}}</h2>
+            <div class="btnsave" @@click="showToast=false">确定</div>
+        </div>
+    </div>
+</div>
+<div class="text-center mt-2">
+    <a href="javascript:;" onclick="showHis('all')" class="btn btn-info">抽奖记录</a>
+    <a href="javascript:;" onclick="showHis('prize')" class="btn btn-info">中奖历史</a>
+    @*<a href="" class="btn btn-info">活动说明</a>*@
+</div>
+}
+@section script{
+<style type="text/css">
+*{margin:0;padding:0;box-sizing:border-box}
+p{margin-bottom:0px;}
+body{background:radial-gradient(49% 160%,#22b5ff 0,#3a72fa 100%);font-size:14px}
+img{border:0}
+ul,li{list-style-type:none}
+.lottery-box{overflow:hidden}
+.lottery-box .title{text-align:center;padding:50px 0;font-size:18px;color:#fff}
+.lottery{animation:changeBg .5s ease infinite;overflow:hidden;padding:20px;width:95%;max-width:400px; margin:0 auto;background-repeat:no-repeat;background-size:100% 100%}
+@@keyframes changeBg{0%{background-image:url(/plugins/luck/Images/jgg/k1.png)}
+100%{background-image:url(/plugins/luck/Images/jgg/k2.png)}}.lottery .lottery-item{height:340px;position:relative;margin-top:10px;margin-left:10px}
+.lottery .lottery-item ul li{width:33.33333333%;position:absolute;padding-right:10px}
+.lottery .lottery-item ul li:nth-child(2){left:33.33333333%}
+.lottery .lottery-item ul li:nth-child(3){left:66.66666666%}
+.lottery .lottery-item ul li:nth-child(4){left:66.66666666%;top:110px}
+.lottery .lottery-item ul li:nth-child(5){left:66.66666666%;top:220px}
+.lottery .lottery-item ul li:nth-child(6){left:33.33333333%;top:220px}
+.lottery .lottery-item ul li:nth-child(7){left:0;top:220px}
+.lottery .lottery-item ul li:nth-child(8){left:0;top:110px}
+.lottery .lottery-item ul li .box{height:100px;position:relative;text-align:center;overflow:hidden;background:url(/plugins/luck/Images/jgg/bg2.png) no-repeat center;background-size:100% 100%}
+.lottery .lottery-item ul li .box img{display:block;height:50px;margin:0 auto;margin-top:10px;margin-bottom:5px}
+.lottery .lottery-item ul li .box p{color:#708abf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.lottery .lottery-item ul li.on .box{background:url(/plugins/luck/images/jgg/bg1.png) no-repeat center;background-size:100% 100%}
+.lottery .lottery-item ul li.on .box p{color:#fff}
+.lottery .lottery-item .lottery-start{position:absolute;left:33.33333333%;width:33.33333333%;top:110px;padding-right:10px}
+.lottery .lottery-item .lottery-start .box{height:100px;font-size:14px;color:#fff;cursor:pointer;text-align:center;overflow:hidden;background:url(/plugins/luck/Images/jgg/bg1.png) no-repeat center;background-size:100% 100%}
+.lottery .lottery-item .lottery-start .box p b{font-size:40px;margin-top:16px;margin-bottom:15px;line-height:30px;display:block}
+.lottery .lottery-item .lottery-start .box:active{opacity:.7}
+.lottery .lottery-item .lottery-start .box.gray{background:url(/plugins/luck/Images/jgg/bg3.png) no-repeat center;background-size:100% 100%}
+.lottery .lottery-item .lottery-start .box.gray p{color:#708abf;font-weight:700}
+.mask{width:100%;height:100%;background:rgba(0,0,0,.7);position:fixed;overflow:hidden;z-index:222;top:0;left:0}
+.lottery-alert{max-width:400px;text-align:center;z-index:10000;border-radius:10px;background:#fff;padding:20px;position:fixed;left:0;right:0;margin:auto;top:50%;transform:translateY(-50%)}
+.lottery-alert h1{font-size:18px;font-weight:700;color:#d92b2f}
+.lottery-alert img{display:block;height:120px;margin:0 auto}
+.lottery-alert h2{font-weight:400;color:#d92b2f;font-size:15px;padding-top:15px}
+.lottery-alert p{color:#666;font-size:16px;padding-top:5px}
+.lottery-alert .btnsave{border-radius:3px;box-shadow:none;height:40px;cursor:pointer;line-height:40px;color:#fff;margin-top:12px;background:linear-gradient(180deg,rgba(213,60,63,1) 0%,rgba(201,20,24,1) 100%);font-size:16px}
+</style>
+<script src="~/res/vue/vue.min.js"></script>
+<script src="~/js/Controls/ZL_Dialog.js"></script>
+<script src="~/js/Modal/APIResult.js"></script>
+<script src="~/res/js/weui.js"></script>
+<link href="~/res/css/weui.min.css" rel="stylesheet" />
+<script>
+    var app=new Vue({
+        el: "#app",
+        data: {
+            isStart:@(isStart), list: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.lotItems)),
+            index: -1, count: 8, timer: 0, speed: 200, times: 0, cycle: 50, prize: -1, click: true, showToast: false, prizeIndex: -1,
+            point_mu:@(Model.point_mu),point:@(Model.point)
+        },
+        mounted() { },
+        methods: {
+            startLottery() {
+                var ref = this;
+                if (!this.click) { return }
+                if (ref.point_mu < ref.point) { alert("积分不足"); return; }
+                ref.point_mu -= ref.point;
+                var loading = weui.loading("");
+               $.post("?action=draw&hdid=@Model.HdID", {}, function (data) {
+                    loading.hide();
+                    var ret = APIResult.getModel(data);
+                    if (APIResult.isok(ret)) {
+                        ref.prizeIndex = JSON.parse(ret.result);
+                        ref.startRoll();
+                    }
+                    else { alert(ret.retmsg); }
+
+                })
+
+            }
+            , startRoll() {
+                var ref = app;
+                this.times += 1
+                this.oneRoll()
+                if (this.times > this.cycle + 10 && this.prize === this.index) {
+                    clearTimeout(this.timer)
+                    this.prize = -1
+                    this.times = 0
+                    this.speed = 200
+                    this.click = true; var that = this; setTimeout(res => { that.showToast = true; }, 500)
+                } else {
+                    //跑过累计的 cycle数再开始定位prize
+                    if (this.times < this.cycle) { this.speed -= 10 }
+                    else if (this.times === this.cycle) {
+                        //const index = parseInt(Math.random() * 10, 0) || 0; this.prize = index;
+                        //if (this.prize > 7) { this.prize = 7 }
+                        const index = ref.prizeIndex
+                        this.prize = ref.prizeIndex;
+                        window.console.log(this.prize,index,ref.prizeIndex);
+                    }
+                    else if (this.times > this.cycle + 10 && ((this.prize === 0 && this.index === 7) || this.prize === this.index + 1)) { this.speed += 110 }
+                    else { this.speed += 20 }
+                    if (this.speed < 40) { this.speed = 40 }
+                    this.timer = setTimeout(this.startRoll, this.speed)
+                }
+            }
+            //执行一次绕圈
+            , oneRoll() {
+                let index = this.index
+                const count = this.count
+                index += 1
+                if (index > count - 1) { index = 0 }
+                this.index = index
+            }
+            ,
+        }
+    })
+</script>
+<script>
+    function showHis(type) {
+        // all|prize
+        ShowComDiag("LuckHis?HdId=@(Model.HdID)&type=" + type, "抽奖日志");
+    }
+</script>
+}

@@ -1,0 +1,79 @@
+﻿@using ZoomLaCMS.Areas.Admin.Controllers.Extend
+@model PageDBConfigModel
+@{ 
+    var pageUrl = (string)ViewData["PageUrl"];
+    var urlList = string.Join("|", ((List<string>)ViewData["UrlList"]).Where(s => !s.Equals(pageUrl, StringComparison.OrdinalIgnoreCase)));
+}
+@section head{<title>页面数据配置</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Url.Action("Index"), "数据配置"),
+new Bread(Context.Request.RawUrl(), string.IsNullOrWhiteSpace(pageUrl) ? "添加配置" : "修改配置")})
+<form method="post" action="PageConfigSave" id="form_page_config">
+<div class="table-responsive-md">
+<table class="table table-bordered table-striped sys_table">
+    <tr>
+        <th class="w12rem_lg">页面Url</th>
+        <td><input class="form-control" type="text" asp-for="@Model.Url" /></td>
+    </tr>    
+    <tr>
+        <th>脚本配置</th>
+        <td>
+            <ul class="list-unstyled" style="margin:0;" id="page_scripts">
+                @for (int i = 0; i < Model.Scripts.Count; i++)
+                {
+                    <li>
+                        <div class="input-group my-1" data-index="@(i + 1)">
+                            <button class="input-group-text" type="button" onclick="$('#page_scripts div[data-index=@(i + 1)]').remove()"><i class="zi zi_trashalt"></i></button>
+                            <span class="input-group-text">脚本@((i + 1).ToString("D2"))：</span>
+                            <input type="text" class="form-control" asp-for="@Model.Scripts[i]" />
+                            <input type="hidden" asp-for="@Model.Status[i]" />
+                        </div>
+                    </li>
+                }
+                <li id="add_config">
+                    <div class="input-group my-1">
+                        <button class="input-group-text" type="button" onclick="addPageScript()"><i class="zi zi_plus"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </td>
+    </tr>
+</table>
+<div class="text-center">
+    <button type="submit" onclick="return validPageConfig();" class="btn btn-outline-info">保存配置</button>
+    <a href="PageConfig" class="btn btn-outline-info">@L.返回列表</a>
+</div>
+</div>
+</form>
+}
+@section script{ 
+<script>
+function validPageConfig() {
+    var urls = '@Html.Raw(urlList)';
+    if (urls) {
+        var urlArr = '@Html.Raw(urlList)'.split("|");
+        if (urlArr.indexOf($("#Url").val()) !== -1) {
+            alert("页面" + $("#Url").val() + "已经配置了脚本")
+            return false;
+        }
+    }
+    console.log($("#form_page_config")[0].data);
+    return true;
+}
+function addPageScript() {
+    var index = Number($('#page_scripts div[data-index]').last().attr("data-index") ?? 0) + 1;
+    console.log(index);
+    var div = '<li>' +
+                  '<div class="input-group my-1" data-index="' + index + '">' +
+                      '<button class="input-group-text" type="button" onclick="$(\'#page_scripts div[data-index=' + index + ']\').remove()"><i class="zi zi_trashalt"></i></button>' +
+                      '<span class="input-group-text">脚本' + (index < 10 ? ('0' + index) : index) + '：</span>' +
+                      '<input type="text" class="form-control" name="Scripts[' + (index - 1) + ']">' +
+                      '<input type="hidden" data-val="true" name="Status[' + (index - 1) + ']" value="False" required />' +
+                  '</div>' +
+              '</li>';
+    $(div).insertBefore("#add_config");
+}
+</script>
+}

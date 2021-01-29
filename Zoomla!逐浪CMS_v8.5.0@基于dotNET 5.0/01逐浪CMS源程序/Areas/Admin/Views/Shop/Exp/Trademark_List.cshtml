@@ -1,0 +1,47 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+
+}
+@{
+    string apiUrl = "Trademark_API?action=";
+}
+<table class="table table-bordered table-striped table-hover" id="EGV">
+    <thead>
+        <tr>
+            <th scope="col" class="w1rem"></th>
+            <th scope="col" class="td_xs">ID</th>
+            <th scope="col">@L.品牌名称</th>
+            <th scope="col">@L.图标</th>
+            <th scope="col">@L.商标@L.级别 </th>
+            <th scope="col">@L.简介</th>
+            <th scope="col">@L.是否推荐</th>
+            <th scope="col">@L.录入时间</th>
+            <th scope="col">@L.操作</th>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+    {
+        <tr ondblclick="location='TrademarkAdd?id=@dr["id"]';">
+            <td scope="row" class="node_select"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+            <td>@dr["ID"]</td>
+            <td data-bs-toggle="tooltip" data-original-title="双击编辑">@dr["Trname"]</td>
+            <td><img src="@dr["TrPhoto"]" class="text_100" onerror="this.onerror=null;this.src='/UploadFiles/nopic.svg'" /></td>
+            <td>@dr["TrClass"]</td>
+            <td>@Html.Raw(@dr["TrContent"])</td>
+            <td>@dr["Isbest"]</td>
+            <td>@dr["Addtime"]</td>
+            <td>
+                <a href="TrademarkAdd?id=@dr["id"]"><i class="zi zi_pencilalt" title="修改"></i></a>
+                <a href="javascript:;" onclick="mvcpage.del({ url: '@("Trademark_API?action=del")', ids: '@dr["ID"]', confirm: '@L.你确定将该数据删除吗', after: function () { location = location; } });"><i class="zi zi_trashalt" title="删除"></i>@L.删除</a>
+            </td>
+        </tr>
+    }
+    @Html.Partial("_page")
+
+</table>
+<script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>

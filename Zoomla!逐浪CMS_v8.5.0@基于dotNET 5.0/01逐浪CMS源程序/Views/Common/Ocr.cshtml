@@ -1,0 +1,137 @@
+﻿@{
+
+}
+@section head{
+    <title>Ocr识别</title>
+<style>
+.drag_file_input{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;outline:2px dashed #92b0b3;outline-offset:-10px;padding:40px 20px;background-color:#c8dadf}
+.drag_file_input input[type=file]{width:0.1px;height:0.1px;opacity:0;overflow:hidden;z-index:-1}
+</style>
+}
+@section content{
+    <div class="py-1">2、上传图片</div>
+    <div class="drag_file_input">
+        <div><i class="zi zi_upload zi_2x"></i></div>
+        <input type="file" name="formFile" id="formFile" accept=".png,.jpg,.jpeg,.bmp" />
+        <label class="custom-file-label" for="formFile" style="cursor:pointer">拖拽或选择本地png、jpg、jpeg、bmp 文件</label>
+    </div>
+    <div class="my-4">
+        <button class="btn btn-outline-info btn-sm float-end" onclick="clearContent()">清除</button>
+        <div class="py-1">
+            <span>3、OCR识别结果</span>
+            <span class="ps-2 text-info small flex-grow-1" id="ocr_info"></span>
+        </div>
+        <textarea id="ocr_out" class="form-control my-2" rows="16"> </textarea>
+
+        <div id="ocr_img_title" class="my-2 d-none">原图片</div>
+        <img id="ocr_img" style="max-width:100%" />
+    </div>
+    <div class="text-center">
+        <input type="button" class="btn btn-outline-info" onclick="GetOcr()" value="确定" />
+    </div>
+}
+@section script{
+<script src="/js/ICMS/ZL_Common.js?v=20191029"></script>
+<script>
+$(function () {
+    checkLogin();
+})
+$(".drag_file_input").on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+})
+.on('dragover dragenter', function(e) {
+})
+.on('dragleave dragend drop', function(e) {
+})
+.on('drop', function (e) {
+    var files = e.originalEvent.dataTransfer.files;
+    $(this).find('input[type="file"]').prop('files', files);
+    uploadImg();
+});
+var langs = "0";
+$("#ocr_lang input[type=checkbox]").change(function () {
+    var ls = [];
+    $("#ocr_lang input[type=checkbox]:checked").each(function () {
+        ls.push($(this).val());
+    });
+    langs = ls.join(",");
+    if (!langs)
+        langs = "1";
+});
+$('#formFile').change(function () {
+    uploadImg();
+});
+function uploadImg() {    
+    var isLogin = checkLogin();
+    if (!isLogin) {
+        $('#formFile').val('');
+        return;
+    }
+    clearContent();
+    if ($('#formFile')[0].files[0]) {
+        $('#formFile').attr("disabled", true);
+        $("#ocr_info").text("正在上传文件识别中...");
+        let data = new FormData();
+        data.append("formFile", $('#formFile')[0].files[0]);
+        $.ajax({
+            method: "Post",
+            data: data,
+            processData: false,
+            contentType: false,
+            url: encodeURI('/font/ocrapi?lang=' + langs),
+            success: function (result) {
+                if (result.success) {
+                    $("#ocr_img_title").removeClass("d-none");
+                    $("#ocr_img").attr("src", result.path);
+                    $("#ocr_out").val(result.content);
+                    $("#ocr_info").text("识别已完成");
+                }
+                else {
+                    alert(result.error);
+                }
+                setTimeout(() => {
+                    $("#ocr_info").text("");
+                    $('#formFile').val('');
+                    $('#formFile').attr("disabled", false);
+                }, 3000);
+            },
+            error: function () {
+                $(element).attr("disabled", false);
+                alert("出现错误！可能是网络或api存在问题");
+            }
+        });
+    }
+}
+function clearContent() {
+    $("#ocr_img_title").addClass("d-none");
+    $("#ocr_img").attr("src", "");
+    $("#ocr_out").val("");
+}
+function isSearch(){
+    $(".font_search").css("opacity","1").css("z-index","1").css("right","30%").css("top","0.5rem");
+    $(".font_search .form-control").focus();
+}
+function isClose(){
+    $(".font_search").css("opacity","0").css("z-index","-1");
+    }
+    function GetOcr() {
+        var idArry = window.location.href.trim().split("#")
+        var text = $("#ocr_out").val();
+        var src = $("#ocr_img").attr("src");
+        var json = {};
+        json.value = text;
+        json.src = src;
+        parent.$("#" + idArry[1]).val(text);
+        //var str = parent.$("#" + idArry[1]).val();
+        //if (str != "") {
+        //    str = str.replace(/\[|]/g, '');
+        //    parent.$("#" + idArry[1]).val("[" + str +","+ JSON.stringify(json) + "]");
+        //}
+        //else {
+        //    parent.$("#" + idArry[1]).val("[" + str + JSON.stringify(json) + "]");
+        //}
+        parent.diag.CloseModal();
+}
+</script>
+}

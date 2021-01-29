@@ -1,0 +1,216 @@
+﻿@using ZoomLa.Model.Exam
+@model ZoomLa.Model.Exam.M_Content_Publish
+@functions{
+
+
+
+    //protected void ImgPath_Btn_Click(object sender, EventArgs e)
+    //{
+    //    if (string.IsNullOrEmpty(imgpath_fp.FileName) || imgpath_fp.FileContent.Length < 100) { function.Script(this, "alert('未选择图片文件');"); }
+    //    else
+    //    {
+    //        //SafeSC.SaveFile(vpath, imgpath_fp);
+    //        if (!imgpath_fp.SaveAs(vpath + Path.GetFileName(imgpath_fp.FileName))) { function.WriteErrMsg(imgpath_fp.ErrorMsg); }
+    //        ImgPath_Hid.Value = vpath + imgpath_fp.FileName;
+    //        function.Script(this, "SetImg('" + ImgPath_Hid.Value + "');");
+    //    }
+    //}
+
+}
+@{ 
+    M_Content_Publish pubMod = ViewBag.pubMod;
+}
+@section head{ <title>版面管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("NewsDiv?Pid="+Model.Pid,"版面列表"),
+        new Bread() {url="", text="版面管理",addon="" }})
+	<div class=" container-fluid">
+	<form method="post" asp-area="Admin" asp-controller="Exam" asp-action="PublishAdd_Submit" class="row">
+        <input type="hidden" class="form-control" value="@Model.Pid" id="Pid_T" name="Pid_T"/>
+        @*<input type="hidden" class="form-control" value="@Model.NewsName" id="NewsName_T" name="NewsName_T"/>*@
+        <input type="hidden" class="form-control" value="@Model.ID" id="ID_T" name="ID_T"/>
+
+        <iframe class="col-12 col-md-4" id="child_ifr" src="PublishDesign?id=@Model.ID"  scrolling="no" ></iframe>
+        <input type="hidden" class="form-control" ID="Json_Hid" name="Json_Hid" value="@Model.Json"/>
+    
+	    <div class="table-responsive col-12 col-md-8">
+            <table class="table table-bordered ">
+                <!-- 版面 -->
+                <tr>
+                    <td>版面名：</td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control" ID="NewsTitle_T" name="NewsTitle_T" value="@Model.Title" />
+                            <span class="text-danger">*</span>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 附件上传 -->
+                <tr>
+                    <td>上传图片：</td>
+                    <td>
+                        @Html.Partial("C_SFileUP",new C_SFileUP() {ID="ImgPath",SaveType="admin",Value=Model.ImgPath, UP_After="SetImg" })
+                        <input type="hidden" class="form-control" ID="ImgPath_Hid" name="ImgPath_Hid" value="@Model.ImgPath"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>高清附件：<br />
+                        <span>(支持PDF,JPG,ZIP,RAR等格式)</span>
+                    </td>
+                    <td>
+                        @Html.Partial("C_SFileUP",new C_SFileUP() {ID="AttachFile",SaveType="admin",Value=Model.AttachFile, UP_After="SetAttach" })
+                        <input type="hidden" class="form-control" ID="AttachFilePath_Hid" name="AttachFilePath_Hid" value="@Model.AttachFile"/>
+                    </td>
+                </tr>
+
+                <!-- 板块操作 -->
+                <tr>
+                    <td>操作：</td>
+                    <td>
+                        <input type="button" class="btn btn-outline-info" value="增加一个版块" onclick="CreateDiv();" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>当前版块：</td>
+                    <td>
+                        <label id="curdiv_l"></label>
+                        <input type="button" value="移除" class="btn btn-outline-info" onclick="RemoveDiv();" />
+                    </td>
+                </tr>
+                
+                <!-- 关联文章 -->
+                <tr>
+                    <td>关联文章：</td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" id="gid_t" placeholder="文章内容ID" class="form-control" />
+                            <input type="button" value="选择" onclick="ShowDiv('node_div');" class="btn btn-outline-info" />
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 注释 -->
+                <tr>
+                    <td>注释：</td>
+                    <td>
+                        <textarea class="form-control" placeholder="请输入注释" rows="4" id="remind_t" ></textarea>
+                    </td>
+                </tr>
+
+                <!-- 时间选择 -->
+                <tr>
+                    <td>时间：</td>
+                    <td>
+                        <input type="text" class="form-control" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' });" value="@Model.CDate" id="CDate" name="CDate"/>
+                    </td>
+                </tr>
+
+                <!-- 保存信息 -->
+                <tr>
+                    <td>操作：</td>
+                    <td>
+                        <button type="submit" class="btn btn-info">保存信息</button>
+                        @*<input type="submit" class="btn btn-info" ID="SaveAll_Btn" onclick="return SaveAll();" value="保存信息"/>*@
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </form>
+    
+    <!-- 文章选择弹窗 -->
+    <div class="modal" id="node_div" style="position: fixed; top: 10%;">
+        <div class="modal-dialog" style="width:820px;">
+            <div class="modal-content" style="width:820px;">
+                <div class="modal-header">
+                    
+                    <span class="modal-title">节点内容选择</span><span id="source_span"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="CloseDiv('node_div');"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="forward_my_div" style="margin-top: 5px;">
+                        <iframe src="" id="node_ifr" style="width: 800px; height: 500px; border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div runat="server" id="Content_Div" style="display:none;"></div>
+    <script type="text/javascript">
+        //function SetContent() {
+        //    $obj = $("#Content_Div");
+        //    if ($("#add_ifr")[0].contentWindow && $("#add_ifr")[0].contentWindow.SetContent && $("#add_ifr")[0].contentWindow.SetContent($obj)) {
+        //    }
+        //    else { setTimeout(function () { SetContent(); }, 1000); }
+        //}
+        function DisAdd() {
+            $("#add_btn").trigger("click");
+        }
+        function DealResult(r) {
+            $("#gid_t").val(r);
+            CloseDiv("node_div");
+        }
+    </script>
+	</div>
+}
+@section script{ 
+    <script type="text/javascript" src="/JS/DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript" src="/JS/JQueryAjax.js"></script>
+    <script type="text/javascript">
+        function ShowDiv(id) {
+            //$("#node_ifr").attr("src", "/Common/ContentList?SiteUrl=" + "http://" + window.location.host);
+            $("#node_ifr").attr("src", "/Admin/Content/ContentManage?NodeID=1" + "&SiteUrl=https://" + window.location.host);
+            $("#" + id).show();
+        }
+        function CloseDiv(id) {
+            $("#" + id).hide();
+            $("#node_ifr").attr("src", "");
+        }
+        //function InitChild(id)
+        //{
+        //    PostToCS("GetModel", id, function (data) {
+        //        var json = data.split("$$$")[0];
+        //        var img = data.split("$$$")[1];
+        //        var id = data.split("$$$")[2];
+        //        var title = data.split("$$$")[3];
+        //        CallBackFunc(img,id,title,json);
+        //    });
+        //}
+        function CallBackFunc(img, id, title, json, cdate) {
+            $("#ImgPath_Hid").val(img);
+            $("#CurEditID_Hid").val(id);
+            $("#NewsTitle_T").val(title);
+            $("#child_ifr")[0].contentWindow.AnalyJson(json, img);
+            $("#Time_t").val(cdate);
+        }
+        function SetTime(img, id, title, json, cdate) {
+            setTimeout(function () { CallBackFunc(img, id, title, json, cdate) }, 1000);
+
+        }
+        function SetImg() {
+            $("#ImgPath_Hid").val($("#ImgPath_t")[0].value);
+            var imgPath = document.getElementById("ImgPath_t").value;
+            setTimeout(function () { $("#child_ifr").contents().find("#newimg").attr("src", imgPath); }, 500);
+        }
+        function SetAttach() {
+            $("#AttachFilePath_Hid").val($("#AttachFile_t")[0].value);
+        }
+        function CreateDiv() {
+            $("#child_ifr")[0].contentWindow.CreateDiv();
+        }
+        function RemoveDiv() {
+            $("#child_ifr")[0].contentWindow.RemoveDiv();
+        }
+        function SaveAll() {
+            var val = $("#NewsTitle_T").val().trim();
+            if (!val || val == "")
+            { alert("版面名不能为空"); return false; }
+            $("#child_ifr")[0].contentWindow.SaveAll();
+        }
+
+    </script>
+    @if (Model.ID > 0) {<script>SetTime('@Model.ImgPath','@Model.ID','@Html.Raw(Model.Title)','@Html.Raw(Model.Json)','@Model.CDate')</script> }
+}

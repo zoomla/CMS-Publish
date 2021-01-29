@@ -1,0 +1,216 @@
+﻿@using Newtonsoft.Json
+@using ZoomLa.Common
+@using System.Data
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    B_Group gpBll = new B_Group();
+    DataTable gpDT = gpBll.Sel();
+    string apiUrl = "User_API?action=";
+    int groupId = DataConverter.CLng(Context.Request.GetParam("GroupID"));
+}
+@section head{<title>会员管理</title> }
+@section content{
+    <nav class="fixed-top">
+        <ul class="breadcrumb" style="padding:.75rem 1rem;">
+            <li class="breadcrumb-item"><a href='@Call.PathAdmin("I/Main")'>@L.工作台</a></li>
+            <li class="breadcrumb-item"><a href='UserManage'>@L.会员管理</a><a href='javascript:;' class='reds' onclick="ShowComDiag('UserAdd','添加会员');"> [@L.添加会员]</a></li>
+            <div id="help" class="float-end text-center"><a href="javascript:;" id="sel_btn" class="help_btn"><i class="zi zi_search" zico="搜索"></i></a></div>
+        </ul>
+    </nav>
+    <div class="list_choice"></div>
+    <div id="sel_box" class="sel_box">
+        <div class="input-group">
+            <input type="text" class="form-control max20rem mvcparam" ID="UserID_T" placeholder="@L.用户ID" />
+            <input type="text" class="form-control max20rem mvcparam" ID="UName_T" placeholder="@L.用户名,@L.昵称" />
+            <a href="javascript:;" onclick="mvcpage.load();" class="btn btn-outline-secondary"><i class="zi zi_search" zico="搜索"></i></a>
+        </div>
+    </div>
+    <input type="hidden" id="GroupID" value="0" class="mvcparam" />
+    @Html.CMS_EGV_OrderBy()
+    <div class="container-fluid">
+        <div class="row">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" onclick="setGroupId(0);"><a class="nav-link active" href="javascript:;" data-bs-toggle="tab">全部会员 </a></li>
+                @foreach (DataRow dr in gpDT.Rows)
+                {
+                    <li class="nav-item" onclick="setGroupId(@dr["GroupID"]);"><a class="nav-link" href="javascript:;" data-bs-toggle="tab">@dr["GroupName"] </a></li>
+                }
+            </ul>
+            <script>
+                function setGroupId(id) { $("#GroupID").val(id); mvcpage.load(); }
+            </script>
+            <div class="tab-content col-12 table-responsive-md table_box">
+                <table id="EGV_wrap" class="table table-hover table-sm table-striped table-bordered">
+                    <tr>
+                        <th class="excel_no"></th>
+                        <th><span class="zlsort" data-field="a.userid">ID</span></th>
+                        <th>@L.用户名</th>
+                        <th>@L.昵称</th>
+                        <th>@L.会员组</th>
+                        <th><span class="zlsort" data-field="Purse">@L.资金</span></th>
+                        <th><span class="zlsort" data-field="regtime">@L.注册时间</span></th>
+                        <th><span class="zlsort" data-field="UserExp">@L.积分</span></th>
+                        <th>@L.登录次数</th>
+                        <th><span class="zlsort" data-field="LastLoginTime">@L.最后登录时间</span></th>
+                        <th>@L.状态</th>
+                        <th>@L.聚合认证</th>
+                        <th class="excel_no">@L.操作</th>
+                    </tr>
+                    @Html.Partial("UserManage_List")
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="btn-group">
+                    <input type="button" ID="btnLock" value="@L.批量锁定" class="btn btn-outline-secondary" onclick="mvcpage.bat({url:'@(apiUrl+"lock")'});" />
+                    <input type="button" ID="btnNormal" value="@L.批量解锁" class="btn btn-outline-secondary" onclick="mvcpage.bat({url:'@(apiUrl+"unlock")'});" />
+                    <input type="button" ID="Approve" value="@L.认证用户" class="btn btn-outline-secondary" onclick="mvcpage.bat({url:'@(apiUrl+"approve")'});" />
+                    <input type="button" ID="ApproveFailure" value="@L.取消认证" class="btn btn-outline-secondary" onclick="mvcpage.bat({url:'@(apiUrl+"unapprove")'});" />
+                    <input type="button" class="btn btn-outline-secondary" onclick="ShowComDiag('@(Call.PathAdmin("Com/Import?mode=ZL_User"))','@L.Excel导入');" value="@L.Excel导入" />
+                    <input type="button" ID="btnDel" value="@L.批量删除" class="btn btn-outline-secondary" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@L.确定要删除吗'});" />
+                    <input type="hidden" id="excel" value="@JsonConvert.SerializeObject(Model.dt)" />
+                    <input type="button" class="btn btn-outline-secondary" onclick="Output('Excel','会员管理')" value="@L.Excel导出" />
+                    <input type="button" class="btn btn-outline-secondary" onclick="Output('Word','会员管理')" value="Word导出" />
+                    <input type="button" class="btn btn-outline-secondary" onclick="Output('Md','会员管理')" value="Md导出" />
+                    @*<input type="button" value="导出" class="input-group-text" data-bs-toggle="modal" data-target="#exampleModal" />*@
+                </div>
+            </div>
+            @*<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">请输入要保存的路径</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body input-group">
+                            <span class="input-group-text" onclick="file()">编辑路径</span>
+                            <input type="text" id="txturl" class="input-group-text" value="D:\\wei\text文档\test" />
+                            <input type="file" name="" id="files" accept="" onchange="forfiles()" hidden/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" onclick="ToExcel('Excel')"  data-bs-dismiss="modal">保存为Excel</button>
+                            <button type="button" class="btn btn-primary" onclick="ToWord('Word')"  data-bs-dismiss="modal">保存为Word</button>
+                            <button type="button" class="btn btn-primary" onclick="ToMd('Md')"  data-bs-dismiss="modal">保存为Md</button>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+            <div class="col-4">
+                <div class=" input-group">
+                    <select class="form-control form-select" id="group_dp">
+                        @foreach (DataRow dr in gpDT.Rows)
+                        {
+                            if (dr["GroupID"].ToString().Equals("0")) { continue; }
+                            <option value="@dr["GroupID"]">@dr["GroupName"]</option>
+                        }
+                    </select>
+                    <button type="button" class="input-group-text" onclick="moveGroup();">@L.移动会员组</button>
+                    <script>
+                function moveGroup() {
+                    var $option = $("#group_dp option:checked");
+                    mvcpage.bat({ url: '@(apiUrl+"move")', confirm: "确定要移动会员到[" + $option.text() + "]", data: { gid: $option.val() } });
+                }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" ID="GroupData_Hid" value="@Newtonsoft.Json.JsonConvert.SerializeObject(gpDT)" />
+}
+@section script{
+    <script src="/js/SelectCheckBox.js"></script>
+    <script src="/js/DatePicker/WdatePicker.js"></script>
+    <script src="/js/Label/ZLHelper.js"></script>
+    <script>
+    $(function () {
+        $("#GroupID").val("@groupId");
+    })
+    function inputuserinfo() {
+        ShowComDiag("InputUser", "@Html.Raw(L.导入会员)");
+    }
+    function CloseDiaog() {
+        diag.CloseModal();
+        CloseComDiag();
+    }
+    function ShowOrderIcon(id) {
+        $("#" + id).find(".order_img").show();
+    }
+    function displayToolbar() {
+        var dr = document.getElementById("search");
+        if (dr.style.display == "none") {
+            dr.style.display = "block";
+            $("#Search_Hid").val("1");
+        }
+        else {
+            $("#Search_Hid").val("0");
+            dr.style.display = "none";
+        }
+    }
+    function mybind() { mvcpage.load(); CloseComDiag(); }
+    $().ready(function () {
+        var searchFlag = $("#Search_Hid").val();
+        if (searchFlag && searchFlag == "1") {
+            displayToolbar();
+        }
+        $("#sel_btn").click(function (e) {
+            if ($("#sel_box").css("display") == "none") {
+                $(this).addClass("active");
+                $("#sel_box").slideDown(300);
+            }
+            else {
+                $(this).removeClass("active");
+                $("#sel_box").slideUp(200);
+            }
+        });
+
+    });
+    function ShowPopover(obj) {
+        $(".popbox").hide();
+        $(obj).find(".popover").show();
+    }
+    $(".hidePopover").click(function () {
+        $(this).parent(".popbox").hide();
+        $(".popbox").hide();
+    })
+
+        
+        //文件导出
+        function Output(type, Title) {
+            var str = $("#excel").val();
+            var json = TableToJson("EGV_wrap");
+            var $form = $('<form method="post" action="Output?type=' + type + '&Title='+Title+'"></form>');
+            $form.append('<input type="hidden" name="table_head_hid" value=' + JSON.stringify(json.head) + '>');
+            $form.append('<input type="hidden" name="table_data_hid" value=' + JSON.stringify(json.data) + '>');
+            $("body").append($form);//兼容IE
+            $form.submit();
+            $form.remove();
+        }
+
+        function TableToJson(id) {
+            var tb_head = [];
+            var tb_data = [];
+            var isFirst = true;
+            var $table = $("#" + id);//EGV
+            $table.find("tr:not(:last)").each(function () {
+                if (isFirst) {
+                    $(this).find("td:not(.excel_no),th:not(.excel_no)").each(function () {
+                        tb_head.push($(this).text());
+                    });
+                    isFirst = false;
+                    return;
+                }
+                //------------------
+                var tb_row = {};
+                var $tds = $(this).find("td:not(.excel_no)");
+                for (var i = 0; i < $tds.length; i++) {
+                    tb_row["c" + i] = $($tds[i]).text().replace(/(\n| )/ig, "");
+                }
+                tb_data.push(tb_row);
+            });
+            return { "head": tb_head, "data": tb_data }
+        }
+    </script>
+
+}

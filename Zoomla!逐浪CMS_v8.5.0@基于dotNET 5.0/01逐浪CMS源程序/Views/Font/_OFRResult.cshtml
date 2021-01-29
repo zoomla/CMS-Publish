@@ -1,0 +1,16 @@
+﻿@using ZoomLa.Components.OFR
+@model List<FontMatchingInfo>
+
+<style>
+.display_panel{position:relative;padding:25px;background-color:#eee;margin:10px 0}
+</style>
+@foreach (var item in Model)
+{
+    <div class="display_panel">
+        <div>
+            <span>字体：@item.FontFamily</span>
+            <span>相似度：@($"{item.Similar:P2}")</span>
+        </div>
+        <div><img src="@item.Image" /></div>
+    </div>
+}

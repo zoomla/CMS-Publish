@@ -1,0 +1,242 @@
+﻿@using ZoomLa.Components.OCR
+@using ZoomLa.Components.OCR.Extensions
+@{
+    Layout = "_cms2020Layout";
+}
+@section head{
+<title>OFR字体识别- @Call.SiteName</title>    
+}
+@section content{
+<div class="font_ofr_bg">
+<nav class="navbar navbar-expand-lg navbar-light font_nav">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/Font"><i class="zi zi_tmZiti163"></i>逐浪字库大师</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/">从此开始</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/webfont">Webfont</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/pay">会员升级</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ofr")">查字体</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ocr")">智能识图</a></li>
+                <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/help">使用手册</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">造字秘集</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="http://www.ziti163.com/uni" target="_blank">Unicode字码表</a></li>
+                        <li><a class="dropdown-item" href="http://p.ziti163.com" target="_blank">智图</a></li>
+                        <li><a class="dropdown-item" href="http://a.ziti163.com" target="_blank">方言</a></li>
+                        <li><a class="dropdown-item" href="http://ico.z01.com" target="_blank">zico图标</a></li>
+                        <li><a class="dropdown-item" href="https://v.ziti163.com/Class_2/Default" target="_blank">字赏</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="http://f.ziti163.com" target="_blank">逐浪字库</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="d-flex">
+                <a href="javascript:;" onClick="isSearch();"><i class="zi zi_search"></i></a>
+                <a href="/user/"><i class="zi zi_user"></i></a>
+            </form>
+            <ul class="font_search">
+                <form action="https://www.ziti163.com/Search/SearchList">
+                    <i class="zi zi_searchBlack"></i>
+                    <input type="text" class="form-control" placeholder="从ziti163.com字体网检索" name="keyword" />
+                    <a onClick="isClose();" href="javascript:;"><i class="zi zi_windowclose"></i></a>
+                </form>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-xl font_ofr_banner">
+    <h1><span>传图找字</span> 上传带字图片 极速检索字库</h1>
+    <input type="file" name="formFile" id="formFile" accept=".png,.jpg,.jpeg,.bmp" hidden />
+    <label class="btsn" for="formFile"><i class="zi zi_upload"></i> 从本地上传带字图片 <small>推荐128*128px规格单字背景白或透明的图片</small></label>
+    
+</div>
+
+<main class="container-xl font_ofr_main">
+<span>可拖动选区：</span>
+<div class="row">
+    <div class="col-md-9">
+    <div class="font_ofr_box"><img id="upload_image"></div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="font_ofr_square">
+            <div class="img-preview"></div>
+        </div>
+        @*<input type="file" name="formFile" id="formFile" accept=".png,.jpg,.jpeg,.bmp" />
+            <label class="d-block btn btn-outline-info my-1" for="formFile" style="cursor:pointer"><i class="zi zi_upload"></i> 从本地上传一张带字的图片</label>
+        <small>推荐128*128px单字背景白或透明的图片</small>*@
+        <div class="mt-2">
+            <div class="input-group">
+                <span class="input-group-text">输入字符增强精度:</span>
+                <input type="text" class="form-control" id="word" maxlength="1">
+            </div>
+            <button class=" btn btn-outline-info mt-2" id="ofr_submit" onclick="findFont()" disabled><i class="zi zi_search"></i> 开始识别字体</button>
+        </div>
+    </div>
+</div>
+<div class="mt-2" id="ofr_result">
+</div>
+</main>
+
+<footer class="font_end">
+<div class="container-xl">
+Powered by &copy; @(DateTime.Now.ToString("yyyy")) @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.SiteName) BY @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.Webmaster)
+</div>
+</footer>
+</div>
+
+<div class="home17_kefu">
+<ul>
+<li>
+<a href="javascript:;"><i class="zi zi_tmQq"></i></a>
+<div class="home17_kefu_c" style="bottom:13rem;">
+<div class="home17_kefu_ct">在线客服<i class="zi zi_times"></i></div>
+<div class="home17_kefu_cq">
+<ul>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=184886758&site=qq&menu=yes"><i class="zi zi_tmQq"></i>京沪苏粤售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=1799661890&site=qq&menu=yes"><i class="zi zi_tmQq"></i>软件授权售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=524979923&site=qq&menu=yes"><i class="zi zi_tmQq"></i>高端订制售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=745151353&site=qq&menu=yes"><i class="zi zi_tmQq"></i>教育系统集成</a></li>
+</ul>
+</div>
+<div class="home17_kefu_cb">
+<a href="tel:13918895839">
+<h3><i class="zi zi_phone"></i>服务热线</h3>
+<p>13918895839</p>
+</a>
+</div>
+</div>
+</li>
+<li>
+<a href="javascript:;"><i class="zi zi_tmWeixin"></i></a>
+<div class="home17_kefu_c" style="bottom:10.4rem;">
+<div class="home17_kefu_ct">扫码官方微信↓<i class="zi zi_times"></i></div>
+<div><img src="https://f.ziti163.com/Template/Ziku/style/images/qrcode.jpg" alt="微信二维码" style="max-width:100%;" /></div>
+</div>
+</li>
+<li><a href="javascript:;" title="快速获取逐浪CMS官方资源"><i class="zi zi_tmGit"></i></a>
+<div class="home17_kefu_c" style="bottom:8rem;">
+<div class="home17_kefu_ct">获取逐浪源码<i class="zi zi_times"></i></div>
+<div class="home17_kefu_cq">
+<ul>
+<li><a href="https://github.com/zoomla/ZoomlaFont" target="_blank"><i class="zi zi_tmGithub"></i>GitHub主页</a></li>
+<li><a href="https://gitee.com/zoomla/ZoomlaFont" target="_blank"><i class="zi zi_tmGoogleplusg"></i>Gitee码云主页</a></li>
+</ul>
+</div>
+</div>
+</li>
+<li><a href="javascript:;"><i class="zi zi_forUp"></i></a></li>
+</ul>
+</div>
+}
+
+@section script{ 
+<script src="/js/ICMS/ZL_Common.js?v=20191029"></script>
+<script src="/Plugins/cropper/cropper.js"></script>
+<script>
+$(document).ready(function () {
+    var URL = window.URL || window.webkitURL;
+    var $image = $('#upload_image');
+    var $file = $("#formFile");
+    var options = {
+        viewMode: 2,
+        aspectRatio: 1,
+        preview: '.img-preview',
+        zoomable: false,
+        responsive: true,
+        restore: true,
+        minCropBoxWidth: 20,
+        minCanvasHeight: 20,
+        crop: function (e) {
+        }
+    }
+
+    var originalImageURL = $image.attr('src');
+    var uploadedImageType = 'image/jpeg';
+    var uploadedImageURL;
+
+    if (typeof document.createElement('cropper').style.transition === 'undefined') {
+        $('button[data-method="rotate"]').prop('disabled', true);
+        $('button[data-method="scale"]').prop('disabled', true);
+    }
+
+    if (URL) {
+        $file.change(function () {
+            if (this.files && this.files.length) {
+                let file = this.files[0];
+                if (/^image\/\w+$/.test(file.type)) {
+                    uploadedImageType = file.type;
+
+                    if (uploadedImageURL) {
+                        URL.revokeObjectURL(uploadedImageURL);
+                    }
+
+                    uploadedImageURL = URL.createObjectURL(file);
+                    $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+                    $file.val('');
+                    $("#ofr_submit").attr("disabled", false);
+                } else {
+                    window.alert('Please choose an image file.');
+                }
+            }
+        });
+    }
+    else {
+        $file.prop('disabled', true).parent().addClass('disabled');
+    }
+});
+function findFont() {
+    let word = $("#word").val().trim();
+    if (!word) {
+        alert("请输入需要查找的字");
+        return;
+    }
+
+    var isLogin = checkLogin();
+    if (!isLogin) {
+        return;
+    }
+
+    let canvas = $('#upload_image').cropper("getCroppedCanvas");
+    let base64 = canvas.toDataURL("image/png");
+
+    $("#ofr_submit").attr("disabled", true);
+    $("#ofr_result").html('<div class="py-1"><span>2、识别结果：</span><span id="ofr_info" class="ps-2 text-info small">正在获取结果中，请耐心等待...</span></div>');
+    $.ajax({
+        method: "Post",
+        data: "base64=" + base64 + "&word=" + encodeURIComponent(word),
+        url: encodeURI('@Url.Action("OFR_Submit")'),
+        success: function (html) {
+            $("#ofr_result").append(html);            
+            $("#ofr_info").text("识别已完成");
+            setTimeout(() => {
+                $("#ofr_info").text("");
+                $("#ofr_submit").attr("disabled", false);
+            }, 3000);
+        },
+        error: function () {
+            alert("检索错误，请检查上传图片操作是否正确。");
+            $("#ofr_submit").attr("disabled", false);
+        }
+    });
+}
+function clearContent() {
+    $("#ocr_img_title").addClass("d-none");
+    $("#ocr_img").attr("src", "");
+    $("#ocr_out").val("");
+}
+function isSearch(){
+    $(".font_search").css("opacity","1").css("z-index","1").css("right","30%").css("top","0.5rem");
+    $(".font_search .form-control").focus();
+}
+function isClose(){
+    $(".font_search").css("opacity","0").css("z-index","-1");
+}
+</script>
+}

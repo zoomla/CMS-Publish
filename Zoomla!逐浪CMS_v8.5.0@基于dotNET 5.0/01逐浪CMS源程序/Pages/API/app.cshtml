@@ -1,0 +1,1904 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using System.Collections.Generic;
+@using System.Data;
+@using System.Data.SqlClient;
+@using ZoomLa.BLL;
+@using ZoomLa.BLL.API;
+@using ZoomLa.BLL.Content;
+@using ZoomLa.BLL.CreateJS;
+@using ZoomLa.BLL.Helper;
+@using ZoomLa.BLL.Other;
+@using ZoomLa.BLL.Shop;
+@using ZoomLa.BLL.User;
+@using ZoomLa.Common;
+@using ZoomLa.Components;
+@using ZoomLa.Extend;
+@using ZoomLa.Extend.WXAPP;
+@using ZoomLa.Model;
+@using ZoomLa.Model.Content;
+@using ZoomLa.Model.Shop;
+@using ZoomLa.Model.User
+@using ZoomLa.Safe;
+@using ZoomLa.SQLDAL;
+@using ZoomLa.SQLDAL.SQL;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@using ZoomLa.AppCode.Verify;
+@using System.Text.RegularExpressions;
+@using System.IO;
+@using ZoomLaCMS.AppCode.Verify;
+@using System.Data.Common;
+@using System.Security.Cryptography;
+@using System.Text;
+
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        B_Payment payBll = new B_Payment();
+        B_Favorite favBll = new B_Favorite();
+        B_Node nodeBll = new B_Node();
+        B_Cart cartBll = new B_Cart();
+        B_CartPro cpBll = new B_CartPro();
+        B_OrderList orderBll = new B_OrderList();
+        B_Product proBll = new B_Product();
+        B_Content conBll = new B_Content();
+        B_Cash cashBll = new B_Cash();
+        B_User_Bank bankBll = new B_User_Bank();
+        B_CodeModel ubBll = new B_CodeModel("ZL_UserBase");
+        B_LiteUser liteBll = new B_LiteUser();
+        B_Pub pubBll = new B_Pub();
+        //------------------------
+        public string platName = "ZoomlaCMS";
+        public string siteUrl = SiteConfig.SiteInfo.SiteUrl + "/";
+        public int PubID { get { return DataConvert.CLng(Req("pubid")); } }
+        M_LiteUser litemu = new M_LiteUser();
+        M_APIResult retMod = new M_APIResult(M_APIResult.Failed);
+        public M_UserInfo _mu = null;
+        public new M_UserInfo mu
+        {
+            get
+            {
+                if (litemu == null || litemu.userId < 1) { return new M_UserInfo(); }
+                else if (_mu == null || _mu.UserID == 0) { _mu = buser.SelReturnModel(litemu.userId); }
+                return _mu;
+            }
+        }
+        private WXAPPAPI _api = null;
+        private WXAPPAPI api { get { if (_api == null) { _api = WXAPPAPI.Code_Get(AppId); } return _api; } }
+        //------------------------------------------------------------
+        #region 访问授权
+        public string APIId { get { return GetParam("APIId"); } }
+        public string APIKey { get { return GetParam("APIKey"); } }
+        //第三方绑定的openid或CMS生成的用户openid
+        public string OpenId { get { return GetParam("openid"); } }
+        //微信小程序或公众号CMS中ID
+        public int AppId { get { return DataConvert.CLng(Req("appId"), 1); } }
+        #endregion
+        //------------------------------------------------------------
+        public IActionResult OnGet()
+        {
+            return ActionDeal();
+        }
+        public IActionResult OnPost()
+        {
+            return ActionDeal();
+        }
+
+        //============================================================================================================
+        private IActionResult ActionDeal()
+        {
+            try
+            {
+                if (SiteConfig.SiteInfo.APIClose) { throw new Exception("close"); }
+                if (string.IsNullOrEmpty(APIKey) || string.IsNullOrEmpty(APIId)) { throw new Exception("10001"); }
+                if (!SiteConfig.SiteInfo.API_Key.Equals(APIKey) || !SiteConfig.SiteInfo.API_ID.Equals(APIId)) { throw new Exception("10002"); }
+                //---------------------------------------
+                litemu = liteBll.SelModelByOpenId(OpenId);
+                M_Pub pubMod = pubBll.SelReturnModel(PubID);
+                switch (action)
+                {
+                    #region 项目
+                    case "packet_index"://将首页信息打包
+                        {
+                            Packet_Index model = new Packet_Index();
+                            DataTable swiperDT = WXAppData.Content_Get(new Com_Filter() { skey_match = "首页_滑动门" }, "ZL_C_APIXX");
+                            if (swiperDT.Rows.Count > 0)
+                            {
+                                model.swiper = DataConvert.CStr(swiperDT.Rows[0]["images"]);
+                            }
+                            //首页资讯列表 list与prolist代表不同的方法字段 storeId代表FirstNodeID字段
+                            model.list = WXAppData.Content_Get(new Com_Filter() { modelIds = "2", storeId = 1, mode = "haspic", isAudited = true });
+                            model.prolist = WXAppData.Content_Get(new Com_Filter() { modelIds = "2", storeId = 2, mode = "haspic", isAudited = true });
+
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(model);
+                        }
+                        break;
+                    case "ps_index"://将首页信息打包
+                        {
+                            PS_Index model = new PS_Index();
+                            //获取父节点下的子节点
+                            int pid = DataConvert.CLng(GetParam("pid"), -100);
+                            model.nodelist = GetNodeList(pid);
+                            model.nodelist.Columns.Add("commonlist", Type.GetType("System.String"));
+                            int nindex = 0;
+                            foreach (DataRow ndr in model.nodelist.Rows)
+                            {
+                                if (nindex > 5)
+                                {  //仅调用前6个
+                                    model.nodelist.Rows[nindex].Delete();
+                                    nindex++;
+                                    continue;
+                                }
+                                //获取子节点下的文章列表
+                                PageSetting setting = GetCommonList(DataConvert.CLng(ndr["NodeID"]), 0, 5);//5为只筛选前五条
+                                ndr["commonlist"] = JsonConvert.SerializeObject(setting.dt);
+                                nindex++;
+                            }
+                            model.nodelist.AcceptChanges();
+
+                            //获取滑动门 3号节点下的文章列表
+                            int snid = DataConvert.CLng(GetParam("snid"));
+                            PageSetting swipersetting = GetCommonList(snid);
+                            model.homeswiper = swipersetting.dt;
+
+                            //工具节点下的文章
+                            int tnid = DataConvert.CLng(GetParam("tnid"));
+                            PageSetting toolsetting = GetCommonList(tnid);
+                            model.toollist = toolsetting.dt;
+
+                            //获取一个指定父节点下的子节点
+                            int ppid = DataConvert.CLng(GetParam("ppid"));
+                            model.parentlist = GetNodeList(ppid);
+
+                            //获取一个指定父节点下的子节点
+                            int ppid2 = DataConvert.CLng(GetParam("ppid2"));
+                            model.parentlist2 = GetNodeList(ppid2);
+
+                            //获取指定节点Pics
+                            int newnid = DataConvert.CLng(GetParam("newnid"));
+                            PageSetting newnsetting = GetCommonList(newnid);
+                            model.newsNode = newnsetting.dt;
+
+                            //获取指定模型Pics
+                            int newmid = DataConvert.CLng(GetParam("newmid"));
+                            PageSetting newmsetting = GetCommonList(0, 0, 20, 0, newmid);
+                            model.newsMode = newmsetting.dt;
+
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(model);
+                        }
+                        break;
+                    case "swiper_list"://获取首页滑动幻灯片(disuse) 本案未使用
+                        {
+                            int nid = DataConvert.CLng(Req("nid"));
+                            int cpage = DataConvert.CLng(Req("cpage"), 1);
+                            int psize = DataConvert.CLng(Req("psize"), 10);
+                            PageSetting setting = new PageSetting() { cpage = cpage, psize = psize };
+                            setting.t1 = "ZL_CommonModel";
+                            setting.t2 = "ZL_C_Article";
+                            setting.fields = "A.Title,A.GeneralID,B.pic,A.CreateTime,A.Inputer,B.Synopsis";
+                            setting.where = "A.EliteLevel=1 AND A.Status=99 AND NodeID IN (1)";//42
+                            setting.order = "CreateTime DESC";
+                            setting.on = "A.ItemID=B.ID";
+
+                            DBCenter.SelPage(setting);
+                            for (int i = 0; i < setting.dt.Rows.Count; i++)
+                            {
+                                DataRow dr = setting.dt.Rows[i];
+                                dr["pic"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["pic"]));
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            //retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    case "shop_packet_index"://商城首页
+                        {
+                            Packet_Index model = new Packet_Index();
+                            //修改为读取images字段
+                            DataTable swiperDT = WXAppData.Content_Get(new Com_Filter() { skey_match = "商城_首页_滑动门" }, "ZL_C_APIXX");
+                            if (swiperDT.Rows.Count > 0)
+                            {
+                                model.swiper = DataConvert.CStr(swiperDT.Rows[0]["images"]);
+                            }
+                            model.prolist = WXAppData.Product_Sel(1, 6, new Com_Filter() { });
+
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(model);
+                        }
+                        break;
+                    case "content_packet":
+                        {
+
+                        }
+                        break;
+                    case "ex_day_get":
+                        {
+                            DataTable dt = new DataTable();
+                            string[] titles = new string[] { DateTime.Now.ToString("yyyyMMdd"), DateTime.Now.ToString("MMdd"), "默认" };
+                            foreach (string title in titles)
+                            {
+                                int gid = DataConvert.CLng(DBCenter.ExecuteScala("ZL_CommonModel", "GeneralID", "NodeID=63 AND Title='" + title + "'"));
+                                if (gid > 0)
+                                {
+                                    dt = WXAppData.Content_Get(gid);
+                                    break;
+                                }
+                            }
+                            dt.Columns.Add("year", typeof(string));
+                            dt.Columns.Add("monthday", typeof(string));
+                            dt.Columns.Add("week", typeof(string));
+                            dt.Rows[0]["year"] = DateTime.Now.ToString("yyyy");
+                            dt.Rows[0]["monthday"] = DateTime.Now.ToString("MM|dd");
+                            dt.Rows[0]["week"] = GetWeekStr(DateTime.Now);
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    #endregion
+                    #region 节点
+                    case "node_list"://分类节点信息(首页只显示第二级节点)
+                        {
+                            string ntype = Req("ntype");
+                            int pid = DataConvert.CLng(GetParam("pid"), -100);
+                            string where = "1=1 ";
+                            if (pid != -100) { where += " AND ParentID=" + pid; }
+                            if (!string.IsNullOrEmpty(ids)) { SafeSC.CheckIDSEx(ids); where += " AND NodeID IN (" + ids + ")"; }
+                            DataTable dt = DBCenter.Sel("ZL_Node", where, "OrderID ASC,NodeID ASC");
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "node_get":
+                        {
+                            M_Node nodeMod = nodeBll.SelReturnModel(Mid);
+                            retMod.result = JsonConvert.SerializeObject(nodeMod);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "model_list":
+                        {
+                            PageSetting setting = PageSetting.Single(CPage, PSize, "ZL_Model", "ModelID", "ModelType=" + (int)M_ModelInfo.ModelTypeEnum.内容模型);
+                            DBCenter.SelPage(setting);
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "model_get":
+                        {
+                            M_ModelInfo model = new B_Model().SelReturnModel(Mid);
+                            retMod.result = JsonConvert.SerializeObject(model);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    #endregion
+                    #region 内容
+                    case "content_list":
+                        {
+                            checkSign(Req("sign"));
+                            //支持pic:单图,pics:多图(三图预览)
+                            //专用修改,只允许上传一个节点ID,节点取第一个绑定的模型
+                            int elite = DataConvert.CLng(Req("elite"));//是否只抽推荐内容
+                            int modelId = DataConvert.CLng(GetParam("modelId"));
+                            int pnid = DataConvert.CLng(GetParam("pnid"));//取哪个父节点下内容,与nid互斥
+                            int nid = DataConvert.CLng(GetParam("nid"));//要取哪个节点的数据
+                            string nids = GetParam("nids");
+                            if (pnid > 0)
+                            {
+                                DataTable nodeDT = nodeBll.SelByPid(pnid, true);
+                                nids = StrHelper.GetIDSFromDT(nodeDT, "NodeID");
+                            }
+                            //----------------------
+                            if (modelId < 1)
+                            {
+                                object modelIds = null;
+                                if (nid > 0)
+                                {
+                                    modelIds = DBCenter.ExecuteScala("ZL_Node", "ContentModel", "NodeID=" + nid);
+                                }
+                                else if (pnid > 0)
+                                {
+                                    modelIds = DBCenter.ExecuteScala("ZL_Node", "ContentModel", "NodeID=" + pnid);
+                                }
+                                else if (!string.IsNullOrEmpty(nids))
+                                {
+                                    int nodeId = DataConvert.CLng(nids.Split(',')[0]);
+                                    modelIds = DBCenter.ExecuteScala("ZL_Node", "ContentModel", "NodeID=" + nodeId);
+                                }
+                                modelId = DataConvert.CLng(DataConvert.CStr(modelIds).Split(',')[0]);
+                            }
+                            PageSetting setting = new PageSetting() { cpage = CPage, psize = PSize };
+                            setting.pk = "GeneralID";
+                            setting.t1 = "ZL_CommonModel";
+                            setting.on = "A.ItemID=B.ID";
+                            setting.fields = "A.GeneralID,A.Title,A.CreateTime,A.Inputer,A.TopImg";
+                            setting.fields += ",B.*";//以B.pic为准
+                            setting.where = "A.Status=99 ";
+                            if (nid > 0) { setting.where += " AND A.NodeID=" + nid; }
+                            if (modelId > 0) { setting.where += " AND A.ModelID=" + modelId; }
+                            if (elite > 0) { setting.where += " AND A.EliteLevel=1 "; }
+                            if (!string.IsNullOrEmpty(nids))
+                            {
+                                SafeSC.CheckIDSEx(nids);
+                                setting.where += " AND NodeID IN (" + nids + ")";
+                            }
+                            if (!string.IsNullOrEmpty(ids))
+                            {
+                                SafeSC.CheckDataEx(ids);
+                                setting.where += " AND A.GeneralID IN (" + ids + ")";
+                            }
+                            setting.order = "A.OrderID DESC,A.GeneralID DESC";
+                            setting.t2 = DataConvert.CStr(DBCenter.ExecuteScala("ZL_Model", "TableName", "ModelID=" + modelId));
+
+                            DBCenter.SelPage(setting);
+                            //------------修改缩略图路径(统一使用Pic字段)
+
+                            for (int i = 0; i < setting.dt.Rows.Count; i++)
+                            {
+                                DataRow dr = setting.dt.Rows[i];
+                                dr["TopImg"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["TopImg"]));
+                                if (setting.dt.Columns.Contains("pic")) { dr["pic"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["pic"])); }
+                            }
+
+                            setting.dt.Columns.Remove("ID");
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    case "content_add"://添加一篇内容
+                        {
+                            //正文与附属内容
+                            string content = Req("content");
+                            string addon = Req("addon");
+                            if (string.IsNullOrEmpty(content)) { throw new Exception("未指定内容"); }
+                            if (string.IsNullOrEmpty(addon)) { throw new Exception("未指定附表内容"); }
+
+                            M_CommonData conMod = JsonConvert.DeserializeObject<M_CommonData>(content);
+                            string tbname = DataConvert.CStr(DBCenter.ExecuteScala("ZL_Model", "TableName", "ModelID=" + conMod.ModelID));
+                            conMod.Status = (int)ZLEnum.ConStatus.Recycle;
+                            conMod.CreateTime = DateTime.Now;
+                            conMod.UpDateTime = DateTime.Now;
+                            conMod.TableName = tbname;
+                            DataTable dt = JsonConvert.DeserializeObject<DataTable>("[" + addon + "]");
+                            DataRow dr = dt.Rows[0];
+                            //--------------------------
+                            conMod.ItemID = DBCenter.Insert(tbname, BLLCommon.GetFields(dr), BLLCommon.GetParas(dr), BLLCommon.GetParameters(dr));
+                            conMod.GeneralID = DBCenter.Insert(conMod);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = conMod.GeneralID.ToString();
+                        }
+                        break;
+                    case "content_get"://单条内容获取,用于显示内容详情
+                        {
+                            DataTable dt = WXAppData.Content_Get(Mid);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                            conBll.UpHits(Mid);
+                        }
+                        break;
+                    case "comment_list":
+                        {
+                            B_Comment cmtBll = new B_Comment();
+                            PageSetting setting = cmtBll.SelPage(CPage, PSize, new Com_Filter()
+                            {
+                                gids = Mid.ToString(),
+                                status = "99"
+                            });
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    case "comment_add":
+                        {
+                            B_Comment cmtBll = new B_Comment();
+                            //M_Comment model = JsonConvert.DeserializeObject<M_Comment>(GetParam("model"));
+                            M_Comment model = new M_Comment();
+                            model.GeneralID = DataConvert.CLng(GetParam("gid"));
+                            //model.Title = GetParam("title");
+                            model.Contents = GetParam("content");
+                            model.UserID = litemu.userId;
+                            model.Title = litemu.honeyName;
+                            model.Audited = true;
+                            model.Pid = 0;
+                            model.Status = 99;
+                            int id = cmtBll.Insert(model);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = id.ToString();
+                        }
+                        break;
+                    #endregion
+                    #region 商品
+                    case "index_tops"://首页推荐滚动图与商品
+                        {
+                            int nid = DataConvert.CLng(Req("nid"));
+                            DataTable dt = WXAppData.Product_Sel(1, 4, new Com_Filter()
+                            {
+                                pid = nid
+                            });
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                        }
+                        break;
+                    case "product_list"://根据节点等条件获取商品列表
+                        {
+                            int nid = DataConvert.CLng(Req("nid"));
+                            int storeId = DataConvert.CLng(Req("storeId"));
+
+                            PageSetting setting = new PageSetting()
+                            {
+                                t1 = "ZL_Commodities",
+                                fields = "ID,Proname,Proinfo,LinPrice,Thumbnails"
+                            };
+                            setting.cpage = CPage;
+                            setting.psize = PSize;
+                            if (nid > 1)//获取其和其下子节点的数据
+                            {
+                                setting.where = "NodeID IN (" + WXAppData.H_GetNodeIDS(nid) + ")";
+                            }
+                            else { setting.where = " 1=1 "; }
+                            setting.where += " AND Sales=1 ";
+                            if (storeId > 0)
+                            {
+                                setting.where += " AND UserShopID=" + storeId;
+                            }
+                            setting.order = "ID DESC";
+                            DBCenter.SelPage(setting);
+                            for (int i = 0; i < setting.dt.Rows.Count; i++)
+                            {
+                                setting.dt.Rows[i]["Thumbnails"] = WXAppData.H_ImageUrl(DataConvert.CStr(setting.dt.Rows[i]["Thumbnails"]));
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    case "product_get"://商品详情信息
+                        {
+                            string fields = "A.ID,A.NodeID,A.ModelID,A.Proname,A.ProUnit,A.Procontent,A.Thumbnails,A.UserShopID";
+                            fields += ",A.Stock,A.LinPrice,A.ShiPrice,A.AddUser,A.AddTime,A.AllClickNum,A.UserID,A.Addon";
+                            fields += ",B.*";
+
+                            DataTable dt = DBCenter.JoinQuery(fields, "ZL_Commodities", "ZL_P_Shop", "A.ItemID=B.ID", "A.ID=" + Mid, "", null, "A.ID");
+                            if (dt.Rows.Count < 1) { throw new Exception("商品[" + Mid + "]不存在"); }
+                            DataRow dr = dt.Rows[0];
+                            dr["Procontent"] = DataConvert.CStr(dr["Procontent"]).Replace("/UploadFiles/", siteUrl + "/UploadFiles/");
+                            dr["Thumbnails"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["Thumbnails"]));
+                            if (DataConvert.CLng(dr["UserShopID"]) < 1)
+                            {
+                                dr["Addon"] = "自营商城";
+                            }
+                            else
+                            {
+                                dr["Addon"] = DataConvert.CStr(DBCenter.ExecuteScala("ZL_CommonModel", "Title", "GeneralID=" + dr["UserShopID"]));
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                        }
+                        break;
+                    case "store_get":
+                        {
+                            B_Store_Info stBll = new B_Store_Info();
+                            M_Store_Info storeMod = stBll.SelReturnModel(Mid);
+                            storeMod.InfoDR = null;
+                            //storeMod.Hits++;
+                            //DBCenter.UpdateSQL(storeMod.TbName, "Hits=" + storeMod.Hits, "GeneralID=" + storeMod.ID);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(storeMod);
+                        }
+                        break;
+                    #endregion
+                    #region 互动
+                    case "pub_add":
+                        {
+                            DataTable formDT = WXAppPub.GetFormDT(GetParam("model"));
+                            //允许不登录提交
+                            if (litemu == null) { litemu = new M_LiteUser(); }
+                            DataRow dr = WXAppPub.FillForAdd(HttpContext, pubMod, formDT, litemu);
+                            int id = DBCenter.Insert(pubMod.PubTableName, BLLCommon.GetFields(dr), BLLCommon.GetParas(dr), BLLCommon.GetParameters(dr));
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = id.ToString();
+                        }
+                        break;
+                    case "pub_update":
+                        {
+                            //需指定id,需PubUserID匹配
+                            DataRow dr = WXAppPub.FilleForUpdate(Mid, pubMod, WXAppPub.GetFormDT(GetParam("model")));
+                            if (litemu == null || DataConvert.CLng(dr["PubUserID"]) != litemu.userId) { throw new Exception("没有修改互动的权限"); }
+                            WXAppPub.UpdateById(Mid, dr);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "pub_get"://根据需要进行限制
+                        {
+                            DataTable dt = DBCenter.Sel(pubMod.PubTableName);
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "pub_del":
+                        {
+                            if (pubMod == null || string.IsNullOrEmpty(pubMod.PubTableName)) { throw new Exception("互动信息错误"); }
+                            DBCenter.DelByWhere(pubMod.PubTableName, "ID=" + Mid + " AND PubUserID=" + mu.UserID);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "pub_list"://用于取出指定的互动列表,或单条的数据
+                        {
+                            if (pubMod == null || string.IsNullOrEmpty(pubMod.PubTableName)) { throw new Exception("互动信息错误"); }
+                            string where = "1=1 ";
+                            where += " AND PubUserID=" + mu.UserID;
+                            if (Mid > 0)
+                            {
+                                where += " AND ID=" + Mid;
+                            }
+                            PageSetting setting = new PageSetting()
+                            {
+                                cpage = CPage,
+                                psize = PSize,
+                                t1 = pubMod.PubTableName,
+                                where = where,
+                                order = "ID DESC"
+                            };
+                            DBCenter.SelPage(setting);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    #endregion
+                    #region 会员
+                    case "user_get":
+                    case "user_getlast"://用户获取本身的最新信息
+                        {
+                            litemu = liteBll.SelReturnModel(litemu.userId);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(litemu);
+                        }
+                        break;
+                    case "user_list"://[extend]
+                        {
+                            int storeId = DataConvert.CLng(Req("storeId"));
+                            if (storeId < 1) { throw new Exception("未指定教练信息"); }
+                            DataTable dt = liteBll.Sel(new Com_Filter()
+                            {
+                                storeId = storeId
+                            });
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                        }
+                        break;
+                    case "user_info"://根据openid或者独有标识,获取会员信息
+                        {
+                            int uid = DataConvert.CLng(GetParam("uid"));
+                            M_LiteUser model = liteBll.SelReturnModel(uid);
+                            M_LiteUser pmu = new M_LiteUser()
+                            {
+                                userId = model.userId,
+                                userName = model.userName,
+                                honeyName = model.honeyName,
+                                userFace = model.userFace
+                            };
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(pmu);
+                        }
+                        break;
+                    case "user_login_openid"://用户使用微信的openid登录,仅用于教练登录
+                        {
+                            string code = DataConvert.CStr(Req("code"));
+                            string openid = GetOpenIdByCode(code, AppId);
+                            if (string.IsNullOrEmpty(openid)) { throw new Exception("用户授权失效"); }
+                            if (DBCenter.IsExist("ZL_User", "CompanyName='" + openid + "' AND GroupId>1"))
+                            {
+                                //已存在,直接返回
+                                M_LiteUser liteMod = liteBll.SelModelByOpenId(openid);
+                                retMod.retcode = M_APIResult.Success;
+                                retMod.result = JsonConvert.SerializeObject(liteMod);
+                            }
+                            else
+                            {
+                                retMod.retmsg = "微信尚未关联用户";
+                            }
+                        }
+                        break;
+                    case "user_sync"://根据openid,用户自动注册或登录
+                        {
+                            //检测该微信用户是否已存在,新增或直接返回用户信息
+                            string code = DataConvert.CStr(Req("code"));
+                            string openid = GetOpenIdByCode(code, AppId);
+                            if (string.IsNullOrEmpty(openid)) { throw new Exception("用户授权失效"); }
+                            if (DBCenter.IsExist("ZL_User", "CompanyName='" + openid + "'"))
+                            {
+                                //已存在,直接返回
+                                M_LiteUser liteMod = liteBll.SelModelByOpenId(openid);
+                                retMod.retcode = M_APIResult.Success;
+                                retMod.result = JsonConvert.SerializeObject(liteMod);
+                            }
+                            else
+                            {
+                                //不存在则新建用户再返回
+                                string uname = "wechat" + DateTime.Now.ToString("yyyyMMdd") + function.GetRandomString(6);
+                                M_UserInfo newmu = buser.NewUser(uname, function.GetRandomString(6), function.GetRandomEmail());
+                                newmu.CompanyName = openid;//用于存储openid
+                                newmu.UserFace = Req("userFace");
+                                newmu.TrueName = newmu.HoneyName = Req("honeyName");
+                                newmu.GroupID = SiteConfig.SiteOption.WX_UserGroupID;
+                                newmu.ParentUserID = Req("puid");
+                                newmu.UserID = buser.Add(newmu);
+                                M_Uinfo basemu = new M_Uinfo();
+                                basemu.UserId = newmu.UserID;
+                                buser.AddBase(basemu);
+                                //----------------------------同步创建推广用二维码
+                                //try//[notes]
+                                //{
+                                //    //不需要可禁
+                                //    //https://api.weixin.qq.com/wxa/getwxacode?access_token=
+                                //    //https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=
+                                //    WXAPPAPI.PostReturnImgBuffer("https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=" + api.AccessToken, "{\"path\":\"pages/apps/shop/index?puid=" + newmu.UserID + "\"}", "/UploadFiles/wxacode/", newmu.UserID + ".jpg");
+                                //}
+                                //catch (Exception ex) { ZLLog.L(ex.Message); }
+                                //----------------------------推广人增加积分
+                                //if (DataConvert.CLng(newmu.ParentUserID) > 0)//[remove]
+                                //{
+                                //    //推广一级得10积分，二级得8积分，三级得5积分，一起就三级
+                                //    int puid = DataConvert.CLng(newmu.ParentUserID);
+                                //    M_UserInfo pmu1 = new M_UserInfo(true), pmu2 = new M_UserInfo(true), pmu3 = new M_UserInfo(true);
+                                //    pmu1 = buser.SelReturnModel(puid);
+                                //    if (DataConvert.CLng(pmu1.ParentUserID) > 0) { pmu2 = buser.SelReturnModel(DataConvert.CLng(pmu1.ParentUserID)); }
+                                //    if (DataConvert.CLng(pmu2.ParentUserID) > 0) { pmu3 = buser.SelReturnModel(DataConvert.CLng(pmu2.ParentUserID)); }
+                                //    if (pmu1.UserID > 0) { buser.AddMoney(pmu1.UserID, 1, M_UserExpHis.SType.SIcon, "推广用户|一层|" + newmu.HoneyName); }
+                                //    //if (pmu2.UserID > 0) { buser.AddMoney(pmu2.UserID, 8, M_UserExpHis.SType.Purse, "推广用户|二层|" + newmu.HoneyName); }
+                                //    //if (pmu3.UserID > 0) { buser.AddMoney(pmu3.UserID, 5, M_UserExpHis.SType.Purse, "推广用户|三层|" + newmu.HoneyName); }
+                                //}
+                                //----------------------------
+                                litemu = liteBll.SelReturnModel(newmu.UserID);
+                                retMod.retcode = M_APIResult.Success;
+                                retMod.result = JsonConvert.SerializeObject(litemu);
+                            }
+
+                        }
+                        break;
+                    case "user_code"://根据code更新绑定openid
+                        {
+                            int uid = DataConvert.CLng(Req("uid"));
+                            string code = DataConvert.CStr(Req("code"));
+                            if (uid < 1) { throw new Exception("未指定用户"); }
+                            //-----------------
+                            try
+                            {
+                                string openid = GetOpenIdByCode(code, AppId);
+                                DBCenter.UpdateSQL("ZL_User", "CompanyName=@openid", "UserID=" + uid,
+                                                            new List<SqlParameter>() { new SqlParameter("openid", openid) });
+                                retMod.result = openid;
+                                retMod.retcode = M_APIResult.Success;
+                            }
+                            catch (Exception ex) { retMod.retmsg = "Conver err:" + ex.Message; }
+                        }
+                        break;
+                    case "user_register"://用户注册
+                        {
+                            string name = Req("name");
+                            string passwd = Req("passwd");
+                            string email = Req("email");
+                            int gid = DataConvert.CLng(Req("gid"), 1);
+                            if (string.IsNullOrEmpty(name)) { throw new Exception("用户名不能为空"); }
+                            else if (string.IsNullOrEmpty(passwd)) { throw new Exception("密码不能为空"); }
+                            else
+                            {
+                                M_UserInfo newmu = buser.NewUser(name, passwd, email);
+                                newmu.CompanyName = "";//用于存储openid
+                                newmu.UserFace = "/Images/userface/noface.png";
+                                newmu.GroupID = gid;
+                                newmu.ParentUserID = "1";//推荐人暂默认为admin
+                                newmu.UserID = buser.Add(newmu);
+                                M_Uinfo basemu = new M_Uinfo();
+                                basemu.UserId = newmu.UserID;
+                                buser.AddBase(basemu);
+                                DBCenter.UpdateSQL(basemu.TbName, "xy_km='未分配'", "userId=" + newmu.UserID);
+                                //----------------------------
+                                litemu = liteBll.SelReturnModel(newmu.UserID);
+                                retMod.retcode = M_APIResult.Success;
+                                retMod.result = JsonConvert.SerializeObject(litemu);
+                            }
+                        }
+                        break;
+                    case "user_login_passwd"://通过用户名与密码登录
+                        {
+                            string sign = Req("sign");
+                            checkSign(sign);
+                            string name = Req("name");
+                            string passwd = Req("passwd");
+                            if (string.IsNullOrEmpty(name)) { retMod.retmsg = "用户名不能为空"; }
+                            else if (string.IsNullOrEmpty(passwd)) { retMod.retmsg = "密码不能为空"; }
+                            else
+                            {
+                                litemu = liteBll.SelModelByPasswd(name, passwd);
+                                if (litemu == null) { retMod.retmsg = "用户名或密码错误"; }
+                                else
+                                {
+                                    retMod.retcode = M_APIResult.Success;
+                                    retMod.result = JsonConvert.SerializeObject(litemu);
+                                }
+                            }
+                        }
+                        break;
+                    case "user_update"://更新用户信息
+                        {
+                            M_UserInfo mu = buser.SelReturnModel(litemu.userId);
+                            M_Uinfo basemu = buser.GetUserBaseByuserid(litemu.userId);
+                            if (mu.IsNull) { throw new Exception("用户不存在"); }
+                            ////传递模型上来,进行修改,不需要修改的留为空值
+                            M_LiteUser lite = JsonConvert.DeserializeObject<M_LiteUser>(Req("mu"));
+                            //检测手机号或身份证号不可重复,允许为空
+                            if (!string.IsNullOrEmpty(lite.mobile) && !lite.mobile.Equals(basemu.Mobile))
+                            {
+                                List<SqlParameter> sp = new List<SqlParameter>()
+                        { new SqlParameter("mobile",lite.mobile)};
+                                if (DBCenter.IsExist("ZL_UserBase", "mobile=@mobile", sp))
+                                {
+                                    throw new Exception("手机号已存在,请校验号码是否正确");
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(lite.idcard) && !lite.idcard.Equals(basemu.IDCard))
+                            {
+                                List<SqlParameter> sp = new List<SqlParameter>()
+                        { new SqlParameter("idcard",lite.idcard)};
+                                if (DBCenter.IsExist("ZL_UserBase", "idcard=@idcard", sp))
+                                {
+                                    throw new Exception("证件号已存在,请校验号码是否正确");
+                                }
+                            }
+                            mu.HoneyName = lite.honeyName;
+                            mu.UserFace = lite.userFace;
+                            buser.UpdateByID(mu);
+                            basemu.Mobile = lite.mobile;
+                            basemu.CardType = lite.cardType;
+                            basemu.IDCard = lite.idcard;
+                            basemu.UserSex = lite.sex == "男" ? true : false;
+                            basemu.Address = lite.address;
+                            basemu.Bugle = lite.age;
+                            if (basemu.UserId == 0)
+                            {
+                                basemu.UserId = mu.UserID;
+                                buser.AddBase(basemu);
+                            }
+                            else { buser.UpdateBase(basemu); }
+                            //----------------
+                            lite = liteBll.SelReturnModel(mu.UserID);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(lite);
+                        }
+                        break;
+                    case "user_tempcode_get"://生成临时的一次性登录码
+                        {
+                            B_CodeModel codeBll = new B_CodeModel("ZL_User_TempCode");
+                            string result = function.GetRandomString(6, 2);
+                            //仅保留一个码
+                            DBCenter.DelByWhere(codeBll.TbName, "UserID=" + litemu.userId);
+                            DataRow dr = codeBll.SelStruct().NewRow();
+                            dr["TempCode"] = result;
+                            dr["UserID"] = litemu.userId;
+                            dr["UserName"] = litemu.userName;
+                            dr["CDate"] = DateTime.Now;
+                            dr["EDate"] = DateTime.Now.AddMinutes(10);
+                            dr["ZStatus"] = 0;
+                            dr["ZType"] = "";
+                            codeBll.Insert(dr);
+                            retMod.result = result;
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "user_star_is"://用户是否已收藏,默认只用于内容
+                        {
+                            int type = DataConvert.CLng(Req("type"), 1);
+                            if (litemu.userId < 1) { throw new Exception("未指定用户"); }
+                            if (Mid < 1) { throw new Exception("未指定内容"); }
+                            string where = "owner=" + litemu.userId + " AND InfoID=" + Mid + " AND FavoriType=" + type;
+                            bool result = DBCenter.IsExist("ZL_Favorite", where);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = result ? "1" : "0";
+                        }
+                        break;
+                    case "user_star_add"://用户收藏功能
+                        {
+                            int type = DataConvert.CLng(Req("type"), 1);
+                            if (litemu.userId < 1) { throw new Exception("未指定用户"); }
+                            if (Mid < 1) { throw new Exception("未指定内容"); }
+
+                            M_Favorite favMod = new M_Favorite();
+                            favMod.Owner = litemu.userId;
+                            favMod.InfoID = Mid;
+                            favMod.Title = Req("title");
+                            favMod.FavUrl = Req("url");
+                            favMod.FavoriType = type;
+                            favBll.AddFavorite(favMod);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "user_star_del":
+                        {
+                            int type = DataConvert.CLng(Req("type"), 1);
+                            if (litemu.userId < 1) { throw new Exception("未指定用户"); }
+                            if (Mid < 1) { throw new Exception("未指定内容"); }
+                            favBll.U_Del(litemu.userId, Mid, type);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "user_star_list":
+                        {
+                            string where = "owner=" + litemu.userId;
+                            DataTable dt = DBCenter.Sel("ZL_Favorite", where, "FavoriteID DESC");
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                        }
+                        break;
+                    case "user_point_list"://指定虚拟币日志
+                        {
+                            int stype = DataConvert.CLng(Req("stype"));
+                            B_User_ExpHis hisBll = new B_User_ExpHis();
+                            PageSetting setting = hisBll.SelPage(CPage, PSize, new Com_Filter()
+                            {
+                                type = stype.ToString(),
+                                uids = litemu.userId.ToString()
+                            });
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    case "user_cash_add"://积分提现
+                        {
+                            //1积分兑1元，提现只能是100的倍数。
+                            double min = 100;
+                            double money = DataConvert.CDouble(Req("money"));
+                            double money_fee = money * 0.0;//10%
+                            double money_wd = money - money_fee;
+                            //string passwd = ZoomLa.Common.StringHelper.MD5(Req("passwd"));
+                            if (money < 1) { throw new Exception("提现金额不正确"); }
+                            if (mu.Purse < money) { throw new Exception("用户余额不足"); }
+                            //if (!mu.UserPwd.Equals(passwd)) { throw new Exception("提现密码不正确"); }
+                            if (money < min) { throw new Exception("提现金额必须>=[" + min + "]"); }
+                            if ((money % min) != 0) { throw new Exception("提现金额必须为[" + min + "]的倍数"); }
+                            M_User_Bank bankMod = bankBll.SelReturnModel(DataConvert.CLng(Req("bankid")));
+                            if (bankMod == null) { throw new Exception("提现账户信息不存在"); }
+                            //生成提现单据,等待后台审核
+
+                            M_Cash cashMod = new M_Cash();
+                            cashMod.UserID = mu.UserID;
+                            cashMod.money = money_wd;
+                            cashMod.WithDrawFee = money_fee;
+                            cashMod.YName = mu.UserName;
+
+                            cashMod.CardType = bankMod.CardType;
+                            cashMod.Account = bankMod.CardNum;
+                            cashMod.Bank = bankMod.BankName;
+                            cashMod.PeopleName = bankMod.PeopleName;
+                            //cashMod.Remark = Request.Form["Remark_T"];
+
+                            buser.MinusVMoney(mu.UserID, money_wd, M_UserExpHis.SType.Purse, "申请提现");
+                            if (money_fee > 0)
+                            {
+                                buser.MinusVMoney(mu.UserID, money_fee, M_UserExpHis.SType.Purse, "提现手续费");
+                            }
+                            cashBll.insert(cashMod);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "user_cash_list"://提现处理列表
+                        {
+                            PageSetting setting = cashBll.SelPage(CPage, PSize, new Com_Filter() { uids = mu.UserID.ToString() });
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                            retMod.page = new M_API_Page(setting);
+                        }
+                        break;
+                    case "user_bank_add":
+                        {
+                            M_User_Bank bankMod = bankBll.SelReturnModel(Mid);
+                            if (bankMod == null) { bankMod = new M_User_Bank(); }
+                            bankMod.CardType = Req("CardType");
+                            bankMod.BankName = Req("BankName");
+                            bankMod.PeopleName = Req("PeopleName");
+                            bankMod.CardNum = Req("CardNum");
+                            bankMod.Remark = Req("Remark");
+                            bankMod.QRCode = Req("QRCode");
+                            if (string.IsNullOrEmpty(bankMod.BankName)) { throw new Exception("银行名称不能为空"); ; }
+                            if (string.IsNullOrEmpty(bankMod.PeopleName)) { throw new Exception("用户名称不能为空"); }
+                            if (string.IsNullOrEmpty(bankMod.CardNum)) { throw new Exception("银行卡号不能为空"); }
+                            if (bankMod.ID > 0)
+                            {
+                                if (bankMod.UserID != mu.UserID) { throw new Exception("你无权修改该信息"); }
+                                bankBll.UpdateByID(bankMod);
+                            }
+                            else
+                            {
+                                bankMod.UserID = mu.UserID;
+                                bankBll.Insert(bankMod);
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "user_bank_del":
+                        {
+                            bankBll.Del(Mid);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "user_bank_list":
+                        {
+                            DataTable dt = bankBll.Sel(mu.UserID);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(dt);
+                        }
+                        break;
+                    case "user_bank_get":
+                        {
+                            M_User_Bank bankMod = bankBll.SelReturnModel(Mid);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(bankMod);
+                        }
+                        break;
+                    case "user_money_recharge"://用户余额充值
+                        {
+                            M_LiteUser liteMod = liteBll.SelReturnModel(mu.UserID);
+                            double money = DataConvert.CDouble(Req("money"));
+                            if (money < 1) { throw new Exception("金额不正确"); }
+                            //生成充值支付订单,返回支付信息
+                            M_OrderList orderMod = orderBll.NewOrder(mu, M_OrderList.OrderEnum.Purse);
+                            orderMod.Balance_price = orderMod.Ordersamount = orderMod.Specifiedprice = money;
+                            orderMod.id = orderBll.insert(orderMod);
+                            M_Payment payMod = payBll.CreateByOrder(orderMod);
+                            payMod.PlatformInfo = AppId.ToString();
+                            payMod.MoneyReal = payMod.MoneyPay;
+                            payMod.Remark = "";
+                            payMod.PaymentID = payBll.Add(payMod);
+
+                            //[test]
+                            //payMod.MoneyReal = 0.01;
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = api.CreatePayment(liteMod, payMod);
+                        }
+                        break;
+                    case "user_money_exchange":
+                        {
+                            double money = DataConvert.CDouble(Req("money"));
+                            //if (PlugConfig.Info.SIcon_Rate <= 0) { throw new Exception("未开启兑换功能"); }
+                            //if (money < 1) { throw new Exception("金额不正确"); }
+                            //if ((money % PlugConfig.Info.SIcon_Rate) != 0) { throw new Exception("金额倍数不正确"); }
+                            //if (mu.SilverCoin < money) { throw new Exception("没有足够的积分用于兑换"); }
+                            //buser.MinusVMoney(mu.UserID, money, M_UserExpHis.SType.SIcon, "积分兑换");
+                            //buser.AddMoney(mu.UserID, (money / PlugConfig.Info.SIcon_Rate), M_UserExpHis.SType.Purse, "积分兑换");
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    #endregion
+                    #region 功能与接口
+                    case "upload":
+                        {
+                            var file = Request.Form.Files["file"];
+                            if (file == null || file.Length < 1) { throw new Exception("未指定需上传的文件"); }
+                            if (SafeSC.FileNameCheck(file.FileName)) { throw new Exception("不允许上传该后缀名的文件"); }
+                            string savePath = ZLHelper.GetUploadDir_System("wxapp", "images", "yyyyMMdd");
+                            string filename = DateTime.Now.ToString("HHmmss") + function.GetRandomString(6, 2) + ".png";
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = SafeC.SaveFile(savePath, filename, file.OpenReadStream(), (int)file.Length);
+                            switch (GetParam("type"))//需要返回的数据格式类型
+                            {
+                                case "weui":
+                                    {
+                                        string imgUrl = WXAppData.H_ImageUrl(retMod.result);
+                                        string result = "{\"result\":\"" + (retMod.retcode == 1 ? 1 : 0) + "\",\"message\":\"" + retMod.retmsg + "\",\"data\": {\"url\": \"" + imgUrl + "\"}}";
+                                        return Content(result);
+                                    }
+                                default:
+                                    {
+                                        return Content(retMod.ToString());
+                                    }
+                            }
+                        }
+                    case "mcode_send"://发送手机校验码
+                        {
+                            string mobile = Req("uname");
+                            string vcode = Req("vcode");
+                            string key = Req("key");
+                            M_Comp_Verify verify = new M_Comp_Verify() { sid = key, token = vcode };
+                            if (!VerifyHelper.Check(verify)) { retMod.retmsg = "验证码不正确"; }
+                            else if (string.IsNullOrEmpty(mobile)) { retMod.retmsg = "手机号码不能为空"; }
+                            else if (buser.IsExist("ume", mobile)) { retMod.retmsg = "该手机号已被注册"; }
+                            else if (!RegexHelper.IsMobilPhone(mobile)) { retMod.retmsg = "手机号码格式不正确"; }
+                            else
+                            {
+                                //[test]
+                                retMod.retcode = M_APIResult.Success;
+                                //string err = "";
+                                //if (SendCode(mobile, out err))
+                                //{
+                                //    retMod.retcode = M_APIResult.Success;
+                                //}
+                                //else { retMod.retmsg = err; }
+                            }
+                        }
+                        break;
+                    case "config_get":
+                        {
+                            //加载配置文件
+                            string result = "";
+                            string type = Req("type");
+                            //switch (type)
+                            //{
+                            //    case "money"://金钱相关全部配置
+                            //        result = JsonHelper.GetJson(
+                            //            new string[] { "SIcon_Rate" },
+                            //            new string[] { PlugConfig.Info.SIcon_Rate.ToString() });
+                            //        break;
+                            //}
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = result;
+                        }
+                        break;
+                    case "system"://加载系统信息
+                        {
+                            string result = JsonHelper.GetJson(new string[] { "tip", "tipStr" }, new string[] {
+                                SiteConfig.SiteOption.WX_APP_Tip.ToString(),
+                                SiteConfig.SiteOption.WX_APP_TipStr });
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = result;
+                        }
+                        break;
+                    #endregion
+                    #region 购物车
+                    case "cart_num"://[e]
+                        {
+                            //修改购物车数量
+                            int id = DataConvert.CLng(Req("id"));
+                            int num = DataConvert.CLng(Req("num"));
+                            if (id < 1 || num < 1) { throw new Exception("参数不正确"); }
+                            M_Cart cartMod = cartBll.SelReturnModel(id);
+                            cartMod.Pronum = num;
+                            cartMod.AllMoney = cartMod.Pronum * Convert.ToDouble(cartMod.FarePrice);
+                            cartBll.UpdateByID(cartMod);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "cart_add"://增加或减少购物车数量
+                        {
+                            int proID = DataConvert.CLng(Req("proid"));
+                            int proNum = DataConvert.CLng(Req("pronum"), 1);
+                            string op = DataConvert.CStr(Req("op"));//+ -
+                            M_Product proMod = proBll.GetproductByid(proID);
+                            M_Cart cartMod = cartBll.SelModelByWhere(litemu.userId, proID);
+                            if (cartMod == null)
+                            {
+                                cartMod = new M_Cart();
+                                cartMod.Cartid = litemu.userId.ToString();
+                                cartMod.userid = litemu.userId;
+                                cartMod.Username = litemu.userName;
+                                cartMod.Pronum = 0;
+                                cartMod.ProID = proMod.ID; ;
+                                cartMod.Proname = proMod.Proname;
+                                cartMod.StoreID = proMod.UserShopID;
+
+                            }
+                            switch (op)
+                            {
+                                case "-":
+                                    cartMod.Pronum -= proNum;
+                                    break;
+                                default:
+                                    cartMod.Pronum += proNum;
+                                    break;
+                            }
+                            if (cartMod.Pronum < 1) { cartMod.Pronum = 1; }
+                            cartMod.FarePrice = proMod.LinPrice.ToString();
+                            cartMod.AllMoney = cartMod.Pronum * proMod.LinPrice;
+                            if (cartMod.ID > 0) { cartBll.UpdateByID(cartMod); }
+                            else { cartBll.insert(cartMod); }
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "cart_del":
+                        {
+                            string ids = Req("ids");
+                            if (string.IsNullOrEmpty(ids)) { ids = Req("id"); }
+                            cartBll.U_DelByIDS(ids, litemu.userId);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    //case "cart_list"://单店版
+                    //    {
+                    //        DataTable dt = SelByCartID(litemu.userId);
+                    //        for (int i = 0; i < dt.Rows.Count; i++)
+                    //        {
+                    //            dt.Rows[i]["proimg"] = WXAppData.H_ImageUrl(DataConvert.CStr(dt.Rows[i]["proimg"]));
+                    //        }
+                    //        retMod.retcode = M_APIResult.Success;
+                    //        retMod.addon = JsonHelper.GetJson(new string[] { "money_exp" }, new string[] { "8" });
+                    //        retMod.result = JsonConvert.SerializeObject(dt);
+                    //    }
+                    //    break;
+                    case "cart_list"://多店铺
+                        {
+                            OrderCommon orderCom = new OrderCommon();
+                            ZoomLaCMS.Models.Cart.VM_CartOrder vmMod = new ZoomLaCMS.Models.Cart.VM_CartOrder();
+                            vmMod.CartDT = SelByCartID(new Com_Filter() { uids = litemu.userId.ToString() });
+                            vmMod.StoreDT = SelStoreDT(vmMod.CartDT);
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(vmMod);
+                        }
+                        break;
+                    case "cart_order"://选定商品后,在该块计算运费,生成订单,指定地址,确定支付形式
+                        {
+                            B_Shop_FareTlp fareBll = new B_Shop_FareTlp();
+                            ZoomLaCMS.Models.Cart.VM_CartOrder vmMod = new ZoomLaCMS.Models.Cart.VM_CartOrder();
+                            OrderCommon orderCom = new OrderCommon();
+                            vmMod.CartDT = SelByCartID(new Com_Filter() { ids = Req("ids"), uids = mu.UserID.ToString() });
+                            vmMod.StoreDT = SelStoreDT(vmMod.CartDT);
+                            //根据条件核算是否免邮
+                            vmMod.StoreDT.Columns.Add(new DataColumn("fareDT", typeof(string)));
+                            for (int i = 0; i < vmMod.StoreDT.Rows.Count; i++)
+                            {
+                                DataTable fareDT = fareBll.Page_GetFareDT(vmMod.CartDT, DataConvert.CLng(vmMod.StoreDT.Rows[i]["ID"]));
+                                vmMod.StoreDT.Rows[i]["fareDT"] = Newtonsoft.Json.JsonConvert.SerializeObject(fareDT);
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(vmMod);
+                        }
+                        break;
+                    #endregion
+                    #region 订单
+                    case "order_get":
+                        {
+                            int id = DataConvert.CLng(Req("id"));
+                            M_OrderList orderMod = orderBll.SelReturnModel(id);
+                            if (orderMod == null) { throw new Exception("订单不存在"); }
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.result = JsonConvert.SerializeObject(orderMod);
+                        }
+                        break;
+                    case "order_list":
+                        {
+                            string fast = Req("fast");
+                            string where = "OrderStatus>=0 AND A.Aside=0 AND Userid=" + litemu.userId;
+                            switch (fast)
+                            {
+                                case "needpay":
+                                    where += " AND A.PaymentStatus=0";
+                                    break;
+                                case "receive"://已支付,已发货或未发货
+                                    where += " AND A.PaymentStatus=1 AND A.StateLogistics IN (0,1)";
+                                    break;
+                                case "payed":
+                                    where += " AND A.PaymentStatus=1";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            if (DataConvert.CLng(Req("id")) > 0)
+                            {
+                                where += " AND ID=" + Req("id");
+                            }
+                            string fields = "A.*";
+                            fields += ",(SELECT Title FROM ZL_CommonModel WHERE GeneralID=A.StoreID) AS storeName";
+                            PageSetting setting = new PageSetting()
+                            {
+                                cpage = CPage,
+                                psize = PSize,
+                                t1 = "ZL_OrderInfo",
+                                where = where,
+                                order = "ID DESC",
+                                fields = fields
+                            };
+                            DBCenter.SelPage(setting);
+                            //服务端处理状态,避免客户端解析
+                            setting.dt.Columns.Add(new DataColumn("OrderStatusStr", typeof(string)));
+                            for (int i = 0; i < setting.dt.Rows.Count; i++)
+                            {
+                                DataRow dr = setting.dt.Rows[i];
+                                dr["OrderStatusStr"] = OrderHelper.GetStatus(dr, OrderHelper.TypeEnum.Order);
+                                if (DataConvert.CLng(dr["StoreID"]) == 0) { dr["storeName"] = "自营商城"; }
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                            retMod.page = new M_API_Page(setting);
+                            //--------附加上购物车数据
+                            string ids = StrHelper.GetIDSFromDT(setting.dt, "ID");
+                            if (!string.IsNullOrEmpty(ids))
+                            {
+                                DataTable cartDT = DBCenter.SelWithField("ZL_CartProView", "CartId,ProID,AllMoney,Thumbnails,ProName,Pronum,ID", "ID IN (" + ids + ")");
+                                retMod.addon = cartDT;
+                            }
+                            retMod.result = JsonConvert.SerializeObject(setting.dt);
+                        }
+                        break;
+                    case "order_del":
+                        {
+                            int id = DataConvert.CLng(Req("id"));
+                            DBCenter.UpdateSQL("ZL_OrderInfo", "OrderStatus=" + (int)M_OrderList.StatusEnum.CancelOrder, "ID=" + id);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "order_comment_add"://添加评论
+                        {
+                            B_Order_Share cmtBll = new B_Order_Share();
+                            M_Order_Share cmtMod = JsonConvert.DeserializeObject<M_Order_Share>(Req("model"));
+                            M_OrderList orderMod = orderBll.SelReturnModel(cmtMod.OrderID);
+                            if (orderMod == null) { throw new Exception("订单不存在"); }
+                            if (orderMod.IsCount) { throw new Exception("订单已被评论过"); }
+                            if (orderMod.Userid != cmtMod.UserID) { throw new Exception("无权评论该订单"); }
+                            orderMod.IsCount = true;
+                            orderBll.UpdateByID(orderMod);
+                            cmtBll.Insert(cmtMod);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    #endregion
+                    #region 支付单
+                    case "payment_cart"://购物车生成订单后支付
+                        {
+                            //需要生成订单的购物车数据ID
+                            string cartIds = DataConvert.CStr(Req("cartIds"));
+                            M_UserInfo mu = buser.SelReturnModel(litemu.userId);
+                            M_LiteUser liteMod = liteBll.SelReturnModel(mu.UserID);
+                            DataTable cartDT = DBCenter.Sel("ZL_Cart", "ID IN (" + cartIds + ")");
+
+                            //按店铺生成订单
+                            DataTable storeDT = cartDT.DefaultView.ToTable(true, "StoreID");
+                            List<M_OrderList> orderList = new List<M_OrderList>();//用于生成临时订单,统计计算(Disuse)
+                            M_OrderList orderMod = orderBll.NewOrder(mu, M_OrderList.OrderEnum.Normal);
+                            //无收货地址此块可注释,根据项目需求来(小程序收货地址)
+                            // //{"errMsg":"chooseAddress:ok","userName":"张三","nationalCode":"510000","telNumber":"020-81167888","postalCode":"510000","provinceName":"广东省","cityName":"广州市","countyName":"海珠区","detailInfo":"新港中路397号"}
+                            JObject rece = JsonConvert.DeserializeObject<JObject>(Req("rece"));
+                            orderMod.Receiver = DataConvert.CStr(rece["userName"]);
+                            orderMod.MobileNum = DataConvert.CStr(rece["telNumber"]);
+                            orderMod.Shengfen = rece["provinceName"] + " " + rece["cityName"] + " " + rece["countyName"];
+                            orderMod.Jiedao = DataConvert.CStr(rece["detailInfo"]);
+                            orderMod.ZipCode = DataConvert.CStr(rece["postalCode"]);
+                            DataTable fareDT = JsonConvert.DeserializeObject<DataTable>(Req("fareDT"));//storeId,name,total
+                            string orderModJson = JsonConvert.SerializeObject(orderMod);
+                            foreach (DataRow storeDR in storeDT.Rows)
+                            {
+                                M_OrderList Odata = JsonConvert.DeserializeObject<M_OrderList>(orderModJson);
+                                Odata.OrderNo = B_OrderList.CreateOrderNo((M_OrderList.OrderEnum)Odata.Ordertype);
+                                Odata.StoreID = Convert.ToInt32(storeDR["StoreID"]);
+                                cartDT.DefaultView.RowFilter = "StoreID=" + Odata.StoreID;
+                                DataTable storeCartDT = cartDT.DefaultView.ToTable();
+                                DataRow[] fareDR = fareDT.Select("storeId='" + Odata.StoreID + "'");
+                                Odata.Balance_price = Convert.ToDouble(storeCartDT.Compute("SUM(AllMoney)", ""));
+                                if (fareDR.Length > 0)
+                                {
+                                    Odata.Freight = DataConvert.CDouble(fareDR[0]["total"]);//运费计算
+                                    Odata.Freight_remark = DataConvert.CStr(fareDR[0]["name"]);
+                                }
+                                Odata.Ordersamount = Odata.Balance_price + Odata.Freight;//订单金额
+                                Odata.Specifiedprice = Odata.Ordersamount; //订单金额;
+                                Odata.id = orderBll.insert(Odata);
+                                orderList.Add(Odata);
+                            }
+                            string orderIds = "";
+                            foreach (var order in orderList)
+                            {
+                                orderIds += order.id + ",";
+                            }
+                            orderIds = orderIds.Trim(',');
+                            //生成支付单,处理优惠券,并进入付款步骤
+                            M_Payment payMod = payBll.CreateByOrder(orderList);
+                            payMod.PlatformInfo = AppId.ToString();
+                            payMod.PaymentID = payBll.Add(payMod);
+                            payMod.UsePoint = 0;
+                            payMod.UsePointArrive = 0;
+                            payMod.UseSicon = DataConvert.CDouble(Req("use_sicon"));
+                            payMod.UseSiconArrive = (payMod.UseSicon / 1);
+                            payMod.UsePurse = DataConvert.CDouble(Req("use_purse"));
+                            payMod.MoneyReal = payMod.MoneyPay = payMod.MoneyPay - payMod.UseSiconArrive - payMod.UsePointArrive - payMod.UsePurse - payMod.ArriveMoney;
+                            //订单流程完成,返回支付单相关信息
+                            retMod.addon = JsonHelper.GetJson(new string[] { "orderIds", "paymentId", "cartIds" }, new string[] { orderIds, payMod.PaymentID.ToString(), cartIds });
+                            if (payMod.MoneyReal == 0)
+                            {
+                                ZoomLa.Extend.B_Ex_Order.FinalPayment("余额与积分", 0, payMod);
+                                retMod.result = "{}";
+                            }
+                            else
+                            {
+                                //[test]
+                                //payMod.MoneyReal = 0.01;
+                                retMod.result = api.CreatePayment(liteMod, payMod);
+                            }
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "payment_success":
+                        {
+                            //前端提示支付成功,减库存,购物车转移
+                            string cartIds = Req("cartIds");
+                            string orderIds = Req("orderIds");
+                            SafeSC.CheckIDSEx(cartIds); SafeSC.CheckIDSEx(orderIds);
+                            DataTable cartDT = DBCenter.Sel("ZL_Cart", "ID IN (" + cartIds + ")");
+                            DataTable orderDT = DBCenter.Sel("ZL_OrderInfo", "ID IN (" + orderIds + ") AND UserID=" + litemu.userId);
+                            foreach (DataRow orderDR in orderDT.Rows)
+                            {
+                                M_OrderList Odata = new M_OrderList().GetModelFromReader(orderDR);
+                                cartDT.DefaultView.RowFilter = "StoreID=" + Odata.StoreID;
+                                DataTable storeCartDT = cartDT.DefaultView.ToTable();
+                                cpBll.CopyToCartPro(mu, storeCartDT, Odata.id);
+                            }
+                            cartBll.DelByids(cartIds);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "payment_fail":
+                        {
+                            //前端提示支付失败,移除支付单与订单
+                            int paymentId = DataConvert.CLng(Req("paymentId"));
+                            string orderIds = Req("orderIds");
+                            SafeSC.CheckIDSEx(orderIds);
+                            DBCenter.DelByWhere("ZL_OrderInfo", "ID IN(" + orderIds + ") AND UserID=" + litemu.userId);
+                            DBCenter.DelByWhere(payBll.TbName, "PaymentId=" + paymentId + " AND UserID=" + litemu.userId);
+                            retMod.retcode = M_APIResult.Success;
+                        }
+                        break;
+                    case "yzcode":
+                        {
+                            string key = GetParam("key");
+                            string val = GetParam("val");
+                            if (val.ToLower().Equals(CMSCodeVerify.CodeDic[key])) return Content("1");
+
+                        }
+                        break;
+                    case "validateCode":
+                        {
+                            string key = GetParam("key");
+                            if (string.IsNullOrEmpty(key)) { return Content(Failed.ToString()); }
+                            if (key.StartsWith("{")) { key = Newtonsoft.Json.JsonConvert.DeserializeObject<M_Comp_Verify>(key).sid; }
+                            string randomcode = function.GetRandomString(SiteConfig.SiteOption.VerifyLen, SiteConfig.SiteOption.VerifyForm);
+                            if (CMSCodeVerify.CodeDic.ContainsKey(key)) { CMSCodeVerify.CodeDic[key] = randomcode.ToLower(); }
+                            else { CMSCodeVerify.CodeDic.Add(key, randomcode.ToLower()); }
+                            //return File(CreateImage(randomcode).);
+                            MemoryStream ms = CaptchaCreate.CreateGif(randomcode);
+                            return File(ms.ToArray(), "image/gif");
+                        }
+                        break;
+                    case "register":
+                        {
+                            string uname = Req("uname");
+                            string upwd = Req("upwd");
+                            string key = Req("key");
+                            string val = Req("val");
+                            if (!CheckUserName(uname, ref retMod.retmsg)) { break; }
+                            if (!val.ToLower().Equals(CMSCodeVerify.CodeDic[key])) { retMod.retmsg = "您输入的验证码和系统产生的不一致，请重新输入"; break; }
+                            M_UserInfo newmu = buser.NewUser(uname, upwd, "");
+                            newmu.HoneyName = Req("uname");
+                            newmu.GroupID = 1;
+                            newmu.UserID = buser.Add(newmu);
+                            if (newmu.UserID > 0)
+                            {
+                                retMod.result = JsonConvert.SerializeObject(newmu);
+                                retMod.retmsg = "注册成功";
+                                retMod.retcode = M_APIResult.Success;
+                            }
+                            else
+                            {
+                                retMod.retmsg = "注册失败";
+                                retMod.retcode = -1;
+                            }
+                        }
+                        break;
+                    case "register_API":
+                        {
+                            string actionCheck = GetParam("actionCheck");
+                            string value = GetParam("value").Replace(" ", "");
+                            switch (actionCheck)
+                            {
+                                case "uname":
+                                    if (!CheckUserName(value, ref retMod.retmsg))
+                                    {
+                                        retMod.retcode = M_APIResult.Failed;
+                                    }
+                                    else
+                                    {
+                                        retMod.retcode = 1;
+                                    }
+                                    break;
+                                case "mobile"://手机号不可重复
+                                    {
+                                        string mobile = GetParam("mobile");
+                                        if (string.IsNullOrEmpty(mobile))
+                                        {
+                                            retMod.retmsg = "手机号码不能为空";
+                                        }
+                                        else if (!RegexHelper.IsMobilPhone(mobile))
+                                        {
+                                            retMod.retmsg = "手机号码格式不正确";
+                                        }
+                                        else
+                                        {
+                                            bool flag = DBCenter.IsExist("ZL_UserBase", "Mobile=@mobile",
+                                                              new List<SqlParameter>() { new SqlParameter("mobile", mobile) });
+                                            if (flag) { retMod.retmsg = "手机号码已存在"; }
+                                            else { retMod.retcode = M_APIResult.Success; }
+                                        }
+                                    }
+                                    break;
+                                case "puser"://推荐人为空则不检测
+                                    if (!string.IsNullOrEmpty(value) && CheckParentUser(value).IsNull)
+                                    {
+                                        retMod.retcode = M_APIResult.Failed;
+                                        retMod.retmsg = "推荐人不存在";
+                                    }
+                                    break;
+                                case "email":
+                                    if (!CheckEmail(value, ref retMod.retmsg))
+                                    {
+                                        retMod.retcode = M_APIResult.Failed;
+                                    }
+                                    break;
+                                case "birth":
+                                    if (!CheckBirthDay(value, ref retMod.retmsg))
+                                    {
+                                        retMod.retcode = M_APIResult.Failed;
+                                    }
+                                    break;
+                                case "GetModelFied":
+                                    retMod.retmsg = GetUserGorupModel(value);
+                                    break;
+                                default:
+                                    retMod.retmsg = "[" + actionCheck + "]接口不存在";
+                                    break;
+                            }
+                        }
+                        break;
+                    case "getAccessToken":
+                        {
+                            string guid = Guid.NewGuid().ToString("N");
+                            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+                            int time = Convert.ToInt32(ts.TotalSeconds);
+                            int i = DBCenter.Insert("ZL_NodeJs_Token", "token,time", "'" + guid + "','" + time + "'");
+                            if (i > 0)
+                            {
+                                retMod.result = "{\"token\":\"" + guid + "\",\"time\":\"" + time + "\"}";
+                                retMod.retcode = M_APIResult.Success;
+                            }
+                        }
+                        break;
+                    #endregion
+                    default:
+                        {
+                            retMod.retmsg = "[" + action + "]接口不存在";
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex) { ZLLog.L("[" + action + "]" + (litemu == null) + "|" + OpenId + "|" + ex.Message); retMod.retmsg = ex.Message; }
+            retMod.callback = GetParam("callback");
+            return Content(retMod.ToString());
+        }
+        //============================================================================================================
+        //首页使用
+        public class Packet_Index
+        {
+            public object swiper = "[]";
+            public DataTable list = new DataTable();
+            public DataTable prolist = new DataTable();
+            public string addon = "";
+        }
+
+        //PS社区首页使用
+        public class PS_Index
+        {
+            public DataTable nodelist = new DataTable();
+            public DataTable homeswiper = new DataTable();
+            public DataTable toollist = new DataTable();
+            public DataTable parentlist = new DataTable();
+            public DataTable parentlist2 = new DataTable();
+            public DataTable newsNode = new DataTable();
+            public DataTable newsMode = new DataTable();
+
+        }
+
+        //获取内容列表
+        private PageSetting GetCommonList(int nid = 0, int pnid = 0, int pcount = 20, int elite = 0, int modelId = 0, string nids = "")
+        {
+
+            if (pnid > 0)
+            {
+                DataTable nodeDT = nodeBll.SelByPid(pnid, true);
+                nids = StrHelper.GetIDSFromDT(nodeDT, "NodeID");
+            }
+            //----------------------
+            if (modelId < 1)
+            {
+                object modelIds = null;
+                if (nid > 0)
+                {
+                    modelIds = DBCenter.ExecuteScala("ZL_Node", "ContentModel", "NodeID=" + nid);
+                }
+                else if (pnid > 0)
+                {
+                    modelIds = DBCenter.ExecuteScala("ZL_Node", "ContentModel", "NodeID=" + pnid);
+                }
+                else if (!string.IsNullOrEmpty(nids))
+                {
+                    int nodeId = DataConvert.CLng(nids.Split(',')[0]);
+                    modelIds = DBCenter.ExecuteScala("ZL_Node", "ContentModel", "NodeID=" + nodeId);
+                }
+                modelId = DataConvert.CLng(DataConvert.CStr(modelIds).Split(',')[0]);
+            }
+            PageSetting setting = new PageSetting() { cpage = CPage, psize = pcount };
+            setting.pk = "GeneralID";
+            setting.t1 = "ZL_CommonModel";
+            setting.on = "A.ItemID=B.ID";
+            setting.fields = "A.GeneralID,A.Title,A.CreateTime,A.Inputer,A.TopImg";
+            setting.fields += ",B.*";//以B.pic为准
+            setting.where = "A.Status=99 ";
+            if (nid > 0) { setting.where += " AND A.NodeID=" + nid; }
+            if (modelId > 0) { setting.where += " AND A.ModelID=" + modelId; }
+            if (elite > 0) { setting.where += " AND A.EliteLevel=1 "; }
+            if (!string.IsNullOrEmpty(nids))
+            {
+                SafeSC.CheckIDSEx(nids);
+                setting.where += " AND NodeID IN (" + nids + ")";
+            }
+            if (!string.IsNullOrEmpty(ids))
+            {
+                SafeSC.CheckDataEx(ids);
+                setting.where += " AND A.GeneralID IN (" + ids + ")";
+            }
+            setting.order = "A.OrderID DESC,A.GeneralID DESC";
+            setting.t2 = DataConvert.CStr(DBCenter.ExecuteScala("ZL_Model", "TableName", "ModelID=" + modelId));
+
+            DBCenter.SelPage(setting);
+            //------------修改缩略图路径(统一使用Pic字段)
+
+            for (int i = 0; i < setting.dt.Rows.Count; i++)
+            {
+                DataRow dr = setting.dt.Rows[i];
+                dr["TopImg"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["TopImg"]));
+                if (setting.dt.Columns.Contains("pic")) { dr["pic"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["pic"])); }
+            }
+
+            setting.dt.Columns.Remove("ID");
+            return setting;
+        }
+
+        //获取节点列表
+        private DataTable GetNodeList(int pid)
+        {
+            string where = "1=1 ";
+            if (pid != -100) { where += " AND ParentID=" + pid; }
+            if (!string.IsNullOrEmpty(ids)) { SafeSC.CheckIDSEx(ids); where += " AND NodeID IN (" + ids + ")"; }
+            return DBCenter.Sel("ZL_Node", where, "OrderID ASC,NodeID ASC");
+        }
+
+        private string Req(string name) { return GetParam(name); }
+        #region Tools
+
+
+        //==========================================Logical
+        private DataTable SelByCartID(Com_Filter filter)
+        {
+            string fields = "A.id,A.proid,A.pronum,A.storeid,A.AllMoney,A.FarePrice AS FarePrice1";
+            fields += ",B.Weight,B.proname,B.LinPrice as price,B.Thumbnails as proimg";
+            string where = "1=1 ";
+            //SqlParameter[] sp = new SqlParameter[] { new SqlParameter("cartid", cartid) };
+            //if (uid > 0) { where = " (A.Cartid=@cartid OR A.UserID=" + uid + ")"; } else { where = " A.Cartid=@cartid"; }
+            if (!string.IsNullOrEmpty(filter.uids))
+            {
+                where += " AND A.UserID IN (" + filter.uids + ")";
+            }
+            if (!string.IsNullOrEmpty(filter.ids))
+            {
+                where += " AND A.ID IN (" + filter.ids + ")";
+            }
+
+            where += " AND B.LinPrice IS NOT NULL";
+            //--------------------------------------
+            string sql = "SELECT " + fields + " FROM ZL_Cart A LEFT JOIN ZL_Commodities B ON A.ProID=B.ID WHERE " + where;
+            //自营商品,店铺商品
+            DataTable dt = SqlHelper.ExecuteTable(sql, null);
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow dr = dt.Rows[i];
+                dr["proimg"] = WXAppData.H_ImageUrl(DataConvert.CStr(dr["proimg"]));
+            }
+            return dt;
+        }
+        private DataTable SelStoreDT(DataTable cartDT)
+        {
+            OrderCommon orderCom = new OrderCommon();
+            DataTable storeDT = orderCom.SelStoreDT(cartDT);
+            if (cartDT.Select("storeID=0").Length == 0)
+            {
+                storeDT.DefaultView.RowFilter = "ID>0";
+                storeDT = storeDT.DefaultView.ToTable();
+            }
+            return storeDT;
+        }
+        #endregion
+        /// <summary>
+        /// 获取用户的openid
+        /// *开发环境下也可获取到openid
+        /// </summary>
+        private string GetOpenIdByCode(string code, int appId)
+        {
+            M_WX_APPID appMod = new B_WX_APPID().SelReturnModel(appId);
+            if (string.IsNullOrEmpty(code)) { throw new Exception("未指定code"); }
+            string url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appMod.APPID + "&secret=" + appMod.Secret + "&js_code=" + code + "&grant_type=authorization_code";
+            string result = APIHelper.GetWebResult(url);
+            if (!result.Contains("openid")) { throw new Exception("未获取到opneid:" + result + "," + code); }
+            JObject json = JsonConvert.DeserializeObject<JObject>(result);
+            string openid = json["openid"].ToString();
+            return openid;
+        }
+        private string GetWeekStr(DateTime date)
+        {
+            string result = "";
+            switch ((int)date.DayOfWeek)
+            {
+                case 0:
+                    result = "星期日";
+                    break;
+                case 1:
+                    result = "星期一";
+                    break;
+                case 2:
+                    result = "星期二";
+                    break;
+                case 3:
+                    result = "星期三";
+                    break;
+                case 4:
+                    result = "星期四";
+                    break;
+                case 5:
+                    result = "星期五";
+                    break;
+                case 6:
+                    result = "星期六";
+                    break;
+            }
+            return result;
+        }
+        private bool CheckUserName(string uname, ref string err)
+        {
+            if (string.IsNullOrEmpty(uname)) { return false; }
+            uname = uname.Replace(" ", "");
+            if (SiteConfig.UserConfig.UserNameLimit > uname.Length || uname.Length > SiteConfig.UserConfig.UserNameMax)
+            {
+                err = "用户名的长度必须小于" + SiteConfig.UserConfig.UserNameMax + "，并大于" + SiteConfig.UserConfig.UserNameLimit + "!"; return false;
+            }
+            else if (ZoomLa.BLL.SafeSC.CheckData(uname))
+            {
+                err = "用户名不能包含特殊字段!"; return false;
+            }
+            else if (!ZoomLa.BLL.SafeSC.CheckUName(uname))
+            {
+                err = "用户名不能包含特殊字符!"; return false;
+            }
+            if (StringHelper.FoundInArr(SiteConfig.UserConfig.UserNameRegDisabled, uname, "|"))
+            {
+                err = "该用户名禁止注册，请输入不同的用户名!"; return false;
+            }
+            if (buser.IsExistUName(uname))
+            {
+                err = "该用户名已被他人占用，请输入不同的用户名"; return false;
+            }
+            string userregrule = SiteConfig.UserConfig.RegRule;
+            if (userregrule != null && userregrule != "")
+            {
+                if (userregrule.IndexOf(',') > -1)
+                {
+                    string[] rulearr = userregrule.Split(',');
+                    for (int ii = 0; ii < rulearr.Length; ii++)
+                    {
+                        if (rulearr[ii].ToString() == "1")
+                        {
+                            string resultString = null;
+                            try
+                            {
+                                resultString = Regex.Match(uname, @"[0-9]*").Value;
+                            }
+                            catch (ArgumentException)
+                            {
+                            }
+                            if (uname == resultString.Trim())
+                            {
+                                err = "用户名不允许纯数字"; return false;
+                            }
+                        }
+
+                        if (rulearr[ii].ToString() == "2")
+                        {
+                            string resultString = null;
+                            try
+                            {
+                                resultString = Regex.Match(uname, @"[a-zA-Z]*").Value;
+                            }
+                            catch (ArgumentException)
+                            {
+                            }
+
+                            if (uname == resultString)
+                            {
+                                err = "用户名不允许纯英文"; return false;
+                            }
+
+                        }
+
+                        if (rulearr[ii].ToString() == "3")
+                        {
+                            bool foundMatch = false;
+                            try
+                            {
+                                foundMatch = Regex.IsMatch(uname, @"[\u0391-\uFFE5]$");
+                            }
+                            catch (ArgumentException)
+                            {
+                            }
+
+                            if (foundMatch)
+                            {
+                                err = "用户名不允许带有中文"; return false;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (userregrule.ToString() == "1")
+                    {
+                        string resultString = null;
+                        try
+                        {
+                            resultString = Regex.Match(uname, @"[0-9]*").Value;
+                        }
+                        catch (ArgumentException)
+                        {
+                        }
+                        if (uname == resultString.Trim())
+                        {
+                            err = "用户名不允许纯数字"; return false;
+                        }
+                    }
+                    if (userregrule.ToString() == "2")
+                    {
+                        string resultString = null;
+                        try
+                        {
+                            resultString = Regex.Match(uname, @"[a-zA-Z]*").Value;
+                        }
+                        catch (ArgumentException)
+                        {
+                        }
+
+                        if (uname == resultString)
+                        {
+                            err = "用户名不允许纯英文"; return false;
+                        }
+                    }
+                    if (userregrule.ToString() == "3")
+                    {
+                        bool foundMatch = false;
+                        try
+                        {
+                            foundMatch = Regex.IsMatch(uname, @"[\u0391-\uFFE5]$");
+                        }
+                        catch (ArgumentException)
+                        {
+                        }
+
+                        if (foundMatch)
+                        {
+                            err = "用户名不允许带有中文"; return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        //推荐人是否存在支持ID与用户名(暂也支持推荐码)
+        private M_UserInfo CheckParentUser(string puname)
+        {
+            M_UserInfo pmu = new M_UserInfo(true);
+            if (string.IsNullOrEmpty(puname)) { return pmu; }
+            int puid = 0;
+            //避免用户以手机号注册,导致报错
+            if (puname.Length < 9) { puid = DataConvert.CLng(puid); }
+            //if (puid >= 100001 && puid <= 999999)//只有9级,所以只有首位需去除[delete]
+            //{
+            //    int depth = Convert.ToInt32(puname.Substring(0, 1));
+            //    int uid = Convert.ToInt32(puname.Substring(1, (puname.Length - 1)));
+            //    pmu = buser.SelReturnModel(uid);
+            //    if (pmu.RoomID == 0) { pmu.RoomID = 1; }
+            //    if (pmu.RoomID != depth) { return new M_UserInfo(true); }
+            //}
+            if (puid > 0)//100001
+            {
+                pmu = buser.SelReturnModel(puid);
+            }
+            else
+            {
+                pmu = buser.GetUserByName(puname);
+            }
+            return pmu;
+        }
+        private bool CheckEmail(string email, ref string err)
+        {
+            //邮箱非必填
+            if (!SiteConfig.UserConfig.Reg_EmailMust && string.IsNullOrEmpty(email)) { return true; }
+            if (string.IsNullOrEmpty(email)) { err = "邮箱不能为空"; return false; }
+            if (!RegexHelper.IsEmail(email)) { err = "邮箱格式不正确"; return false; }
+            if (buser.IsExist("ume", email)) { err = "该邮箱已存在"; return false; }
+            return true;
+        }
+        //检测出生日期是否合逻辑
+        private bool CheckBirthDay(string value, ref string err)
+        {
+            DateTime time = DateTime.Now;
+            if (string.IsNullOrEmpty(value)) { err = "日期格式为空"; return false; }
+            else if (!DateTime.TryParse(value, out time)) { err = "不是有效的日期格式"; return false; }
+            else if (time < DateTime.Now.AddYears(-150)) { err = "您超过了150岁?-吉尼斯世界纪录最长寿的人是132岁!"; return false; }
+            else if (time > DateTime.Now) { err = "日期大于当前时间"; return false; }
+            return true;
+        }
+        //获取邮件内容模板标签格式
+        private DataTable GetRegEmailDt(string username, string checknum, string checkurl)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("CheckNum");
+            dt.Columns.Add("CheckUrl");
+            dt.Columns.Add("UserName");
+            dt.Rows.Add(dt.NewRow());
+            dt.Rows[0]["CheckNum"] = checknum;
+            dt.Rows[0]["CheckUrl"] = checkurl;
+            dt.Rows[0]["UserName"] = username;
+            return dt;
+        }
+        public string GetUserGorupModel(string value)
+        {
+            B_Group gpBll = new B_Group();
+            int gid = DataConverter.CLng(value);
+            int UserModelID = DataConverter.CLng(gpBll.GetGroupModel(gid));
+            ///UserModelID!=0说明绑定了户模型，用要从模型中读取字段，没有绑定就不需要读取字段
+            //if (UserModelID != 0)
+            //{
+            //    return fieldBll.InputallHtml(UserModelID, 0, new ModelConfig()
+            //    {
+            //        Source = ModelConfig.SType.UserBase
+            //    });
+            //}
+            return "";
+        }
+
+        private void checkSign(string sign)
+        {
+            if (string.IsNullOrEmpty(sign)) { throw new Exception("sign is null"); }
+            string[] tokens = sign.Split('-');
+            if (tokens.Length != 2) { throw new Exception("token格式错误"); }
+            DataTable dt = DBCenter.Sel("ZL_NodeJs_Token", "token = '" + tokens[1] + "'");
+            if (dt.Rows.Count < 1 ) { throw new Exception("token不存在"); }
+            DataRow dr = dt.Rows[0];
+
+            MD5 md5 = MD5.Create();
+            byte[] buffer = Encoding.Default.GetBytes(dr["token"].ToString() + dr["time"].ToString());
+            byte[] md5buffer = md5.ComputeHash(buffer);
+            string token = null;
+            foreach (byte b in md5buffer)
+            {
+                token += b.ToString("x2");
+            }
+
+            if (!tokens[0].Equals(token)) { throw new Exception("token不一致"); }
+
+            //验证成功则删除
+            DBCenter.Del("ZL_NodeJs_Token", "ID", DataConvert.CLng(dr["ID"].ToString()));
+        }
+
+    }
+}
+@{
+    Layout = null;
+}

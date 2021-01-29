@@ -1,0 +1,29 @@
+﻿@using ZoomLa.BLL
+@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.SQLDAL
+@using ZoomLaCMS.Ctrl;
+@model ZoomLa.Model.Message.M_Guest_Bar
+@functions{
+
+}
+@{
+    //string id = "txt_" + Model.barMod.SubTitle;
+    string value = "", value_src = "";
+    if (Model != null && Model.ID > 0)
+    {
+        //编辑的话将MD文件加载到编辑器之上
+        if (Model.Mid==1)
+        {
+            value = Model.MsgContentMarkdown;
+            value_src = Model.MsgContentMarkdown_src;
+        }
+
+    }
+}
+<div id="body">
+    <iframe src="/Plugins/Markdown/MDForField.html?v=1&id=MsgContentMarkdown&flag=1" style="border:none;width:100%;height:800px;" scrolling="no" id="childFrame"></iframe>
+    @*Html和源码*@
+    <input type="hidden" id="MsgContentMarkdown_src" name="MsgContentMarkdown_src" value="@value_src" />
+    <input type="hidden" id="MsgContentMarkdown" name="MsgContentMarkdown" value="@value" />
+</div>

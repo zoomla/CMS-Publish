@@ -1,0 +1,46 @@
+﻿@page
+@model ConfigModel
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@using ZoomLa.Extend
+@functions{
+    [Authorize(Policy = ("Admin"))]
+    public class ConfigModel : Page_Base
+    {
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            PlugConfig.Info.ExpireDate = GetParam("ExpireDate");
+            PlugConfig.Info.Year = GetParam("year");
+            PlugConfig.Update();
+            return Page();
+        }
+
+    }
+}
+@{
+    Layout = "_empty";
+}
+@section head{<title>系统配置</title> }
+@section content{
+<style type="text/css">
+small{display:block;}
+</style>
+
+
+<form method="post" action="@MVCHelper.GetAction("Config",Request)">
+    <table class="table table-bordered table-striped">
+        <tr><td style="width:160px;">当前年度</td><td><input type="text" class="form-control text_300" name="Year" value="@PlugConfig.Info.Year"/></td></tr>
+        <tr><td>超时日期</td><td><input type="text" class="form-control text_300" name="ExpireDate" value="@PlugConfig.Info.ExpireDate" placeholder="示例格式:06/30"/>
+            <small>超过该日期后提交,则为超时</small></td></tr>
+        <tr><td></td><td><input type="submit" class="btn btn-info" value="保存配置" /></td></tr>
+    </table>
+</form>
+ }
+@section script{
+
+ }

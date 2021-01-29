@@ -1,0 +1,75 @@
+﻿@{
+    DataTable fieldDT = XMLDB.ZLFont;
+}
+
+@section head{<title>webfont-基于逐浪字库</title>
+<link href="/res/css/zfont.css" rel="stylesheet" type="text/css">
+<style>#font_view{height:150px;font-size:50px;line-height:150px;text-align:center}</style>
+}
+@section content{
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td class="td_m">字体选择</td>
+            <td>
+                <select id="font_dp" class="form-control form-select text_300" DataTextField="name" DataValueField="css">
+                    @foreach (DataRow dr in XMLDB.ZLFont.Rows)
+                    {
+                        <option value="@dr["css"]">@(dr["name"])</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="text-center ZoomlaXingtiJ" id="font_view">↑请选择字体呈现效果</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-center">
+                <textarea name="Cite_bb" rows="2" cols="20" id="Cite_bb" class="form-control text-center" readonly>{ZL:Font(字体名称,呈现内容,字体大小)/}</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-center">
+                <a id="copycode" href="javascript:;" class="btn btn-outline-info mt-1" onclick="copycode('Cite_bb')" onmouseout="out()">复制标签</a>
+            </td>
+        </tr>
+    </table>
+    <div class="text-center mask" ><span class="alert-dark"></span></div>
+}
+@section script{
+<script src="/js/jquery.form.js"></script>
+<script src="~/Plugins/Third/excel/handsontable.full.js"></script>
+<script src="/Plugins/Third/ystep/js/ystep.js"></script>
+<script type="text/javascript">
+    function save() {
+        var option = $("#font_dp option:checked");
+        var html = "{ZL:Font(" + option.text() + ")/}";
+        parent.selfontback(html);
+        closeDiag();
+    }
+    function closeDiag() {
+        parent.closeDiag();
+    }
+    $(function () {
+        $("#font_dp").change(function () {
+            var option = $("#font_dp option:checked");
+            $("#font_view").html("").text(option.text());
+            $("#font_view").attr("class", option.val());
+            $("#Cite_bb").html("").text("{ZL:Font(" + option.text() + ",呈现内容,6rem)/}");
+        });
+    })
+    //copy fontlabel
+    function copycode(id) {
+        var Url2 = document.getElementById(('' + id + ''));
+        Url2.select(); // 选择对象
+        document.execCommand("Copy");
+        $('.mask').css('display', 'block');
+        $('.alert-dark').text("复制成功！");
+        $('.alert-dark').addClass("p-2");
+    }
+    function out() {
+        $('.mask').css('display', 'none');
+    }
+</script>
+}

@@ -1,0 +1,158 @@
+﻿@page
+@using ZoomLa.BLL.User.Addon;
+@using ZoomLa.BLL.Third;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Mvc;
+@using ZoomLa.Model.Third
+@using System.Net;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
+@using ZoomLa.BLL;
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+        B_UserAPP AppBll = new B_UserAPP();
+        public IActionResult OnGet()
+        {
+            return GetCode();
+        }
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private ISession session => _httpContextAccessor.HttpContext.Session;
+
+        public PageModel(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public IActionResult GetCode()
+        {
+            B_Third_Info thirdBll = new B_Third_Info();
+            M_Third_Info wxInfo = thirdBll.SelModelByName("Wechat");
+            string state = "";
+            if (string.IsNullOrEmpty(Request.Query["code"]))//微信登录操作
+            {
+                state = function.GetRandomString(8).ToLower();
+                session.SetString("state", state);
+                string url = "https://open.weixin.qq.com/connect/qrconnect?appid=" + wxInfo.Key + "&redirect_uri=" + HttpUtility.UrlEncode(wxInfo.CallBackUrl) + "&response_type=code&scope=snsapi_login&state=" + state + "&connect_redirect=1#wechat_redirect".Trim();
+                return Redirect(url);
+            }
+            else
+            {
+                string Session = session.GetString("state");
+                if (Session == null && !Session.Equals(Request.Query["state"])) { function.WriteErrMsg("参数错误!"); };
+                string url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + wxInfo.Key + "&secret=" + wxInfo.Secret + "&code=" + Request.Query["code"] + "&grant_type=authorization_code".Trim();
+                JObject wxinfo = GetWxInfo(url);
+                string access_token = wxinfo["access_token"].ToString();
+                string openid = wxinfo["openid"].ToString();
+                if (access_token != null)
+                {
+                    string UnionIDurl = "https://api.weixin.qq.com/sns/userinfo?access_token=" + access_token + "&openid=" + openid;
+                    JObject userInfo = GetWxInfo(UnionIDurl);
+                    M_UserAPP infomod = AppBll.SelModelByOpenID(wxinfo["openid"].ToString(), "wechat");
+                    this.InsertM_WX_User(userInfo);
+                    if (infomod == null)//新用户注册
+                    {
+                        infomod = GetNewUser(userInfo, access_token);
+                    }
+                    M_UserInfo mu = buser.SelReturnModel(infomod.UserID);
+                    buser.SetLoginState(mu);
+                    return Redirect("/user");  // 定义接口返回地址
+                }
+                else
+                {
+                    throw new Exception("已经获取了aoenid");
+                }
+            }
+        }
+
+        private JObject GetWxInfo(string url)
+        {
+            WebClient client = new WebClient();
+            string result = client.DownloadString(url);
+            return JsonConvert.DeserializeObject<JObject>
+    (result);
+        }
+        /// <summary>
+        /// 微信添加会员信息
+        /// </summary>
+        /// <param name="wxinfo"></param>
+        /// <param name="access_token"></param>
+        /// <returns></returns>
+        private M_UserAPP GetNewUser(JObject wxinfo,string access_token)
+        {
+            M_UserAPP infomod = new M_UserAPP();
+            M_UserInfo mu = new M_UserInfo();
+            mu.UserName = "WXID";
+            mu.UserPwd = StringHelper.MD5(function.GetRandomString(8));
+            mu.Email = mu.UserName + "@random.com";
+            mu.UserFace = wxinfo["headimgurl"].ToString();
+            mu.UserID = buser.Add(mu);
+            int id = mu.UserID;
+            M_UserInfo m_UserInfo = new M_UserInfo();
+            m_UserInfo.UserID = mu.UserID;
+            m_UserInfo.UserName = "WXID" + mu.UserID;
+            m_UserInfo.HoneyName = wxinfo["nickname"].ToString();
+            m_UserInfo.GroupID = 1;
+            buser.UpdateByID(m_UserInfo);
+
+            infomod.UserID = mu.UserID;
+            infomod.OpenID = wxinfo["openid"].ToString();
+            infomod.SourcePlat = "wechat";
+            infomod.Token = access_token;
+            AppBll.Insert(infomod);
+            return infomod;
+        }
+
+        //private void InsertM_User_Cert(JObject wxUser)
+        //{
+
+        //    B_User_Cert b_User_Cert = new B_User_Cert();
+        //    M_User_Cert user_Cert = new M_User_Cert();
+        //    string unionid = wxUser["unionid"].ToString();
+        //    string city = wxUser["city"].ToString();
+        //    string province = wxUser["province"].ToString();
+        //    string openId = wxUser["openid"].ToString();
+        //    string nickname = wxUser["nickname"].ToString();
+        //    int sex = (int)wxUser["sex"];
+        //    string language = wxUser["language"].ToString();
+        //    string country = wxUser["country"].ToString();
+        //    string headimgurl = wxUser["headimgurl"].ToString();
+        //    user_Cert.FullName = nickname;
+        //    user_Cert.Cert_Back = unionid;
+        //    b_User_Cert.Insert(user_Cert);
+
+        //}
+        /// <summary>
+        /// 添加微信用户信息
+        /// </summary>
+        /// <param name="wxUser"></param>
+        private void InsertM_WX_User(JObject wxUser)
+        {
+            M_WX_User m_WX_User = new M_WX_User();
+            B_WX_User b_WX_User = new B_WX_User();
+            // m_WX_User.AppId = (int)wxUser[""];
+            m_WX_User.City = wxUser["city"].ToString();
+            m_WX_User.Country = wxUser["country"].ToString();
+            m_WX_User.HeadImgUrl = wxUser["headimgurl"].ToString();
+            m_WX_User.Name = wxUser["nickname"].ToString();
+            m_WX_User.OpenID = wxUser["openid"].ToString();
+            m_WX_User.Province = wxUser["province"].ToString();
+            m_WX_User.Sex = (int)wxUser["sex"];
+            b_WX_User.Insert(m_WX_User);
+        }
+
+        //private void Insertm_uinfo(JObject wxUser)
+        //{
+        //    M_UserInfo UserInfo = new M_UserInfo();
+        //    B_User user = new B_User();
+        //    UserInfo.UserName = wxUser["nickname"].ToString();
+        //    user.Add(UserInfo);
+        //}
+
+    }
+}
+@{
+    Layout = null;
+}

@@ -1,0 +1,95 @@
+﻿@model ZoomLa.Model.Shop.M_Order_Repair;
+@using ZoomLa.BLL.Shop;
+@functions{
+    B_Order_Repair repBll = new B_Order_Repair();
+}
+@section head{
+    <title>售后详情</title>
+}
+@section content{
+    <table class="table table-striped table-bordered table-hover">
+        <tr>
+            <td class="text-end td_m">服务类型：</td>
+            <td><span id="ServiceType_L" name="ServiceType_L">@Model.ServiceType</span></td>
+        </tr>
+        <tr>
+            <td class="text-end">提交数量：</td>
+            <td><span id="ProNum_L" name="ProNum_L">@Model.ProNum</span></td>
+        </tr>
+        <tr>
+            <td class="text-end">问题描述：</td>
+            <td>
+                <span id="Deailt_T" name="Deailt_T">@Model.Deailt</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="text-end">图片信息：</td>
+            <td>
+                <div style="margin-top: 10px;" id="uploader" class="uploader">
+                    <ul class="filelist"></ul>
+                </div>
+                <input type="hidden" id="Attach_Hid" value="@Model.ProImgs.Trim('|')" />
+            </td>
+        </tr>
+        <tr>
+            <td class="text-end">返回方式：</td>
+            <td><span id="ReType_L" name="ReType_L">@repBll.ShowReType(Model.ReProType)</span></td>
+        </tr>
+        <tr>
+            <td class="text-end">取货地点：</td>
+            <td>
+                <span id="TakeCounty_L" name="TakeCounty_L">@Model.TakeProCounty (<span id = "TakeAddress_L" name = "TakeAddress_L" > @Model.TakeProAddress </ span >)</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="text-end">取件时间：</td>
+            <td><span id="TakeTime_L" name="TakeTime_L">@Model.TakeTime</span></td>
+        </tr>
+        <tr>
+            <td class="text-end">收货地点：</td>
+            <td>
+                <span id="ReCounty_L" name="ReCounty_L">@Model.ReProCounty (<span id="ReAddress_L" name="ReAddress_L">@Model.ReProAddress</span>)</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="text-end">客户姓名：</td>
+            <td><span id="UserName_L" name="UserName_L">@Model.UserName</span></td>
+        </tr>
+        <tr>
+            <td class="text-end">手机号码：</td>
+            <td><span id="Phone_L" name="Phone_L">@Model.Phone</span></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <a href="javascript:;" class="btn btn-info" onclick="mvcpage.del({ ids: '@Model.ID', url: 'Audit_Btn_Click', after:function(){location=location;} });">审核通过</a>
+                <a href="javascript:;" class="btn btn-info" onclick="mvcpage.del({ ids: '@Model.ID', url: 'UnAudit_Btn_Click',after:function(){location=location;} });">取消审核</a>
+                <a href="javascript:;" class="btn btn-info" onclick="mvcpage.del({ ids: '@Model.ID', url: 'Del_Btn_Click', confirm: '@Html.Raw(L.确定要删除吗)',after:function(){location=location;} });">删除单据</a>
+            </td>
+        </tr>
+        <tr>
+            <td>管理员备注</td>
+            <td>
+                <input type="text" ID="AdminRemind_T" name="AdminRemind_T" TextMode="MultiLine" class="m715-50" style="height:100px;" value="" />
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" value="保存信息" class="btn btn-primary" />
+                <a href="OrderRepairAudit" class="btn btn-primary">返回列表</a>
+            </td>
+        </tr>
+    </table>
+}
+@section script{
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+    <script src="/JS/Controls/ZL_Webup.js"></script>
+    <script>
+        $(function () {
+            var imgs = $("#Attach_Hid").val();
+            if (imgs != "") { ZL_Webup.AddReadOnlyLi(imgs); }
+        });
+    </script>
+}

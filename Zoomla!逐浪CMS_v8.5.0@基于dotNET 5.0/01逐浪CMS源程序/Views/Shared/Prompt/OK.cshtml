@@ -1,0 +1,45 @@
+﻿@model ErrorViewModel
+@using ZoomLaCMS.Resources
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string url = Model.ReturnUrl;
+    string message = Model.Message;
+    try
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            url = "javascript:history.back();";
+        }
+    }
+    catch (Exception) { }
+}
+
+@section head{
+<link rel="stylesheet" href="/res/css/animate.min.css"/>
+<link rel="stylesheet" href="/theme/css/v4style.css" />
+<title>@L.成功</title>
+}
+@section content{
+<div class="container animated sysTips_prompt">
+    <div class="col-sm-6 offset-sm-3">
+        <div class="card">
+            <div class="card-header"><i class="zi zi_bulbLine" aria-hidden="true"></i> @(L.成功) </div>
+            <div class="card-body text-center">
+                <h5 class="card-title"></h5>
+                <p class="card-text">@message</p>
+                <div class="card-text"><a ID="LnkReturnUrl" href="@url" class="btn btn-info" style="color:#fff;"><i class="zi zi_reply"></i> @L.返回上一页 </a></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+@section script{
+    @if (Model.TimeOut > 0)
+    {
+        <script>setTimeout(function () {
+                document.getElementById('LnkReturnUrl').click(); //location = "@(url)";
+            },@Model.TimeOut);</script>
+    }
+    
+}

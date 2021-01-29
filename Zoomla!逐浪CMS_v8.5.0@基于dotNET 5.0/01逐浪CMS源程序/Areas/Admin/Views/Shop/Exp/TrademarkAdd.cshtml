@@ -1,0 +1,18 @@
+﻿@model ZoomLa.Model.M_Trademark
+@section head {<title>@L.添加品牌</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Call.PathAdmin("Shop/exp/Trademark"),@L.品牌管理),
+        new Bread(){url=Context.Request.RawUrl(), text=L.品牌管理 ,addon="<a href='TrademarkAdd'>["+@L.添加品牌+"]</a>"}
+        })
+    <div class="container-fluid">
+        <form method="post" action="@MVCHelper.GetAction("Trademark_Submit",Context.Request)">
+            @Html.Partial(MVCHelper.ViewDir_Admin + "Shop/Exp/TrademarkAdd_Page.cshtml")
+        </form>
+    </div>
+}
+@section script{
+
+
+}

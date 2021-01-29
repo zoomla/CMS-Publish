@@ -1,0 +1,211 @@
+﻿@{ 
+    Layout = "_empty";
+}
+@functions{
+    //B_Blog_Sdl sdlBll = new B_Blog_Sdl();
+    //M_Blog_Sdl sdlMod = new M_Blog_Sdl();
+    //B_MisInfo typebll = new B_MisInfo();
+    //B_User buser = new B_User();
+    //public int TypeID { get { return DataConverter.CLng(Request.QueryString["TypeID"]); } }
+    //protected void Page_Load(object sender, EventArgs e)
+    //{
+    //    if (!IsPostBack)
+    //    {
+    //        MyBind();
+    //    }
+    //}
+    //private void MyBind() { }
+    ////获取指定月份下的数据
+    //protected void BtnAdd_Click(object sender, EventArgs e)
+    //{
+    //    M_UserInfo mu = buser.GetLogin();
+    //    sdlMod.Name = string.IsNullOrEmpty(Name_T.Text) ? "无标题" : Name_T.Text;
+    //    sdlMod.TaskType = TypeID;
+    //    string startdate = txtBeginTime.Text.Trim() + " " + Request.Form["startHour"] + ":" + Request.Form["startMinitue"];
+    //    sdlMod.StartDate = DataConverter.CDate(startdate);
+    //    string enddate = txtEndTime.Text.Trim() + " " + Request.Form["endHour"] + ":" + Request.Form["endMinitue"];
+    //    sdlMod.EndDate = DataConverter.CDate(enddate);
+    //    if (sdlMod.StartDate > sdlMod.EndDate)
+    //        function.WriteErrMsg("开始日期不能大于结束日期!");
+    //    sdlMod.Describe = Request.Form["describe"].ToString();
+    //    sdlMod.UserID = mu.UserID;
+    //    sdlBll.Insert(sdlMod);
+    //    function.Script(this, "refresh();");
+    //}
+    //protected void AddType_B_Click(object sender, EventArgs e)
+    //{
+    //    M_UserInfo mu = buser.GetLogin();
+    //    M_MisInfo typeMod = TypeID > 0 ? typebll.SelReturnModel(TypeID) : new M_MisInfo();
+    //    typeMod.Title = Type_T.Text;
+    //    typeMod.MID = mu.UserID;
+    //    Type_T.Text = "";
+    //    if (typeMod.ID > 0) { typebll.UpdateByID(typeMod); }
+    //    else { typebll.insert(typeMod); }
+    //    function.Script(this, "refresh();");
+    //}
+    M_MisAttendance maMod = new M_MisAttendance();
+    public M_MisAttendance get(string id)
+    {
+        if (id==null)
+        {
+            id = "0";
+            maMod.BeginTime = DateTime.Now.ToString();
+        }
+        DataTable dt = ZoomLa.SQLDAL.DBCenter.Sel("ZL_MisAttendance", "ID=" + id);
+        foreach (DataRow dr in dt.Rows)
+        {
+            maMod.DepartMent = dr["DepartMent"].ToString();
+            maMod.BeginTime = dr["BeginTime"].ToString();
+            maMod.EndTime = dr["EndTime"].ToString();
+            maMod.UserName = dr["UserName"].ToString();
+            maMod.Comment = dr["Comment"].ToString();
+        }
+        return maMod;
+    }
+}
+@section head{ <title>添加日程</title>}
+@section content{ 
+<link href="/theme/css/V4user.css" rel="stylesheet" />
+<form method="post" action="@MVCHelper.GetAction("DailyPlan_Add_Submit",Context.Request)">
+<div id="addsubject_div" class="container-xl">
+    <table id="Add_Table" class="table table-bordered table-striped sys_table">
+      <tr>
+        <td class="text-end w6rem_lg "><span>日程名称: <span class="text-danger">*</span></span></td>
+        <td>@*<asp:TextBox runat="server" type="text" ID="Name_T" class="form-control max20rem day_text" ></asp:TextBox>*@
+          <input type="hidden" value="@ViewContext.HttpContext.Request.Query["userid"]" id="user" name="user" />
+          <input type="hidden" value="@get(@ViewContext.HttpContext.Request.Query["ID"]).UserName" id="usert" name="usert" />
+            <input type="text" id="Name_T" name="Name_T" class="form-control max20rem day_text" value="@get(@ViewContext.HttpContext.Request.Query["ID"]).DepartMent" />
+          </td>
+      </tr>
+      <tr>
+        <td class="text-end"><span>开始时间: <span class="text-danger">*</span></span></td>
+        <td> 
+            <div class="input-group">
+                @*<asp:TextBox class="form-control text_x day_text formdate" ID="txtBeginTime" runat="server"></asp:TextBox>
+                <select name="startHour" class="date_hour form-control text_x"></select>
+                <select name="startMinitue" class="date_minitue form-control text_x"></select>*@
+                <input type="text" class="form-control max20rem day_text" value="@get(@ViewContext.HttpContext.Request.Query["ID"]).BeginTime" name="txtBeginTime" id="txtBeginTime" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' });" />
+            </div>
+            @*<asp:HiddenField ID="StartDate_Hid" runat="server" />*@
+        </td>
+      </tr>
+    <tr>
+        <td class="text-end">
+            <span>结束时间: <span class="text-danger">*</span></span>
+        </td>
+        <td>
+            <div class="input-group">
+                @*<asp:TextBox class="form-control text_x day_text formdate" ID="txtEndTime" runat="server"></asp:TextBox>
+                <select name="endHour" class="date_hour form-control text_x"></select>
+                <select name="endMinitue" class="date_minitue form-control text_x"></select>*@
+                <input type="text" class="form-control max20rem day_text" value="@get(@ViewContext.HttpContext.Request.Query["ID"]).EndTime" name="txtEndTime" id="txtEndTime" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm' });"  />
+            </div>
+            @*<asp:HiddenField ID="EndDate_Hid" runat="server" />*@
+        </td>
+    </tr>
+      <tr>
+        <td class="text-end"><span>日程描述:</span></td>
+        <td><textarea class="form-control day_text" style="width: 75%; height: 8em;" name="describe" id="describe" placeholder="点击此处添加日程描述">@get(@ViewContext.HttpContext.Request.Query["ID"]).Comment</textarea></td>
+      </tr>
+      <tr>
+          <td colspan="2" class="text-center">
+              @*<asp:Button ID="Add_Btn" runat="server" Text="提交" CssClass="btn btn-outline-info" OnClientClick="return SetData()" OnClick="BtnAdd_Click" ValidationGroup="Add" />*@
+              <input type="submit" class="btn btn-outline-info" value="提交" />
+              <input type="button" class="btn btn-outline-info" onclick="closeDiag()" value="取消" />
+          </td>
+      </tr>
+    </table>
+</div>
+<div id="addtype_div" style="display:none;">
+    <div class="input-group text_300">
+    @*<asp:TextBox ID="Type_T" CssClass="form-control" placeholder="日程名" Text="" runat="server"></asp:TextBox>*@
+    <input type="text" id="Type_T" name="Type_T" class="form-control" placeholder="日程名" />
+        @*<asp:HiddenField ID="TypeID_Hid" runat="server" />*@
+        <span class="input-group-btn">
+            @*<asp:Button ID="AddType_B" runat="server" OnClick="AddType_B_Click" Text="确定" OnClientClick="return CheckTypeData()" CssClass="btn btn-outline-info" />*@
+            <input type="button" id="AddType_B" onclick="" value="确定" class="btn btn-outline-info" />
+        </span>
+    </div>
+</div>
+</form>
+}
+@section script{ 
+<link type="text/css" rel="stylesheet" href="/JS/Plugs/date/bootstrap-datetimepicker.css" />
+<script src="/JS/Plugs/date/bootstrap-datetimepicker.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script>
+$(function () {
+    InitDateData();
+    $(".formdate").datetimepicker({
+        format: "yyyy-mm-dd",
+        language: "zh-CN",
+        weekStart: 1,
+        todayBtn: 1,
+        autoclose: 1,
+        startView: 2,
+        minView: 2,
+        maxView: 2,
+        initialDate: new Date()
+    })
+    //-----默认时间
+    var now = new Date();
+    var year = now.getUTCFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    if (month < 10) { month = "0" + month; }
+    if (day < 10) { day = "0" + day;}
+    $(".formdate").val(year+"-"+month+"-"+day);
+    $(".date_hour").val(now.getHours());
+})
+//初始化时间数据
+function InitDateData() {
+    var hourstr = "";
+    for (var i = 0; i < 24; i++) {//初始化小时
+        hourstr += "<option>" + i + "</option>";
+    }
+    $(".date_hour").html(hourstr);
+    var minites = "";
+    var startvalue = -5;//初始分钟
+    for (var i = 0; i < 12; i++) {
+        startvalue += 5;
+        var tempdata = startvalue;
+        if (tempdata < 10)
+            tempdata = "0" + tempdata;//强制两位数
+        minites += "<option>" + tempdata + "</option>";
+    }
+    $(".date_minitue").html(minites);
+}
+function closeDiag() {
+    parent.CloseComDiag();
+}
+function refresh()
+{
+    closeDiag();
+    parent.location = parent.location;
+}
+//替换开始时间与结束时间格式
+function SetData() {
+    if ($("#Name_T").val() == "") {
+        alert('日程名称不能为空!');
+        return false;
+    }
+    if ($("#txtBeginTime").val() == "" || $("#txtEndTime").val() == "") {
+        alert('开始时间或结束时间不能为空!');
+        return false;
+    }
+    if ($("[name='place']").val() == "") {
+        alert("日程类别不能为空!")
+        return false;
+    }
+    var startdate = $("#txtBeginTime").val() + " " + $("select[name='startHour']").val() + ":" + $("select[name='startMinitue']").val();//开始时间
+    var enddate = $("#txtEndTime").val() + " " + $("select[name='endHour']").val() + ":" + $("select[name='endMinitue']").val();//结束时间
+    if (Date.parse(startdate.replace('-', '/')) > Date.parse(enddate.replace('-', '/'))) {
+        alert("开始时间不能早于结束时间!");
+        //$("select[name='endMinitue']").next().show();//时间错误提示
+        return false;
+    }
+    $("select[name='endMinitue']").next().hide();
+    return true;
+}
+</script>
+}

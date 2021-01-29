@@ -1,0 +1,60 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+public string GetUsedFlag(string tType)
+{
+    bool t = DataConverter.CBool(tType);
+    return DataConverter.CBool(tType) ? ComRE.Icon_OK : ComRE.Icon_Error;
+}
+
+}
+@{ 
+    string apiUrl = "DictCate_API?action=";
+}
+<div id="EGV">
+<table class="table table-bordered table-sm table-hover table-striped">
+    <thead>
+        <tr>
+            <th scope="col" class="w1rem"></th>
+            <th scope="col">ID</th>
+            <th scope="col">@L.分类</th>
+            <th scope="col">@L.启用</th>
+            <th scope="col" class="td_l">@L.操作</th>
+        </tr>
+    </thead>
+    @foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr ondblclick="location = 'DicItemList?CateID=@dr["DicCateID"]';">
+        <td class="node_select"><input type="checkbox" name="idchk" value="@dr["DicCateID"]" /></td>
+        <td>@dr["DicCateID"]</td>
+        <td><a id="item_@dr["DicCateID"]">@dr["CategoryName"]</a></td>
+        <td>@MvcHtmlString.Create(GetUsedFlag(DataConverter.CStr(dr["IsUsed"])))</td>
+        <td>
+            <a href="javascript:;" onclick="showAdd('@dr["DicCateID"]')"><i class="zi zi_pencilalt"></i></a>
+            <a href="javascript:;" onclick="mvcpage.del({ids:'@dr["DicCateID"]',url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.确定要删除吗)'});"><i class="zi zi_trashalt" title="删除"></i></a>
+            <a href="DicItemList?CateID=@dr["DicCateID"]"><i class="zi zi_list" title="列表"></i>@L.字典项目列表</a>
+        </td>
+    </tr>
+}
+    @Html.Partial("_page")
+</table>
+<div class=" row">
+    <div class="col-8">
+        <div class="btn-group ">
+            <input type="button" class="btn btn-outline-secondary" ID="btndelete" value="@L.批量删除" onclick="mvcpage.bat({url:'@(apiUrl+"del")',confirm:'@Html.Raw(L.你确定要将所有选择项删除吗)'});" />
+            <input type="button" class="btn btn-outline-secondary" ID="btnSetUsed" value="@L.批量启用" onclick="mvcpage.bat({url:'@(apiUrl+"use")'});" />
+            <input type="button" class="btn btn-outline-secondary" ID="btnSetUnUsed" value="@L.批量停用" onclick="mvcpage.bat({url:'@(apiUrl+"unuse")'});" />
+            <button type="button" class="btn btn-outline-secondary" onclick="ShowComDiag('@Call.PathAdmin("Com/Import?Mode=Ex_Dictionary")','数据导入');">@L.数据导入</button>
+        </div>
+    </div>
+    <div class="col-4">
+        <div id="sleall" class="ms-auto ">
+            <div class="input-group">
+                <span class="input-group-text"> @L.分类名：</span>
+                <input type="text" ID="CateName" class="form-control max20rem" />
+                <input type="hidden" ID="CateID" />
+                <button type="button" ID="btnSave" class="input-group-text" onclick="save();">@L.保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

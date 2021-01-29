@@ -1,0 +1,224 @@
+﻿@using Newtonsoft.Json;
+@{
+    DataTable dt = ViewBag.readfile;
+}
+@functions{
+    public string GetUrl(string url,int type)
+    {
+        int index=url.IndexOf("=");
+        url= url.Substring(index+1, url.Length - index-1);
+        switch (type)
+        {
+            case 0:
+                break;
+            case 1:
+                url = SiteConfig.SiteInfo.SiteUrl + "/API/WXAPP?apiId=" + SiteConfig.SiteInfo.API_ID + "&apiKey=" + SiteConfig.SiteInfo.API_Key + "&action="+url;
+                break;
+            case 2:
+                url = url.Substring(1,url.Length-2);
+                break;
+            default:
+                break;
+        }
+        return url;
+    }
+}
+@section head{<title>接口配置</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread("SiteInfo","站点配置"),
+    new Bread("APIInfo","接口配置")
+    })
+<form method="post" class="" action="APIInfo_Submit">
+    <div class="container-fluid pe-0">
+        <div class="row sysRow">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item"><a class="nav-link active show" href="#Tabs0" data-bs-toggle="tab">接口列表</a></li>
+                <li class="nav-item"><a class="nav-link" href="#Tabs1" data-bs-toggle="tab">接口配置</a></li>
+            </ul>
+            <div class="tab-content col-12 table_box">
+                <div class="tab-pane active" id="Tabs0">
+                    <input type="hidden" id="text" />
+                    <table id="tbone" class="table table-bordered table-striped table-hover">
+                        <tr itemscope="">
+                            <th scope="col" class="td_xs">序号</th>
+                            <th scope="col" class="w12rem_lg">接口名称</th>
+                            <th scope="col" class="w12rem_lg">类型</th>
+                            <th scope="col">描述</th>
+                            @*<th scope="col">接口示例</th>*@
+                            @*<th scope="col">参数值</th>*@
+                            <th scope="col" class="w12rem_lg">操作</th>
+                        </tr>
+                        @*@JsonConvert.SerializeObject(dt)*@
+                        @{ 
+                            int i = 0;
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                i++;
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@GetUrl(dr["api"].ToString(),0)</td>
+                                    <td>@GetUrl(dr["type"].ToString(), 2)</td>
+                                    <td>@dr["name"]</td>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="text" id="InterfaceName" class="api_text" value="@GetUrl(dr["api"].ToString(), 0)" style="opacity:0; width:0rem;" />
+                                            @*<button type="button" class="copyBtn"><i class='zi zi_copy' title='复制'></i></button>*@
+                                        <div>
+                                            <a href="javascript:;" class="copyBtn"><i class='zi zi_copy' title='复制'></i> 复制</a>
+                                            <a href="https://code.z01.com/apidoc/#api-@dr["apiGroup"]-@dr["name"]" target="_blank"><i class="zi zi_usercircle"></i> 详情</a>
+                                            <a href="@GetUrl(dr["api"].ToString(),1)" target="_blank"><i class="zi zi_globe" title="预览"></i> 预览</a>
+                                        </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </table>
+                </div>
+                <div class="tab-pane" id="Tabs1">
+
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th class="w12rem_lg">关闭API接口</th>
+                            <td>
+                                @MVCHelper.H_Check("APIClose", SiteConfig.SiteInfo.APIClose, new { @class = "switchChk", value = "1" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Application ID</th>
+                            <td>
+                                <div class="input-group" style="width:600px;">
+                                    <input type="text" id="API_ID" name="API_ID" class="form-control api_text" value="@SiteConfig.SiteInfo.API_ID" maxlength="32" />
+                                    <span class="input-group-append">
+                                        <button type="button" class="btn btn-info copyBtn" title="复制"><i class="zi zi_copy"></i></button>
+                                        <button type="button" class="btn btn-primary reBtn" title="重新生成"><i class="zi zi_recycle"></i></button>
+                                    </span>
+                                </div>
+                                <small class="tip">这是你的身份认证ID,用于接口调用数据</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>访问APIKey</th>
+                            <td>
+                                <div class="input-group" style="width:600px;">
+                                    <input type="text" id="API_Key" name="API_Key" class="form-control api_text" value="@SiteConfig.SiteInfo.API_Key" maxlength="32" />
+                                    <span class="input-group-append">
+                                        <button type="button" class="btn btn-info copyBtn" title="复制"><i class="zi zi_copy"></i></button>
+                                        <button type="button" class="btn btn-primary reBtn" title="重新生成"><i class="zi zi_recycle"></i></button>
+                                    </span>
+                                </div>
+                                <small class="tip">该APIKey用于前端页面,仅可用于读取内容信息与数据资源</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>管理APIKey</th>
+                            <td>
+                                <div class="input-group" style="width:600px;">
+                                    <input type="text" name="API_AdminKey" class="form-control api_text" value="@SiteConfig.SiteInfo.API_AdminKey" maxlength="32" />
+                                    <span class="input-group-append">
+                                        <button type="button" class="btn btn-info copyBtn" title="复制"><i class="zi zi_copy"></i></button>
+                                        <button type="button" class="btn btn-primary reBtn" title="重新生成"><i class="zi zi_recycle"></i></button>
+                                    </span>
+                                </div>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>调用链接</th>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" class="form-control api_text" readonly="readonly" id="APIUrl" />
+                                    <button type="button" class="btn btn-info copyBtn" title="复制"><i class="zi zi_copy"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>是否所有人可访问</th>
+                            <td>
+                                <label><input type="radio" name="IPAccess" value="yes" />是</label>
+                                <label><input type="radio" name="IPAccess" value="no" />否</label></br>
+                                <small class="text-muted" style="color:red;">*为"是"时针对黑名单进行筛选  为"否"时针对白名单进行筛选</small>
+                                <script>
+                                        $(function () {
+                                            if ("@SiteConfig.SiteInfo.IPAccess"=="") {
+                                               //默认为开启
+                                                SetChkVal("IPAccess","yes");
+                                            } else {
+                                                //走配置"
+                                                SetChkVal("IPAccess","@SiteConfig.SiteInfo.IPAccess");
+                                            }
+                                           })
+                                </script>
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <th>
+                                白名单</br>
+                                <small class="tip">(各IP之间用分号分隔)</small>
+                            </th>
+                            <td>
+                                <label><input type="text" name="whitelist" class="form-control" value="@SiteConfig.SiteInfo.WhiteList" style="width:600px" /></label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                黑名单</br>
+                                <small class="tip">(各IP之间用分号分隔)</small>
+                            </th>
+                            <td>
+                                <label><input type="text" name="blacklist" class="form-control" value="@SiteConfig.SiteInfo.BlackList" style="width:600px" /></label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td>
+                                <input type="submit" value="保存配置" class="btn btn-info" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        </div>
+</form>
+}
+@section script{
+<script src="~/res/js/bootstrap-switch.js"></script>
+<script src="/js/SelectCheckBox.js"></script>
+<script src="/js/Controls/ZL_Dialog.js"></script>
+<link href="~/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script>
+    $(function () {
+        new ClipboardJS('.copyBtn', {
+            text: function (dom) {
+                var $input = $(dom).closest(".input-group").find(".api_text");
+                return $input.val();
+            }
+        });
+        $(".reBtn").click(function () {
+            var $input = $(this).closest(".input-group").find(".api_text");
+            $input.val(GetRanID($input.attr("maxlength")));
+            createApiUrl();
+        });
+        $(".api_text").each(function () {
+            var $input = $(this);
+            if (ZL_Regex.isEmpty($input.val())) {
+              $input.val(GetRanID($input.attr("maxlength")));
+            }
+        });
+        createApiUrl();
+    })
+        function createApiUrl() {
+        var apiUrl = "@(SiteConfig.SiteInfo.SiteUrl+"/API/WXAPP")";
+        apiUrl += "?apiId=" + $("#API_ID").val();
+        apiUrl += "&apiKey="+ $("#API_Key").val();
+        apiUrl += "&action=";
+        $("#APIUrl").val(apiUrl);
+}
+</script>
+}

@@ -1,0 +1,29 @@
+﻿@{ 
+    Layout = "_Layout";
+}
+
+@section content{
+<div class="vw-100 vh-100 d-flex flex-column align-items-center" style="padding-top:calc(50vh - 200px);">
+    <div id="show_text" style="width:100%;max-width:600px;max-height:400px;overflow:auto;">
+        <div class="py-1" style="white-space:pre-wrap">正在检查页面数据库配置文件...</div>
+    </div>
+</div>
+}
+
+@section script{ 
+<script src="~/js/signalr/progress.js"></script>
+<script>
+$(function() {
+    initialProgress(setProgress);
+});
+function setProgress(ratio, message) {
+    let div = '<div class="py-1" style="white-space:pre-wrap">' + message + ', ' + ratio * 100 + '%' + '</div>';
+    $("#show_text").append(div);
+    if (ratio == 1) {
+        setTimeout(function () {
+            window.location.href = encodeURI('@ViewData["ReturnUrl"]');
+        }, 3 * 1000);
+    }
+}
+</script>
+}

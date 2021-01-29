@@ -1,0 +1,114 @@
+﻿@using System.Data
+@using ZoomLa.Model
+@using ZoomLa.Common
+@model System.Data.DataTable
+@functions{
+    public string GetPayClass(DataRow dr)
+    {
+        return M_PayPlat.GetPayPlatName(Convert.ToInt32(dr["PayClass"]));
+    }
+    public IHtmlContent ShowIsDisable(DataRow dr)
+    {
+        string html = "";
+        bool disabled = DataConverter.CBool(DataConverter.CStr(dr["IsDisabled"]));
+        if (disabled)
+        {
+            html = "<a href='javascript:;'  onclick=\"mvcpage.del({url:'PayPlat_API?action=enable&status=1',ids:'" + dr["PayPlatID"] + "',after:function(){location=location;}});\" title='点击启用'>" + ComRE.Icon_Error + "</a>";
+        }
+        else
+        {
+            html = "<a href='javascript:;' onclick=\"mvcpage.del({url:'PayPlat_API?action=disable',ids:'" + dr["PayPlatID"] + "',after:function(){location=location;}});\" title='点击禁用'>" + ComRE.Icon_OK + "</a>";
+        }
+        return MvcHtmlString.Create(html);
+    }
+}
+@{
+    string apiUrl = "PayPlat_API?action=";
+}
+@section head{<title>@L.支付平台管理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("/{manage}/Config/SiteInfo",L.系统设置),
+        new Bread(Context.Request.RawUrl(),L.在线支付平台)},
+        Call.GetHelp(36))
+    <div class="table-responsive" id="EGV">
+        <table class="table table-hover table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="row">ID</th>
+                    <th scope="row">@L.名称</th>
+                    <th scope="row">@L.支付平台</th>
+                    <th scope="row">@L.商户号</th>
+                    <th scope="row">@L.启用</th>
+                    <th scope="row">@L.排序</th>
+                    <th scope="row" class="td_m">@L.操作</th>
+                </tr>
+            </thead>
+            @foreach (DataRow dr in Model.Rows)
+            {
+                <tr id="@dr["PayPlatID"]" ondblclick="location = 'PayPlatAdd?ID=@dr["PayPlatID"]';" title="双击编辑">
+                    <td>@dr["PayPlatID"]</td>
+                    <td data-bs-toggle="tooltip" title="双击编辑">@dr["PayPlatName"]</td>
+                    <td>@GetPayClass(dr)</td>
+                    <td>@dr["AccountId"]</td>
+                    <td>@ShowIsDisable(dr)</td>
+                    <td class="text-center td_m">
+                        <a href="javascript:;" onclick="MoveItem(this,'up');"><i class="zi zi_arrowUp"></i>@L.上移</a>
+                        <a href="javascript:;" onclick="MoveItem(this,'down');"><i class="zi zi_arrowDown"></i>@L.下移</a>
+                    </td>
+                    <td>
+                        <a href="PayPlatAdd?ID=@dr["PayPlatID"]"><i class="zi zi_pencilalt" title="修改"></i> 编辑</a>
+                        @if (dr["IsDefault"].Equals(true))
+                        {
+                            <a href="javascript:;" id="mor" class="text-danger" onclick="mvcpage.del({ids:'@dr["PayPlatID"]',url:'@(apiUrl+"setdef")',after:function(){location=location;}});">@L.设为默认</a>
+                        }
+                        else
+                        {
+                            <a href="javascript:;" id="mor" onclick="mvcpage.del({ids:'@dr["PayPlatID"]',url:'@(apiUrl+"setdef")',after:function(){location=location;}});">@L.设为默认</a>
+                        }
+                    </td>
+                </tr>
+            }
+    @*@Html.Partial("_page")*@
+        </table>
+    </div>
+}
+@section script{
+    <link href="/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <script src="/res/js/bootstrap-switch.js"></script>
+    <style type="text/css">
+        .allchk_l {
+            display: none;
+        }
+    </style>
+    <script>
+function disableThis(chk) {
+$.post("@(apiUrl+"enable")", { id: chk.value, "status": chk.checked }, function (data) {
+    console.log(data);
+});
+}
+function MoveItem(obj, direct) {
+    var $curtr = $(obj).closest("tr");
+    var $tarTr = null;
+switch (direct) {
+    case "up":
+        $tarTr = $curtr.prev("tr");
+        if ($tarTr.length < 1 || $tarTr.attr("id") == undefined) { console.log("@Html.Raw(L.无目标行不处理)");}
+        else {
+            $curtr.after($tarTr);
+        }
+        break;
+    case "down":
+        $tarTr = $curtr.next("tr");
+        if ($tarTr.length < 1 || $tarTr.attr("id") == undefined) { console.log("@Html.Raw(L.无目标行不处理)"); }
+        else {
+            $tarTr.after($curtr);
+        }
+        break;
+    }
+var opts = { action: "move", "direct": direct, curid: $curtr.attr("id"), tarid: $tarTr.attr("id") };
+$.post("PayPlat_API", opts, function (data) { });
+}
+    </script>
+}

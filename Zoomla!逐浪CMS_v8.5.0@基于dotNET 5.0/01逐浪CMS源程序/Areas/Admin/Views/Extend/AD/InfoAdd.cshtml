@@ -1,0 +1,219 @@
+﻿@using ZoomLa.Model.Extend
+@using ZoomLa.BLL.Extend
+@model ZoomLa.Model.Extend.M_AD_Info
+@{
+    B_AD_Zone zoneBll = new B_AD_Zone();
+    //M_AD_Zone zoneMod = zoneBll.SelReturnModel(Convert.ToInt32(Model.ZoneID));
+    DataTable zoneDT = zoneBll.Sel();
+}
+@section head{
+<link type="text/css" href="/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+<script type="text/javascript" src="/res/js/bootstrap-switch.js"></script>
+<link rel="stylesheet" href="/Plugins/Markdown/css/editormd.css" />
+<link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<title>添加广告</title>
+<style type="text/css">
+.upload_wrap { width: 500px;}
+.upload_wrap iframe { height: 38px; }
+.item { display: none;}
+.CodeMirror-scroll { height: 360px; }
+</style>
+}
+@section content{
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread("InfoManage","广告管理"),
+    new Bread() {url="", text="广告信息" }},
+    Call.GetHelp(29)
+    )
+<form method="post" action="@MVCHelper.GetAction("InfoAdd_Submit",Context.Request)">
+<div class="">
+<table class="table table-bordered table-hover table-striped">
+<tr>
+<td>所属版位</td>
+<td>
+    <select class="form-control max20rem form-select" id="ZoneID" name="ZoneID" onchange="changeZType()">
+        @foreach (DataRow dr in zoneDT.Rows)
+        {
+            <option value="@dr["ID"]" data-ztype="@dr["ZType"]">@(dr["Name"]+"("+dr["ZType"]+")")</option>
+        }
+    </select>
+    @if (!string.IsNullOrEmpty(Model.ZoneID))
+    {
+        <script>$("#ZoneID").val("@Model.ZoneID")</script>
+    }
+</td>
+</tr>
+<tr><td>广告名称</td><td>@Html.TextBoxFor(m => m.Name, new { @class = "form-control max20rem required" })</td></tr>
+<tr>
+<td>有效期</td>
+<td>
+<div class="input-group">
+    <span class="input-group-prepend"><span class="input-group-text">起始时间</span></span>
+    @Html.TextBoxFor(m => m.SDate, new { @class = "form-control text_300", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })
+    <span class="input-group-prepend"><span class="input-group-text">到期时间</span></span>
+    @Html.TextBoxFor(m => m.EDate, new { @class = "form-control text_300", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })
+</div>
+</td>
+</tr>
+<tr><td>是否启用</td><td>@MVCHelper.H_Check("ZStatus", "启用后才会在版位中显示", "99", (Model.ZStatus.ToString()))</td></tr>
+<tr>
+    <th>广告权重</th>
+    <td align="left">
+        @Html.TextBoxFor(m => m.Priority, new { @class = "form-control max20rem required" })
+        <asp:TextBox ID="TxtPriority" runat="server" CssClass="form-control text_md" TextMode="singleLine" MaxLength="3" Text="1" Style="width: 50px"></asp:TextBox>
+        * 此项为版位广告随机显示时的优先权，权重越大显示机会越大。
+    </td>
+</tr>
+<tr><td colspan="10" class="text-center"><strong><i class="zi zi_flag"></i> 广告内容</strong></td></tr>
+<tr class="item" data-ztype="弹出窗口 对联广告 固定位置 漂浮移动">
+    <td>图片</td>
+    <td>
+        @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "image", SaveType = "admin", Value = Model.Image })
+    </td>
+</tr>
+<tr class="item" data-ztype="对联广告 固定位置"><td>文本</td><td>@Html.TextBoxFor(m => m.Text, new { @class = "form-control " })</td></tr>
+<tr class="item" data-ztype="弹出窗口 对联广告 固定位置 漂浮移动"><td>链接</td><td>@Html.TextBoxFor(m => m.LinkUrl, new { @class = "form-control ", })</td></tr>
+<tr class="item" data-ztype="矩形横幅">
+    <td>图片组</td>
+    <td>
+        <input type="button" id="upfile_btn" class="btn btn-info btn-sm" value="选择文件" />
+        <div id="uploader" class="uploader"><ul class="filelist"></ul></div>
+        <input type="hidden" id="Attach_Hid" name="Attach_Hid" value="@Model.Images" />
+    </td>
+</tr>
+@*<tr><td>备注</td><td>@Html.TextAreaFor(m=>m.Remind,new {@class="form-control",rows="5" })</td></tr>*@
+</table>
+</div>
+<ul class="nav nav-tabs" role="tablist">
+<li class="nav-item"><a class="nav-link active" href="#html" aria-controls="html" role="tab" data-bs-toggle="tab" onclick="Show('html')">Html代码</a></li>
+<li class="nav-item"><a class="nav-link" href="#css" aria-controls="css" role="tab" data-bs-toggle="tab" onclick="Show('css')">Css样式代码</a></li>
+<li id="heid">&nbsp;&nbsp;&nbsp;&nbsp;<small>基本格式为.carousel_wrap_{0}{{ }}格式，注意双大括号的使用。</small></li>
+</ul>
+<div class="tab-content">
+<div class="tab-pane active" data-ztype="文字代码 弹出窗口 固定位置 随屏移动 静默样式" id="html">@Html.TextAreaFor(m => m.Html, new { @class = "form-control" })</div>
+<div class="tab-pane" data-ztype="文字代码 弹出窗口 固定位置 随屏移动 静默样式 对联广告 矩形横幅 漂浮移动" id="css">@Html.TextAreaFor(m => m.Style, new { @class = "form-control" })</div>
+<div class="panel-footer text-center Conent_fix">
+<input type="submit" class="btn btn-info" value="保存信息" />
+<a href="InfoManage" class="btn btn-outline-info">返回列表</a>
+</div>
+</div>
+</form>
+}
+@section script{
+<script src="/Plugins/Markdown/editormd.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script>
+function getCodeValue() {
+	return (localStorage.modeName) ? $("#"+localStorage.modeName.replace("text/", "").replace("c/c++", "cpp")+"-code").val() : $("#html-code").val();
+}
+var sqlEditor = null;
+$(function() {
+    sqlEditor = editormd("html", {
+		width            : "100%",
+		height           : 360,
+		watch            : false,
+		toolbar          : false,
+		codeFold         : true,
+		searchReplace    : true,
+		placeholder      : "开始编程!",
+		value            : getCodeValue(),
+		theme            : (localStorage.theme) ? localStorage.theme : "default",
+		mode             : (localStorage.mode) ? localStorage.mode : "text/html",
+		path             : '/Plugins/Markdown/lib/'
+	}); 
+    sqlEditor2 = editormd("css", {
+		width            : "100%",
+		height           : 360,
+		watch            : false,
+		toolbar          : false,
+		codeFold         : true,
+		searchReplace    : true,
+		placeholder      : "开始编程!",
+		value            : getCodeValue(),
+		theme            : (localStorage.theme) ? localStorage.theme : "default",
+		mode             : (localStorage.mode) ? localStorage.mode : "text/html",
+		path             : '/Plugins/Markdown/lib/'
+	}); 
+    localStorage.mode = 'css';
+    localStorage.modeName = 'text/html';
+    sqlEditor2.setCodeMirror('mode','css');
+});
+
+$('#heid').hide();
+function Show(sty) {
+switch (sty) {
+case "html":
+        $('#heid').hide();
+    break;
+    case "css":
+        $('#heid').show();
+    break;
+}
+}
+$(function () {
+    $("form").validate({});
+    ZL_Webup.config.json.ashx = "";
+    ZL_Webup.config.json.accept = "img";
+    $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+    if (!ZL_Regex.isEmpty($("#Attach_Hid").val())) {
+    var files = $("#Attach_Hid").val().split('|');$("#Attach_Hid").val("");
+    for (var i = 0; i < files.length; i++) {if (!files[i]) { continue;}AddAttach(files[i], { _raw: files[i] }, {});}}
+    changeZType();
+})
+function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+var heditor = CodeMirror.fromTextArea(document.getElementById("Html"), {
+        mode: "text/html",
+        lineNumbers: true,
+        textWrapping: false,
+        styleActiveLine: true
+});
+var seditor = CodeMirror.fromTextArea(document.getElementById("Style"), {
+    mode: "text/html",
+    lineNumbers: true,
+    textWrapping: false,
+    styleActiveLine: true
+});
+function changeZType() {
+    var $option = $("#ZoneID option:checked");
+   $(".item").hide();
+    if ($option.length < 1) { return; }
+    var ztype = $option.data("ztype");
+    var style = '';
+    if (@Model.ID < 1) {
+    if (ztype == "文字代码" || ztype == "静默样式" || ztype == "随屏移动") {
+        style = ".carousel_wrap_{0}{{ }}";
+    } else if (ztype == "弹出窗口") {
+        style = ".ad_tcck_{0} img{{width:100%;border:0 none;}}\n\
+.ad_tcck_{0} .modal-header {{position: absolute;right:5%;min-height: 16.42857143px;padding: 0.5rem 0.5rem;}}"
+    }
+    else if (ztype == "对联广告") {
+        style = ".coupletbox_{0} .adpicture img{{width:100%;height:100%}}\n\
+.coupletbox_{0} .closeBtn {{line-height:20px;position:absolute;top:0;right:0;}}\n\
+.coupletbox_{0} .closeBtn:hover {{text-decoration:none;color:#000000;}}";
+    }
+    else if (ztype == "固定位置") {
+        style = ".ad_gdwz_{0} img{{ }}\n.ad_gdwz_{0} .content {{width:486px; margin:0 auto;min-height:1200px;}}";
+    } else if (ztype == "矩形横幅") {
+        style = ".carousel_wrap_{0} .carousel-item{{ }}";
+    } else if (ztype == "漂浮移动") {
+        style = "#infoMod_pfyd_{0} {{border:1px solid #aaa;}}\n\
+#infoMod_pfyd_{0} .closeAD {{position:absolute;top:0px;right:0px;height:15px;width:15px;background-color:#111;line-height:18px;border-radius:50%}}\n\
+#infoMod_pfyd_{0} .floatAD img{{width:100%;height:100% }}\n\
+#infoMod_pfyd_{0} .zi{{color:#fff}}";
+    }
+        seditor.setValue(style);
+        setTimeout(() => {
+            seditor.refresh()
+        }, 1)
+    }
+    //----------
+    $(".item").each(function () {
+         var itemType= $(this).data("ztype");
+        if (itemType.indexOf(ztype) > -1) { $(this).show();}
+    });
+}
+    </script>
+}

@@ -1,0 +1,130 @@
+﻿@using System.Data;
+@using ZoomLa.SQLDAL;
+@using ZoomLa.BLL.Auth;
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+B_Node nodeBll = new B_Node();
+B_Node_Auth naBll = new B_Node_Auth();
+M_UserInfo mu = new B_User(Context).GetLogin();
+DataTable nodeDT = nodeBll.SelByPid(0, true);
+int nodeId = DataConverter.CLng(Context.Request.GetParam("NodeID"));
+string nodeIds = naBll.SelNodeIds(new Com_Filter() { gids = mu.GroupID.ToString(), type = "zadd" });
+if (!string.IsNullOrEmpty(nodeIds))
+{
+nodeDT.DefaultView.RowFilter = "NodeID in(" + nodeIds + ")";
+}
+else
+{
+nodeDT.DefaultView.RowFilter = "1>2";//无权限，则去除所有
+}
+nodeDT = nodeDT.DefaultView.ToTable();
+C_TreeView treeMod = new C_TreeView()
+{
+NodeID = "NodeID",
+NodeName = "NodeName",
+NodePid = "ParentID",
+DataSource = nodeDT,
+liAllTlp = "<a href='MyContent'>全部内容</a>",
+LiContentTlp = "<a href='MyContent?NodeID=@NodeID'>@NodeName</a>",
+SelectedNode = nodeId.ToString()
+};
+}
+@section head{
+<title>MarkDown图床-@Call.SiteName</title>
+<link href="/theme/css/v4style.css" rel="stylesheet" />
+<style>
+.window{background-color:rgba(0,0,0,.5);position:fixed;display:none;border:1px solid #e0dfdf}
+.add_title{color:#fff}
+.mask{position:absolute;display:none}
+.add_title{width:95px;height:42px;line-height:40px;float:left;text-align:center;border-radius:5%;cursor:pointer}
+.u_nav,.page_ban,.u_top{display:none;}
+.u_main_content{margin-bottom:1rem;}
+</style>
+}
+@section content{
+<div class="mdpic_head">
+<div class="container-xl">
+<h1>MarkDown图床 <small>本图床仅供科研使用不拥有图片版权亦不提供授权，如有异议请即进与平台联系。</small></h1>
+    @MvcHtmlString.Create(ViewBag.addhtml)
+</div>
+</div>
+</div>
+
+<main class="container-xl" id="EGV" >
+<div class="fd_item preview_img_ul" >
+<ul data-id='txt_PhotoUrl' id="ul_PhotoUrl" class="row mdpic">
+    @{
+        string items = "";
+        foreach (DataRow dr in Model.dt.Rows)
+        {
+            items += @dr["ItemId"].ToString() + ",";
+        }
+        if (items.Length > 0) {
+            items = items.Substring(0, items.Length - 1);
+        DataTable dt = DBCenter.Sel("ZL_C_Photo", "id in (" + items + ")","ID DESC");
+        foreach (DataRow dr in dt.Rows)
+        {
+            string value = dr["PhotoUrl"].ToString().Trim(',');
+            if (!string.IsNullOrEmpty(value) && value != "[]")
+            {
+                value = "[" + value.TrimStart('[').TrimEnd(']').TrimEnd(',') + "]";
+                JArray arr = JsonConvert.DeserializeObject<JArray>(value);
+                if (arr.Count > 0)
+                {
+                    foreach (JObject jobj in arr)
+                    {
+                        <li class='col-md-4 col-6'><img src='@(jobj["url"].ToString().Substring(0, 4).Equals("http")?jobj["url"]:"/UploadFiles/"+jobj["url"])' class='preview_img' alt="@jobj["name"]" /><div class='file-panel'><i class='zi zi_fileCodeB choose' title='copy'><small>MarkDown引用</small></i></div></li>
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+</ul>
+@Html.Partial("_page", Model)
+</div>
+
+<div style="display:none;">
+    <input type="hidden" id="status" value="@ViewBag.Status" class="mvcparam" />
+    <input type="hidden" id="nodeid" value="@ViewBag.NodeID" class="mvcparam" />
+    <input type="hidden" id="siteurl" value="@SiteConfig.SiteInfo.SiteUrl" />
+</div>
+</main>
+<div class="window" id="center">
+<div class="border_add_nav">
+    <span class="add_title"></span>
+</div>
+</div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="/JS/ZL_Content.js?v=20200829"></script>
+<script>
+$(function () {
+    $(".tvNav a.list1").click(function () { showlist(this); });
+    if (window.localStorage.Content_tvNav) {
+        expand($("#" + window.localStorage.Content_tvNav));
+    }
+})
+function showlist(obj) {
+    $(obj).parent().parent().find("a").removeClass("activeLi");//a-->li-->ul
+    $(obj).parent().children("a").addClass("activeLi");//li
+    $(obj).parent().siblings("li").find("ul").slideUp();
+    $(obj).parent().children("ul").slideToggle();
+    window.localStorage.Content_tvNav = obj.id;
+}
+function expand(obj)//超链接,不以动画效果显示
+{
+    $a = $(obj).parent().parent(".tvNav ul").parent("li").find("a:first");
+    if ($a.length > 0) expand($a);
+    $(obj).addClass("activeLi");
+    $(obj).parent("li").children("ul").show();
+}
+//导航处理
+$("#usernav1 ul li").removeClass("active").siblings().eq(1).addClass("active");
+
+</script>
+}

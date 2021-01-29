@@ -1,0 +1,151 @@
+﻿@{
+    //    B_OA_Document oaBll = new B_OA_Document();
+    //protected void Page_Load(object sender, EventArgs e)
+    //{
+    //    if (!IsPostBack)
+    //    {
+    //        B_ARoleAuth.AuthCheckEx(ZLEnum.Auth.office, "oa");
+    //        MyBind();
+    //    }
+    //}
+
+    //private void MyBind()
+    //{
+    //    Filter_OADocument filter = new Filter_OADocument();
+    //    filter.Skey = searchText.Text.Trim();
+    //    EGV.DataSource = oaBll.Sel(filter);
+    //    EGV.DataBind();
+    //}
+    //protected void EGV_PageIndexChanging(object sender, GridViewPageEventArgs e)
+    //{
+    //    EGV.PageIndex = e.NewPageIndex;
+    //    MyBind();
+    //}
+    //protected void EGV_RowCommand(object sender, GridViewCommandEventArgs e)
+    //{
+    //    switch (e.CommandName)
+    //    {
+    //        case "del2":
+    //            int id = Convert.ToInt32(e.CommandArgument);
+    //            oaBll.Del(id);
+    //            break;
+    //    }
+    //    MyBind();
+    //}
+    //protected void EGV_RowDataBound(object sender, GridViewRowEventArgs e)
+    //{
+    //    //if (e.Row != null && e.Row.RowType == DataControlRowType.DataRow)
+    //    //{
+    //    //    DataRowView dr = e.Row.DataItem as DataRowView;
+    //    //    e.Row.Attributes.Add("ondblclick", "location='AddEnglishQuestion.aspx?ID=" + dr["ID"] + "'");
+    //    //}
+    //}
+    //protected void BatDel_Btn_Click(object sender, EventArgs e)
+    //{
+    //    string ids = Request.Form["idchk"];
+    //    if (!string.IsNullOrEmpty(ids))
+    //    {
+    //        SafeSC.CheckIDSEx(ids);
+    //        DBCenter.DelByIDS("ZL_OA_Document", "ID", ids);
+    //    }
+    //    MyBind();
+    //}
+    //protected void searchBtn_Click(object sender, EventArgs e)
+    //{
+    //    MyBind();
+    //}
+    ////--------------后期移入BLL
+    //public string GetStatus(string Status)
+    //{
+    //    string flag = "";
+    //    switch (Status)
+    //    {
+    //        case "-99":
+    //            flag = "<span style='color:gray;'>回收站</span>";
+    //            break;
+    //        case "-80":
+    //            flag = "<span style='color:#999;'>草稿</span>";
+    //            break;
+    //        case "-1":
+    //            flag = "<span style='color:red;'>已拒绝</span>";
+    //            break;
+    //        case "2":
+    //            flag = "<span style='color:red;'>已回退</span>";
+    //            break;
+    //        case "99":
+    //            flag = "<span style='color:blue;'>流程完结</span>";
+    //            break;
+    //        case "105":
+    //            flag = "<span style='color:#32A6F1;'>已归档</span>";
+    //            break;
+    //        case "98":
+    //            flag = "<span style='color:blue;'>步骤完成</span>";
+    //            break;
+    //        case "0":
+    //        case "1":
+    //        default:
+    //            flag = "<span style='color:blue;'>进行中</span>";
+    //            break;
+    //    }
+    //    return flag;
+    //}
+}
+
+@section head{<title>公文管理</title> }
+@section content{
+    <div>
+        <ol class="breadcrumb" style="padding:.75rem 1rem;">
+            <li class="breadcrumb-item"><a href='<%=CustomerPageAction.customPath2 %>Main.aspx'>工作台</a></li>
+            <li class="breadcrumb-item"><a href='../Config/SiteOption.aspx'>系统设置</a></li>
+            <li class="breadcrumb-item">公文管理</li>
+            <div class="float-end text-center me-2 ms-auto"><a href="javascript:;" onclick="selbox.toggle();" id="sel_btn" class="help_btn"><i class="zi zi_search"></i></a></div>
+            <div id="sel_box" runat="server">
+                <div class="input-group float-start">
+                    <input type="text" runat="server" ID="searchText" class="form-control max20rem" placeholder="请输入需要查询的信息" />
+                    <input type="button" ID="searchBtn" Class="btn btn-outline-secondary" runat="server" value="搜索" OnClick="searchBtn_Click" />
+                </div>
+            </div>
+        </ol>
+    </div>
+
+    <div class="container-fluid pe-0 pt-1">
+        <div class="row sysRow table-responsive">
+            <table class="table table-striped table-bordered" id="EGV">
+                <tr>
+                    <th scope="col" class="w1rem"></th>
+                    <th scope="col">ID</th>
+                    <th scope="col">标题</th>
+                    <th scope="col">拟稿部门</th>
+                    <th scope="col">申请人</th>
+                    <th scope="col">状态</th>
+                    <th scope="col">申请时间</th>
+                    <th scope="col">@*操作*@</th>
+                </tr>
+
+                @foreach (DataRow dr in Model.Rows)
+                {
+                    <tr>
+                        <td class="excel_no node_select"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+                        <td>@dr["ID"]</td>
+                        <td>@dr["Title"]</td>
+                        <td>@dr["Branch"]</td>
+                        <td>@dr["UserName"]</td>
+                        <td>@dr["Status"]</td>
+                        <td>@dr["CreateTime"]</td>
+                        <td class="excel_no td_l">
+                            @*<a href="AddFlowStep.aspx?proID=&stepID=">@L.查看详情</a>*@
+                            <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'ApplyManage_Delete', confirm: '@Html.Raw(L.确定要删除吗)', after: function () { location = location } });"><i class="zi zi_trashalt"></i>@L.删除</a>
+                        </td>
+                    </tr>
+                }
+                @*@Html.Partial("_page", Model)*@
+            </table>
+        </div>
+    </div>
+    <div class="sysBtline">
+        <input type="button" value="@Html.Raw(L.批量删除)" class="btn btn-outline-danger" onclick="mvcpage.bat({url: '#', confirm: '@Html.Raw(L.确定要批量移除吗)' });" />
+    </div>
+}
+@section script{
+
+}

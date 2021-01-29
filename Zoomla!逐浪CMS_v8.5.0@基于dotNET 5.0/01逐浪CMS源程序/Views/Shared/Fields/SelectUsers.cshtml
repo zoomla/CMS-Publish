@@ -1,0 +1,22 @@
+﻿@using ZoomLa.BLL;
+@using ZoomLa.BLL.Content
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+    string id = "txt_" + Model.fieldMod.FieldName;
+    string bid = Model.fieldMod.FieldName + "_T";
+    string hid = Model.fieldMod.FieldName + "_Hid";
+    FieldModel model = new FieldModel(Model.fieldMod.Content);
+    string selHtml = "";
+    string def = model.GetValue("DefaultValue");
+    string css = "form-control ";
+    css += Model.fieldMod.IsNotNull ? "required" : "";
+    int width = model.GetValInt("TitleSize");
+    if (width < 1 || width > 100) { width = 100; }
+}
+@*<input type="text" id="@id" name="@id" style="@("width:20%;")display:inline-block;" class="@css" value="@Model.GetValue()" maxlength="255" />*@
+
+<div class="input-group">
+    <input type="text" Class="form-control max20rem" id="@bid" name="@id" value="@Model.GetValue()" />
+        <input type="button" onclick="user.sel('@Model.fieldMod.FieldName', 'user', '')" value="选择用户" class="input-group-text" />
+</div>
+<input type="hidden" id="@hid" name="@hid" value="" />

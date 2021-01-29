@@ -1,0 +1,127 @@
+﻿@using Zoomla.Extend.QuartzNET.Utils
+@model Zoomla.Extend.QuartzNET.Utils.QuartzNetModel
+@{ 
+    Layout = "_safe";
+}
+
+@section head {<title>添加任务</title>}
+
+@section content {
+@Call.SetBread(new Bread[] {
+		new Bread("{admin}"),
+        new Bread("TaskList",L.计划任务),
+        new Bread() {url=Context.Request.RawUrl(), text="添加QuarzNet事务",addon="" }}
+		)
+
+<div class="">
+<div id="maindiv" class="container-fluid pe-0">
+<div class="row sysRow table-responsive-md">
+<form method="post" id="t_form_add">
+<table class="table table-bordered table-striped sys_table">
+    <tr><th class="w12rem_lg">@L.任务名称</th><td><input type="text" name="Title" class="form-control required" value="@Model.Title"/></td></tr>
+    <tr><th>@L.任务类型</th><td>
+    <label>@Html.RadioButtonFor(m => m.TaskType, TaskType.Empty, new { @onclick = "setTaskTypeTooltips(0)" }) 空</label>
+    <label>@Html.RadioButtonFor(m => m.TaskType, TaskType.ExecuteSQLCommand, new { @onclick = "setTaskTypeTooltips(1)" }) SQL指令</label>
+    <label>@Html.RadioButtonFor(m => m.TaskType, TaskType.ExecutePowerShellScript, new { @onclick = "setTaskTypeTooltips(2)" }) PowerShell脚本指令</label>
+    @*<label>@Html.RadioButtonFor(m => m.TaskType, TaskType.SendEmail, new { @onclick = "setTaskTypeTooltips(3)" }) 发送邮件</label>*@
+    @*<label>@Html.RadioButtonFor(m => m.TaskType, TaskType.SendSMS, new { @onclick = "setTaskTypeTooltips(4)" }) 发送短信</label>*@
+    @*<label>@Html.RadioButtonFor(m => m.TaskType, TaskType.PublishXXX, new { @onclick = "setTaskTypeTooltips(5)" }) 发布内容</label>*@
+    <div id="tasktypetooltips" class="small"></div>
+    </td></tr>
+    <tr><th>@L.执行计划</th><td>
+        <label>@Html.RadioButtonFor(m => m.ExecuteType, ExecuteType.Once) @L.仅一次</label>
+        <label>@Html.RadioButtonFor(m => m.ExecuteType, ExecuteType.Loop) @L.循环 (@L.每隔指定时间 输入0为无限次数)</label>
+        <label id="p_times" class="input-group row ms-2">
+            <input type="number" id="t_times" name="Times" class="form-control max20rem" value="@Model.Times" min="0"/>
+            <span class="input-group-append"><span class="input-group-text">次</span></span>
+        </label>
+    </td></tr>
+    <tr id="interval_tr" class="time_tr"><th>@L.间隔时间</th><td>
+        <div class="input-group">
+            <input class="form-control" type="number" id="t_day" value="0" min="0" style="max-width:4rem" onblur="setTimeInterval()" /><span class="input-group-append"><span class="input-group-text">天</span></span>
+            <input class="form-control" type="number" id="t_hor" value="0" min="0" style="max-width:4rem" onblur="setTimeInterval()" /><span class="input-group-append"><span class="input-group-text">时</span></span>
+            <input class="form-control" type="number" id="t_min" value="0" min="0" style="max-width:4rem" onblur="setTimeInterval()" /><span class="input-group-append"><span class="input-group-text">分</span></span>
+            <input class="form-control" type="number" id="t_sec" value="0" min="0" style="max-width:4rem" onblur="setTimeInterval()" /><span class="input-group-append"><span class="input-group-text">秒</span></span>
+            <span class="input-group-append"><span class="input-group-text">总间隔</span></span>
+            <input type="number" id="t_interval" name="Interval" class="form-control max20rem" min="1" value="@Model.Interval"/>
+            <span class="input-group-append"><span class="input-group-text">秒</span></span>
+        </div>
+    </td></tr>
+    <tr id="date_tr1" class="time_tr">
+        <th>@L.执行时间</th>
+        <td><div class="inline-block">
+            <input type="text" name="ExecuteAt" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' });" class="form-control max20rem input-prepend" value="@Model.ExecuteAt"/>
+            <span class="ps-3 text-danger" style="font-size:13px">温馨提示：请注意修改执行时间，并保留原有格式</span>
+        </div></td>
+    </tr>
+    <tr><th id="conTr">@L.任务内容</th><td>
+        <textarea name="Content" asp-for="@Model.Content" class="form-control required" rows="5"></textarea>
+        </td></tr>
+    <tr><th>@L.备注</th><td><textarea name="Desc" asp-for="@Model.Desc" class="form-control" rows="3" placeholder="100字以内"></textarea></td></tr>
+    <tr><td></td><td>
+        <button type="button" onclick="addTask()"  class="btn btn-outline-info">添加任务</button>
+        <a href="TaskList" class="btn btn-outline-info">@L.返回列表</a>
+    </td></tr>
+</table>
+</form>
+</div>
+</div>
+</div>
+}
+@section script {
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script>
+$(document).ready(function () {
+    var type = @Html.Raw(Model.Type);
+    setTaskTypeTooltips(type);
+});
+function setTimeInterval() {
+    var days = parseInt($("#t_day").val());
+    var hors = parseInt($("#t_hor").val());
+    var mins = parseInt($("#t_min").val());
+    var secs = parseInt($("#t_sec").val());
+    $("#t_interval").val(days * 24 * 60 * 60 + hors * 60 * 60 + mins * 60 + secs);
+}
+function addTask() {
+    $.ajax({
+        method: "POST",
+        dataType: "json",
+        url: encodeURI("@Url.Action("TaskAdd")"),
+        url: "/admin/extend/quartztask/taskadd",
+        data: $("#t_form_add").serialize(),
+        success: function (result) {
+            if (result) {
+                alert("任务添加成功！即将返回任务列表")
+                window.location = encodeURI("@Url.Action("TaskList")");
+            }
+            else {
+                alert("任务添加失败！可能是任务执行时间、次数或间隔存在(逻辑)错误，请检查后重新提交。")
+            }
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+    }
+function setTaskTypeTooltips(type) {
+    if (type == 0) {
+        $("#tasktypetooltips").html("<span class='text-info'>空任务为测试使用，您可以用它来测试此功能是否正常。</span>");
+        $("#Content").val("");
+    }
+    else if (type == 1) {
+        $("#tasktypetooltips").html("<span class='text-info'>SQL指令将影响到数据库，请核对后再执行。</span>");
+        $("#Content").val("");
+    }
+    else if (type == 2) {
+        var a = window.confirm("即将转至PowerShell脚本定时任务的添加页面~");
+        if (a) {
+            window.location = "/admin/PowerShell/Index";
+        }
+        else {
+            $("#tasktypetooltips").html("<span class='text-danger'>此页面添加PowerShell定时任务可能出现错误，请移至<a href='/admin/PowerShell/Index'>PowerShell应用</a>页面。</span>");
+            $("#Content").val("WorkingDirectory:脚本运行目录\nScript:脚本内容");
+        }
+    }
+}
+</script>
+}

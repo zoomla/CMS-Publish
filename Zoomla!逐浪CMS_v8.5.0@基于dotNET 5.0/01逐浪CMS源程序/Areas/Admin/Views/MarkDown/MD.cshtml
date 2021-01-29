@@ -1,0 +1,159 @@
+﻿@*
+copyright file="MD.cshtml" company="上海Zoomla!逐浪CMS团队"
+版权所有:🏢江西逐浪软件科技有限公司  🏅🏅🏅20年专注研发==>商城|ERP|字库|高端门户与人工智能
+官方网站:🚀 www.z01.com
+联系方式:☎ 13177777714  😎 wechat: zoomla
+文件描述:🔧控制器：\ZoomLaCMS\Areas\Admin\Controllers\Content\MarkDownController.cs
+创建时间:⏰2020年09月22日,19:24
+*@
+
+@using ZoomLa.Model.MarkDown;
+@model ZoomLa.Model.MarkDown.M_MarkDown;
+@section head{<title>MarkDown文档</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(), "上传MarkDown文档")})
+    <div class="container-fluid pe-0">
+        <div class="row sysRow table-responsive">
+            <table class="table table-striped table-bordered table-hover sys_table">
+                <tr>
+                    <th>上传文件</th>
+                    <td>
+                        <input type="file" ID="MDPath" name="MDPath" accept=".md" hidden />
+                        <input class="btn btn-outline-info" multiple="multiple" type="button" onclick="$('#MDPath').click();" value="上传md文件" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="td_m">文档名称 </th>
+                    <td>
+                        <input type="text" ID="MDName" name="MDName" Class="form-control d-inline max20rem" value="@Model.MDName" /><span class="ms-1">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>文件状态</th>
+                    <td>
+                        <label><input type="radio" name="MDStatus" value="0" checked="checked" /> 开放</label>
+                        <label><input type="radio" name="MDStatus" value="1" /> 半开放</label>
+                        <label><input type="radio" name="MDStatus" value="2" /> 不开放</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>屏幕大小</th>
+                    <td>
+                        <label><input type="radio" name="MDPosition" value="container-md" checked="checked" /> 窄屏</label>
+                        <label><input type="radio" name="MDPosition" value="container-xl" /> 标屏</label>
+                        <label><input type="radio" name="MDPosition" value="container-fluid" /> 全屏</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>背景颜色</th>
+                    <td>
+                        <label><input type="radio" name="MDColor" value="white" checked="checked" /> 默认无背景</label>
+                        <label><input type="radio" name="MDColor" value="red" /> 红色</label>
+                        <label><input type="radio" name="MDColor" value="black" /> 黑色</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>自动目录</th>
+                    <td>
+                        <label><input type="radio" name="MDlocation" value="Top" checked="checked" /> 默认(不激活)</label>
+                        <label><input type="radio" name="MDlocation" value="Right" /> 右侧边</label>
+                        <label><input type="radio" name="MDlocation" value="Left" /> 左侧边</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>文件下载</th>
+                    <td>
+                        <label><input type="radio" name="MDdown" value="close" checked="checked" /> 不开放</label>
+                        <label><input type="radio" name="MDdown" value="open" /> 开放</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>文档备注</th>
+                    <td>
+                        <textarea type="text" name="MDRemarks" id="MDRemarks" class="form-control m50rem_50">@Model.MDRemarks</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button type="button" class="btn btn-info" onclick="Prompt()">保存信息</button>
+                        <a href="Index" class="btn btn-outline-info">返回列表</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+}
+@section script{
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script>
+        $("#MDPath").on("change", function (e) {
+            var file = e.target.files[0];
+            if (file.name.match(/.md/gi)) {
+                $("#MDName").val(file.name.substring(0, file.name.length - 3));
+            }
+            else {
+                alert("不支持的文件格式！");
+                $("#MDPath").val("");
+            }
+        });
+        function Prompt() {
+            var id = window.location.search.substring(1);
+            let input = document.getElementById('MDPath');
+            let data = new FormData();
+            data.append("MDName", $('#MDName').val());
+            if (id == "") {
+                if (input.files[0]) { data.append("formFile", $('#MDPath')[0].files[0]); }
+                else {
+                    alert("未上传md文件！")
+                    return false;
+                }
+                id = 0;
+            }
+            else {
+                if (input.files[0]) { data.append("formFile", $('#MDPath')[0].files[0]); }
+                data.append("id", id.split('=')[1]);
+            }
+            data.append("MDRemarks", $('#MDRemarks').val());
+            data.append("MDStatus", $("input[name='MDStatus']:checked").val());
+            data.append("MDPosition", $("input[name='MDPosition']:checked").val());
+            data.append("MDColor", $("input[name='MDColor']:checked").val());
+            data.append("MDlocation", $("input[name='MDlocation']:checked").val());
+
+            $.ajax({
+                method: "Post",
+                data: data,
+                processData: false,
+                contentType: false,
+                url: encodeURI('Index_submit'),
+                success: function (result) {
+                    if (result == 2) {
+                        alert("添加成功！");
+                    }
+                    else {
+                        alert("修改成功！");
+                    }
+                    window.location.href = "Index";
+                }
+            });
+        }
+    </script>
+    @if (Model.ID > 0)
+    {
+        <script>
+    function decode(str) {
+        var div = document.createElement('div');
+        div.innerHTML = str;
+        return div.innerHTML;
+    }
+    SetRadVal('MDName', decode('@Model.MDName'));
+    SetRadVal('MDRemarks', decode('@Model.MDRemarks'));
+    SetRadVal('MDStatus', decode('@Model.MDStatus'));
+    SetRadVal('MDPosition', decode('@Model.MDPosition'));
+    SetRadVal('MDColor', decode('@Model.MDColor'));
+    SetRadVal('MDlocation', decode('@Model.MDlocation'));
+        </script>
+    }
+}

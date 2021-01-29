@@ -1,0 +1,216 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.SQLDAL.Other
+@using Newtonsoft.Json
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.API
+@model PageModel
+@functions{
+    public class PageModel : Page_Base
+    {
+    /*
+1.支持图片全屏浏览,左右切换
+2.支持评论
+
+
+    */
+        B_Comment cmtBll = new B_Comment();
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            M_APIResult ret = new M_APIResult(M_APIResult.Success);
+            string ids = GetParam("ids");
+            switch (action)
+            {
+                case "like":
+                    {
+
+                    }
+                    break;
+                case "list":
+                    {
+                        DataTable dt = cmtBll.SelPage(1, 100, new Com_Filter()
+                        {
+                            gids = GetParam("gids")
+                        }).dt;
+                        ret.result = JsonConvert.SerializeObject(dt);
+                    }
+                    break;
+                case "add":
+                    {
+                        M_Comment cmtMod = new M_Comment()
+                        {
+                            UserID = mu.UserID,
+                            Status = 99,
+                            Audited = true,
+                            GeneralID = Mid,
+                            Contents = GetParam("Contents"),
+                        };
+                        cmtMod.CommentID = cmtBll.Insert(cmtMod);
+                        ret.result = JsonConvert.SerializeObject(cmtMod);
+                        ret.addon = JsonHelper.GetJson("UserName,UserFace".Split(','),(mu.UserName+"|"+mu.UserFace).Split('|'));
+                    }
+                    break;
+                default:
+                    ret.retcode = M_APIResult.Failed;
+                    break;
+            }
+            return Content(ret.ToString());
+        }
+        public IActionResult OnPostSave()
+        {
+            return Page();
+        }
+    }
+}
+@{ 
+    Layout = "_empty";
+    DataTable dt = FileSystemObject.SearchImg("/UploadFiles/Pics/");
+}
+@section head{ }
+@section content{ 
+<div style="position:fixed;left:20px;top:20px;z-index:10;">
+    <a href="javascript:;" class="btn-fullscreen" title="全屏" onclick="$('.tn3-fullscreen').click();"><i class="zi zi_expand"></i></a>
+</div>
+<div>
+    <div class="mygallery clearfix">
+	<div class="tn3 album">
+	    <h4>Fixed Dimensions</h4>
+	    <div class="tn3 description">Images with fixed dimensions</div>
+	    <div class="tn3 thumb">images/620x378/1.png</div>
+        <ol>
+            @*<li>
+            <h4>Isolated sandy cove</h4>
+            <div class="tn3 description">Zakynthos island, Greece</div>
+            <a href="images/620x378/2.png">
+            <img src="images/620x378/2.png" />
+            </a>
+        </li>*@
+            @foreach (DataRow dr in dt.Rows)
+            {
+                <li>
+                    <h4>@dr["Name"]</h4>
+                    <div class="tn3 description">@dr["Path"]</div>
+                    <a href="@dr["Path"]">
+                        <img src="@dr["Path"]" />
+                    </a>
+                </li>
+            }
+        </ol>
+	</div>
+    </div>
+    <div class="mycmt" id="app">
+       <div>
+           <textarea style="width:100%;" rows="3" placeholder="你的评论对ta的作品是最大的鼓励" v-model="cmt_text" maxlength="200"></textarea>
+           <div><button type="button" class="btn btn-info" @@click="cmtAdd();">评论</button></div>
+       </div>
+       <div class="cmt_body">
+           <div class="item" v-for="item in cmt_list">
+               <div><img src="{{item.UserFace}}" onerror="shownoface(this);" /></div>
+               <div style="margin-left:5px;">
+                   <div>{{item.UserName}}</div>
+                   <div>{{item.Contents}}</div>
+                   <div>{{item.CommentTime}}</div>
+               </div>
+           </div>
+       </div>
+    </div>
+</div>
+
+
+
+}
+@section script{
+<script src="~/res/vue/vue.min.js"></script>
+<script src="~/Plugins/Photo/tn3/jquery.tn3lite.min.js"></script>
+<link href="~/Plugins/Photo/tn3/css/gallery.css" rel="stylesheet" />
+<style type="text/css">
+    body{background-color:#000;}
+    .mygallery{width:80%;position:absolute;height:100%;}
+    .mycmt{width:20%;border-left:1px solid #ddd;height:100%;position:absolute;right:0;padding:5px 8px;}
+    .btn-fullscreen{text-align:center; font-size:2rem;color:#fff;line-height:60px;}
+    .cmt_body{margin-top:10px;}
+    .cmt_body .item{color:#fff;display:flex;}
+    .cmt_body .item img{width:30px;height:30px;border-radius:50%;}
+</style>
+<script>
+$(document).ready(function() {
+	var tn1 = $('.mygallery').tn3({
+		skinDir:"skins",
+		imageClick:"fullscreen",
+		image:{
+		maxZoom:1.5,
+		crop:true,
+		clickEvent:"dblclick",
+		transitions:[{
+		type:"blinds"
+		},{
+		type:"grid"
+		},{
+		type:"grid",
+		duration:460,
+		easing:"easeInQuad",
+		gridX:1,
+		gridY:8,
+		// flat, diagonal, circle, random
+		sort:"random",
+		sortReverse:false,
+		diagonalStart:"bl",
+		// fade, scale
+		method:"scale",
+		partDuration:360,
+		partEasing:"easeOutSine",
+		partDirection:"left"
+		}]
+		}
+	});
+});
+</script>
+<script>
+    var vueApp = new Vue({
+        el: "#app",
+        data: {
+            cmt_list: [],
+            cmt_text:"",
+        },
+        methods: {
+            cmtAdd: function () {
+                var ref = this;
+                if (ZL_Regex.isEmpty(ref.cmt_text)) { alert("评论内容不可为空"); return false; }
+                $.post("?action=add", { contents: ref.cmt_text,id:"@Model.Mid" }, function (data) {
+                    var ret = APIResult.getModel(data);
+                    if (APIResult.isok(ret)) {
+                        var addon = JSON.parse(ret.addon);
+                        ret.result.UserFace = addon.UserFace;
+                        ret.result.UserName = addon.UserName;
+                        ret.result.CommentTime = Convert.ToDate( ret.result.CommentTime);
+                        ref.cmt_list.unshift(ret.result);
+                        ref.cmt_text = "";
+                    }
+                    else { alert(ret.retmsg); }
+                })
+            },
+            cmtLike: function () {
+
+            },
+            cmtLoad: function () {
+                var ref = this;
+                $.post("?action=list", { gids: "@Model.Mid" }, function (data) {
+                    var ret = APIResult.getModel(data);
+                    ref.cmt_list = ret.result;
+                    ref.cmt_list.forEach(function (item) {
+                        item.CommentTime = Convert.ToDate(item.CommentTime);
+                    })
+                })
+            }
+        },
+        mounted: function () {
+            this.cmtLoad();
+        }
+    });
+</script>
+}

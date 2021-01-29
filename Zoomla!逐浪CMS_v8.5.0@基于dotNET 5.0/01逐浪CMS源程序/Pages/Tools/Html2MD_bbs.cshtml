@@ -1,0 +1,80 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model.Content
+@using ZoomLa.Components.Comp.HtmlToMarkDown
+@using System.Data.SqlClient
+@model PageModel
+@functions{
+    [Authorize(Policy = ("Admin"))]
+    public class PageModel : Page_Base
+    {
+        B_Model modelBll = new B_Model();
+        B_ModelField fieldBll = new B_ModelField();
+        public IActionResult OnGet()
+        {
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            string ids = GetParam("ids");
+            return Content(Success.ToString());
+        }
+        public IActionResult OnPostSave()
+        {
+            B_Model modelBll = new B_Model();
+            B_ModelField fieldBll = new B_ModelField();
+            DataTable fieldDT = DBCenter.Sel("ZL_ModelField", "FieldType='MarkDown'");
+            string result = "";
+            foreach (DataRow field in fieldDT.Rows)
+            {
+                string fieldName = DataConvert.CStr(field["FieldName"]);
+                string fieldSrc = field["FieldName"] + "_src";
+                M_ModelInfo modelInfo = modelBll.SelReturnModel(DataConvert.CLng(field["ModelID"]));
+                //检测_src字段是否存在
+                {
+                    DataTable dt = DBCenter.Sel(modelInfo.TableName, "1=2");
+                    if (!dt.Columns.Contains(field["FieldName"] + "_src"))
+                    {
+                        fieldBll.AddField(modelInfo.TableName, fieldSrc, "ntext", "");
+                    }
+                }
+                DataTable dataDT = DBCenter.Sel(modelInfo.TableName);
+                //html-->markdown
+                foreach (DataRow dr in dataDT.Rows)
+                {
+                    string html = DataConvert.CStr(dr[fieldName]);
+                    string markdown = DataConvert.CStr(dr[fieldSrc]);
+                    if (string.IsNullOrEmpty(html)) { continue; }
+                    if (!string.IsNullOrEmpty(markdown)) { continue; }
+                    try
+                    {
+                        markdown = MarkdownHelper.HtmlToMarkDown(html);
+                        DBCenter.UpdateSQL(modelInfo.TableName, fieldSrc + "=@value", "ID=" + dr["ID"], new List<SqlParameter>() { new SqlParameter("value", markdown) });
+                    }
+                    catch (Exception ex) { ZLLog.L("md_error:" + dr["ID"] + "|" + ex.Message); }
+                }
+                result += "(" + modelInfo.TableName + "." + fieldName + ")";
+            }
+            return WriteOK("操作成功,已更新字段：" + result, "Html2MD");
+        }
+    }
+}
+@{ 
+       Layout = "_empty";
+}
+@section head{ }
+@section content{ 
+<div class="container">
+    <form method="post">
+        <div class="alert alert-info" style="margin-top:5px;">
+            <div>一，请先在后台手动将字段类型切换为MarkDown类型</div>
+            <div>二，开始全局检测,自动添加[_src]字段，并将Html转为MarkDown存入[_src]字段</div>
+        </div>
+        <div style="margin-top:5px; text-align:center;"><button type="submit" class="btn btn-info" asp-page-handler="Save" onclick="reutrn confirm('确定要开始全局检测吗');">开始全局检测</button></div>
+    </form>
+</div>
+
+}
+@section script{ }

@@ -1,0 +1,51 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string apiUrl = "Factory_API?action=";
+}
+@section head {<title>@L.厂商管理</title>}
+@section content {
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Call.PathAdmin("Shop/exp/Factory"),@L.厂商管理),
+        new Bread(){url=Context.Request.RawUrl(), text=L.厂商 + L.列表 ,addon="<a href='FactoryAdd'>["+@L.添加厂商+"]</a>"}
+        })
+
+    <div class="table-responsive table_box">
+        @Html.Partial(MVCHelper.ViewDir_Admin + "Shop/Exp/Factory_List.cshtml")
+    </div>
+    <div class="container-fluid">
+    <div class="btn-group">
+        <button type="button" onclick="mvcpage.post({url:'@(apiUrl+"del")&ids=' + getIds(),confirm:'@Html.Raw(L.确定删除选中项吗)', callback: 'refresh'});" class="btn btn-outline-secondary">@L.批量删除</button>
+    </div>
+    </div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+$().ready(function () {
+    var type = decodeURI(getParam("type"));
+    if (!type) { $(".nav.nav-tabs li").eq("0").find("a").addClass("active"); }
+    else {
+        $(".nav-item").each(function () {
+            console.log($(this).data("type"));
+            if ($(this).data("type") == type) { $(this).find("a").addClass("active"); }
+        })
+    }
+})
+function ShowTab(n) {
+    if (n == "")
+        location.href = "Factory";
+    else
+        location.href = "Factory?type=" + encodeURI(n);
+}
+function getIds(){
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+    return ids;
+}
+</script>
+}

@@ -1,0 +1,101 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{ 
+    public string GetEm(string item)
+    {
+        string zl = "";
+        switch (item)
+        {
+            case "0":
+                zl = "开放";
+                break;
+            case "1":
+                zl = "半开放";
+                break;
+            case "2":
+                zl = "不开放";
+                break;
+            case "Left":
+                zl = "左侧边";
+                break;
+            case "Top":
+                zl = "文件顶部";
+                break;
+            case "Right":
+                zl = "右侧边";
+                break;
+            case "container-md":
+                zl = "窄屏";
+                break;
+            case "container-xl":
+                zl = "标屏";
+                break;
+            case "container-fluid":
+                zl = "全屏";
+                break;
+            case "red":
+                zl = "红色";
+                break;
+            case "white":
+                zl = "白色";
+                break;
+            case "black":
+                zl = "黑色";
+                break;
+        }
+        return zl;
+    }
+}
+@section head{<title>MarkDown文档</title> }
+@section content{
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(), "文档列表")}, "[<a href='MD'>" + "上传MarkDown文档" + "</a>]")
+<div class="table-responsive table_box" id="EGV">
+<table class="table table-bordered table-hover table-striped">
+<thead>
+    <tr>
+        <th scope="col" class="td_xs"></th>
+        <th scope="col" class="td_s">操作</th>
+        <th scope="col">ID</th>
+        <th scope="col">文档名称</th>
+        <th scope="col" class="m50rem_50">备注</th>
+        <th scope="col">上传日期</th>
+        <th scope="col">文件状态</th>
+        <th scope="col">目录位置</th>
+        <th scope="col">屏幕大小</th>
+        <th scope="col">背景颜色</th>
+        <th scope="col">浏览</th>
+    </tr>
+</thead>
+<tbody>
+@foreach (DataRow item in Model.dt.Rows)
+{ 
+<tr ondblclick="location='Preview?id=@item["ID"]'" title="双击预览">
+    <td class="node_select"><input type="checkbox" name="idchk" value="@item["ID"]" /></td>
+    <td>
+        <div class="btn-group">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+               <li class="dropdown-item"><a href="MD?id=@item["ID"]"><i class="zi zi_pencilalt"></i> 修改</a></li>
+                <li class="dropdown-item"><a href="Preview?id=@item["ID"]"><i class="zi zi_globe"></i> 预览</a></li>
+                <li class="dropdown-item"><a href="javascript:;" onclick="mvcpage.del({ ids: '@item["ID"]', url: 'dels', confirm: '@Html.Raw(L.确定要删除吗)',after:function(){location=location;} });"><i class="zi zi_trash"></i> 删除</a></li>
+            </ul>
+        </div>
+    </td>
+    <td>@item["ID"]</td>
+    <td data-bs-toggle="tooltip" title="" data-original-title="双击预览">@item["MDName"]</td>
+    <td>@item["MDRemarks"]</td>
+    <td>@item["MDUpload_date"]</td>
+    <td>@GetEm(item["MDStatus"].ToString())</td>
+    <td>@GetEm(item["MDlocation"].ToString())</td>
+    <td>@GetEm(item["MDPosition"].ToString())</td>
+    <td>@GetEm(item["MDColor"].ToString())</td>
+    <td><a href="/PreView/MD?id=@item["ID"]" target="_blank"><i class="zi zi_globe"></i> 浏览</a></td>
+</tr>
+    }
+</tbody>
+@Html.Partial("_page")
+</table>
+<button onclick="mvcpage.bat({url: 'dels', confirm: '确定要批量移除吗',after:'refresh' });" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+</div>
+}

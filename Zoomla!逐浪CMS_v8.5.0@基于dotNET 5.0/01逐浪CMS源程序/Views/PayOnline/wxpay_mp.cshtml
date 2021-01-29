@@ -1,0 +1,161 @@
+﻿@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Components
+@using ZoomLa.Common
+@using ZoomLa.BLL.WxPayAPI
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using System.Net
+@using System.Text
+@functions{
+    B_Payment payBll = new B_Payment();
+    B_WX_APPID appBll = new B_WX_APPID();
+    M_WX_APPID appMod = new M_WX_APPID();
+    public string GetParam(string name)
+    {
+        return DataConverter.CStr(Context.Request.GetParam(name)).Trim();
+    }
+    public static string UploadStr(string url)
+    {
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+        request.Method = "GET";
+        WebResponse respose = request.GetResponse();//此处导致多次
+        System.IO.StreamReader reader = new System.IO.StreamReader(respose.GetResponseStream());
+        string result = reader.ReadToEnd();
+        reader.Close();
+        return result;
+    }
+    public void WeiXinPay()
+    {
+        M_Payment payMod = payBll.SelModelByPayNo(PayNo);
+        if (string.IsNullOrEmpty(PayNo)) { throw new Exception("0x53,支付单号或为空"); }
+        else if (payMod == null) { throw new Exception("支付单号不存在"); }
+        else if (payMod.Status != (int)M_Payment.PayStatus.NoPay) { throw new Exception("0x14,支付单已付过款,不能重复支付"); }
+        else if (payMod.MoneyReal <= 0) { throw new Exception("0x56,支付单金额异常"); }
+        string code = Context.Request.GetParam("code");
+        //string resultStr = APIHelper.GetWebResult("https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + appMod.APPID + "&secret=" + appMod.Secret + "&code=" + code + "&grant_type=authorization_code");
+        string resultStr = UploadStr("https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + appMod.APPID + "&secret=" + appMod.Secret + "&code=" + code + "&grant_type=authorization_code");
+        try
+        {
+            JObject obj = (JObject)JsonConvert.DeserializeObject(resultStr);
+
+            WxPayData wxdata = new WxPayData(appMod.Pay_Key);
+            wxdata.SetValue("out_trade_no", payMod.PayNo);
+            wxdata.SetValue("body", string.IsNullOrEmpty(payMod.Remark) ? "微信支付" : payMod.Remark);
+            wxdata.SetValue("total_fee", (int)(payMod.MoneyReal * 100));
+            wxdata.SetValue("trade_type", "JSAPI");
+            wxdata.SetValue("notify_url", notifyUrl);
+            wxdata.SetValue("product_id", "123");//必填
+            wxdata.SetValue("openid", obj["openid"].ToString());//公众号支付必填
+            wxdata.SetValue("nonce_str", WxAPI.nonce);
+
+            //获取预支付单号
+            WxPayData result = WxPayApi.UnifiedOrder(wxdata, appMod);
+            //try
+            //{
+            if (result.GetValue("return_code").ToString().Equals("FAIL")) { throw new Exception("UOFail：" + result.GetValue("return_msg")); }
+            prepay_id = result.GetValue("prepay_id").ToString();
+            //}
+            //catch (Exception ex) {
+            //    //如果预付单已提交过,则可能报错
+            //    return WriteErr("支付单报错,原因:"+ex.Message+"," + result.ToXml());
+            //}
+            payBll.UpdatePlat(payMod.PaymentID, M_PayPlat.Plat.WXPay, appMod.ID.ToString());
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("UnifyOrder Err：" + appMod.APPID + "|Result=" + resultStr + "|Link=" + Context.Request.RawUrl() + "|Message=" + ex.Message);
+        }
+    }
+    //-----------------------------------------------------------
+    public string timestr = "";
+    public string prepay_id = "";
+    public string paySign = "";
+    //此处必须为http地址,https地址微信不会异步通知(其服务端只回发80端口,2017.12.13)
+    string notifyUrl = (SiteConfig.SiteInfo.SiteUrl.Replace("https:", "http:")) + "/PayOnline/WxPayReturn";
+    public string SuccessUrl
+    {
+        get
+        {
+            string url = GetParam("SuccessUrl");
+            return string.IsNullOrEmpty(url) ? "/User" : url;
+        }
+    }
+    public string PayNo { get { return GetParam("PayNo"); } }
+    public int AppID { get { return DataConverter.CLng(GetParam("appid")); } }
+    public string State { get { return GetParam("state"); } }
+    public string DecodeUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) { return ""; }
+        if (!url.StartsWith("/")) { url = EncryptHelper.Base64Decrypt(url); }//支持vue cli
+        return url;
+    }
+}
+@{
+
+    //appMod = WxPayApi.Pay_GetByID(AppID);
+    string errMsg = "";
+    try
+    {
+        appMod = WxAPI.Code_Get("公众号").AppId;
+        if (string.IsNullOrEmpty(appMod.APPID)) { throw new Exception("未设置APPID"); }
+        if (string.IsNullOrEmpty(appMod.Secret)) { throw new Exception("未指定Secret"); }
+        if (string.IsNullOrEmpty(appMod.Pay_AccountID)) { throw new Exception("未设置商户号"); }
+        if (string.IsNullOrEmpty(appMod.Pay_Key)) { throw new Exception("未设置支付Key"); }
+
+        //首次进入自动跳转获取支付code
+        if (!State.Equals("redirect"))
+        {
+            string siteurl = HttpUtility.UrlEncode(SiteConfig.SiteInfo.SiteUrl + "/PayOnline/wxpay_mp?payno=" + PayNo + "&appid=" + appMod.ID + "&SuccessUrl=" + SuccessUrl);
+            string url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + appMod.APPID + "&redirect_uri=" + siteurl + "&response_type=code&scope=snsapi_userinfo&state=redirect#wechat_redirect";
+            Context.Response.Redirect(url);
+        }
+        else
+        {
+            WeiXinPay();//统一下单,并填充预付单号
+            timestr = WxAPI.HP_GetTimeStamp();
+            string stringA = "appId=" + appMod.APPID + "&nonceStr=" + WxAPI.nonce + "&package=prepay_id=" + prepay_id + "&signType=MD5&timeStamp=" + timestr;
+            string stringSignTemp = stringA + "&key=" + appMod.Pay_Key;
+            paySign = StringHelper.MD5(stringSignTemp).ToUpper();
+        }
+    }
+    catch (Exception ex) { errMsg = ex.Message; }
+
+}
+@section head{<title>公众号支付</title>}
+    @section content{
+        @if (!string.IsNullOrEmpty(errMsg)) {<div class="alert alert-info">@errMsg</div> }
+    }
+    @section script{
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+    //a 97,n 110,p 112,s 115,t 116
+    function onBridgeReady() {
+            WeixinJSBridge.invoke(
+                'getBrandWCPayRequest', {
+                "appId": "@appMod.APPID",     //公众号名称，由商户传入
+                "nonceStr": "@ZoomLa.BLL.WxAPI.nonce", //随机串
+                "package": "prepay_id=@(prepay_id)",
+                "signType": "MD5",         //微信签名方式：
+                "timeStamp": "@timestr", //时间戳，自1970年以来的秒数
+                "paySign": "@paySign"//微信签名
+            },
+            function (res) {
+                $("#Client_L").text(JSON.stringify(res));
+                if (res.err_msg == "get_brand_wcpay_request:ok") { location.href = "@(DecodeUrl(SuccessUrl))"; }     // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+                else { history.go(-1); }
+            }
+        );
+        }
+    if (typeof WeixinJSBridge == "undefined") {
+            if (document.addEventListener) {
+                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+            } else if (document.attachEvent) {
+                document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+            }
+        } else {
+            onBridgeReady();
+        }
+    </script>
+}

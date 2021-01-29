@@ -1,0 +1,127 @@
+﻿@model System.String
+@{
+
+}
+<style>
+.img-container,.img-preview{background-color:#f7f7f7;text-align:center;width:100%}
+.img-container{margin-bottom:1rem;min-height:350px}
+.img-container > img{max-width:100%}
+.docs-preview{margin-right:-1rem}
+.img-preview{margin-bottom:.5rem;margin-right:.5rem;overflow:hidden}
+.img-preview > img{max-width:100%}
+.preview-lg{height:12rem;width:17rem}
+.preview-md{height:6rem;width:9rem}
+.preview-sm{height:4rem;width:6rem}
+</style>
+<div>
+<div style="float:left;width:73%;">
+    <div class="img-container"><img id="avator-image"></div>
+</div>
+<div style="float:right;width:25%;min-height:350px;">
+    <div class="docs-preview clearfix">
+        <div class="img-preview preview-lg"></div>
+        <div class="img-preview preview-md"></div>
+        <div class="img-preview preview-sm"></div>
+    </div>
+    <input type="text" id="UserFace_t" name="UserFace_t" class="form-control" hidden />
+    <button type="button" class="btn btn-primary mb-2" onclick='$("#avator-file").click();'><i class="zi zi_upload"></i> 从电脑上选取照片<br />(大小在10K到8M之间)</button>
+    <input type="button" value="上传图片" class="btn btn-info" onclick='$("#avator-file").click();' />
+    <!--  <input type="button" value="裁切图片" class="btn btn-info" id="avator-crop"/>-->
+    <input type="button" value="保存头像" class="btn btn-info" id="avator-done" />
+    <input type="file" id="avator-file" style="display:none;" />
+</div>
+</div>
+<link href="~/Plugins/cropper/cropper.css" rel="stylesheet" />
+<script src="/Plugins/cropper/cropper.js"></script>
+<script>
+$(function () {
+  'use strict';
+  var console = window.console || { log: function () {} };
+  var URL = window.URL || window.webkitURL;
+  var $image = $('#avator-image');
+  var $file = $("#avator-file");
+  var $doneBtn = $("#avator-done");
+  //var $download = $('#download');
+  //var $dataX = $('#dataX');
+  //var $dataY = $('#dataY');
+  //var $dataHeight = $('#dataHeight');
+  //var $dataWidth = $('#dataWidth');
+  //var $dataRotate = $('#dataRotate');
+  //var $dataScaleX = $('#dataScaleX');
+    //var $dataScaleY = $('#dataScaleY');
+    //---------------
+  function init()
+  {
+      var cfg=@MvcHtmlString.Create(Model);//value,after,id
+      $("#UserFace_t").val(cfg.value);
+      $image.attr("src",cfg.value);
+  };
+  init();
+  var options = {
+      aspectRatio:1,
+      preview: '.img-preview',
+      zoomable: false,
+      crop: function (e) {
+          //$dataX.val(Math.round(e.x));
+          //$dataY.val(Math.round(e.y));
+          //$dataHeight.val(Math.round(e.height));
+          //$dataWidth.val(Math.round(e.width));
+          //$dataRotate.val(e.rotate);
+          //$dataScaleX.val(e.scaleX);
+          //$dataScaleY.val(e.scaleY);
+        }
+      };
+  var originalImageURL = $image.attr('src');
+  var uploadedImageType = 'image/jpeg';
+  var uploadedImageURL;
+
+
+  if (typeof document.createElement('cropper').style.transition === 'undefined') {
+    $('button[data-method="rotate"]').prop('disabled', true);
+    $('button[data-method="scale"]').prop('disabled', true);
+  }
+  $doneBtn.click(function () {
+      //裁剪图片为base64,再重新生成
+      //data.method, data.option, data.secondOption
+      var canvas = $image.cropper("getCroppedCanvas");
+      var base64 = canvas.toDataURL("image/png");
+      $.post("CropImage?action=", { "base64": base64 }).then(function (url) {
+          $("#UserFace_t").val(url);
+          $("#btnSave").click();
+      });
+  });
+
+
+  if (URL) {
+    $file.change(function () {
+      var files = this.files;
+      var file;
+
+      if (!$image.data('cropper')) {
+
+      }
+
+      if (files && files.length) {
+        file = files[0];
+
+        if (/^image\/\w+$/.test(file.type)) {
+          uploadedImageType = file.type;
+
+          if (uploadedImageURL) {
+            URL.revokeObjectURL(uploadedImageURL);
+          }
+
+            uploadedImageURL = URL.createObjectURL(file);
+            $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+          $file.val('');
+        } else {
+          window.alert('Please choose an image file.');
+        }
+      }
+    });
+  } else {
+      $file.prop('disabled', true).parent().addClass('disabled');
+  }
+
+});
+</script>

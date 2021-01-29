@@ -1,0 +1,36 @@
+﻿@section head{<title>@Model.TName</title>
+<style>main {height: 20rem;}</style>
+}
+@model ZoomLa.Model.M_Content_Chart;
+@section content{
+<main id="main" class="border m-3"></main>
+<textarea name="code" rows="2" cols="20" id="code" style="display: none;">@Model.option</textarea>
+<div class="text-center"><a href="ChartCite?id=@Model.ID" class="btn btn-outline-info">分享图表</a> <a href="AddChart?id=@Model.ID&type=@Model.SType" class="btn btn-outline-info">返回编辑</a></div>
+}
+@section script{
+    <script src="~/lib/ECharts/echarts.js"></script>
+    <script src="~/lib/ECharts/ZL_Echarts.js"></script>
+    <script>
+        $(function () {
+            if (@Model.ID <= 0) {
+                GetCode();
+            }
+            //setTimeout(function () {
+            //    //var ecConfig = require('echarts/config');
+            //    //myChart.on(ecConfig.EVENT.CLICK, function (param) { console.log("222"); });
+            //    //myChart.on("click", function (param) { console.log("222"); });
+            //},2000);
+            refresh();
+        })
+        function GetCode() {
+            $("#code").val($(parent.document).find("@ViewBag.CodeID").val());
+        }
+        function ReLoad() {
+            GetCode();
+            refresh(true);
+        }
+        function GetBase64() {
+            return myChart.getDataURL();
+        }
+    </script>
+}

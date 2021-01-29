@@ -1,0 +1,151 @@
+﻿@using System.IO
+@model string
+@{
+    var files = new DirectoryInfo(Model).GetFiles().OrderByDescending(i => i.LastWriteTime);
+}
+@functions{
+    string GetName(FileInfo info)
+    {
+        var name = info.Name[..^4];
+        if (name.EndsWith("[processing]"))
+            return name[..^12];
+        return name;
+    }
+    string GetSize(FileInfo info)
+    {
+        if (info.Length > 1048576)
+            return $"{info.Length / 1048576d:#,##0.##} MB";
+        else
+            return $"{info.Length / 1024d:#,##0.##} KB";
+    }
+    string GetStatus(FileInfo info)
+    {
+        if (info.Name.Contains("[processing]"))
+            return "生成中...";
+        if(info.Length == 0)
+            return "出现错误";
+        else
+            return "已完成";
+    }
+}
+@section head{<title>OFR模型管理</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(), "OFR列表")}, "[<a href='javascript:;' data-bs-target='#modal_add' data-bs-toggle='modal'>" + "添加字体" + "</a>]")
+<div class="table-responsive table_box">
+<table class="table table-bordered table-striped table-hover" id="EGV">
+    <thead>
+        <tr>
+            <th class="td_xs"></th>
+            <th>@L.操作</th>
+            <th>字体名称</th>
+            <th>状态</th>
+            <th>大小</th>
+            <th>创建时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fileInfo in files)
+        {
+            <tr>
+                <td class="node_select"><input type="checkbox" name="idchk" value="@GetName(fileInfo)" /></td>
+                <td>
+                    <div class="btn-group">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a href="javascript:;" onclick="rebuildData('@GetName(fileInfo)')" class="dropdown-item"><i class="zi zi_sync"></i> 重新生成</a></li>
+                            <li><a href="javascript:;" onclick="deleteOFR('@GetName(fileInfo)')" class="dropdown-item"><i class="zi zi_trash"></i> 删除数据</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td>@GetName(fileInfo)</td>
+                <td>@GetStatus(fileInfo)</td>
+                <td>@GetSize(fileInfo)</td>
+                <td>@fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            </tr>
+        }
+    </tbody>
+    @Html.Partial("_page", new ZoomLa.SQLDAL.SQL.PageSetting() { psize = 999 })
+</table>
+<button onclick="multiDelete()" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+<button data-bs-target="#modal_add" data-bs-toggle="modal" class="btn btn-outline-secondary ms-2">添加字体</button>
+</div>
+<div class="modal fade" id="modal_add" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">创建字体模型</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="model_add" action="OFRAdd" method="post" enctype="multipart/form-data">
+                    <div class="form-check py-2">
+                        <label class="form-check-label"><input class="form-check-input" type="radio" name="type" value="0" onchange="chooseType()" checked />字体名称</label>
+                        <label class="form-check-label ms-5"><input class="form-check-input" type="radio" name="type" value="1" onchange="chooseType()" />字体文件</label>
+                    </div>
+                    <div class="form-file my-2 d-none">
+                        <input type="file" class="" accept=".ttf" name="File" id="File" />
+                    </div>
+                    <input type="text" class="form-control my-2" name="Name" id="Name" placeholder="字体名称">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="addFont()" class="btn btn-outline-info">创建</button>
+            </div>
+            @(Html.Partial("_page"))
+        </div>
+    </div>
+</div>
+}
+@section script{
+<script>
+function deleteOFR(id) {
+    var a = window.confirm("您确定要删除该字体的数据吗？");
+    if (!a)
+        return;
+    window.location.href = encodeURI('@Url.Action("OFRDelete")?ids=' + id);
+}
+function multiDelete() {
+    var a = window.confirm("您确定要删除这些字体的数据吗？");
+    if (!a)
+        return;
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+    window.location.href = encodeURI('@Url.Action("OFRDelete")?ids=' + ids);
+}
+function addFont() {
+    let v = Number($('input[name=type]:checked').val());
+    if (v == 0) {
+        if (!$("#Name").val().trim()) {
+            alert("字体名不能为空");
+            return;
+        }
+    }
+    else if (v = 1) {
+        if (!$("#File").prop('files') || !$("#File").prop('files').length) {
+            alert("请先选择字体文件");
+            return;
+        }
+    }
+
+    $("#modal_add .modal-footer button.btn-outline-info").attr("disabled", true);
+    $("#modal_add .modal-footer button.btn-outline-info").text("创建中...");
+    $("#model_add").submit();
+}
+function chooseType() {
+    $("#model_add div.form-file").toggleClass("d-none");
+    $("#model_add input.form-control").toggleClass("d-none");    
+}
+function rebuildData(name) {
+    $("#model_add")[0].reset();
+    $("#Name").val(name);
+    $("#model_add").submit();
+}
+</script>
+}

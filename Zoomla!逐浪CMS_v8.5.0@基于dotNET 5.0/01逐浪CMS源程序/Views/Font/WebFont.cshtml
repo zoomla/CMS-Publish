@@ -1,0 +1,460 @@
+﻿@model bool 
+@{ 
+    Layout = "_cms2020Layout";
+    
+    var wordsLimit = (int)ViewData["WordsLimit"];
+    var downloadLimit = (int)ViewData["DownloadLimit"];
+    var downloadTimes = (int)ViewData["DownloadTimes"];
+}
+
+@section head{ 
+<title>WebFont- @Call.SiteName</title>
+<style>
+@@font-face{font-family:'webfont01';src:url('/FontCreation/res/web_fonts/逐浪报人书法行体.ttf');}
+@@font-face{font-family:'webfont02';src:url('/FontCreation/res/web_fonts/逐浪藏禅汉字.ttf');}
+@@font-face{font-family:'webfont03';src:url('/FontCreation/res/web_fonts/逐浪创艺粗黑体.ttf');}
+@@font-face{font-family:'webfont04';src:url('/FontCreation/res/web_fonts/逐浪创意粗行体.ttf');}
+@@font-face{font-family:'webfont05';src:url('/FontCreation/res/web_fonts/逐浪创意含羞体.ttf');}
+@@font-face{font-family:'webfont06';src:url('/FontCreation/res/web_fonts/逐浪创意流珠体.ttf');}
+@@font-face{font-family:'webfont07';src:url('/FontCreation/res/web_fonts/逐浪创意沁竹体.ttf');}
+@@font-face{font-family:'webfont08';src:url('/FontCreation/res/web_fonts/逐浪创意婉约体.ttf');}
+@@font-face{font-family:'webfont09';src:url('/FontCreation/res/web_fonts/逐浪粗隶书法体.ttf');}
+@@font-face{font-family:'webfont10';src:url('/FontCreation/res/web_fonts/逐浪粗宋简体.ttf');}
+@@font-face{font-family:'webfont11';src:url('/FontCreation/res/web_fonts/逐浪粗颜楷.ttf');}
+@@font-face{font-family:'webfont12';src:url('/FontCreation/res/web_fonts/逐浪大雪钢笔体.ttf');}
+@@font-face{font-family:'webfont13';src:url('/FontCreation/res/web_fonts/逐浪点状LED创艺字.ttf');}
+@@font-face{font-family:'webfont14';src:url('/FontCreation/res/web_fonts/逐浪方篆体.ttf');}
+@@font-face{font-family:'webfont15';src:url('/FontCreation/res/web_fonts/逐浪仿篆体.ttf');}
+@@font-face{font-family:'webfont16';src:url('/FontCreation/res/web_fonts/逐浪盖世英雄狂草书.ttf');}
+@@font-face{font-family:'webfont17';src:url('/FontCreation/res/web_fonts/逐浪哥特真爱体.ttf');}
+@@font-face{font-family:'webfont18';src:url('/FontCreation/res/web_fonts/逐浪古禅素食楷体.ttf');}
+@@font-face{font-family:'webfont19';src:url('/FontCreation/res/web_fonts/逐浪古藉大字库.ttf');}
+@@font-face{font-family:'webfont20';src:url('/FontCreation/res/web_fonts/逐浪古宋书法楷体.ttf');}
+@@font-face{font-family:'webfont21';src:url('/FontCreation/res/web_fonts/逐浪海昏侯汉简隶书.ttf');}
+@@font-face{font-family:'webfont22';src:url('/FontCreation/res/web_fonts/逐浪海棠居刻本字.ttf');}
+@@font-face{font-family:'webfont23';src:url('/FontCreation/res/web_fonts/逐浪海鲜排档撸串体.ttf');}
+@@font-face{font-family:'webfont24';src:url('/FontCreation/res/web_fonts/逐浪花体.ttf');}
+@@font-face{font-family:'webfont25';src:url('/FontCreation/res/web_fonts/逐浪简明新隶体.ttf');}
+@@font-face{font-family:'webfont26';src:url('/FontCreation/res/web_fonts/逐浪金农书法体.ttf');}
+@@font-face{font-family:'webfont27';src:url('/FontCreation/res/web_fonts/逐浪经典粗黑体.ttf');}
+@@font-face{font-family:'webfont28';src:url('/FontCreation/res/web_fonts/逐浪空也汉服创艺楷体.ttf');}
+@@font-face{font-family:'webfont29';src:url('/FontCreation/res/web_fonts/逐浪拉勾艺黑体.ttf');}
+@@font-face{font-family:'webfont30';src:url('/FontCreation/res/web_fonts/逐浪立楷.ttf');}
+@@font-face{font-family:'webfont31';src:url('/FontCreation/res/web_fonts/逐浪菱黑体.ttf');}
+@@font-face{font-family:'webfont32';src:url('/FontCreation/res/web_fonts/逐浪马列大楷体.ttf');}
+@@font-face{font-family:'webfont33';src:url('/FontCreation/res/web_fonts/逐浪纳西木喜马拉雅字藏语字库.ttf');}
+@@font-face{font-family:'webfont34';src:url('/FontCreation/res/web_fonts/逐浪日系楷体.ttf');}
+@@font-face{font-family:'webfont35';src:url('/FontCreation/res/web_fonts/逐浪时尚钢笔体.ttf');}
+@@font-face{font-family:'webfont36';src:url('/FontCreation/res/web_fonts/逐浪帅宋斜楷体.ttf');}
+@@font-face{font-family:'webfont37';src:url('/FontCreation/res/web_fonts/逐浪双勾镂线体.ttf');}
+@@font-face{font-family:'webfont38';src:url('/FontCreation/res/web_fonts/逐浪唐寅行书体.ttf');}
+@@font-face{font-family:'webfont39';src:url('/FontCreation/res/web_fonts/逐浪投影透视黑体.ttf');}
+@@font-face{font-family:'webfont40';src:url('/FontCreation/res/web_fonts/逐浪温莎雅楷体.ttf');}
+@@font-face{font-family:'webfont41';src:url('/FontCreation/res/web_fonts/逐浪文宣剪纸体.ttf');}
+@@font-face{font-family:'webfont42';src:url('/FontCreation/res/web_fonts/逐浪细阁体.ttf');}
+@@font-face{font-family:'webfont43';src:url('/FontCreation/res/web_fonts/逐浪湘教钢笔体.ttf');}
+@@font-face{font-family:'webfont44';src:url('/FontCreation/res/web_fonts/逐浪像素字.ttf');}
+@@font-face{font-family:'webfont45';src:url('/FontCreation/res/web_fonts/逐浪小霞硬楷体.ttf');}
+@@font-face{font-family:'webfont46';src:url('/FontCreation/res/web_fonts/逐浪小雪钢笔体.ttf');}
+@@font-face{font-family:'webfont47';src:url('/FontCreation/res/web_fonts/逐浪新创艺粗黑.ttf');}
+@@font-face{font-family:'webfont48';src:url('/FontCreation/res/web_fonts/逐浪新宋_标准.ttf');}
+@@font-face{font-family:'webfont49';src:url('/FontCreation/res/web_fonts/逐浪新宋_特粗.ttf');}
+@@font-face{font-family:'webfont50';src:url('/FontCreation/res/web_fonts/逐浪新宋_特细.ttf');}
+@@font-face{font-family:'webfont51';src:url('/FontCreation/res/web_fonts/逐浪丫玉体.ttf');}
+@@font-face{font-family:'webfont52';src:url('/FontCreation/res/web_fonts/逐浪雅宋体.ttf');}
+@@font-face{font-family:'webfont53';src:url('/FontCreation/res/web_fonts/逐浪瑶小硬.ttf');}
+@@font-face{font-family:'webfont54';src:url('/FontCreation/res/web_fonts/逐浪音乐符号歌谱体.ttf');}
+@@font-face{font-family:'webfont55';src:url('/FontCreation/res/web_fonts/逐浪印象细立体.ttf');}
+@@font-face{font-family:'webfont56';src:url('/FontCreation/res/web_fonts/逐浪硬行体.ttf');}
+@@font-face{font-family:'webfont57';src:url('/FontCreation/res/web_fonts/逐浪腴娃金鱼体.ttf');}
+@@font-face{font-family:'webfont58';src:url('/FontCreation/res/web_fonts/逐浪圆体.ttf');}
+@@font-face{font-family:'webfont59';src:url('/FontCreation/res/web_fonts/逐浪重圆体.ttf');}
+@@font-face{font-family:'webfont60';src:url('/FontCreation/res/web_fonts/逐浪锥钉体.ttf');}
+.display_panel{position:relative;padding:25px;background-color:#eee;margin:10px 0}
+.display_panel_close{position:absolute;right:6px;top:6px}
+.display_panel_body{min-height:72px;height:100%;font-size:2.64rem}/*可以定义字体大小*/
+.display_panel_footer span{}/*底部字体名称样式*/
+.display_panel_footer button{border:none;color:#138496;margin-left:8px;}/*底部下载标签样式*/
+</style>
+}
+@section content{ 
+<div class="webfont_top">
+<nav class="navbar navbar-expand-lg navbar-light font_nav">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/Font"><i class="zi zi_tmZiti163"></i>逐浪字库大师</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/">从此开始</a></li>
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="@Url.Action("index")/webfont">Webfont</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/pay">会员升级</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ofr")">查字体</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("ocr")">智能识图</a></li>
+        <li class="nav-item"><a class="nav-link" aria-current="page" href="@Url.Action("index")/#/help">使用手册</a></li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">造字秘集</a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="http://www.ziti163.com/uni" target="_blank">Unicode字码表</a></li>
+                <li><a class="dropdown-item" href="http://p.ziti163.com" target="_blank">智图</a></li>
+                <li><a class="dropdown-item" href="http://a.ziti163.com" target="_blank">方言</a></li>
+                <li><a class="dropdown-item" href="http://ico.z01.com" target="_blank">zico图标</a></li>
+                <li><a class="dropdown-item" href="https://v.ziti163.com/Class_2/Default" target="_blank">字赏</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="http://f.ziti163.com" target="_blank">逐浪字库</a></li>
+            </ul>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <a href="javascript:;" onClick="isSearch();"><i class="zi zi_search"></i></a>
+        <a href="/user/"><i class="zi zi_user"></i></a>
+      </form>
+        <ul class="font_search">
+            <form action="https://www.ziti163.com/Search/SearchList">
+                <i class="zi zi_searchBlack"></i>
+                <input type="text" class="form-control" placeholder="从ziti163.com字体网检索" name="keyword" />
+                <a onClick="isClose();" href="javascript:;"><i class="zi zi_windowclose"></i></a>
+            </form>
+        </ul>
+    </div>
+  </div>
+</nav>
+</div>
+
+<div class="container-xl">
+    <textarea id="words_input" class="form-control my-4" rows="6" style="resize:none;">世界上只有一种英雄主义，就是看清生活的真相之后依然热爱生活。</textarea>
+    <div class="d-flex">
+        <div class="d-flex flex-wrap flex-grow-1 dropdown">
+            <button class="btn btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">点击选择字体添加</button>
+            <ul class="dropdown-menu" style="max-height:50vh;overflow-y:auto;">
+                <li class="dropdown-item active" data-fontfamily="webfont01">逐浪报人书法行体</li>
+                <li class="dropdown-item" data-fontfamily="webfont02">逐浪藏禅汉字</li>
+                <li class="dropdown-item" data-fontfamily="webfont03">逐浪创艺粗黑体</li>
+                <li class="dropdown-item" data-fontfamily="webfont04">逐浪创意粗行体</li>
+                <li class="dropdown-item" data-fontfamily="webfont05">逐浪创意含羞体</li>
+                <li class="dropdown-item" data-fontfamily="webfont06">逐浪创意流珠体</li>
+                <li class="dropdown-item" data-fontfamily="webfont07">逐浪创意沁竹体</li>
+                <li class="dropdown-item" data-fontfamily="webfont08">逐浪创意婉约体</li>
+                <li class="dropdown-item" data-fontfamily="webfont09">逐浪粗隶书法体</li>
+                <li class="dropdown-item" data-fontfamily="webfont10">逐浪粗宋简体</li>
+                <li class="dropdown-item" data-fontfamily="webfont11">逐浪粗颜楷</li>
+                <li class="dropdown-item" data-fontfamily="webfont12">逐浪大雪钢笔体</li>
+                <li class="dropdown-item" data-fontfamily="webfont13">逐浪点状LED创艺字</li>
+                <li class="dropdown-item" data-fontfamily="webfont14">逐浪方篆体</li>
+                <li class="dropdown-item" data-fontfamily="webfont15">逐浪仿篆体</li>
+                <li class="dropdown-item" data-fontfamily="webfont16">逐浪盖世英雄狂草书</li>
+                <li class="dropdown-item" data-fontfamily="webfont17">逐浪哥特真爱体</li>
+                <li class="dropdown-item" data-fontfamily="webfont18">逐浪古禅素食楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont19">逐浪古藉大字库</li>
+                <li class="dropdown-item" data-fontfamily="webfont20">逐浪古宋书法楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont21">逐浪海昏侯汉简隶书</li>
+                <li class="dropdown-item" data-fontfamily="webfont22">逐浪海棠居刻本字</li>
+                <li class="dropdown-item" data-fontfamily="webfont23">逐浪海鲜排档撸串体</li>
+                <li class="dropdown-item" data-fontfamily="webfont24">逐浪花体</li>
+                <li class="dropdown-item" data-fontfamily="webfont25">逐浪简明新隶体</li>
+                <li class="dropdown-item" data-fontfamily="webfont26">逐浪金农书法体</li>
+                <li class="dropdown-item" data-fontfamily="webfont27">逐浪经典粗黑体</li>
+                <li class="dropdown-item" data-fontfamily="webfont28">逐浪空也汉服创艺楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont29">逐浪拉勾艺黑体</li>
+                <li class="dropdown-item" data-fontfamily="webfont30">逐浪立楷</li>
+                <li class="dropdown-item" data-fontfamily="webfont31">逐浪菱黑体</li>
+                <li class="dropdown-item" data-fontfamily="webfont32">逐浪马列大楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont33">逐浪纳西木喜马拉雅字藏语字库</li>
+                <li class="dropdown-item" data-fontfamily="webfont34">逐浪日系楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont35">逐浪时尚钢笔体</li>
+                <li class="dropdown-item" data-fontfamily="webfont36">逐浪帅宋斜楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont37">逐浪双勾镂线体</li>
+                <li class="dropdown-item" data-fontfamily="webfont38">逐浪唐寅行书体</li>
+                <li class="dropdown-item" data-fontfamily="webfont39">逐浪投影透视黑体</li>
+                <li class="dropdown-item" data-fontfamily="webfont40">逐浪温莎雅楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont41">逐浪文宣剪纸体</li>
+                <li class="dropdown-item" data-fontfamily="webfont42">逐浪细阁体</li>
+                <li class="dropdown-item" data-fontfamily="webfont43">逐浪湘教钢笔体</li>
+                <li class="dropdown-item" data-fontfamily="webfont44">逐浪像素字</li>
+                <li class="dropdown-item" data-fontfamily="webfont45">逐浪小霞硬楷体</li>
+                <li class="dropdown-item" data-fontfamily="webfont46">逐浪小雪钢笔体</li>
+                <li class="dropdown-item" data-fontfamily="webfont47">逐浪新创艺粗黑</li>
+                <li class="dropdown-item" data-fontfamily="webfont48">逐浪新宋_标准</li>
+                <li class="dropdown-item" data-fontfamily="webfont49">逐浪新宋_特粗</li>
+                <li class="dropdown-item" data-fontfamily="webfont50">逐浪新宋_特细</li>
+                <li class="dropdown-item" data-fontfamily="webfont51">逐浪丫玉体</li>
+                <li class="dropdown-item" data-fontfamily="webfont52">逐浪雅宋体</li>
+                <li class="dropdown-item" data-fontfamily="webfont53">逐浪瑶小硬</li>
+                <li class="dropdown-item" data-fontfamily="webfont54">逐浪音乐符号歌谱体</li>
+                <li class="dropdown-item" data-fontfamily="webfont55">逐浪印象细立体</li>
+                <li class="dropdown-item" data-fontfamily="webfont56">逐浪硬行体</li>
+                <li class="dropdown-item" data-fontfamily="webfont57">逐浪腴娃金鱼体</li>
+                <li class="dropdown-item" data-fontfamily="webfont58">逐浪圆体</li>
+                <li class="dropdown-item" data-fontfamily="webfont59">逐浪重圆体</li>
+                <li class="dropdown-item" data-fontfamily="webfont60">逐浪锥钉体</li>
+            </ul>
+        </div>
+        <button class="btn btn-info btn-lg" onclick="generate()">生成字体</button>
+    </div>
+    <div class="webfont_select" id="font_selected">
+        <a href="http://www.ziti163.com/webfont/" target="_blank" class="btn btn-link"><i class="zi zi_externalLinkalt"></i> 逐浪字库精品全库引用</a>
+    </div>
+    <div class="d-flex flex-column" id="font_display"></div>    
+</div>
+
+<div class="modal fade" id="reminder" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">温馨提示</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="help_info"></div>                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <a id="cz" href="@Url.Action("Index")#/pay" class="btn btn-ouline-dark">前往充值</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reminders" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">温馨提示</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="help_infos"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="font_end">
+<div class="container-xl">
+Powered by &copy; @(DateTime.Now.ToString("yyyy")) @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.SiteName) BY @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.Webmaster)
+</div>
+</footer>
+
+<div class="home17_kefu">
+<ul>
+<li>
+<a href="javascript:;"><i class="zi zi_tmQq"></i></a>
+<div class="home17_kefu_c" style="bottom:13rem;">
+<div class="home17_kefu_ct">在线客服<i class="zi zi_times"></i></div>
+<div class="home17_kefu_cq">
+<ul>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=184886758&site=qq&menu=yes"><i class="zi zi_tmQq"></i>京沪苏粤售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=1799661890&site=qq&menu=yes"><i class="zi zi_tmQq"></i>软件授权售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=524979923&site=qq&menu=yes"><i class="zi zi_tmQq"></i>高端订制售前</a></li>
+<li><a href="http://wpa.qq.com/msgrd?v=3&uin=745151353&site=qq&menu=yes"><i class="zi zi_tmQq"></i>教育系统集成</a></li>
+</ul>
+</div>
+<div class="home17_kefu_cb">
+<a href="tel:13918895839">
+<h3><i class="zi zi_phone"></i>服务热线</h3>
+<p>13918895839</p>
+</a>
+</div>
+</div>
+</li>
+<li>
+<a href="javascript:;"><i class="zi zi_tmWeixin"></i></a>
+<div class="home17_kefu_c" style="bottom:10.4rem;">
+<div class="home17_kefu_ct">扫码官方微信↓<i class="zi zi_times"></i></div>
+<div><img src="https://f.ziti163.com/Template/Ziku/style/images/qrcode.jpg" alt="微信二维码" style="max-width:100%;" /></div>
+</div>
+</li>
+<li><a href="javascript:;" title="快速获取逐浪CMS官方资源"><i class="zi zi_tmGit"></i></a>
+<div class="home17_kefu_c" style="bottom:8rem;">
+<div class="home17_kefu_ct">获取逐浪源码<i class="zi zi_times"></i></div>
+<div class="home17_kefu_cq">
+<ul>
+<li><a href="https://github.com/zoomla/ZoomlaFont" target="_blank"><i class="zi zi_tmGithub"></i>GitHub主页</a></li>
+<li><a href="https://gitee.com/zoomla/ZoomlaFont" target="_blank"><i class="zi zi_tmGoogleplusg"></i>Gitee码云主页</a></li>
+</ul>
+</div>
+</div>
+</li>
+<li><a href="javascript:;"><i class="zi zi_forUp"></i></a></li>
+</ul>
+</div>
+
+}
+@section script{ 
+<script>
+var modal = new bootstrap.Modal(document.getElementById('reminder'));
+var isLogin = '@Html.Raw(Model)' == 'True';
+var downloadLimit = Number(@Html.Raw(downloadLimit));
+var downloadTimes = Number(@Html.Raw(downloadTimes));
+var wordsLimit = Number(@Html.Raw(wordsLimit));
+$(document).ready(function () {
+    selectFont("webfont50", "逐浪新宋_特细");
+    selectFont("webfont22", "逐浪海棠居刻本字");
+    selectFont("webfont30", "逐浪立楷");
+    selectFont("webfont16", "逐浪盖世英雄狂草书");
+    selectFont("webfont38", "逐浪唐寅行书体");
+    selectFont("webfont21", "逐浪海昏侯汉简隶书");
+    selectFont("webfont11", "逐浪粗颜楷");
+});
+$("li[data-fontfamily]").each(function () {
+    var el = $(this);
+    var fontfamily = el.data("fontfamily");
+    var fontname = el.text();
+    el.on('click', function () {
+        if (el.hasClass('active')) {
+            removeFont(fontfamily, fontname);
+        }
+        else {
+            selectFont(fontfamily, fontname);
+        }
+    });
+});
+function selectFont(ff, name) {
+    $("li[data-fontfamily=" + ff + "]").addClass("active");
+    var div = '<div class="badge bg-info webfont_item" data-fontfamily="' + ff + '">' +
+        '<span>' + name + '</span>' +
+        '<a href="javascript:;"><i class="zi zi_times"></i></a>' +
+        '</div>';
+    $("#font_selected").append(div);
+    $("#font_selected div[data-fontfamily=" + ff + "] a").on("click", function () {
+        removeFont(ff, name);
+    });
+    var panel = '<div class="display_panel" data-fontfamily="' + ff + '">' +
+        '<div class="display_panel_close"><button class="btn p_download" data-bs-toggle="tooltip" title="获取PNG透明图片"><i class="zi zi_fileGraph"></i></button>' +
+        '<button class="btn p_close" data-bs-toggle="tooltip" title="取消选字"><i class="zi zi_times"></i></button></div>' +
+        '<div class="display_panel_body" style="font-family:\'' + ff + '\'"></div>' +
+        '<div class="display_panel_footer"><span>' + name + '</span><button data-bs-toggle="tooltip" title="下载webfont到本地" data-link="' + getDownloadUrl(name) + '">下载</button></div>' +
+        '</div>';
+    $("#font_display").append(panel);
+    $("#font_display div[data-fontfamily=" + ff + "] .display_panel_close button.p_close").on("click", function () {
+        removeFont(ff, name);
+    });
+    $("#font_display div[data-fontfamily=" + ff + "] div.display_panel_body").text($("#words_input").val());
+    $("#font_display div[data-fontfamily=" + ff + "] div.display_panel_footer button").on("click", function () {
+        downloadFile(this, $(this).data("link"));
+    });
+    $("#font_display div[data-fontfamily=" + ff + "] .display_panel_close button.p_download").on("click", function () {
+        downloadImg(this, name);
+    });
+
+    $("#font_display div[data-fontfamily=" + ff + "] button[data-bs-toggle='tooltip']").each(function () {
+        var tooltip = new bootstrap.Tooltip(this);
+    });
+}
+function removeFont(ff, name) {
+    $("li[data-fontfamily=" + ff + "]").removeClass("active");
+    $("#font_selected div[data-fontfamily=" + ff + "]").remove();
+    $("#font_display div[data-fontfamily=" + ff + "]").remove();
+}
+function generate() {
+    var num = $('#words_input').val();
+    num = num.replace(/\s+/g, "");
+    num = num.replace(/<\/?.+?>/g, "");
+    num = num.replace(/[\r\n]/g, "");
+    if (num.length > 30) { alert("字数限制在30个以内，请升级成会员再试"); return false; }
+    $(".display_panel").each(function () {
+        var body = $(this).find("div.display_panel_body");
+        var name = $(this).find("div.display_panel_footer span").text();
+        var link = $(this).find("div.display_panel_footer button");
+        body.text($("#words_input").val());
+        link.text("下载");
+        link.attr("data-link", getDownloadUrl(name));
+        link.attr("disabled", false);
+    });
+}
+function getDownloadUrl(fontName) {
+    return encodeURI('@Url.Action("GetWebFont")?ff=' + fontName + "&words=" + encodeURIComponent($("#words_input").val()))
+}
+var isDownload = false;
+function downloadFile(el, link) {
+    if (isDownload) {
+        var modals = new bootstrap.Modal(document.getElementById('reminders'));
+        $("#reminders .modal-body #help_infos").text("下载过于频繁，请稍后再试~");
+        modals.show();
+        return;
+    }
+    isDownload = true;
+
+    if (downloadTimes >= downloadLimit) {
+        $("#reminder .modal-body #help_info").text("您今日下载已达上限 " + downloadLimit + "，请改日或购买相关服务后再试~");
+        modal.show();
+        isDownload = false;
+        return;
+    }
+    if ($("#words_input").val().trim().length > wordsLimit) {
+        $("#reminder .modal-body #help_info").text("您输入的字数超出上限 " + wordsLimit + "，请修改或购买相关服务后再试~");
+        modal.show();
+        isDownload = false;
+        return;
+    }
+    let btn = $(el);
+    btn.attr("disabled", true);
+    btn.text("下载中...");
+
+    $.ajax({
+        method: "Get",
+        dataType: "json",
+        url: link,
+        success: function (result) {
+            //console.log(result);
+            if (result.status) {
+                console.log(result.data);
+                window.location.href = result.data;
+                setTimeout(() => {
+                    btn.text("下载完成");
+                }, 3000);
+                downloadTimes++;
+            }
+            else {
+                $("#reminder .modal-body #help_info").text(result.error);
+                modal.show();
+                btn.text("下载");
+            }
+            isDownload = false;
+        },
+        error: function () {
+            alert("出现错误！可能是网络或api存在问题");
+        }
+    });
+}
+function downloadImg(el, name) {
+    if ($("#words_input").val().trim().length > wordsLimit) {
+        $("#reminder .modal-body #help_info").text("您输入的字数超出上限 " + wordsLimit + "，请修改或购买相关服务后再试~");
+        modal.show();
+        return;
+    }
+    let words = $(el).closest('div').next('.display_panel_body').text()
+    window.location.href = encodeURI('@Url.Action("GetStringImage")?ff=' + name + "&words=" + encodeURIComponent(words));
+}
+// font_search
+function isSearch(){
+    $(".font_search").css("opacity","1").css("z-index","1").css("right","30%").css("top","0.5rem");
+    $(".font_search .form-control").focus();
+}
+function isClose(){
+    $(".font_search").css("opacity","0").css("z-index","-1");
+}
+// home17_kefu
+    $(".home17_kefu li").mouseover(function () {
+        $(this).siblings("li").removeClass("active");
+        $(this).addClass("active");
+    }).mouseout(function () {
+        $(this).removeClass("active");
+    });
+    $(".home17_kefu_ct i").click(function () {
+        $(this).parent().parent().parent().removeClass("active");
+    });
+    $(".home17_kefu li:nth-child(4) a").click(function () {
+        $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body')
+        $body.animate({ scrollTop: 0 }, 1000);
+    });
+
+
+</script>
+}

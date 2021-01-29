@@ -1,0 +1,1 @@
+﻿获取指定项的属性，Get-ItemProperty；获取指定位置的项的内容，Get-Content；

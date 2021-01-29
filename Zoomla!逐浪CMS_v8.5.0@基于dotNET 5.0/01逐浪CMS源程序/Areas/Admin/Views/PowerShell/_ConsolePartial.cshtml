@@ -1,0 +1,26 @@
+﻿@using ZoomLaCMS.Areas.Admin.Controllers.Label
+@model PSScript
+<div id="@("console" + Model.Index)" class="py-3 ps-console" data-index="@Model.Index">
+    <input type="hidden" id="z@(Model.Index)__Index" name="[@(Model.Index)].Index" asp-for="@Model.Index" />
+    <div class="d-flex">
+        <span>命令窗口</span>
+        <div class="ps-3 flex-grow-1 small">
+            <input type="hidden" class="w-75 border-0 bg-transparent" style="line-height:30px;" id="z@(Model.Index)__WorkingDirectory" name="[@(Model.Index)].WorkingDirectory" asp-for="@Model.WorkingDirectory"/>
+            <span style="line-height:30px;">当前目录：<span id="@($"swd_{Model.Index}")">@Model.WorkingDirectory</span></span>            
+        </div>
+        <div class="btn-group">
+            @if (Model.Index > 0)
+            {<a href="javascript:;" onclick="$('#console' + @Model.Index).remove();" class="btn btn-outline-info btn-sm"><i class="zi zi_recycle"></i> 移除</a>}
+            <a href="javascript:;" onclick="currentConsole = '@Model.Index';$('#f_selectFile').click();" class="btn btn-outline-info btn-sm"><i class="zi zi_fileCode"></i> 导入</a>
+            <a href="javascript:;" onclick="execute(@Model.Index)" class="btn btn-outline-info btn-sm"><i class="zi zi_fly"></i> 执行</a>
+        </div>
+    </div>
+    <textarea class="mt-1 w-100 form-control" rows="8" id="z@(Model.Index)__Script" name="[@(Model.Index)].Script" asp-for="@Model.Script"></textarea>
+</div>
+
+<style>
+.ps-console{
+    border-top: 1px dotted darkgray;
+    border-bottom: 1px dotted darkgray;
+}
+</style>

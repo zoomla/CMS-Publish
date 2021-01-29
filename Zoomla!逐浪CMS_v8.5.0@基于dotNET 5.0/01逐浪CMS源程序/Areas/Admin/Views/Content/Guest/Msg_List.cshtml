@@ -1,0 +1,61 @@
+﻿@using ZoomLa.BLL.Helper
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public string GetStatus(DataRow dr)
+    {
+        return ZoomLa.BLL.Content.B_Content.GetStatusStr(DataConverter.CLng(dr["status"]));
+    }
+    public string GetIPLoca(DataRow dr)
+    {
+        return IPScaner.IPLocation(DataConverter.CStr(dr["IP"]));
+    }
+}
+@{ 
+    
+}
+<table class="table table-bordered table-hover table-striped" id="EGV">
+<thead>
+    <tr>
+        <td class="td_xs"></td>
+        <td class="td_s">ID</td>
+        <td>@L.标题</td>
+        <td class="td_m">@L.留言状态</td>
+        <td class="td_l">@L.留言时间</td>
+        <td class="td_l">@L.留言IP</td>
+        <td class="td_m">@L.留言人</td>
+        <td>@L.回复数</td>
+        <td class="w20rem">@L.操作</td>
+    </tr>
+</thead>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+    <tr ondblclick="location = '/Guest/GuestShow?GID=@dr["GID"]';">
+        <td><input type="checkbox"  name="idchk" value='@dr["GID"]' /></td>
+        <td>@dr["GID"]</td>
+        <td><a href="MsgShow?ID=@dr["GID"]">@Html.Raw(dr["Title"])</a></td>
+        <td>@GetStatus(dr)</td>
+        <td>@dr["GDate"]</td>
+        <td>@GetIPLoca(dr) </td>
+        <td><a href="javascript:;" onclick="user.showuinfo('@dr["UserID"]');">@dr["UserName"]</a></td>
+        <td>@dr["ReplyCount"]</td>
+        <td>
+            @*<asp:LinkButton ID="LinkButton4" runat="server" CommandName="Reply" CommandArgument='<%# Eval("GID")+"&CateID="+Eval("CateID") %>' ToolTip="回复"><i class="zi zi_reply"></i>回复</asp:LinkButton>*@
+            @*回复的留言,不需要更多权限*@
+            @if (DataConverter.CLng(dr["ParentID"]) == 0)
+            {
+                <a href="ReplyGuest?GID=@(dr["GID"])"><i class="zi zi_replyall"></i> 回复</a>
+                <a href="MsgList?ParentId=@dr["GID"]&cateId=@dr["CateID"]"><i class="zi zi_menu"></i> @L.回复列表</a>
+                <a href="MsgShow?ID=@dr["GID"]"><i class="zi zi_eye"></i> @L.详情</a>
+                <a href="/Guest/GuestShow?GID=@dr["GID"]" target="_blank"><i class="zi zi_globe"></i> @L.浏览</a>
+            }
+            else
+            {
+                <a href="MsgShow?ID=@dr["GID"]">@L.详情</a>
+                <a href="/Guest/GuestShow?GID=@dr["ParentID"]" target="_blank">@L.浏览</a>
+            }
+        </td>
+    </tr>
+}
+@Html.Partial("_page")
+<script>$(function () {iCheckInit("#EGV input[type=checkbox]");})</script>
+</table>

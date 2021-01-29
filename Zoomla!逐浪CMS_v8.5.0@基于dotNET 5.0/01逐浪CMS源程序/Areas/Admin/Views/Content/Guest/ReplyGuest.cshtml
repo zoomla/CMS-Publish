@@ -1,0 +1,101 @@
+﻿@model ZoomLa.Model.M_GuestBook;
+@section head{<title>留言回复</title>
+    <script charset="utf-8" src="/Plugins/Ueditor/ueditor.config.js"></script>
+    <script charset="utf-8" src="/Plugins/Ueditor/ueditor.all.min.js"></script>
+}
+@{
+    DataTable dt = ViewBag.dt;
+    DataRow dr = dt.Rows[0];
+
+    string GetUserName(string UserID)
+    {
+        B_User buser = new B_User();
+        return buser.SelReturnModel(DataConverter.CLng(UserID)).UserName;
+    }
+
+}
+@section content{
+    @*@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("CateList",@L.留言分类),
+        new Bread("ReplyGuest","留言回复")
+        })*@
+
+        <table class="table table-striped table-bordered table-hover" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td class="tdbgleft" style="width: 100px; text-align: center; "><strong>ID</strong></td>
+                <td class="tdbg" style="width: 85%; ">@dr["GID"]</td>
+            </tr>
+            <tr>
+                <td class="tdbgleft" style="width: 100px; text-align: center; "><strong>留言人</strong></td>
+                <td class="tdbg" style="width: 85%; "><a href="../User/UserInfo?id=@dr["UseriD"]" title="点击查看该用户详情">@GetUserName(dr["UseriD"].ToString())</a></td>
+            </tr>
+            <tr>
+                <td class="tdbgleft" style="width: 100px; text-align: center;"><strong>留言标题</strong></td>
+                <td class="tdbg" style="width: 85%;">@dr["Title"]</td>
+            </tr>
+            <tr>
+                <td class="tdbgleft" style="width: 100px; text-align: center;"><strong>留言内容</strong></td>
+                <td class="tdbg" style="width: 85%;">@Html.Raw(dr["TContent"])</td>
+            </tr>
+            <tr>
+                <td class="tdbgleft" style="width: 100px; text-align: center;"><strong>IP地址</strong></td>
+                <td class="tdbg" style="width: 85%;">@dr["IP"]</td>
+            </tr>
+            <tr>
+                <td class="tdbgleft" style="width: 100px; text-align: center;"><strong>添加时间</strong></td>
+                <td class="tdbg" style="width: 85%;">@dr["GDate"]</td>
+            </tr>
+        </table>
+        <div id="Pager1" runat="server" style="display:none;"></div>
+        <input type="hidden" ID="HdnGID" name="HdnGID" value="@ViewBag.HdnGID" />
+        <div style="margin: 20px auto">
+            <form method="post" action="@MVCHelper.GetAction("EBtnSubmit",Context.Request)">
+                <input type="hidden" ID="CateID" name="CateID" value="@dr["Cateid"]" />
+                <table style="width: 100%; margin: 0 auto; margin-top: 5px;" cellpadding="0" cellspacing="0" class="table table-striped table-bordered table-hover">
+                    <tr class="tdbg">
+                        <td colspan="2" class="title" style="text-align: center">
+                            <span id="LblModelName">回复留言</span>
+                        </td>
+                    </tr>
+                    <tr class="tdbg" onmouseover="this.className='tdbgmouseover'" onmouseout="this.className='tdbg'">
+                        <td align="right" class="tdbgleft">
+                            标题：
+                        </td>
+                        <td>
+                            <input name="TextBox1" type="text" id="TextBox1" class="form-control pull-left" style="width:365px;" /><span style="color:#1e860b;margin-left:5px;">*非必填项</span>
+                        </td>
+                    </tr>
+                    <tr class="tdbg" onmouseover="this.className='tdbgmouseover'" onmouseout="this.className='tdbg'">
+                        <td align="right" class="tdbgleft">
+                            内容：
+                        </td>
+                        <td>
+                            <textarea name="tx_Content" id="tx_Content" style="width: 100%; height: 150px;"></textarea>
+                            <script>
+                                UE.getEditor('tx_Content', {
+                                    toolbars: [['FullScreen', 'Undo', 'Redo', 'Bold', 'Italic', 'NumberedList', 'BulletedList', 'Smiley', 'ShowBlocks', 'Maximize', 'underline', 'fontborder', 'strikethrough', '|', 'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify']]
+                                });</script>
+                        </td>
+                    </tr>
+
+                    <tr class="tdbgbottom border">
+                        <td></td>
+                        <td>
+                            <input type="submit" name="EBtnSubmit" value="保存回复" id="EBtnSubmit" class="btn btn-info" />
+                            <a href="javascript:;" onclick="history.go(-1);" class="btn btn-outline-info">返回列表</a>
+                            <br />
+                            <input type="hidden" name="HdnModel" id="HdnModel" />
+                            <input type="hidden" name="HiddenParentid" id="HiddenParentid" />
+                            <input type="hidden" name="HdnPubid" id="HdnPubid" />
+                            <input type="hidden" name="HdnID" id="HdnID" />
+                            <input type="hidden" name="HdnType" id="HdnType" />
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+}
+@section script{
+
+}

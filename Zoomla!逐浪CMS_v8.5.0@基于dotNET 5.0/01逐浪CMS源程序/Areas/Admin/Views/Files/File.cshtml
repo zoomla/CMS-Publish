@@ -1,0 +1,26 @@
+﻿@using ZoomLa.BLL.Extend
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    string apiUrl = "Zone_API?action=";
+}
+@section head{ <title>@L.文件管理</title>}
+@section content{ 
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url=Context.Request.RawUrl(),text=L.文件管理,/*addon="<a href='ZoneAdd'> ["+@L.添加版位+"]</a>"*/ }
+},"{search}")
+    
+<div class="table-responsive-md">
+
+    <img src="~/StaticFiles/1.jpg" alt="pic" />
+
+</div>
+
+}
+@section script{ 
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+
+</script>
+
+}

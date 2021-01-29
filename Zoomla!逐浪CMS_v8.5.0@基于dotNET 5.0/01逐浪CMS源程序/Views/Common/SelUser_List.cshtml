@@ -1,0 +1,35 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@model ZoomLaCMS.Control.C_SelUser
+@functions{
+    public string GetHeadIcon(DataRow dr)
+    {
+        string uface = DataConverter.CStr(dr["salt"]);
+        if (string.IsNullOrEmpty(uface)) { uface = "/images/userface/noface.png"; }
+        return uface;
+    }
+}
+@{
+   
+}
+
+@foreach (DataRow dr in Model.r_dt.Rows)
+{
+    if (Model.viewMode == "user")
+    {
+        <div class="userlist_item" data-uid="@dr["UserID"]" data-hname="@dr["HoneyName"]">
+            <div class="item_face float-start"><img src="@GetHeadIcon(dr)" onerror="shownoface(this);" /> [@B_User.GetUserName(dr["UserName"],dr["HoneyName"])]</div>
+            <div class="float-start item_name">@B_User.GetUserName(dr["HoneyName"],dr["UserName"])</div>
+            <div class="float-end item_add">添加</div>
+        </div>
+    }
+    else if (Model.viewMode == "plat")
+    {
+        <div class="userlist_item" data-uid="@dr["UserID"]">
+            <div class="item_face float-start"><img src="@dr["UserFace"]" onerror="shownoface(this);"/></div>
+            <div class="float-start item_name">@B_User.GetUserName(dr["HoneyName"],dr["UserName"])</div>
+            <div class="float-end item_add">添加</div>
+        </div>
+    }
+}

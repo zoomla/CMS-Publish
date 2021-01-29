@@ -1,0 +1,67 @@
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+hs-o，hs -o；查看 PowerShell 版本，$host.version；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+脚本，##[Ps1 To Exe]
+##
+##Kd3HDZOFADWE8uK1
+##Nc3NCtDXThU=
+##Kd3HFJGZHWLWoLaVvnQnhQ==
+##LM/RF4eFHHGZ7/K1
+##K8rLFtDXTiW5
+##OsHQCZGeTiiZ4NI=
+##OcrLFtDXTiW5
+##LM/BD5WYTiiZ4tI=
+##McvWDJ+OTiiZ4tI=
+##OMvOC56PFnzN8u+Vs1Q=
+##M9jHFoeYB2Hc8u+Vs1Q=
+##PdrWFpmIG2HcofKIo2QX
+##OMfRFJyLFzWE8uK1
+##KsfMAp/KUzWJ0g==
+##OsfOAYaPHGbQvbyVvnQX
+##LNzNAIWJGmPcoKHc7Do3uAuO
+##LNzNAIWJGnvYv7eVvnQX
+##M9zLA5mED3nfu77Q7TV64AuzAgg=
+##NcDWAYKED3nfu77Q7TV64AuzAgg=
+##OMvRB4KDHmHQvbyVvnQX
+##P8HPFJGEFzWE8tI=
+##KNzDAJWHD2fS8u+Vgw==
+##P8HSHYKDCX3N8u+Vgw==
+##LNzLEpGeC3fMu77Ro2k3hQ==
+##L97HB5mLAnfMu77Ro2k3hQ==
+##P8HPCZWEGmaZ7/K1
+##Kc/BRM3KXxU=
+##
+##
+##fd6a9f26a06ea3bc99616d4851b372ba
+using namespace System.Web.HttpUtility
+param
+(
+	[parameter(Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[String]$输入的中文文字
+)
+Write-Verbose $PSVersionTable
+
+$private:Encode后的输入 = [System.Web.HttpUtility]::UrlEncode($输入的中文文字,[System.Text.Encoding]::UTF8).ToUpper()
+Write-Verbose $private:Encode后的输入
+
+$private:googlecn1 = "http://translate.google.cn/translate_a/single?client=gtx&sl=zh-CN&tl=en&dt=t&q=${private:Encode后的输入}"
+
+$private:返回 = Invoke-RestMethod $googlecn1
+return $private:返回[0][0][0]
+
+# ps5的话,要加上 using namespace System.Web.HttpUtility；

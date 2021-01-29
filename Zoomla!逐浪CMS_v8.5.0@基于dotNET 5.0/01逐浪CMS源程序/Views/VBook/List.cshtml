@@ -1,0 +1,82 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    //Layout = "/Areas/User/Views/Shared/_Layout.cshtml";
+    Layout = null;
+}
+@section head{<title>我的画册</title> }
+<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="renderer" content="webkit" />
+<title>在线Diy相册</title>
+<link rel="stylesheet" href="~/res/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/res/css/zico.min.css" />
+<script src="~/js/jquery.min.js"></script>
+<script src="~/js/ZL_Regex.js"></script>
+<script src="~/js/mvcpage.js"></script> 
+<script src="~/js/Modal/APIResult.js"></script>
+<script src="~/js/Controls/ZL_Dialog.js?v=1.0.1"></script>
+<script src="~/js/jquery.validate.min.js?v=1"></script>
+<script src="~/js/ICMS/ZL_Common.js?v=20191029"></script>
+<script type="module">
+import '/res/js/bootstrap.bundle.min.js'
+</script>
+<link href="/theme/css/V4user.css?version=@(ZoomLa.BLL.BLLCommon.Version_JS)" rel="stylesheet" />
+<style type="text/css">
+
+</style>
+</head>
+<body>
+<div class="p-5 bg-light">
+<div class="container-xl">
+<h1 class="card-title">在线Diy相册</h1>
+<p class="card-text">自由上传图片制作你喜欢的相册，并可以用于分享到移动设备上.</p>
+<a href="#" onclick="showAdd();" class="btn btn-outline-info">立即开始创作</a>
+</div>
+</div>
+
+@Html.Partial("List_Listuser")
+
+<div class="container-xl vbook">
+<h2>推荐相册</h2>
+<div class="input-group">
+    <input type="text" class="form-control mvcparam" placeholder="请输入标题" id="skey"/>
+    <button type="button" class="btn btn-info " style="z-index:0;" onclick="mvcpage.load();">快速检索</button>
+</div>
+<div class="mt-1">
+    @Html.Partial("List_List")
+</div>
+</div>
+
+<div class="u_footer">
+Powered by &copy; @(DateTime.Now.ToString("yyyy/MM/dd")) @(Call.SiteName) BY @MvcHtmlString.Create(ZoomLa.Components.SiteConfig.SiteInfo.Webmaster)
+</div>
+<script>
+function showAdd(id) {
+    if (!id) { id = ""; }
+    ShowComDiag("Add?ID=" + id, "");
+}
+function toEdit(id) { location = "/Plugins/VBook/#/editor?id=" + id}
+//function mybind() { mvcpage.load(); CloseComDiag(); }
+
+
+</script>
+</body>
+</html>
+@section script{ 
+<script>
+//弹出ajax登录
+//$(function () {
+//    checkLogin();
+//})
+//function showAdd(id) {
+//    if (!id) { id = ""; }
+//    ShowComDiag("Add?ID=" + id, "");
+//}
+//function toEdit(id) { location = "/Plugins/VBook/#/editor?id=" + id}
+//function mybind() { mvcpage.load(); CloseComDiag(); }
+</script>
+}

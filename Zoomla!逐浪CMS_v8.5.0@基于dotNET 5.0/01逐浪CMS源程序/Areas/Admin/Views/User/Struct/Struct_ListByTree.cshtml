@@ -1,0 +1,60 @@
+﻿@using ZoomLa.BLL.User
+@functions{
+    public DataTable Getorder(DataTable dt)
+    {
+        dt.DefaultView.Sort = "orderID asc";
+        dt = dt.DefaultView.ToTable();
+        return dt;
+    }
+}
+@{
+    DataTable dt = new B_Structure().Sel();
+    C_BootTreeView tv = new C_BootTreeView();
+    tv.textTlp = "@Name";
+    string Mode = Context.Request.GetParam("mode");
+}
+@section head{<title>组织结构</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread("StructList","组织结构"),
+new Bread(Context.Request.RawUrl(),"组织成员")
+})    
+<div class="">
+<div class="row">
+    <div class="col-sm-3">
+        <div id="tree"></div>
+        <input type="hidden" ID="data_hid" value="@tv.CreateTreeView(Getorder(dt))" />
+    </div>
+    <div class="col-sm-9">
+        <iframe src="StructMember?id=0" class="iframe" scroll="no" id="user_ifr"></iframe>
+    </div>
+</div>    
+</div>    
+}
+@section script{
+
+<style>
+.iframe{width:100%;min-height:700px;border:none;}
+</style>
+<link href="/Plugins/Third/treeview/bootstrap-treeview.min.css" rel="stylesheet" />
+<script src="/Plugins/Third/treeview/bootstrap-treeview.js"></script>
+<script>
+$(function () {
+    $(".iframe").height(($(window).height() - 50));
+    $(document).resize(function () { $(".iframe").height(($(window).height() - 50)); });
+    var tree = JSON.parse($("#data_hid").val());
+    tree = [{ text: "全部",icon:"zi zi_globe", href: "0", nodes: tree }];
+    $('#tree').treeview({
+        data: tree,
+        onNodeSelected: function (event, node) {
+            //$("#user_ifr").attr("src", "StructList?mode=@(Mode)&pid=" + node.href)
+            $("#user_ifr").attr("src", "StructMember?id=" + node.href)
+        },
+        onNodeUnselected: function (event, node) {
+        }
+    });
+})
+   
+</script>    
+    }

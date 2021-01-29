@@ -1,0 +1,233 @@
+﻿@section head{
+<style type="text/css">
+.window {background-color: rgba(0, 0, 0, 0.5); position: fixed; display: none;border: 1px solid #E0DFDF;}
+.add_title {color: #FFFFFF;}
+.mask {position: absolute;display: none;}
+.add_title {width: 95px;height: 42px;line-height: 40px;float: left;text-align: center;border-radius: 5%;cursor: pointer;}
+</style>
+}
+<div style="height:25rem;" class="border">
+    命令：
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation"><a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">操作系统类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">环境类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">文档类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="contact1-tab" data-bs-toggle="tab" href="#contact1" role="tab" aria-controls="contact1" aria-selected="false">软件类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="contact2-tab" data-bs-toggle="tab" href="#contact2" role="tab" aria-controls="contact2" aria-selected="false">图像类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="contact3-tab" data-bs-toggle="tab" href="#contact3" role="tab" aria-controls="contact3" aria-selected="false">声音类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="contact4-tab" data-bs-toggle="tab" href="#contact4" role="tab" aria-controls="contact4" aria-selected="false">用户类</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" id="contact5-tab" data-bs-toggle="tab" href="#contact5" role="tab" aria-controls="contact5" aria-selected="false">娱乐类</a></li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="">
+            <div class="tab-content" style=" overflow:scroll; height:21rem;">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="list-group">
+                        <div id="lblSys" class=""></div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab"></div>
+                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab"></div>
+                <div class="tab-pane fade" id="contact1" role="tabpanel" aria-labelledby="contact1-tab"></div>
+                <div class="tab-pane fade" id="contact2" role="tabpanel" aria-labelledby="contact2-tab"></div>
+                <div class="tab-pane fade" id="contact3" role="tabpanel" aria-labelledby="contact3-tab"></div>
+                <div class="tab-pane fade" id="contact4" role="tabpanel" aria-labelledby="contact4-tab"></div>
+                <div class="tab-pane fade" id="contact5" role="tabpanel" aria-labelledby="contact5-tab"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label">命令：</label>
+                        <input type="text" class="form-control" id="recipient_name">
+                        <input type="file" id="ff" class="form-control" />
+                    </div>
+                    @*<div class="mb-3">
+                            <label for="message-text" class="col-form-label">Message:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>*@
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="Quote()">引用</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mask"></div>
+<div class="window" id="center">
+    <div class="border_add_nav">
+        <span class="add_title"></span>
+    </div>
+</div>
+
+<script src="/JS/SelectCheckBox.js"></script>
+<script src="~/res/vue/vue.min.js"></script>
+<script src="~/res/vue/vue-route.js"></script>
+<script src="~/res/js/bootstrap5.min.js"></script>
+<script>
+    $('#ff').on("click", function () {
+
+    })
+$(function () {
+var leibie = ["操作系统类", "环境类", "文档类", "软件类", "图像类", "声音类", "用户类","娱乐类"];
+var m = 1;
+var MyDiv;
+$.ajax({
+method: "POST",
+dataType: "json",
+url: encodeURI("@Url.Action("Cm_information")"),
+success: function (result) {
+result.data.forEach(i => {
+    leibie.forEach(j => {
+    switch (j) {
+        case "操作系统类":
+            MyDiv = document.getElementById("lblSys");
+            break;
+        case "环境类":
+            MyDiv = document.getElementById("profile");
+            break;
+        case "文档类":
+            MyDiv = document.getElementById("contact");
+            break;
+        case "软件类":
+            MyDiv = document.getElementById("contact1");
+            break;
+        case "图像类":
+            MyDiv = document.getElementById("contact2");
+            break;
+        case "声音类":
+            MyDiv = document.getElementById("contact3");
+            break;
+        case "用户类":
+            MyDiv = document.getElementById("contact4");
+            break;
+        case "娱乐类":
+            MyDiv = document.getElementById("contact5");
+            break;
+    }
+    if (i.category == j) {
+        for (var v = 0; v < i.powerShell.length; v++) {
+            var s = i.powerShell[v].split('，');
+            if (s.length > 1) {
+                var button = document.createElement("input");
+                button.setAttribute("type", "button");
+                button.setAttribute("value", s[0]);
+                button.setAttribute("id", m);
+                button.setAttribute("class", "btn btn-outline-info");
+                button.setAttribute("data-value", s[1])
+                button.setAttribute("onclick", "link_show('" + m + "')");
+                MyDiv.appendChild(button);
+                m++;
+            }
+        }
+    }
+    });
+});
+},
+error: function () {
+alert("服务器访问出错，可能是网络或API存在问题");
+}
+});
+})
+var myModal;
+function link_show(m) {
+//$('#recipient_name').val("");
+//myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+//var information = $('#' + i).text();
+//$('#exampleModalLabel').text(information);
+    //$('#recipient_name').val(q);
+var str= $("#" + m).attr("data-value")
+$("#z" + currentConsole + "__Script").val(str);
+var Url2 = document.getElementById("z" + currentConsole + "__Script");
+Url2.select(); // 选择对象
+if (document.execCommand("Copy")) {
+    if (isshow == false) {
+        $('.add_title').text("复制成功！");
+        $('.mask').css('display', 'block');
+        $('.mask').css('width', $(window).width())
+        popCenterWindow();
+        isshow = true;
+        setTimeout(function () {
+            $('.window').hide();
+            isshow = false;
+        }, 5000);
+    }
+}
+//myModal.show();
+//ShowComDiag("Cm_information?action="+ f +"," + information, "命令名称:" + information);
+}
+//获取窗口的高度
+var windowHeight;
+//获取窗口的宽度
+var windowWidth;
+//获取弹窗的宽度
+var popWidth;
+//获取弹窗高度
+var popHeight;
+
+function init() {
+    windowHeight = $(window).height();
+    windowWidth = $(window).width();
+    popHeight = $(".window").height();
+    popWidth = $(".window").width();
+}
+//关闭窗口的方法
+function closeWindow() {
+    $(".close_btn").click(function () {
+        $('.window').hide("slow");
+        $('.mask').css('display', 'none');
+    });
+}
+//定义弹出居中窗口的方法
+function popCenterWindow() {
+    init();
+    //计算弹出窗口的左上角X的偏移量
+    var popX = (windowWidth - popWidth) / 2;
+    // 计算弹出窗口的左上角Y的偏移量为窗口的高度 - 弹窗高度 / 2 + 被卷去的页面的top
+    var popY = (windowHeight - popHeight) / 3 + $(document).scrollTop();
+    //设定窗口的位置
+    $("#center").css("top", popY).css("left", popX).slideToggle("fast");
+    closeWindow();
+    }
+ var isshow = false;
+function Quote() {
+var Url2 = document.getElementById("recipient_name");
+Url2.select(); // 选择对象
+if (document.execCommand("Copy")) {
+if (isshow == false) {
+    myModal.hide();
+    $('.add_title').text("复制成功！");
+    $('.mask').css('display', 'block');
+    $('.mask').css('width', $(window).width())
+    //$('.mask').css('height', $(document).height())
+    popCenterWindow();
+    isshow = true;
+    setTimeout(function () {
+        $('.window').hide();
+        isshow = false;
+    }, 5000);
+    }
+} else {
+    $('.add_title').text("复制失败！");
+    $('.mask').css('display', 'block');
+    $('.mask').css('width', $(window).width())
+    $('.mask').css('height', $(document).height())
+    popCenterWindow();
+    setTimeout(function () {
+        $('.window').hide();
+    }, 5000);
+}
+}
+</script>

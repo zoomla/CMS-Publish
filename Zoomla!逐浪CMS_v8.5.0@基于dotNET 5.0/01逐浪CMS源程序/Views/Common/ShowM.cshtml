@@ -1,0 +1,39 @@
+﻿@section head{<title>@Model.TName _ @Call.SiteName</title>
+}
+@model ZoomLa.Model.M_Content_Chart;
+@section content{
+    <main id="main" class="search_left_c"></main>
+    <textarea name="code" rows="2" cols="20" id="code" style="display: none;">@Model.option</textarea>
+}
+@section script{
+<script src="~/lib/ECharts/echarts.js"></script>
+<script src="~/lib/ECharts/ZL_Echarts.js"></script>
+<link rel="stylesheet" href="/theme/css/V4user.css" />
+<script>
+    $(function () {
+        if (@Model.ID <= 0) {
+            GetCode();
+        }
+        //setTimeout(function () {
+        //    //var ecConfig = require('echarts/config');
+        //    //myChart.on(ecConfig.EVENT.CLICK, function (param) { console.log("222"); });
+        //    //myChart.on("click", function (param) { console.log("222"); });
+        //},2000);
+        refresh();
+    })
+    function GetCode() {
+        $("#code").val($(parent.document).find("@ViewBag.CodeID").val());
+    }
+    function ReLoad() {
+        GetCode();
+        refresh(true);
+    }
+    function GetBase64() {
+        return myChart.getDataURL();
+    }
+</script>
+
+}
+
+
+

@@ -1,0 +1,19 @@
+﻿PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+脚本2，
+param
+(
+	[parameter(Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[String]$输入的中文文字
+)
+Write-Verbose $PSVersionTable
+$private:Encode后的输入 = [System.Web.HttpUtility]::UrlEncode($输入的中文文字,[System.Text.Encoding]::UTF8).ToUpper()
+Write-Verbose $private:Encode后的输入
+$private:googlecn1 = "http://translate.google.cn/translate_a/single?client=gtx&sl=zh-CN&tl=en&dt=t&q=${private:Encode后的输入}"
+$private:返回 = Invoke-RestMethod $googlecn1
+return $private:返回[0][0][0]；

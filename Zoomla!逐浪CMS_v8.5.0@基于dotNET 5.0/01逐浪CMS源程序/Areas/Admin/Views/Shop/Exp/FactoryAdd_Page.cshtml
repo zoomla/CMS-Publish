@@ -1,0 +1,110 @@
+﻿@model ZoomLa.Model.M_Manufacturers
+<table class="table table-bordered table-hover table-striped sys_table">
+    <tr>
+        <th scope="row" class="w12rem_lg">厂商名称<span class="rd_red">*</span></th>
+        <td class="rq_row">
+            @Html.TextBox("Producername", Model.Producername, new { @class = "form-control max20rem required" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">缩写简称</th>
+        <td>
+            @Html.TextBox("Smallname", Model.Smallname, new { @class = "form-control max20rem" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">公司地址</th>
+        <td>
+            @Html.TextBox("Coadd", Model.Coadd, new { @class = "form-control max20rem" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">属性分类</th>
+        <td>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.CoClass, "大陆厂商", new { id = "CoClass1", @class = "form-check-input" })
+                <label class="form-check-label" for="CoClass1">大陆厂商</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.CoClass, "港台厂商", new { id = "CoClass2", @class = "form-check-input" })
+                <label class="form-check-label" for="CoClass2">港台厂商</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.CoClass, "港台厂商", new { id = "CoClass3", @class = "form-check-input" })
+                <label class="form-check-label" for="CoClass3">日韩厂商</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.CoClass, "北美厂商", new { id = "CoClass4", @class = "form-check-input" })
+                <label class="form-check-label" for="CoClass4">北美厂商</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.CoClass, "中亚厂商", new { id = "CoClass5", @class = "form-check-input" })
+                <label class="form-check-label" for="CoClass5">中亚厂商</label>
+            </div>
+            <div class="form-check form-check-inline">
+                @Html.RadioButtonFor(model => Model.CoClass, "其它厂商", new { id = "CoClass6",@class= "form-check-input" })
+                <label class="form-check-label" for="CoClass6">其它厂商</label>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">联系电话</th>
+        <td class="rq_row">
+            @Html.TextBox("Telpho", Model.Telpho, new { @class = "form-control max20rem mobile" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">传真号码</th>
+        <td class="rq_row">
+            @Html.TextBox("FaxCode", Model.FaxCode, new { @class = "form-control max20rem mobile" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">邮政编码</th>
+        <td class="rq_row">
+            @Html.TextBox("PostCode", Model.PostCode, new { @class = "form-control max20rem zipcode" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">公司主页</th>
+        <td class="rq_row">
+            @Html.TextBox("CoWebsite", Model.CoWebsite, new { @class = "form-control max20rem url" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">电子邮箱</th>
+        <td class="rq_row">
+            @Html.TextBox("Email", Model.Email, new { @class = "form-control max20rem email" })
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">详细资料</th>
+        <td>
+            <textarea id="content_t" name="content_t" style="height:240px;width:100%;">@Model.Content</textarea>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">商标LOGO或助记照片</th>
+        <td>
+            @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "CoPhoto", SaveType = "admin", Value = Model.CoPhoto })
+        </td>
+    </tr>
+
+    <tr>
+        <td scope="row">更新时间<span class="rd_red">*</span></td>
+        <td>
+            @Html.TextBox("CreateTime", Model.CreateTime, new { @class = "form-control max20rem", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })
+        </td>
+    </tr>
+    <tr><td></td><td><input type="submit" ID="Save_Btn" value="保存信息" onclick="return scope.save();" class="btn btn-info" /></td></tr>
+</table>
+<script src="/Plugins/Ueditor/ueditor.config.js" charset="utf-8"></script>
+<script src="/Plugins/Ueditor/ueditor.all.min.js" charset="utf-8"></script>
+<script src="/JS/Controls/ZL_Dialog.js"></script>
+<script src="/JS/Controls/ZL_Webup.js"></script>
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script src="~/js/SelectCheckBox.js"></script>
+@MvcHtmlString.Create(Call.GetUEditor("content_t", 2))
+<script type="text/javascript">
+    $("form").validate({});
+</script>

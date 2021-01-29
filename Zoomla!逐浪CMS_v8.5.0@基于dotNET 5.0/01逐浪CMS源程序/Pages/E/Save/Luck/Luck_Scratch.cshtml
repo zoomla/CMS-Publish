@@ -1,0 +1,34 @@
+﻿<script src="~/Plugins/Luck/scratch.js?v=@(DateTime.Now.ToString())"></script>
+<script>
+    //<img src="/common/FontToImg?txt=@(HttpUtility.UrlEncode("公喜中奖"))&size=30" />
+    function scratchInit() {
+      
+        $.post("Luck?action=cj2", {}, function (result) {
+            //var loading = weui.loading("正在生成刮刮卡...");
+            var model = APIResult.getModel(result);
+            if (APIResult.isok(model)) {
+                $("#scratch_img").hide();
+                var purse = parseInt($("#purse_sp").text());
+                $("#purse_sp").text(purse - parseInt("@Model.GGK_CJCost"));
+                ScratchMod({
+                    'container': "#scratch_container",
+                    'bgImgSrc': "/common/FontToImg?txt=" + encodeURI(model.result) + "&size=30&bkcolor=F6BFC0",
+                    'imgSrc': "/Plugins/Luck/Images/xm/prizeStimulate_r.png",//蒙版图
+                    //'penImgSrc':"" ,//擦笔图
+                    'color': "#999",//蒙版颜色（有imgSrc的情况下该属性无效）
+                    'width': 380,//宽度
+                    'height': 198,//高度
+                    //'eraseRadius':,//擦除笔的半径(有penImgSrc的情况下无效)
+                    //'sampleStep': ,//获取擦除百分百时的精度（数字越大精度越小）
+                    //'sampleCD': ,//获取擦除百分百的时间间隔
+                    'sampleCallback': function (a) {if (parseFloat(a) >= 0.3) { $("#scratch_btn").show(); } },//获取擦除百分百的回调函数（返回true后不再回调）,回调的第一个入参为擦除百分百
+                    //'startCallback': function () { }, //开始刮的回调(只回调一次,回调的第一个入参为生成的元素类型 canvas或div)
+                });
+                //loading.hide();
+            }
+            else { alert("提示:" + model.retmsg); }
+        })
+       
+    }
+
+</script>

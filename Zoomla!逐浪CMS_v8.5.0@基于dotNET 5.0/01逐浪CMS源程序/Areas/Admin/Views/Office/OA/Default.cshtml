@@ -1,0 +1,91 @@
+﻿@functions{
+    public string GetAllowAttach(string allowAttach)
+    {
+        switch (allowAttach)
+        {
+            case "0":
+                return "不允许";
+            case "1":
+                return "允许";
+            default:
+                return "";
+        }
+    }
+
+}
+@{
+}
+@section head{<title>@L.流程管理</title> }
+@model System.Data.DataTable
+@section content{
+    @*<li class="breadcrumb-item">@L.流程列表<a href="WorkFlow.aspx"> [添加流程]</a></li>*@
+    @Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.RawUrl(),L.流程管理),
+    new Bread(){url = Context.Request.RawUrl(),text="流程列表" +" <a href='WorkFlow'>[添加流程]</a>",addon=""}
+    }, "{search}")
+        <div class="table-responsive-md pe-1">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>@L.流程名</th>
+                        <th>@L.项目名称</th>
+                        <th>@L.模型</th>
+                        <th>@L.流程模板</th>
+                        <th>@L.打印模板</th>
+                        <th>@L.允许附件</th>
+                        <th>@L.备注</th>
+                        <th>@L.操作</th>
+                    </tr>
+                </thead>
+
+                @foreach (DataRow dr in Model.Rows)
+                {
+                    <tr ondblclick="location = 'WorkFlow?ID=@dr["ID"]';">
+                        <td>@dr["ID"]</td>
+                        <td><a href="WorkFlow?ProID=@dr["ID"]">@dr["ProcedureName"]</a></td>
+                        <td>@dr["SponsorGroup"]</td>
+                        <td>@dr["FormInfo"]</td>
+                        <td>@dr["FlowTlp"]</td>
+                        <td>@dr["PrintTlp"]</td>
+                        <td>@GetAllowAttach(DataConverter.CStr(dr["AllowAttach"]))</td>
+                        <td>@dr["Remind"]</td>
+                        <td>
+                            <a href="WorkFlow?ID=@dr["ID"]"><i class="zi zi_pencilalt" title="编辑"></i>@L.编辑</a>
+                            <a href="javascript:;" class="option_style" onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'WorkFlow_Delete', confirm: '@Html.Raw(L.确定要删除吗)',after:function(){location=location;} });"><i class="zi zi_trashalt"></i>@L.删除</a>
+                            <a href="AddFlow?ProID=@dr["ID"]"><i class="zi zi_eye" title="查看"></i>查看步骤</a>
+                            <a href="javascript:;" onclick="ShowImgDiag(@dr["ID"])"><i class="zi zi_eye" title="查看"></i>查看流程图</a>
+                        </td>
+                    </tr>
+                }
+
+            </table>
+            <div class="alert alert-light">
+                <div class="rd_green">@L.签章等操作权限与用户角色绑定</div>
+            </div>
+        </div>
+
+}
+@section script{
+    <style>
+        .allchk_l {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript">
+    $().ready(function () {
+        $(":button").addClass("btn btn-outline-info");
+        $(":submit").addClass("btn btn-outline-secondary");
+        //$("#EGV tr:last >td>:text").css("line-height", "normal");
+        //$("#EGV tr:first >th").css("text-align", "center");
+    });
+    var diag = new ZL_Dialog();
+    function ShowImgDiag(proid) {
+        diag.title = "@Html.Raw(L.查看流程图)";
+        diag.url = "/Office/flow/ImgWorkFlow?proid=" + proid;
+        diag.maxbtn = false;
+        diag.ShowModal();
+    }
+    </script>
+}

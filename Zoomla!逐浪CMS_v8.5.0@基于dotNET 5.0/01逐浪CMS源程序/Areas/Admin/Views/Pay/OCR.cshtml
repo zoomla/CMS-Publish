@@ -1,0 +1,141 @@
+﻿@using ZoomLa.Components.OCR
+@using ZoomLa.Components.OCR.Extensions
+@section head{
+<title>OCR文字识别</title>
+<style>
+.drag_file_input{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    outline: 2px dashed #92b0b3;
+    outline-offset: -10px;
+    padding: 40px 20px;
+    background-color: #c8dadf;
+}
+.drag_file_input input[type=file]{
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+</style>
+}
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(), "OCR识别")})
+<div class="Creat_tips">
+    <div class="alert alert-info alert-dismissible fade show">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+        <h5>@L.提示：</h5>
+        <p>
+           需要部署Visual C++ 2015库才能正常执行，<a href="https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads" target="_blank">点此下载</a>。
+        </p>
+    </div>
+</div>
+<div class="container">
+    <div id="ocr_lang" class="my-4">
+        <div class="py-1">
+            <span>1、选择语言：</span>
+            <span class="ps-2 text-info small">如未选择任何语言，则默认为英文。多语言识别需要等待更长时间。</span>
+        </div>
+        @foreach (var item in Html.GetEnumSelectList(typeof(OCRLang)))
+        {
+            <label class="me-2">
+                <input type="checkbox" value="@item.Value" @(item.Value == "0" ? "checked" : "") />
+                <span>@(((OCRLang)int.Parse(item.Value)).GetDisplay())</span>
+            </label>
+        }
+    </div>
+    <div>        
+        <div class="py-1">2、上传图片</div>
+        <div class="drag_file_input">
+            <div><i class="zi zi_upload zi_2x"></i></div>
+            <input type="file" name="formFile" id="formFile">
+            <label class="custom-file-label" for="formFile" style="cursor:pointer">拖拽或选择本地svg、png、jpg、jpeg、bmp 文件</label>            
+        </div>
+    </div>
+    <div class="my-4">
+        <button class="btn btn-outline-info btn-sm float-end" onclick="clearContent()">清除</button>
+        <div class="py-1">
+            <span>3、OCR识别结果</span>
+            <span class="ps-2 text-info small" id="ocr_info"></span>
+        </div>
+        <textarea id="ocr_out" class="form-control my-2" rows="16"> </textarea>
+
+        <div id="ocr_img_title" class="my-2 d-none">原图片</div>
+        <img id="ocr_img" style="max-width:100%" />
+    </div>
+</div>
+}
+@section script{ 
+<script>
+$(".drag_file_input").on('drag dragstart dragend dragover dragenter dragleave drop', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+})
+.on('dragover dragenter', function(e) {
+})
+.on('dragleave dragend drop', function(e) {
+})
+.on('drop', function (e) {
+    var files = e.originalEvent.dataTransfer.files;
+    $(this).find('input[type="file"]').prop('files', files);
+    uploadImg();
+});
+var langs = "0";
+$("#ocr_lang input[type=checkbox]").change(function () {
+    var ls = [];
+    $("#ocr_lang input[type=checkbox]:checked").each(function () {
+        ls.push($(this).val());
+    });
+    langs = ls.join(",");
+    if (!langs)
+        langs = "1";
+});
+function uploadImg() {
+    clearContent();
+    let input = document.getElementById('formFile');
+    if (input.files[0]) {
+        $('#formFile').attr("disabled", true);
+        $("#ocr_info").text("正在上传文件识别中...");
+        let data = new FormData();
+        data.append("formFile", $('#formFile')[0].files[0]);
+        $.ajax({
+            method: "Post",
+            data: data,
+            processData: false,
+            contentType: false,
+            url: encodeURI('/font/ocrapi?lang=' + langs),
+            success: function (result) {
+                if (result.success) {
+                    $("#ocr_img_title").removeClass("d-none");
+                    $("#ocr_img").attr("src", result.path);
+                    $("#ocr_out").val(result.content);
+                    $("#ocr_info").text("识别已完成");
+                }
+                else {
+                    alert(result.error);
+                }
+                setTimeout(() => {
+                    $("#ocr_info").text("");
+                    $('#formFile').attr("disabled", false);
+                }, 3000);
+            },
+            error: function () {
+                $(element).attr("disabled", false);
+                alert("出现错误！可能是网络或api存在问题");
+            }
+        });
+    }
+}
+function clearContent() {
+    $("#ocr_img_title").addClass("d-none");
+    $("#ocr_img").attr("src", "");
+    $("#ocr_out").val("");
+}
+</script>
+}

@@ -1,0 +1,39 @@
+﻿@functions{
+    public string GetUrl()
+    {
+        string url ="Gid="+ViewBag.gid;
+        if (string.IsNullOrEmpty(ViewBag.gid))
+        {
+            url = "id=" + ViewContext.HttpContext.Request.Query["ID"];
+        }
+        return url;
+    }
+}
+@{ 
+    
+}
+@section head{
+<link rel="stylesheet" href="/res/css/bootstrap.min.css">
+    <script src="/Plugins/Ueditor/ueditor.config.js" charset="utf-8"></script>
+    <script src="/Plugins/Ueditor/ueditor.all.min.js" charset="utf-8"></script>
+}
+@section content{
+    <form action="official_submit?@GetUrl()" method="post">
+        <textarea id="content_t" name="content_t" style="height:240px;width:100%;">@ViewBag.content</textarea>
+        <div class="text-center mt-2">
+            <input type="submit" id="off_submit" class="btn btn-outline-info" value="保存"/>
+        </div>
+    </form>
+}
+@section script{
+@MvcHtmlString.Create(Call.GetUEditor("content_t", 3))
+<script>
+    var diag = new ZL_Dialog();
+    $("#off_submit").click(function () {
+        parent.diag.CloseModal(); 
+    })
+    //function show() {
+    //    diag.CloseModal();
+    //}
+</script>
+}

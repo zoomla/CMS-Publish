@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+  <Table>
+    <LabelID>342</LabelID>
+    <LabelName>我用中文名你能怎么[会有错]@不会</LabelName>
+    <LabelType>2</LabelType>
+    <LabelCate>会员</LabelCate>
+    <LabelDesc />
+    <LabelParam>NodeID ,`,1,节点ID|synNum,,1,缩文长度|TitleNum,,1,标题长度|ShowNum,10,1,显示数</LabelParam>
+    <LabelTable>ZL_CommonModel LEFT JOIN ZL_C_Article ON ZL_CommonModel.ItemID=ZL_C_Article.ID</LabelTable>
+    <LabelField>ZL_CommonModel.DefaultSkins,ZL_CommonModel.EliteLevel,ZL_CommonModel.FirstNodeID,ZL_CommonModel.GeneralID,ZL_CommonModel.Hits,ZL_CommonModel.HtmlLink,ZL_CommonModel.InfoID,ZL_C_Article.content,ZL_C_Article.Edit,ZL_C_Article.ID,ZL_C_Article.K_pages,ZL_C_Article.pages,ZL_C_Article.source,ZL_C_Article.synopsis</LabelField>
+    <LabelWhere>(NodeID=@NodeID or FirstNodeID=@NodeID) And status=99 And TopImg&amp;lt;&amp;gt;''</LabelWhere>
+    <LabelOrder>ZL_CommonModel.AuditTime DESC</LabelOrder>
+    <LabelContent>{Repeate}&lt;div class="media"&gt; &lt;div class="media-left"&gt;&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}" target="{ZL:GetInfoOpen({Field="NodeID"/})/}" title="{Field="Title"/}"&gt;&lt;img src="{Field="TopImg"/}" alt="{Field="Title"/}" onerror="javascript:this.src='/UploadFiles/nopic.gif';" /&gt;&lt;/a&gt;&lt;/div&gt; &lt;div class="media-body"&gt; &lt;h4 class="media-heading"&gt;&lt;a href="{ZL:GetInfoUrl({Field="GeneralID"/})/}" title="{Field="Title"/}" target="{ZL:GetInfoOpen({Field="NodeID"/})/}" style="{Field="TitleStyle"/}"&gt; {ZL:CutText({Field="Title"/},@TitleNum,)/}&lt;/a&gt; &lt;/h4&gt; &lt;p&gt;{ZL:CutText({Field="synopsis"/},@synNum,..)/}&lt;/p&gt; &lt;p&gt;&lt;span&gt;&lt;i class="zi zi_clock"&gt;&lt;/i&gt; {ZL:FormatDate({Field="CreateTime"/},yyyy-MM-dd)/}&lt;/span&gt;&lt;span&gt;&lt;i class="zi zi_eye"&gt;&lt;/i&gt; {Field="Hits"/}&lt;/span&gt;&lt;/p&gt; &lt;/div&gt; &lt;/div&gt;{/Repeate}</LabelContent>
+    <LabelCount>@ShowNum</LabelCount>
+    <LabelAddUser>0</LabelAddUser>
+    <LabelNodeID>0</LabelNodeID>
+    <Modeltypeinfo>参数判断</Modeltypeinfo>
+    <addroot>循环</addroot>
+    <setroot>大于</setroot>
+    <Modelvalue />
+    <Valueroot />
+    <IsOpen>1</IsOpen>
+    <FalseContent>2222</FalseContent>
+    <EmptyContent>11</EmptyContent>
+    <DataSourceType>{"ds_m":"main","ds_s":"main","tb_m":"ZL_CommonModel","tb_s":"ZL_C_Article"}</DataSourceType>
+    <ConnectString />
+    <ProceName />
+    <ProceParam />
+  </Table>
+</NewDataSet>

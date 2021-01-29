@@ -1,0 +1,35 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+<table class="table table-bordered table-striped table-hover" id="EGV">
+    <thead><tr>
+    <th class="w1rem"></th>
+    <th>ID</th>
+    <th>@L.名称</th>
+    <th>@L.创建时间</th>
+    <th>@L.成员数量</th>
+    <th>@L.积分</th>
+    <th>@L.手动排序</th>
+    <th>@L.操作</th>
+</tr></thead>
+        
+@foreach (DataRow dr in Model.dt.Rows)
+{
+<tr ondblclick="location = 'StructMember?id=@dr["ID"]';">
+    <td class="node_select"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+    <td>@dr["ID"]</td>
+    <td><a href="javascript:;" onclick="node.edit(@dr["ID"]);"> @dr["Name"]</a></td>
+    <td>@dr["AddTime"]</td>
+    <td>@(DataConverter.CStr(dr["UserIDS"]).Split(",".ToCharArray(),StringSplitOptions.RemoveEmptyEntries).Length)</td>
+    <td>@dr["Struct_Exp"]</td>
+    <td class="text-center">
+        <input type="text" class="text_x text-center" name="order" id="@dr["ID"]" value="@dr["orderID"]" onchange="CheckOrder(@dr["ID"])" onkeyup="this.value=this.value.replace(/[^0-9-]+/,'');" />
+    </td>
+    <td>
+        <a href="javascript:node.add(@dr["ID"]);"><i class="zi zi_plus"></i></a>
+        <a href="javascript:node.edit(@dr["ID"]);" title="修改"><i class="zi zi_pencilalt"></i></a>
+        <a href="StructMember?id=@dr["ID"]" title="成员管理"><i class="zi zi_useralt"></i></a>
+        <a href="javascript:;" onclick="mvcpage.del({url:'Struct_API?action=del',ids:'@dr["ID"]',confirm:'@L.确定要删除吗'})"><i class='zi zi_trashalt'></i></a>
+    </td>
+</tr>
+}
+    @Html.Partial("_page")
+</table>

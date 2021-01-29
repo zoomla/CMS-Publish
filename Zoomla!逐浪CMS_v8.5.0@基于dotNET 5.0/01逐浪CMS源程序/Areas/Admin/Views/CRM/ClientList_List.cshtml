@@ -1,0 +1,62 @@
+﻿@using System.Data
+@using ZoomLa.BLL
+@using ZoomLa.Common
+@using ZoomLa.BLL.Helper
+@using ZoomLa.BLL.Client
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@functions{
+    public DataTable CTypeDT { get { return ViewBag.CTypeDT; } }
+    public IHtmlContent ShowClientType(DataRow dr)
+    {
+        string ctypeId = DataConverter.CStr(dr["ClientType"]);
+        if (string.IsNullOrEmpty(ctypeId)) { return MvcHtmlString.Create(""); }
+        CTypeDT.DefaultView.RowFilter = "ID IN (" + ctypeId.Trim(',') + ")";
+        string result = "";
+        foreach (DataRow item in CTypeDT.DefaultView.ToTable().Rows)
+        {
+            result += "[<a href='ClientList?CType=" + item["id"] + "'>" + item["value"] + "</a>]";
+        }
+        return MvcHtmlString.Create(result);
+    }
+}
+@{
+    Model.cols = 9;
+}
+@Html.CMS_EGV_OrderBy()
+<div class="container-fluid pe-0">
+<div class="row sysRow table-responsive-md">
+<table class="table table-striped table-hover table-bordered" id="EGV">
+    <tr>
+        <th scope="row" class="td_xs"></th>
+        <th scope="row"><span class="zlsort" data-field="modelid">ID</span></th>
+        <th scope="row">@L.名称</th>
+        <th scope="row">关联会员</th>
+        <th scope="row">@L.类型</th>
+        <th scope="row">@L.级别</th>
+        <th scope="row">@L.省份</th>
+        <th scope="row">@L.时间</th>
+        <th scope="row" class="excel_no">@L.操作</th>
+    </tr>
+@foreach (DataRow dr in Model.dt.Rows)
+{
+<tr ondblclick="location = 'ClientView?ID=@dr["ID"]';">
+    <td class="node_select"><input type="checkbox" name="idchk" value="@dr["ID"]" /></td>
+    <td>@dr["ID"]</td>
+    <td><a href="ClientView?ID=@dr["ID"]">@dr["ClientName"]</a></td>
+    <td>@dr["UserName"]</td>
+    <td>@ShowClientType(dr)</td>
+    <td>@dr["ClientLevel"]</td>
+    <td>@dr["Province"]</td>
+    <td>@(DateHelper.ToDate(dr["CDate"]))</td>
+    <td class="excel_no">
+        <a href="ClientView?ID=@dr["ID"]"><i class="zi zi_usercircle"></i> @L.详情</a>
+        <a href="ClientAdd?ID=@dr["ID"]"><i class="zi zi_pencilalt"></i> @L.修改</a>
+        @*<a href="Contact?Cid=@dr["ID"]" ><i class="zi zi_users"></i> @L.联系人</a>*@
+        <a href="javascript:;" onclick="mvcpage.del({ ids: '@dr["ID"]', url: 'client_del', confirm: '@Html.Raw(L.确定要删除吗)' ,after:function(){location=location;} });"><i class="zi zi_trashalt"></i> @L.删除</a>
+    </td>
+</tr>
+}
+@Html.Partial("_page", Model)
+</table>
+</div>
+</div>

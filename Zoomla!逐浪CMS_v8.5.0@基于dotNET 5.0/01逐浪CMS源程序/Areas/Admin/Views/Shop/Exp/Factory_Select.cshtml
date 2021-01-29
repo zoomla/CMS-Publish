@@ -1,0 +1,87 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head {<title>选取厂商</title>}
+@section content {
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Call.PathAdmin("Shop/exp/Factory"),@L.厂商管理),
+        new Bread(){url=Context.Request.RawUrl(), text=L.厂商 + L.列表 ,addon="[选择厂商]"}
+        })
+<style>.allchk_l{display:none;}</style>
+<div class="input-group">
+    <input name="ctl00$Content$Skey_T" type="text" id="Skey_T" class="form-control" placeholder="请输入厂商名称" value="@ViewContext.HttpContext.Request.Query["skey"]">
+        <input type="submit" name="ctl00$Content$Skey_Btn" value="搜索" id="Skey_Btn" onclick="skey()" class="input-group-text">
+        <input type="button" class="input-group-text" value="确定" onclick="selback();">
+</div>
+
+    <div class="table-responsive table_box">
+        <table class="table table-bordered table-striped table-hover" id="EGV">
+            <thead>
+                <tr>
+                    <th scope="col" class="w1rem"></th>
+                    <th scope="col" class="td_xs">ID</th>
+                    <th scope="col">@L.厂商名称</th>
+                    <th scope="col">@L.厂商缩写</th>
+                    <th scope="col">@L.厂商分类</th>
+                    <th scope="col">@L.厂商地址</th>
+                    <th scope="col">@L.联系电话 </th>
+                    <th scope="col">@L.电子邮箱 </th>
+                    <th scope="col">@L.网址 </th>
+                </tr>
+            </thead>
+            @foreach (DataRow dr in Model.dt.Rows)
+            {
+                <tr>
+                    <td scope="row"  data-bs-toggle="tooltip" title="" data-original-title="单击点选"><input type="radio" name="idchk" class="form-check-input" id="@dr["ID"]" value="@dr["Producername"]"  /></td>
+                    <td>@dr["ID"]</td>
+                    <td>@dr["Producername"]</td>
+                    <td>@dr["Smallname"]</td>
+                    <td>@dr["CoClass"]</td>
+                    <td>@dr["Coadd"]</td>
+                    <td>@dr["Telpho"]</td>
+                    <td>@dr["Email"]</td>
+                    <td>@dr["CoWebsite"]</td>
+
+                </tr>
+            }
+            @Html.Partial("_page")
+        </table>
+    </div>
+}
+@section script{
+    <script src="/JS/SelectCheckBox.js"></script>
+    <script>
+        $().ready(function () {
+            var type = decodeURI(getParam("type"));
+            if (!type) { $(".nav.nav-tabs li").eq("0").find("a").addClass("active"); }
+            else {
+                $(".nav-item").each(function () {
+                    console.log($(this).data("type"));
+                    if ($(this).data("type") == type) { $(this).find("a").addClass("active"); }
+                })
+            }
+        })
+        function ShowTab(n) {
+            if (n == "")
+                location.href = "Factory";
+            else
+                location.href = "Factory?type=" + encodeURI(n);
+        }
+
+        function selback() {
+            if (!parent || !parent.producer.selback) {alert("未找到可回调方法"); return false; }
+            var $rad = $("input[name='idchk']:checked");
+            if ($rad.length < 1) { alert("尚未选择厂商"); return false; }
+            parent.producer.selback({ id: $rad[0].id, name: $rad[0].value });
+        }
+        function skey() {
+            var skey = $("#Skey_T").val();
+            if (skey=="") {
+                location.href = "Factory_Select";
+            }
+            else {
+                location.href = "Factory_Select?skey=" + skey;
+            }
+            
+        }
+    </script>
+}

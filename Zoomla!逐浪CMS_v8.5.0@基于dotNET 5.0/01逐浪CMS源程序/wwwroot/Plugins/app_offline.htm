@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>系统维护中...</title>
+<style>
+a{text-decoration: none;}
+#stage{margin:150px auto;width:600px;height:400px;-webkit-perspective:800}
+#rotate{margin:0 auto;width:600px;height:400px;-webkit-transform-style:preserve-3d;-webkit-animation-name:x-spin;-webkit-animation-duration:7s;-webkit-animation-iteration-count:infinite;-webkit-animation-timing-function:linear}
+.ring{margin:0 auto;height:110px;width:600px;-webkit-transform-style:preserve-3d;-webkit-animation-iteration-count:infinite;-webkit-animation-timing-function:linear}
+.ring >:nth-child(odd){background-color:#995C7F}
+.ring >:nth-child(even){background-color:#835A99}
+.poster{position:absolute;left:250px;width:100px;height:100px;opacity:0.7;color:rgba(0,0,0,0.9);-webkit-border-radius:10px}
+.poster > p{font-family:'Georgia',serif;font-size:36px;font-weight:bold;text-align:center;margin-top:28px}
+#ring-1{-webkit-animation-name:y-spin;-webkit-animation-duration:5s}
+#ring-2{-webkit-animation-name:back-y-spin;-webkit-animation-duration:4s}
+#ring-3{-webkit-animation-name:y-spin;-webkit-animation-duration:3s}
+@-webkit-keyframes x-spin{0%{-webkit-transform:rotateX(0deg)}
+50%{-webkit-transform:rotateX(180deg)}
+100%{-webkit-transform:rotateX(360deg)}
+}@-webkit-keyframes y-spin{0%{-webkit-transform:rotateY(0deg)}
+50%{-webkit-transform:rotateY(180deg)}
+100%{-webkit-transform:rotateY(360deg)}
+}@-webkit-keyframes back-y-spin{0%{-webkit-transform:rotateY(360deg)}
+50%{-webkit-transform:rotateY(180deg)}
+100%{-webkit-transform:rotateY(0deg)}
+}
+h1{text-align: center;font-size: 2.1rem; font-weight: 100;color: #835A99;}
+p{text-align: center;color: #ccc;}
+p a{color: #ccc;}
+p a:hover{color: #eee;}
+/*key:UG93ZXJlZCBieSBab29tbGEh6YCQ5rWqQ01TIHd3d3cuejAxLmNvbQ== */
+</style>    
+</head>
+
+<body>
+<div id="stage">
+<div id="rotate">
+<div id="ring-1" class="ring"></div>
+<div id="ring-2" class="ring"></div>
+<div id="ring-3" class="ring"></div>
+</div>
+</div>
+<h1>当前系统维护中...</h1>
+<p>Power by 2021 <a href="http://www.z01.com" target="_blank">Zoomla!CMS</a>  <a href="http://f.ziti163.com" target="_blank">Design From Zfont</a></p>
+<script>
+const POSTERS_PER_ROW = 12;
+const RING_RADIUS = 200;
+
+function setup_posters (row){
+    var posterAngle = 360 / POSTERS_PER_ROW;
+    for (var i = 0; i < POSTERS_PER_ROW; i ++) {
+      var poster = document.createElement('div');
+      poster.className = 'poster';
+      
+      var transform = 'rotateY(' + (posterAngle * i) + 'deg) translateZ(' + RING_RADIUS + 'px)';
+      poster.style.webkitTransform = transform;
+      
+      var content = poster.appendChild(document.createElement('p'));
+      content.textContent = i;
+      row.appendChild(poster);
+    }
+}
+
+function init (){
+    setup_posters(document.getElementById('ring-1'));
+    setup_posters(document.getElementById('ring-2'));
+    setup_posters(document.getElementById('ring-3'));
+}
+
+window.addEventListener('load', init, false);
+</script>
+</body>
+</html>

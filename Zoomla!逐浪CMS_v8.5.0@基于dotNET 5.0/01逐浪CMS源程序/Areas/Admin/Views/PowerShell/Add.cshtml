@@ -1,0 +1,116 @@
+﻿@using ZoomLaCMS.Areas.Admin.Controllers.Label
+@model PSTaskModel
+@section head{ <title>PowerShell应用</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Url.Action("Index"),"控制面板")})
+<div class="">
+<form method="post" asp-action="Submit">
+<table class="table table-bordered sys_table">
+    <tr>
+        <th class="w12rem_lg">任务名称</th>
+        <td><input class="form-control" asp-for="@Model.Name" maxlength="50" /></td>
+    </tr>
+    <tr>
+        <th>任务描述</th>
+        <td><input class="form-control" asp-for="@Model.Description" maxlength="100" /></td>
+    </tr>
+    @if(Model.Scripts.Count > 1) {
+        <tr>
+            <th>执行方式</th>
+            <td>
+                <label>@Html.RadioButtonFor(m => m.Sequential, false, new { @onchange = "$('#spt_interval').removeClass('d-none')" }) 按间隔</label>
+                <label>@Html.RadioButtonFor(m => m.Sequential, true, new { @onchange = "$('#spt_interval').addClass('d-none')" }) 无间隔</label>
+                <span class="small text-info">无间隔将拼接脚本作为1个任务处理</span>
+            </td>
+        </tr>
+        <tr id="spt_interval">
+            <th>脚本时间间隔</th>
+            <td>
+                @for (int i = 0; i < Model.Scripts.Count; i++)
+                {
+                    if(i > 0)
+                    {
+                        <div class="input-group">
+                            <span class="input-group-prepend"><span class="input-group-text">脚本@($"{i:D2} => {i + 1:D2}")</span></span>
+                            <input class="form-control" type="number" id="t_day_@i" value="0" style="max-width:4rem" onchange="setTimeInterval(@i)" min="0" /><span class="input-group-append"><span class="input-group-text">天</span></span>
+                            <input class="form-control" type="number" id="t_hor_@i" value="0" style="max-width:4rem" onchange="setTimeInterval(@i)" min="0" /><span class="input-group-append"><span class="input-group-text">时</span></span>
+                            <input class="form-control" type="number" id="t_min_@i" value="0" style="max-width:4rem" onchange="setTimeInterval(@i)" min="0" /><span class="input-group-append"><span class="input-group-text">分</span></span>
+                            <input class="form-control" type="number" id="t_sec_@i" value="0" style="max-width:4rem" onchange="setTimeInterval(@i)" min="0" /><span class="input-group-append"><span class="input-group-text">秒</span></span>
+                            <span class="input-group-append"><span class="input-group-text">总间隔</span></span>
+                            <input id="t_interval_@i" class="form-control max20rem" min="0" asp-for="@Model.Scripts[i].Interval"/>
+                            <span class="input-group-append"><span class="input-group-text">秒</span></span>
+                        </div>
+                    }
+                    @Html.TextBoxFor(m => m.Scripts[i].Index, new { @type = "hidden" })
+                    @Html.TextBoxFor(m => m.Scripts[i].WorkingDirectory, new { @type = "hidden" })
+                    @Html.TextAreaFor(m => m.Scripts[i].Script, new { hidden = "hidden" })
+                }
+            </td>
+        </tr>
+    }
+    else
+    {
+        @Html.TextBoxFor(m => m.Scripts[0].Index, new { @type = "hidden" })
+        @Html.TextBoxFor(m => m.Scripts[0].WorkingDirectory, new { @type = "hidden" })
+        @Html.TextAreaFor(m => m.Scripts[0].Script, new { hidden = "hidden" })
+    }
+    <tr>
+        <th>开始时间</th>
+        <td><input type="text" onclick="WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' });" class="form-control max20rem input-prepend" asp-for="@Model.StartTime"/></td>
+    </tr>
+    <tr>
+        <th>执行次数</th>
+        <td>
+            <input class="form-control max20rem input-prepend" min="0" asp-for="@Model.Times"/>
+            <span class="small text-info">0视为无数次</span>
+        </td>
+    </tr>
+    <tr>
+        <th>执行间隔</th>
+        <td><div class="input-group">
+            <input class="form-control" type="number" id="t_day_0" value="0" style="max-width:4rem" onchange="setTimeInterval(0)" min="0" /><span class="input-group-append"><span class="input-group-text">天</span></span>
+            <input class="form-control" type="number" id="t_hor_0" value="0" style="max-width:4rem" onchange="setTimeInterval(0)" min="0" /><span class="input-group-append"><span class="input-group-text">时</span></span>
+            <input class="form-control" type="number" id="t_min_0" value="0" style="max-width:4rem" onchange="setTimeInterval(0)" min="0" /><span class="input-group-append"><span class="input-group-text">分</span></span>
+            <input class="form-control" type="number" id="t_sec_0" value="0" style="max-width:4rem" onchange="setTimeInterval(0)" min="0" /><span class="input-group-append"><span class="input-group-text">秒</span></span>
+            <span class="input-group-append"><span class="input-group-text">总间隔</span></span>
+            <input id="t_interval_0" class="form-control max20rem" min="1" asp-for="@Model.Interval"/>
+            <span class="input-group-append"><span class="input-group-text">秒</span></span>
+        </div></td>
+    </tr>
+</table>
+<div class="text-center">
+    <button type="submit" name="Action" value="Edit" onclick="return window.confirm('编辑脚本将丢失本页面的设置，确定前往编辑吗？');" class="btn btn-outline-info">编辑脚本</button>
+    <button type="submit" name="Action" value="Submit" onclick="return validModel();" class="btn btn-outline-info">提交任务</button>
+</div>
+</form>
+</div>
+}
+@section script {
+<script src="/JS/DatePicker/WdatePicker.js"></script>
+<script>
+function setTimeInterval(i) {
+    var days = parseInt($("#t_day_" + i).val());
+    var hors = parseInt($("#t_hor_" + i).val());
+    var mins = parseInt($("#t_min_" + i).val());
+    var secs = parseInt($("#t_sec_" + i).val());    
+    $("#t_interval_" + i).val(days * 24 * 60 * 60 + hors * 60 * 60 + mins * 60 + secs);
+}
+function validModel() {
+    if ($("#Name").val().trim() == "") {
+        alert("请填写任务名称后提交~");
+        return false;
+    }
+    var totalInterval = @Html.Raw(Model.Sequential ? 0 : Model.Scripts.Select(s => s.Interval).Sum());
+    console.log(totalInterval);
+    var times = Number($("#Times").val());
+    var interval = Number($("#t_interval_0").val())
+    if (times == 0 && interval == 0) {
+        alert("执行无限次时，时间间隔必须大于0！请修改后提交~");
+        return false;
+    }
+    return window.confirm("确定运行时间正确吗？\n点击“确定”进行提交，点击“取消”返回修改。");
+}
+</script>
+}

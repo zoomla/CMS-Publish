@@ -1,0 +1,6 @@
+﻿PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；
+PowerShell命令，Get-Command；获取所有进程，Get-Process；PowerShell命令和概念的信息，Get-Help；获取在当前会话中输入的命令的列表，Get-History；获取在当前会话中运行的PowerShell后台作业，Get-Job；

@@ -1,0 +1,72 @@
+﻿@using ZoomLa.Model
+@using ZoomLa.BLL.Extend
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@section head{ <title>@L.文件管理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url=Context.Request.RawUrl(),text=L.文件管理,/*addon="<a href='ZoneAdd'> ["+@L.添加版位+"]</a>"*/ }
+})
+@*}, "{search}")*@
+
+<div class="table-responsive-md">
+    @*<img src="~/StaticFiles/1.jpg" alt="pic" />*@
+
+<table class="table table-striped table-hover table-bordered table_box">
+    <thead>
+        <tr>
+            <th scope="col" class="td_s text-center">序号</th>
+            <th scope="col" class="td_s text-center">类型</th>
+            <th scope="col">名称</th>
+            <th scope="col" class="td_m text-center">大小</th>
+        </tr>
+    </thead>
+    @{
+        int i = 0;
+        foreach (DataRow dr in ViewBag.dt.Rows)
+        {
+            i++;
+            if (dr["type"].ToString() == "文件")
+            {
+        <tr>
+            <th scope="row" class="text-center">@i</th>
+            <td class="text-center">@dr["type"]</td>
+            <td><i class="zi zi_filePic"></i> @dr["filename"]</td>
+            <td class="text-end">
+            @{
+            double size_ok=0;
+            string size_u="";
+            double size_from= Convert.ToInt32(dr["size"]);
+            size_ok=size_from/1024;
+            size_u=size_ok.ToString("f2");
+            }
+            <div class="text-info pe-2">@size_u MB</div>
+             </td>
+        </tr>
+        }
+        else
+        {
+        <tr ondblclick="Get('@dr["file"]')">
+            <th scope="row" class="text-center">@i</th>
+            <td class="text-center">@dr["type"]</td>
+            <td><i class="zi zi_folders"></i> @dr["filename"]</td>
+            <td class="text-end"><div class="text-info pe-2">双击进入</div></td>
+        </tr>
+        }
+    }
+    }
+</table>
+</div>
+}
+@section script{
+<script src="/JS/SelectCheckBox.js"></script>
+<script>
+    function Get(path) {
+        var $form = $('<form method="post" action="Default"></form>');
+        $form.append('<input type="hidden" name="path" value=' + path + '>');
+        $("body").append($form);//兼容IE
+        $form.submit();
+        $form.remove();
+    }
+</script>
+}

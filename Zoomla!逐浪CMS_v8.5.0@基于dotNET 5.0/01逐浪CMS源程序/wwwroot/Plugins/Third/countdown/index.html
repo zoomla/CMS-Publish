@@ -1,0 +1,37 @@
+﻿<div class="container">
+     <h3>60秒倒计时</h3>
+     <p>data="60" </p>
+	<div class="container timeBar ys1" data="60" ></div>
+	
+	<h3>600秒倒计时</h3>
+	<p>data="600秒倒计时" </p>
+	<div class="container timeBar ys2" data="600" ></div>
+	
+	<h3>160000秒倒计时</h3>
+	<p>data="160000" </p>
+	<div class="container timeBar ys3" data="160000" ></div>
+</div>
+
+<script src="~/Plugins/Third/countdown/countdown.js"></script> 
+<script type="text/javascript">
+	$(function(){
+		$(".timeBar").each(function () {
+			$(this).countdownsync({
+				dayTag: "",
+				hourTag: "<label class='tt hh dib vam'>00</label><span>时</span>",
+				minTag: "<label class='tt mm dib vam'>00</label><span>分</span>",
+				secTag: "<label class='tt ss dib vam'>00</label><span>秒</span>",
+				dayClass: ".dd",
+				hourClass: ".hh",
+				minClass: ".mm",
+				secClass: ".ss",
+				isDefault: false,
+				showTemp:1
+
+			}, function () {
+				location.reload();
+			});
+		});
+	});
+	
+</script>

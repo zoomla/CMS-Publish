@@ -1,0 +1,236 @@
+﻿@using ZoomLa.Components;
+@using ZoomLa.SQLDAL;
+@using System.Web
+@using ZoomLa.BLL.Third;
+@using ZoomLa.Model.Third
+@model bool
+@{ 
+    B_Third_Info thirdBll = new B_Third_Info();
+    M_Third_Info SinaInfo = thirdBll.SelModelByName("Sina");
+
+    bool login_sina = false, login_qq = false, login_wx = false, login_baidu = false, login_all = false;
+    IHttpContextAccessor _contextAccessor;
+
+    string login_qq_url = "";
+    string login_wx_url = "";
+    if (SinaInfo != null && SinaInfo.Enabled)
+    {
+        login_sina = true;
+    }
+    M_Third_Info qqInfo = thirdBll.SelModelByName("QQ");
+    if (qqInfo != null && qqInfo.Enabled)
+    {
+        login_qq = true;
+        login_qq_url = "https://graph.qq.com/oauth2.0/authorize?client_id=" + qqInfo.ID.Trim() + "&response_type=token&scope=all&redirect_uri=" + qqInfo.CallBackUrl.Trim();
+    }
+    M_Third_Info wxInfo = thirdBll.SelModelByName("Wechat");
+    if (wxInfo != null && wxInfo.Enabled)
+    {
+        login_wx = true;
+    }
+    if (login_sina || login_qq || login_wx) { login_all = true; }
+}
+@functions{
+    public string GetBKImg()
+    {
+        if (SiteConfig.SiteOption.SiteManageMode == 1) { return ""; }
+        else { return "//code.z01.com/user_login.jpg"; }
+    }
+    public int getLoginCount()
+    {
+        return DataConvert.CLng(Context.Session.GetInt32("ValidateCount"));
+    }
+    public string GetReturnUrl()
+    {
+        string url = Context.Request.GetParam("ReturnUrl");
+        url = string.IsNullOrEmpty(url) ? SiteConfig.SiteOption.LoggedUrl : url;
+        return url;
+    }
+}
+@if (!Model)
+{
+<div id="login_dialog">
+<link href="/theme/css/V4user.css?version=market_20200808" rel="stylesheet">
+<style>
+.full,.cover-full{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.cover-full,.cover-full:focus,.cover-full:hover,.cover-full:active{position:absolute;width:100%;height:100%;border-radius:0;border-width:0;color:transparent;background-color:#000000;opacity:0.25;cursor:default;filter:unset}
+.login_form{max-width:400px;width:100%;border-radius:4px;margin:16px;padding:16px;background-color:#fff}
+</style>
+<div class="full">
+    <form class="login_form" style="z-index:10;">
+        <div class="u_login" style="margin:0;">
+	    <h1>@Call.SiteName 会员登录</h1>
+        <input type="hidden" name="regid" id="regid" value="0" />
+	    <ul>
+		<li>
+		    <i class="zi zi_user"></i>
+		    <input type="text" id="uname" name="uname" class="form-control form_inputs" placeholder="请输入用户名" />
+		</li>
+		<li>
+		    <i class="zi zi_lock"></i>
+		    <input type="password" id="upwd" name="upwd" placeholder="请输入密码" class="form-control form_inputs" autocomplete="off" />
+		</li>
+		@{
+		    if ((SiteConfig.UserConfig.EnableCheckCodeOfLogin == "0" && getLoginCount() >= 3) || SiteConfig.UserConfig.EnableCheckCodeOfLogin == "1")
+		    {
+			<li>
+			    <div class="form-group" id="trVcodeRegister">
+				@Html.Partial("Verify/Index")
+			    </div>
+			</li>
+		    }
+		}
+		<li id="usercode_li" class="d-none">
+		    <input id="UserCode_T" name="UserCode_T" placeholder="动态口令" class="form-control form_inputs" />
+		</li>
+        <li id="login_error" class="d-none">
+            <div style="color:red;"></div>
+        </li>
+		<li class="u_login_chpw">
+		    <label><input type="checkbox" id="remember_chk" name="remember_chk" checked="checked" /> 记住登录 </label>
+		    <a href="/User/Change/GetPassword" id="nopasswd" style="float:right;">忘记密码？</a>
+		</li>
+		<li class="d-grid">
+		    <button type="button" class="btn btn-info btn-block" onclick="userLogin()" id="btnLogin">登录</button>
+		</li>
+		<li class="d-grid"><a class="btn btn-outline-info btn-block" id="reg_btn" href="/User/Register">注册</a></li>
+	    </ul>
+        <div class="dropdown u_login_type">
+		<button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">其它方式登录</button>
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+		    <a class="dropdown-item" href="javascript:;" onclick="switchLoginType(1)"><i class="zi zi_envelopeBold"></i> 邮箱登录</a>
+		    <a class="dropdown-item" href="javascript:;" onclick="switchLoginType(2)"><i class="zi zi_infocircle"></i> ID登录</a>
+		    <a class="dropdown-item" href="javascript:;" onclick="switchLoginType(0)"><i class="zi zi_user"></i> 用户登录</a>
+		    <a class="dropdown-item" href="javascript:;" onclick="switchLoginType(3)"><i class="zi zi_mobile"></i> 手机号登录</a>
+		    <a class="dropdown-item" href="javascript:;" onclick="switchLoginType(4)"><i class="zi zi_mobile"></i> UME混合登录</a>
+		    <a class="dropdown-item" href="javascript:;" onclick="switchLoginType(5)"><i class="zi zi_code"></i> 临时码登录</a>
+		</div>
+		@{
+		    if (login_all)
+		    {
+			<div id="plat_li">
+			    <abbr class="float-start">第三方登录：</abbr>
+			    <div class="float-start">
+				@if (login_qq)
+				{<span title="腾迅" class="plat_sp"><a href="@login_qq_url" id="qq_a"><i class="qq_icon zi zi_tmQq plat_sp_btn"> </i></a></span>}
+				@if (login_wx)
+				{<span title="微信" class="plat_sp"><a href="/Api/WechatLogin"><i class="zi zi_tmWeixin plat_sp_btn"></i></a></span>}
+				@if (login_sina)
+				{<a href="@Url.Action("Login_Sina","User")" title="新浪" class="plat_sp"><i class="zi zi_tmWeibo"> </i></a>}
+			    </div>
+			</div>
+		    }
+		}
+	    </div>
+	</div>
+    </form>
+    @*<button class="cover-full" onclick="$('#login_dialog').remove()"></button>*@
+    <button class="cover-full" onclick="$('#login_dialog')"></button>
+</div>    
+<script src="/js/Modal/APIResult.js"></script>
+<script src="/js/Controls/Control.js"></script>
+<script src="/js/Plugs/jsencrypt.js?v=1"></script>
+@*<script type="module">
+import '/res/js/bootstrap.bundle.min.js'
+</script>*@
+<script>
+$('.full form:first input').focus(function () {
+    $("#login_error").addClass("d-none");
+});
+function BtnTj() {
+    var username = document.getElementById("uname");
+    var userpass = document.getElementById("upwd");
+    var VCode = document.getElementById("VCode");
+    if (username.value == "") {
+        username.focus();
+        return false;
+    }
+    else if (userpass.value == "") {
+        userpass.focus();
+        return false;
+    }
+    else if (VCode && VCode.value == "") {
+        VCode.focus();
+        return false;
+    }
+    return true;
+}
+
+$(function () {
+    setTimeout("CheckUserCode()", 500);
+    Control.EnableEnter();
+})
+function CheckUserCode() {
+//    $.post("/API/UserCheck", { action: 'CheckKey', uname: $("#TxtUserName").val() }, function (data) {
+//        if (data == '1') {
+//            $("#usercode_li").show();
+//            bl = false;
+//        } else {
+//            $("#usercode_li").hide();
+//        }
+//    });
+}
+var flag = false;
+function userLogin() {
+    var ref = this;
+    flag = false;
+    if (!BtnTj()) { alert("用户名与密码不能为空"); return;  }
+    var url = "/User/Index/Login_Ajax?r=" + Math.random();
+    //ajax packet
+    var info = {};
+    $.each($('.full form:first').serializeArray(), function (_, kv) {
+        if (kv.name == "UserCode_T")
+            info["zncode"] = kv.value;
+        else if(kv.name == "VCode")
+            info["vcode"] = kv.value;
+        else
+            info[kv.name] = kv.value;
+    });
+    info.action = "login";
+    info.upwd = RSAEncrypt.encrypt(info.upwd);
+    //console.log(info); return;
+
+    $.post(url, info, function (data) {
+        function success(result) {
+            ref.flag = true;
+            $('#login_dialog').remove();
+        }
+        function fail(data) {
+            var model = APIResult.getModel(data);
+            $("#login_error div").html('<span class="zi zi_infocircle"></span>' + model.retmsg);
+            $("#login_error").removeClass("d-none");
+        }
+        APIResult.ifok(data, success, fail)
+    });
+}
+function switchLoginType(type) {
+    var t = Number(type);
+    $("#regid").val(t);
+    switch (t) {
+        case 1:
+            $("#uname").attr("placeholder", "请输入用户邮箱");
+            break;
+        case 2:
+        case 3:
+        case 5:
+            $("#uname").attr("placeholder", "请输入用户ID");
+            break;
+        case 4:
+            $("#uname").attr("placeholder", "请输入邮箱/用户名/手机号");
+            break;
+        default:
+            $("#uname").attr("placeholder", "请输入用户名");
+            break;
+    }
+    if (t == 5) {        
+        $("#upwd").attr("placeholder", "请输入临时码");
+    }
+    else {        
+        $("#upwd").attr("placeholder", "请输入密码");
+    }
+    $("#uname").val("");
+    $("#upwd").val("");
+}
+</script>
+</div>
+}

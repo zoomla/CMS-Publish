@@ -1,0 +1,42 @@
+﻿@model ZoomLa.SQLDAL.SQL.PageSetting
+@{
+    string apiUrl = "UserRole_API?action=";
+}
+@section head {<title>@L.角色管理</title>}
+@section content {
+    @Call.SetBread(new Bread[] {
+            new Bread("{admin}"),
+            new Bread() {url=Context.Request.RawUrl(), text=L.用户角色,addon="<a href='UserRoleAdd'> ["+@L.添加角色+"]</a>" }})
+<div class="">
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th scope="row" class="td_xs"></th>
+                <th scope="row" class="td_s">ID</th>
+                <th scope="row">@L.角色名称</th>
+                <th scope="row" class="td_m">@L.状态</th>
+                <th scope="row" class="td_m">@L.操作</th>
+            </tr>
+        </thead>
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+    <tr ondblclick="location = 'UserRoleAdd?id=@dr["RoleID"]';">
+        <td class="node_select"><input type="checkbox" value="@dr["RoleID"]" name="idchk" /></td>
+        <td>@dr["RoleID"]</td>
+        <td><a href="UserRoleAdd?id=@dr["RoleID"]">@dr["RoleName"]</a></td>
+        <td>@MvcHtmlString.Create(ComRE.Icon_OK)</td>
+        <td>
+          <a class="btn btn-outline-info btn-sm" href="UserRoleAdd?id=@dr["RoleID"]"><i class="zi zi_pencilalt"></i></a>
+          <a class="btn btn-outline-info btn-sm" href="UserRoleAuth?id=@dr["RoleID"]"><i class="zi zi_key"></i></a>
+          <a class="btn btn-outline-info btn-sm" href="javascript:;" onclick="mvcpage.del({ url: '@(apiUrl+"del")', ids: '@dr["RoleID"]', confirm: '@L.确定要删除吗', after: function () { location = location; } });"><i class="zi zi_trashalt" zico="垃圾箱竖条"></i>
+        </a>
+    </tr>
+        }
+    </table>
+    <div class="p-2">
+        <input type="button" ID="BatDel_Btn" class="btn btn-outline-secondary" value="@L.批量移除" onclick="mvcpage.bat({ url: '@(apiUrl+"del")', confirm: '@L.确定要删除吗', after: function () { location = location; } });" />
+    </div>
+</div>
+}
+@section script{
+}

@@ -1,0 +1,35 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc
+@model PageModel
+@functions{
+    [Authorize(Policy = ("User"))]
+    public class PageModel : Page_Base
+    {
+        public DataTable cjHisDT = new DataTable();
+        public IActionResult OnGet()
+        {
+            cjHisDT = DBCenter.Sel("ZL_Pub_CJ", "PubUserID=" + mu.UserID, "ID DESC");
+            return Page();
+        }
+        public IActionResult OnPost()
+        {
+            return Page();
+        }
+    }
+}
+@{ 
+       Layout = "_empty";
+}
+@section head{ <title>中奖记录</title>}
+@section content{ 
+<div class="text-center"><a href="/"><img src="/Template/Prizexm/style/Images/logo.svg" alt="@Call.SiteName" style="padding-top: 1rem; width: 50%;"></a></div>
+<table class="table table-bordered table-striped">
+<thead><tr><td>类型</td><td>结果</td><td>时间</td></tr></thead>
+@foreach (DataRow dr in Model.cjHisDT.Rows)
+{
+  <tr><td>@dr["PubTitle"]</td><td>@dr["prize"]</td><td class="td_l">@dr["PubAddTime"]</td></tr>
+}
+</table>
+}
+@section script{ }

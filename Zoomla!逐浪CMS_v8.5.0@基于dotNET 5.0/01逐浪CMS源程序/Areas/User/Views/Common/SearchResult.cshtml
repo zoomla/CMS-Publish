@@ -1,0 +1,41 @@
+﻿@using System.Data
+@using ZoomLa.Common
+@model List<KeyValuePair<string, string>>
+@{
+    
+}
+@section head{
+    <title>搜索结果</title>
+}
+@section content{
+    <div id="pageflag" data-nav="home" data-ban="UserInfo"></div>
+	<div class="container">
+	<nav aria-label="breadcrumb" role="navigation">
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("Index","")">会员中心</a></li>
+		<li class="breadcrumb-item active">搜索结果</li>
+	</ol>
+	</nav>
+	</div>
+    <div class="container btn_green u_cnt">
+        @if(Model == null || Model.Count == 0)
+        {
+            <div>无搜索结果</div>
+        }
+        else
+        {
+            <table class="table table-bordered table-striped">
+                <tr><td>ID</td><td>标题</td><td>路径</td></tr>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <tr>
+                        <td class="td_s">@i</td>
+                        <td class="td_l">@Html.Raw(Model[i].Key)</td>
+                        <td><a href="@Model[i].Value" title="点击访问" target="_blank">@Model[i].Value</a></td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+}
+@section script{}

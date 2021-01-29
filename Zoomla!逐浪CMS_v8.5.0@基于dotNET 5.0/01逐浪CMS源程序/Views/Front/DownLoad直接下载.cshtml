@@ -1,0 +1,144 @@
+﻿@{
+    Layout = null;
+}
+@using ZoomLa.BLL.Content;
+@using ZoomLa.SQLDAL;
+@using ZoomLa.BLL.User;
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>下载页</title>
+<link href="~/res/css/bootstrap.min.css" rel="stylesheet" />
+<script src="~/res/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        这里接受用户跳过来地址：
+        <br />
+        找一张表记录，识别条件：
+        <br />
+        1.是否有登合录<否则>
+            提示需要登录才能下载<br />
+            2.是否有付费<否则>
+                提示需要付费才能下载<br />
+                3.已经付费:输出正式内容。<br /><br />
+                4.每次付费需要记录：会员里扣钱|会员扣钱流水记录|付费下载表 ZL_Orderinfo
+
+    </div>
+    <hr />
+    <div class="modal fade" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>提示</h3>
+                </div>
+                <div class="modal-body">
+                    <p id="pText">确定要关闭警告框信息？</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-info" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @{
+        B_Node nodeBll = new B_Node();
+        B_ViewHistory viewBll = new B_ViewHistory();
+        M_Node nodeMod = nodeBll.SelReturnModel(ViewBag.ItemInfo.NodeID);
+        M_ViewHistory viewMod = viewBll.SelReturnModel(ViewBag.ItemInfo.GeneralID, ViewBag.mu.UserID);
+        DataTable dt = DBCenter.JoinQuery("A.*,B.*", "ZL_CommonModel", "ZL_C_soft", "A.ItemID=B.ID", "A.GeneralID=" + ViewBag.ItemInfo.GeneralID, "", null, "A.GeneralID");
+        DataRow dr = dt.Rows[0];
+        DataTable sdt = DBCenter.Sel(ViewBag.ItemInfo.TableName, "ID=" + DataConvert.CLng(ViewBag.ItemInfo.ItemID));
+        DataRow sdr = dt.Rows[0];
+        double DeductMoney = DataConvert.CDouble(sdr["DeductMoney"]) > 0 ? DataConvert.CDouble(sdr["DeductMoney"]) :  nodeMod.DeductUserMoney;
+        if (DeductMoney > 0 && viewMod == null)
+        {
+            <div class="modal fade" id="con_shareModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">付费提示</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            您下载的内容需要收费 @DeductMoney 元，确认是否下载?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" onclick="isDown()">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="downLoad" value="true" />
+            <input type="hidden" id="info" value="@ViewBag.ItemInfo.GeneralID" />
+            <input type="hidden" id="mu" value="@ViewBag.mu.UserID" />
+        }
+        else
+        {
+            <div id="DonCon">
+                <input type="hidden" id="downurl" value="@dr["DownUrl"]" />
+            </div>
+        }
+    }
+
+
+    <script>
+        $(function () {
+            if ($("#downLoad").val()) {
+                var mu = $("#mu").val();
+                if (mu < 1) {
+                    islogin();
+                    return;
+                }
+                $("#con_shareModal").modal();
+            } else {
+                var downurl = $("#downurl").val();
+                if (downurl !== undefined && downurl != null && downurl != '') {
+                    downurl = downurl.split('$')[0];
+                    downurl = downurl.split('|')[1];
+                    downurl = "/UploadFiles/" + downurl;
+                    window.location.href = downurl;
+
+                }
+            }
+
+            $(".close").click(function () {
+                $(this).alert("close");
+            });
+
+        });
+
+        function isDown() {
+
+            var id = $("#info").val();
+            $.post("/Front/DownLoad", { id: id }, function (res) {
+                if (res == "未登录") {
+                    islogin();
+                } else if (res == "1") {
+                    window.location.href = window.location.href;
+                }
+                else {
+                    $("#pText").text(res);
+                    $("#myModal").modal();
+                }
+            });
+        }
+
+        function islogin() {
+            $("#pText").text("你还未登录，请先登录账号");
+            $("#myModal").modal();
+            setTimeout(function () {
+                location.href = "/User/Login?ReturnUrl=/User/";
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+

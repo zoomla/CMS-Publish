@@ -1,0 +1,91 @@
+﻿@*
+copyright file="PageAdd.cshtml" company="上海Zoomla!逐浪CMS团队"
+版权所有:🏢江西逐浪软件科技有限公司  🏅🏅🏅20年专注研发==>商城|ERP|字库|高端门户与人工智能
+官方网站:🚀 www.z01.com
+联系方式:☎ 13177777714  😎 wechat: zoomla
+文件描述:🔧 控制器：\ZoomLaCMS\Areas\Admin\Controllers\Extend\DBToolController.cs
+创建时间:⏰2020年09月22日,21:38
+*@
+
+@using ZoomLa.Model.AdSystem;
+@model ZoomLa.Model.AdSystem.M_Toasts;
+@section head{<title>添加消息记录</title> }
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread("Pagelist","数据配置"),
+        new Bread(),
+        }, "[<a href='PageAdd'>添加消息</a>]")
+    <div class="container-fluid pe-0">
+        <div class="row sysRow table-responsive">
+            <table class="table table-striped table-bordered table-hover sys_table">
+
+                <tr>
+                    <th class="td_m">页面地址 </th>
+                    <td>
+                        @Html.TextBoxFor(m => m.Title, new { @class = "form-control d-inline max20rem required" })<span class="ms-1">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="td_m">消息内容 </th>
+                    <td>
+                        @Html.TextAreaFor(m => m.Content, new { @class = "form-control d-inline max20rem" })<span class="ms-1">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="td_m">创建时间 </th>
+                    <td>
+                        @{ string s;
+                            if (Model.ID == 0)
+                            {
+                                s = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                            }
+                            else
+                            {
+                                s = Model.CDate.ToString("yyyy/MM/dd HH:mm:ss");
+                            } }
+                        <input type="button" id="CDate" class="form-control d-inline max20rem text-start" value="@s" />
+                        @*@Html.TextBoxFor(m =>m.CDate, new { @class = "form-control  d-inline max20rem ", onclick = "WdatePicker({ dateFmt: 'yyyy/MM/dd HH:mm:ss' })" })*@<span class="ms-1">*</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button type="button" class="btn btn-info" onclick="Prompt()">保存信息</button>
+                        <a href="Pagelist" class="btn btn-outline-info">返回列表</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+}
+@section script{
+<script src="/js/DatePicker/WdatePicker.js"></script>
+<script src="/res/js/bootstrap.bundle.min.js"></script>
+<script>
+    function Prompt() {
+        let data = new FormData();
+        data.append("ID",@Model.ID);
+        data.append("Title", $('#Title').val());
+        data.append("Content", $('#Content').val());
+        data.append("CDate", $('#CDate').val());
+        $.ajax({
+            method: "Post",
+            data: data,
+            processData: false,
+            contentType: false,
+            url: encodeURI('PageAdd_submit'),
+            success: function (result) {
+                if (result == 2) {
+                    alert("添加成功!");
+                }
+                else {
+                    alert("修改成功!");
+                }
+                window.location.href = "PageList";
+            }
+        });
+    }
+
+</script>
+}

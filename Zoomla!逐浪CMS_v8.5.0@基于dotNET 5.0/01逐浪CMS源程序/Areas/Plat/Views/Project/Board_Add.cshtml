@@ -1,0 +1,201 @@
+﻿@using ZoomLa.SQLDAL
+@model ZoomLa.Model.Project.M_Project_board
+@functions{
+    public string getMemberIDS(string str)
+    {
+        string v = "";
+        if (!string.IsNullOrEmpty(str))
+        {
+            string[] idArry = str.Trim().Split(",");
+            for (int i = 0; i < idArry.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(idArry[i]))
+                {
+                    foreach (DataRow dr in DBCenter.Sel("ZL_User", "UserID=" + idArry[i]).Rows)
+                    {
+                        v += dr["UserName"] + ",";
+                    }
+                }
+            }
+        }
+        return v;
+    }
+
+}
+@section head{
+    <title>添加问题</title>
+    <link href="/JS/Controls/ZL_Webup.css" rel="stylesheet" />
+    <script src="/Plugins/Ueditor/ueditor.config.js" charset="utf-8"></script>
+    <script src="/Plugins/Ueditor/ueditor.all.min.js" charset="utf-8"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script src="/JS/Controls/ZL_Webup.js?v=1"></script>
+}
+@section content{
+    <form action="Board_Submit?id=@ViewContext.HttpContext.Request.Query["id"]" method="post">
+        <div class="row w-75 m-auto">
+            <div class="col-8">
+                <div class="input-group mb-1">
+                    <span class="input-group-text">标题</span>
+                    <input id="Title" name="Title" value="@Model.Title" type="text" class="form-control" />
+                </div>
+                <textarea id="Content" name="Content" style="width:835px; height:500px;">@Model.Content</textarea>
+            </div>
+            <div class="col-4">
+                <div class="input-group mb-1">
+                    <span class="input-group-text">负责人</span>
+                    <input type="text" class="form-control text_300" id="refer_t" name="refer_t" value="@getMemberIDS(Model.Principal)" disabled />
+                    @*<span class="form-control">@MvcHtmlString.Create(getMemberIDS(Model.Principal))</span>*@
+                    <input type="hidden" id="refer_hid" name="refer_hid" value="@Model.Principal" />
+                    <button type="button" onclick="zlmsg.selUser('refer')" class="input-group-text">选择负责人</button>
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">参与者</span>
+                    <input type="text" id="Participant" name="Participant" class="form-control text_300" value="@getMemberIDS(Model.Participant)" disabled />
+                    <button type="button" onclick="zlmsg.selUser('ccuser')" class="input-group-text">选择参与者</button>
+                    <input type="hidden" id="ccuser_hid" name="ccuser_hid" value="@Model.Participant" />
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">状态</span>
+                    @Html.DropDownListFor(m => m.Status, new SelectList(new List<Object> { new { value = 1, text = "待办的" }, new { value = 2, text = "进行中" }, new { value = 3, text = "已完成" }, new { value = 4, text = "已拒绝" } }, "value", "text", Model.Status), new { @class = "form-control form-select" })
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">颜色</span>
+                    <input type="color" class="form-control form-control-color" name="Color" id="Color" value="@Model.Color">
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">项目简介</span>
+                    <input type="text" name="Synopsis" value="@Model.Synopsis" class="form-control" />
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">附属文件</span>
+                    <input type="text" name="Files" id="Files" value="@Model.Files" class="form-control" />
+                    <input class="form-control" type="file" id="file" multiple onchange="clickF()" hidden>
+                    <input type="button" class="form-control input-group-text text_100" value="选取文件" onclick="getFile()" />
+                </div>
+                <div class="input-group mb-1">
+                    <div class="input-group">
+                        <span class="input-group-text">缩略图</span>
+                        @*<input type="text" id="Thumbnail" name="Thumbnail" value="@Model.Thumbnail" />*@
+                        <input type="button" id="upfile_btn" class="input-group-text" value="添加文件" />
+                    </div>
+                    <input type="hidden" ID="Attach_Hid" name="Attach_Hid" value="@Model.Thumbnail" />
+                    <div id="uploader" class="uploader mt-2">
+                        <ul class="filelist"></ul>
+                    </div>
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">组图</span>
+                    <input type="text" name="Photos" value="@Model.Photos" class="form-control" />
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">级别</span>
+                    @Html.DropDownListFor(m => m.Class, new SelectList(new List<Object> { new { value = 0, text = "未指定" }, new { value = 1, text = "紧急" }, new { value = 2, text = "正常" }, new { value = 3, text = "次要" }, new { value = 4, text = "淘汰" } }, "value", "text", Model.Class), new { @class = "form-control form-select" })
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">推荐</span>
+                    <input type="text" name="Recommend" value="@Model.Recommend" class="form-control" />
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">关联项目</span>
+                    @Html.DropDownListFor(m => m.Source, ViewBag.clist as SelectList, new { @class = "form-control max20rem form-select" })
+                    @*@Html.DropDownListFor(m => m.Status, new SelectList(DBCenter.Sel("ZL_Project"), "value", "text", Model.Status), new { @class = "form-control form-select" })*@
+                </div>
+                @*<div class="input-group mb-1">
+                        <span class="input-group-text">点评</span>
+                        <input type="text" name="Comment" value="@Model.Comment" class="form-control" />
+                    </div>*@
+                <div class="input-group mb-1">
+                    <span class="input-group-text">计划开始日期</span>
+                    <input type="text" id="StartDate" name="StartDate" value="@Model.StartDate.ToString("yyyy/MM/dd HH:mm")" class="form-control" onclick="WdatePicker({ maxDate: '#F{$dp.$D(\'EndDate\')}', dateFmt: 'yyyy/MM/dd HH:mm' });" />
+                </div>
+                <div class="input-group mb-1">
+                    <span class="input-group-text">计划结束日期</span>
+                    <input type="text" id="EndDate" name="EndDate" value="@Model.EndDate.ToString("yyyy/MM/dd HH:mm")" class="form-control" onclick="WdatePicker({ minDate: '#F{$dp.$D(\'StartDate\')}', dateFmt: 'yyyy/MM/dd HH:mm' });" />
+                </div>
+                <div class="input-group mb-1">
+                    <input type="hidden" name="ProID" value="@ViewContext.HttpContext.Request.Query["ids"]" />
+                </div>
+            </div>
+            <div class="input-group">
+                <input type="submit" class="input-group-text" onclick="cj()" value="创建" /><input type="hidden" id="btn" name="btn" /><input type="submit" class="input-group-text" onclick="jx()" value="创建并继续" />
+            </div>
+        </div>
+    </form>
+}
+@section script{
+
+    @MvcHtmlString.Create(Call.GetUEditor("Content", 2))
+    <script>
+        var zlmsg = { diag: null };
+        zlmsg.init = function () {
+            user.hook[zlmsg.conast.CCUser] = function (list, select) {
+                $("#Participant").val(user.getnames(list));
+                $("#ccuser_hid").val(user.getids(list));
+                zlmsg.diag.CloseModal();
+            }
+            user.hook[zlmsg.conast.Refer] = function (list, select) {
+                $("#refer_t").val(user.getnames(list));
+                $("#refer_hid").val(user.getids(list));
+                zlmsg.diag.CloseModal();
+            }
+        }
+        zlmsg.conast = { CCUser: "ccuser", Refer: "refer" };
+        zlmsg.selUser = function (action) {
+            if (!zlmsg.diag) {
+                zlmsg.diag = new ZL_Dialog();
+                zlmsg.diag.maxbtn = false;
+            }
+            switch (action) {
+                case zlmsg.conast.CCUser:
+                    zlmsg.diag.title = "选择负责人";
+                    zlmsg.diag.url = "/Common/SelUser#" + zlmsg.conast.CCUser;
+                    break;
+                case zlmsg.conast.Refer:
+                default:
+                    zlmsg.diag.url = "/Common/SelUser#" + zlmsg.conast.Refer;
+                    zlmsg.diag.title = "选择参与者";
+                    break;
+            }
+            zlmsg.diag.ShowModal();
+        }
+        $(function () {
+            zlmsg.init();
+        })
+
+        function cj() {
+            $("#btn").val("1");
+        }
+        function jx() {
+            $("#btn").val("2");
+        }
+        function getFile() {
+            $("#file").click();
+        }
+        function clickF() {
+            var filename = $("#file").val();
+            var filenames = filename.split("\\");
+            filename = filenames[filenames.length - 1];
+            $("#Files").val(filename);
+        }
+        //多文件上传
+        $(function () {
+            ZL_Webup.config.json.ashx = "action=OAattach";
+            $("#upfile_btn").click(ZL_Webup.ShowFileUP);
+            if (!ZL_Regex.isEmpty($("#Attach_Hid").val())) {
+                var files = $("#Attach_Hid").val().split('|');
+                $("#Attach_Hid").val("");
+                for (var i = 0; i < files.length; i++) {
+                    AddAttach(files[i], { _raw: files[i] }, {});
+                }
+            }
+        })
+        function AddAttach(file, ret, pval) { return ZL_Webup.AddAttach(file, ret, pval); }
+        function WordBack(fname) { $("#PrivateAttach_Hid").val(fname); }
+        $(function () {
+            setactive("看板");
+        })
+        //remove leftnav
+        var child = document.getElementById("leftnav");
+        child.parentNode.removeChild(child);
+    </script>
+}

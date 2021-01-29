@@ -1,0 +1,21 @@
+﻿<div class="mb-2">
+<div class="btn-group">
+    <a href="MessageSend" id="MessageSend" class="btn btn-outline-info">新消息</a>
+    <a href="Message" id="Message" class="btn btn-outline-info">收件箱</a>
+    <a href="MessageOutbox" id="MessageOutbox" class="btn btn-outline-info">发件箱</a>
+    <a href="MessageDraftbox" id="MessageDraftbox" class="btn btn-outline-info">草稿箱</a>
+    <a href="MessageRecycle" id="MessageRecycle" class="btn btn-outline-info">垃圾箱</a>
+</div>
+<div class="float-end">
+<div class="input-group">
+    <input type="text" id="skey_t" class="form-control text_300 mvcparam" placeholder="站内信标题" />
+        <input type="button" id="skey_btn" class="input-group-text" value="搜索" onclick="mvcpage.load();" />
+</div>
+</div>
+</div>
+<script>
+$().ready(function(e) {
+    $("#@ViewContext.RouteData.Values["action"].ToString()").addClass("bg-info");
+    $("#@ViewContext.RouteData.Values["action"].ToString()").addClass("text-light");
+});
+</script>

@@ -1,0 +1,97 @@
+﻿@using ZoomLa.Model.Site
+@model M_SiteDeploy
+@{     
+    var siteBasePath = (string)ViewData["SiteBasePath"];
+    var sites = (new System.IO.DirectoryInfo(siteBasePath)).GetDirectories().Where(d=>d.Name != Model.Path).Select(d => d.Name).ToArray();
+}
+@section head{<title>站点详情</title>}
+@section content{ 
+@Call.SetBread(new Bread[] {
+    new Bread("{admin}"),
+    new Bread(Context.Request.Path.Value.Replace("Detail", "List", StringComparison.OrdinalIgnoreCase), "站点列表"),
+    new Bread(Context.Request.RawUrl(),"站点详情")},"[<a href='SiteAdd'>"+"添加站点"+"</a>]"))
+<div class=" mx-5">
+<form method="post" action="SiteUpdate">
+<input type="hidden" name="ID" asp-for="@Model.ID" />
+<input type="hidden" name="FileStatus" asp-for="@Model.FileStatus" />
+<textarea hidden name="Log" asp-for="@Model.Log"></textarea>
+<input type="hidden" name="CreateDate" asp-for="@Model.CreateDate" />
+<input type="hidden" name="PackageType" asp-for="@Model.PackageType" />
+<table class="table table-bordered sys_table">
+    <tr>
+        <th class="w12rem_lg">站点名称</th>
+        <td><input class="form-control" name="Name" asp-for="@Model.Name" required maxlength="50" /></td>
+    </tr>
+    <tr>
+        <th>备注说明</th>
+        <td><textarea class="form-control" name="Note" asp-for="@Model.Note" maxlength="200" rows="4"></textarea></td>
+    </tr>
+    <tr>
+        <th>文件路径</th>
+        <td>
+            <div class="input-group">
+                <div class="input-group-prepend"><span class="input-group-text">@ViewData["SiteFolderName"]</span></div>
+                <input class="form-control" oninput="validAndSetPath(this)" name="Path" asp-for="@Model.Path" maxlength="50" required />
+                <input type="hidden" id="i_allsites" value="@string.Join("|", sites)" />
+            </div>
+            <small class="text-muted">推荐英文目录名，修改文件路径，提交后需要一定的时间，请耐心等待...</small>
+</td>
+    </tr>
+    <tr>
+        <th>发布目录</th>
+        <td>
+            <input class="form-control" id="i_publishpath" oninput="filterPublishPath()" name="RunPath" asp-for="@Model.RunPath" maxlength="50" />
+            <span class="text-info small ps-2">空或 / 代表根目录</span>
+        </td>
+    </tr>
+    <tr>
+        <th>资源目录</th>
+        <td>
+            <input class="form-control" oninput="validAndSetPath(this)" name="AssetsPath" asp-for="@Model.AssetsPath" maxlength="50" />
+        </td>
+    </tr>
+    <tr>
+        <th>数据接口</th>
+        <td>
+            <div class="input-group">
+                <input class="form-control" id="i_siteinterface" name="Interface" asp-for="@Model.Interface" maxlength="200" />
+                <div class="input-group-append"><button class="btn input-group-text" type="button" onclick="$('#i_siteinterface').val('@ViewData["SiteApi"]')">获取默认API</button></div>
+            </div>
+            <small class="text-muted">*不可为空。</small>
+        </td>
+    </tr>
+</table>
+<div class="text-center">
+    <button class="btn btn-info me-1" type="submit" onclick="return validModel()" title="提交修改后的站点信息">提交更改</button>
+    <a class="btn btn-outline-info" href="SiteList" title="返回站点列表">返回列表</a>
+</div>
+</form>
+</div>
+}
+@section script{ 
+<script>
+function validAndSetPath(el) {
+    var str = $(el).val();
+    var reg = /\/|\\|\:|\*|\?|\"|\<|\>|\|/g
+    str = str.replace(reg, "");
+    $(el).val(str);
+}
+function filterPublishPath() {
+    var str = $("#i_publishpath").val();
+    var reg = /|\\|\:|\*|\?|\"|\<|\>|\|/g
+    str = str.replace(reg, "");
+    $("#i_publishpath").val(str);
+}
+function validModel() {
+    var path = $("#i_site_path").val().trim();
+    var sites = @Html.Raw(Json.Serialize(sites));
+    if (sites.indexOf(path) == -1) {
+        return true;
+    }
+    else {
+        alert("文件夹 " + path + " 已存在！请修改后提交~");
+        return false;
+    }
+}
+</script>
+}

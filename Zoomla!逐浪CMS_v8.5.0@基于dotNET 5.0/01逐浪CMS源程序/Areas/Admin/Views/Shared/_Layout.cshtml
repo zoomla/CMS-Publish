@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+@Html.Partial("_layout_assets")
+<link rel="stylesheet" href="/theme/css/v4style.css?version=@(ZoomLa.BLL.BLLCommon.Version_JS)" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+<link rel="stylesheet" href="/res/css/animate.min.css"/>
+@RenderSection("head",false)
+</head>
+<body>
+@RenderSection("content",false)
+<script>
+    var siteconf = {
+        path: "@Call.PA("")",
+        updir: "@ZoomLa.Components.SiteConfig.SiteOption.UploadDir.ToLower()"
+    };
+</script>
+@RenderSection("script",false)
+</body>
+</html>

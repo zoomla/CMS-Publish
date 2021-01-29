@@ -1,0 +1,235 @@
+﻿@using ZoomLa.Model.Project
+@using ZoomLa.SQLDAL
+@using Newtonsoft.Json
+@model System.Data.DataTable
+@functions{
+    public string GetHtml(string status)
+    {
+        string html = "<ul id='gallery'>";
+        @foreach (DataRow dr in Model.Rows)
+        {
+            if (dr["Status"].ToString() == status)
+            {
+                //html += "<div id=" + @dr["ID"] + " class='' style='display:flex'><a href='Project_Info?id=" + @dr["ID"] + "'><h5>"+@dr["Title"] + "</h5></a><a href='javascript:;' onclick='del(" + @dr["ID"] + ")'><span class='zi zi_trashalt' title='删除'></span></a></div>";
+                html += "<li id=" + dr["ID"] + "><a href='Board_Info?id=" + @dr["ID"] + "'><p> " + @dr["Title"] + "</p></a><span>#" + @dr["CreaeTime"] + " by " + dr["UserName"] + "</span></li>";
+
+            }
+        }
+        html += "</ul>";
+        //if (html== "<ul id='gallery'></ul>")
+        //{
+        //    html += "<div class='text-center'><p id='" + status + "'>这里没有任务</p></div>";
+        //}
+        //else
+        //{
+        //    html += "<div class='text-center'><p id='" + status + "'>以上是全部内容</p></div>";
+        //}
+        return html;
+    }
+    public string GetProject(string ProID)
+    {
+        if (ProID == null)
+        {
+            @foreach (DataRow dr in Model.Rows)
+            {
+                ProID = dr["ProID"].ToString();
+            }
+        }
+        if (ProID == null)
+        {
+            ProID = "0";
+        }
+        string str = "";
+        DataTable dt = DBCenter.Sel("ZL_Project", "ID=" + ProID);
+        @foreach (DataRow dr in dt.Rows)
+        {
+            str = "<h1>项目名称 " + dr["ProName"].ToString() + "<small>" + dr["UserName"] + "创建于" + dr["CreaeTime"] + "</small></h1><div class='progress'><div class='progress-bar w-75' role='progressbar' aria-valuenow='75' aria-valuemin='0' aria-valuemax='100'></div></div>";
+        }
+        return str;
+    }
+}
+@{
+    M_UserInfo mu = ViewBag.mu;
+    M_Project_board au = new M_Project_board();
+}
+@section head{
+    <title>项目管理系统</title>
+    <style>
+        .Obody {
+            background: #fff;
+        }
+
+        .newpanecontents .bg-light {
+            background: #F6F6F6 !important;
+        }
+    </style>
+}
+@section content{
+
+    <div class="plat_project_control">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col-md-6">
+                    @MvcHtmlString.Create(GetProject(ViewContext.HttpContext.Request.Query["ids"]))
+                    @*<h1>项目名称这是一个知名的逐浪软件项目 <small>王小石创建于2020-2-3</small></h1>
+                        <div class="progress">
+                            <div class="progress-bar w-75" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>*@
+                </div>
+                <div class="col-md-6 plat_project_search">
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">看板</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">列表</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">点评</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">概览</a>
+                        </li>
+                        <li class="nav-item">
+                            @Html.ActionLink("+添加", "Board_add", new { }, new { @class = "btn btn-link" })
+                        </li>
+                    </ul>
+                    <input type="text" class="form-control" placeholder="快速检索" aria-label="Recipient's username" aria-describedby="button-addon2">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-xl plat_project_well">
+        <div class="row">
+            <div id="todo" class="col">
+                <div class="plat_project_well_box">
+                    <div class="plat_project_well_title"><span class="badge bg-secondary">4</span> 待办的</div>
+                    @*<ul>
+                            <li>
+                                <p>早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国</p>
+                                <span>#2020/11/2 20:00 by 发小汪</span>
+                            </li>
+                            <li>
+                                <p>早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国</p>
+                                <span>#2020/11/2 20:00 by 发小汪</span>
+                            </li>
+                            <li>
+                                <p>早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国</p>
+                                <span>#2020/11/2 20:00 by 发小汪</span>
+                            </li>
+                            <li>
+                                <p>早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国</p>
+                                <span>#2020/11/2 20:00 by 发小汪</span>
+                            </li>
+                            <li>
+                                <p>早上八点出来跑步，打造全球中华人民共和国中华人民共和国中华人民共和国</p>
+                                <span>#2020/11/2 20:00 by 发小汪</span>
+                            </li>
+                        </ul>*@
+
+                    @MvcHtmlString.Create(GetHtml("1"))
+                </div>
+            </div>
+            <div id="processing" class="col">
+                <div class="plat_project_well_box">
+                    <div class="plat_project_well_title"><span class="badge bg-secondary">4</span> 进行中</div>
+                    @MvcHtmlString.Create(GetHtml("2"))
+                </div>
+            </div>
+            <div id="completed" class="col">
+                <div class="plat_project_well_box">
+                    <div class="plat_project_well_title"><span class="badge bg-secondary">4</span> 已完成</div>
+                    @MvcHtmlString.Create(GetHtml("3"))
+                </div>
+            </div>
+            <div id="rejected" class="col">
+                <div class="plat_project_well_box">
+                    <div class="plat_project_well_title"><span class="badge bg-secondary">4</span> 已拒绝</div>
+                    @MvcHtmlString.Create(GetHtml("4"))
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section script{
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script>
+        $(function () {
+            var $todo = $("#todo"),
+                $processing = $("#processing"),
+                $completed = $("#completed"),
+                $rejected = $("#rejected");
+            $("li", "#gallery,#gallery,#gallery,#gallery").draggable({
+                cancel: "a.ui-icon", // 点击一个图标不会启动拖拽
+                revert: "invalid", // 当未被放置时，条目会还原回它的初始位置
+                containment: "document",
+                helper: "clone",
+                cursor: "move",
+                //update: function (event, ui) {
+                //    alert(ui.item.attr("id"));
+                //}
+            });
+
+            $todo.droppable({
+                drop: function (event, ui) {
+                    deleteImage(ui.draggable, $todo);
+                    //$todo.find("#1").html("以上是全部内容");
+                }
+            });
+            $processing.droppable({
+                drop: function (event, ui) {
+                    deleteImage(ui.draggable, $processing);
+                    //$processing.find("#2").html("以上是全部内容");
+                }
+            });
+            $completed.droppable({
+                drop: function (event, ui) {
+                    deleteImage(ui.draggable, $completed);
+                    //$completed.find("#3").html("以上是全部内容");
+                }
+            });
+            $rejected.droppable({
+                drop: function (event, ui) {
+                    deleteImage(ui.draggable, $rejected);
+                    //$rejected.find("#4").html("以上是全部内容");
+                }
+            });
+            function deleteImage($item, $some) {
+                var status = $some.attr('id');
+                var id = $item.attr('id');
+                $item.fadeOut(function () {
+                    var $list = $("#gallery", $some).length ?
+                        $("#gallery", $some) : $("<ul id='gallery'/>").appendTo($some);
+                    $item.appendTo($list).fadeIn(function () {
+                        $.post("/Plat/Project/Post", {
+                            status: status,
+                            id: id
+                            //},
+                            //function (msg) {
+                            //    alert(msg);
+                        })
+                    });
+                });
+            }
+        });
+        function del(id) {
+            $.post("/Plat/Project/Post", {
+                status: "0",
+                id: id
+                //},
+                //function (msg) {
+                //    alert(msg);
+            })
+            window.location.reload();
+        }
+        //remove leftnav
+        var child = document.getElementById("leftnav");
+        child.parentNode.removeChild(child);
+
+        $(function () {
+            setactive("看板");
+        })
+    </script>
+}

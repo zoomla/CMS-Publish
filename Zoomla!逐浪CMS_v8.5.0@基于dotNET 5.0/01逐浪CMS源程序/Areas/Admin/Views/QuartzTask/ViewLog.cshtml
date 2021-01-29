@@ -1,0 +1,67 @@
+﻿@using System.Text.RegularExpressions
+@model String[]
+@functions{
+    Tuple<string, string> GetTimeAndContent(string line)
+    {
+        Regex regex = new Regex(@"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s*(\S*)", RegexOptions.Singleline);
+        Match match = regex.Match(line);
+        if (match.Groups.Count > 2)
+            return new Tuple<string, string>(match.Groups[1].Value, match.Groups[2].Value);
+        else
+            return new Tuple<string, string>("", line);
+    }
+}
+@section head {<title>QuartzNET</title>}
+@section content {
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(),L.任务列表)},"[<a href='TaskAdd'>"+"添加QuarzNet事务"+"</a>]")
+<div class="">
+<table id="EGV_wrap" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>行</th>
+            <th>记录时间</th>
+            <th>日志内容</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if(Model == null || Model.Length == 0)
+        {
+            <tr><td colspan="2"></td>暂无任何执行日志</tr>
+        }
+        else
+        {
+            int row = 1;
+            @foreach (var line in Model)
+            {
+                var temp = GetTimeAndContent(line);
+                <tr>
+                    <td>@row</td>
+                    <td>@temp.Item1</td>
+                    <td>@temp.Item2</td>
+                </tr>
+                row++;
+            }
+        }
+    </tbody>
+</table>
+<div class="text-center" style="margin-bottom: 40px">
+    <a  href="javascript:;" class="mx-2 btn btn-outline-info" onclick="copyLog()">复制文本</a>
+    <button class="mx-2 btn btn-outline-info" onclick="ZLHelper.OutToExcel('EGV_wrap')" >Excel导出</button>
+</div>
+</div>
+}
+@section script{
+<script src="/js/Label/ZLHelper.js"></script>
+<script>
+function copyLog() {
+    var range = document.createRange();
+    range.selectNode(document.getElementById("EGV_wrap"));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+}
+</script>
+}

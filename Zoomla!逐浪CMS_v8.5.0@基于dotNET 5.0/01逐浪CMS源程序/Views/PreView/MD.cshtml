@@ -1,0 +1,105 @@
+﻿@using System.Text;
+@using ZoomLa.Model.MarkDown;
+@model M_MarkDown
+@{
+    var content = System.IO.File.ReadAllText(Model.MDPath);
+}
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="renderer" content="webkit" />
+<link rel="stylesheet" href="/res/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/res/css/zico.min.css" />
+<script src="/js/jquery.min.js"></script>
+<script src="/js/ZL_Regex.js"></script>
+<script src="/js/mvcpage.js"></script> 
+<script src="/js/Modal/APIResult.js"></script>
+<script src="/js/Controls/ZL_Dialog.js?v=1.0.1"></script>
+<script src="/js/jquery.validate.min.js?v=1"></script>
+<script src="/js/ICMS/ZL_Common.js?v=20201029"></script>
+<script type="module">
+import '/res/js/bootstrap.bundle.min.js'
+</script>
+<link rel="stylesheet" href="/theme/css/v4style.css?v=3" />
+<link href="/JS/Plugs/iCheck/skins/all.css" rel="stylesheet" />
+<script src="/JS/Plugs/iCheck/icheck.min.js"></script>
+<link rel="stylesheet" href="/res/css/animate.min.css"/>
+<title>@Model.MDName _ @Call.SiteName</title>
+</head>
+<style>.container-md{width:748px;margin:10px auto;}
+ #sidebar{width:400px;height:100%;position:fixed;top:0;right:0;overflow:hidden;background:#fff;z-index:100;padding:18px;border:1px solid #ddd;border-top:none;border-bottom:none}
+</style>
+<body>
+@if (Model.MDPath != "")
+{
+    <div></div>
+}
+else
+{
+
+}
+ @*文件目录： @Model.MDPath*@
+
+
+ @if (Model.MDlocation == "Right")
+ {
+<div id="sidebar">
+    <h4 class="mt-5">目录</h4>
+    <div class="markdown-body editormd-preview-container" id="custom-toc-container">#custom-toc-container</div>
+</div>
+ } 
+@if (Model.MDlocation == "Left")
+ {
+<div id="sidebar" style="right:inherit;left:0;">
+    <h4 class="mt-5">目录</h4>
+    <div class="markdown-body editormd-preview-container" id="custom-toc-container">#custom-toc-container</div>
+</div>
+ }
+ else
+ {
+}
+<div id="ZoomlaMD" class="ZoomlaMDcon">
+<div id="test-editormd-view">
+    <textarea style="display:none;" name="test-editormd-markdown-doc"></textarea>
+</div>
+<hr />
+@Call.Label(Context, "{ZL.Label id=\"全站底部\"/}")
+</div>
+<script src="/Plugins/Markdown/lib/marked.min.js"></script>
+<script src="/Plugins/Markdown/lib/prettify.min.js"></script>
+<script src="/Plugins/Markdown/lib/raphael.min.js"></script>
+<script src="/Plugins/Markdown/lib/underscore.min.js"></script>
+<script src="/Plugins/Markdown/lib/sequence-diagram.min.js"></script>
+<script src="/Plugins/Markdown/lib/flowchart.min.js"></script>
+<script src="/Plugins/Markdown/lib/jquery.flowchart.min.js"></script>
+<script src="/Plugins/Markdown/editormd.js"></script>
+<script src="/js/scrolltopcontrol.js"></script>
+<script>
+$(function () {
+    $('#ZoomlaMD').addClass("@Model.MDPosition");
+    document.body.style.backgroundColor = "@Model.MDColor";
+    let md = '@Html.Raw(HttpUtility.JavaScriptStringEncode(content))';
+    console.log(md);
+    let testEditormdView = editormd.markdownToHTML("test-editormd-view", {
+        markdown: md,
+        htmlDecode: "style,script,iframe",
+        tocm: true,    // Using [TOCM]
+        emoji: true,
+        taskList: true,
+        atLink: false,
+        tex: true,  // 默认不解析
+        flowChart: true,  // 默认不解析
+        tocContainer: "#custom-toc-container", // 自定义 ToC 容器层
+        sequenceDiagram: true,  // 默认不解析
+    });
+    $("#test-editormd-view table").addClass("table table-striped table-bordered");
+});
+</script>
+</body>
+</html>

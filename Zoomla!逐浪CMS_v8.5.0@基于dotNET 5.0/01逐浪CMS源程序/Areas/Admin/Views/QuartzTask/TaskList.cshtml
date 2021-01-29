@@ -1,0 +1,276 @@
+﻿@using Zoomla.Extend.QuartzNET.Utils;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+@{ 
+    Layout = "_safe";
+    IEnumerable<QuartzNetModel> tasks = Model.dt.AsEnumerable()
+                                 .Select(row => new QuartzNetModel()
+                                 {
+                                     ID = Convert.ToInt32(row["ID"]),
+                                     Title = row["Title"].ToString(),
+                                     Desc = row["Desc"].ToString(),
+                                     Type = Convert.ToInt32(row["Type"]),
+                                     Status = Convert.ToInt32(row["Status"]),
+                                     Content = row["Content"].ToString(),
+                                     Log = row["Log"].ToString(),
+                                     ExecuteAt = DateTimeOffset.Parse(row["ExecuteAt"].ToString()),
+                                     Interval = Convert.ToInt32(row["Interval"]),
+                                     Times = Convert.ToInt32(row["Times"]),
+                                     EndTime = DateTimeOffset.Parse(row["EndTime"].ToString()),
+                                 });
+}
+@section head {<title>QuartzNET</title>}
+@section content {
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(),L.任务列表)},"[<a href='TaskAdd'>"+"添加QuarzNet事务"+"</a>]")
+<div class="Creat_tips">
+<div class="alert alert-info alert-dismissible fade show">
+<button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+<h5>关于QuarzNet：</h5>
+<p>QuarzNet是一个优秀的定时任务控制台，支持秒级定义任务，您可以结合系统的定时任务（基于Hanfire)进行企业级部署。</p>
+</div>
+</div>
+<table class="table table-bordered table-striped table-hover" id="EGV">
+    <thead>
+        <tr>
+            <th class="td_xs"></th>
+            <th>@L.操作</th>
+            <th>ID</th>
+            <th>@L.任务名称</th>
+            <th>任务描述</th>
+            <th>任务类型</th>
+            <th>运行状态</th>
+            <th>@L.执行计划</th>
+            <th>下次执行时间</th>
+            <th>任务开始时间</th>
+            <th>任务到期时间</th>
+            <th>任务管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in tasks)
+        {
+            <tr ondblclick="location='TaskEdit?id=@task.ID'" title="双击修改">
+                <td class="node_select"><input type="checkbox" name="idchk" value="@task.ID" /></td>
+                <td>
+                    <div class="btn-group">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">@L.操作</a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <li><a href="TaskEdit?id=@task.ID" class="dropdown-item"><i class="zi zi_pencilalt" title="修改"></i> @L.修改</a></li>
+                            <li> <a href="@Url.Action("ViewLog")?id=@task.ID" class="dropdown-item"><i class="zi zi_file"></i> 查看日志</a></li>
+                            <li><a href="javascript:;" onclick="deleteTask(@task.ID)" class="dropdown-item"><i class="zi zi_trash" title="删除"></i> @L.删除</a></li>
+                        </ul>
+                    </div>
+                </td>
+                <td>@task.ID</td>
+                <td>@task.Title</td>
+                <td>@task.Desc</td>
+                <td>@{
+                    switch (task.TaskType)
+                    {
+                        case TaskType.Empty:
+                            <span>空任务</span>
+                            break;
+                        case TaskType.ExecuteSQLCommand:
+                            <span>SQL指令</span>
+                            break;
+                        case TaskType.ExecutePowerShellScript:
+                            <span>PowerShell脚本</span>
+                            break;
+                        case TaskType.SendEmail:
+                            <span>发送邮件</span>
+                            break;
+                        case TaskType.SendSMS:
+                            <span>发送短信</span>
+                            break;
+                        case TaskType.PublishXXX:
+                            <span>发布XXX</span>
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                </td>
+                <td>@{
+                    switch (task.TaskStatus)
+                    {
+                        case Zoomla.Extend.QuartzNET.Utils.TaskStatus.InProgress:
+                            <span class="me-1" style="color:green;">●</span><span>进行中</span>
+                            break;
+                        case Zoomla.Extend.QuartzNET.Utils.TaskStatus.Paused:
+                            <span class="me-1" style="color:yellow;">●</span><span>暂停</span>
+                            break;
+                        case Zoomla.Extend.QuartzNET.Utils.TaskStatus.Error:
+                            <span class="me-1" style="color:red;">●</span><span>出错</span>
+                            break;
+                        case Zoomla.Extend.QuartzNET.Utils.TaskStatus.Finished:
+                        default:
+                            <span class="me-1">●</span><span>完成</span>
+                            break;
+                    }
+                }</td>
+                <td>@{
+                    if(task.Interval > 0){
+                        var days = task.Interval / (24 * 60 * 60);
+                        var hours = (task.Interval % (24 * 60 * 60)) / (60 * 60);
+                        var mins = (task.Interval % (60 * 60)) / 60;
+                        var seconds = task.Interval % 60;
+
+                        if(task.Times == 0){<span>@("每"+(days==0?"": $"{days}天")+(hours==0?"":$"{hours}时")+(mins==0?"":$"{mins}分")+(seconds==0?"":$"{seconds}秒")+"执行一次; 执行无限次")</span>}
+                        else{<span>@("每"+(days==0?"": $"{days}天")+(hours==0?"":$"{hours}时")+(mins==0?"":$"{mins}分")+(seconds==0?"":$"{seconds}秒")+$"执行一次; 执行{task.Times}次")</span>}
+                    }
+                    else{
+                        <span>@($"在{task.ExecuteAt.ToLocalTime():yyyy-MM-dd HH:mm:ss}")执行一次</span>
+                    }
+                }</td>
+                <td>@task.GetNextFireTime()?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@task.ExecuteAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@task.EndTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>
+                    @if(task.TaskStatus == Zoomla.Extend.QuartzNET.Utils.TaskStatus.Paused){
+                        <a href="javascript:;" onclick="resumeTask(@task.ID)"><i class="zi zi_bofanghei" title="恢复任务"></i> 恢复</a>
+                    }
+                    else if(task.TaskStatus == Zoomla.Extend.QuartzNET.Utils.TaskStatus.InProgress){
+                        <a href="javascript:;" onclick="pauseTask(@task.ID)"><i class="zi zi_zantinghei" title="暂停任务"></i> 暂停</a>
+                    }
+            
+                    <a href="javascript:;" onclick="executeTaskNow(@task.ID)"><i class="zi zi_play" title="执行一次"></i> @L.执行</a>
+                    <textarea id="ta_log@(task.ID)" asp-for="@task.Log" hidden></textarea>
+                </td>
+            </tr>
+        }
+    </tbody>
+    @Html.Partial("_page")
+</table>
+<button onclick="multiDelete()" class="btn btn-outline-secondary ms-2">@L.批量删除</button>
+}
+@section script{ 
+<script>
+const baseUrl = "/admin/extend/quartztask/";
+function deleteTask(id) {
+    var a = window.confirm("确定删除该任务吗？");
+    if (!a)
+        return;
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: baseUrl + "taskdelete?id=" + id,
+        success: function (result) {
+            if (result) {
+                alert("任务删除成功！");
+                window.location.reload();
+            }
+            else {
+                alert("任务删除失败，可能是数据库问题，请重新加载列表后重试~");
+            }
+        },
+        error: function () {
+            alert("出现错误！");
+        }
+    });
+}
+function executeTaskNow(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: baseUrl + "executenow?id=" + id,
+        success: function (result) {
+            if (result) {
+                alert("任务执行成功！");
+            }
+            else {
+                alert("任务执行失败，可能是任务内容有误，请重检查后重试~");
+            }
+        },
+        error: function () {
+            alert("出现错误！");
+        }
+    });
+}
+function pauseTask(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: baseUrl + "taskpause?id=" + id,
+        success: function (result) {
+            if (result) {
+                alert("任务暂停成功！");
+                window.location.reload();
+            }
+            else {
+                alert("任务暂停失败，可能是数据库问题，请重新加载列表后重试~");
+            }
+        },
+        error: function () {
+            alert("出现错误！");
+        }
+    });
+}
+function resumeTask(id) {
+    $.ajax({
+        method: "GET",
+        dataType: "json",
+        url: baseUrl + "taskresume?id=" + id,
+        success: function (result) {
+            if (result) {
+                alert("任务恢复成功！");
+                window.location.reload();
+            }
+            else {
+                alert("任务暂停失败，可能是数据库问题，请重新加载列表后重试~");
+            }
+        },
+        error: function () {
+            alert("出现错误！");
+        }
+    });
+}
+function showLog(id) {
+    var log = $("#ta_log" + id).val();
+    if (log.trim() == "") {
+        $('#taskLogModalBody').html("<div>暂无任何执行日志</div>");
+    }
+    else {
+        var strs = log.split('\n');
+        var html = "<div>";
+        for (var i = 0; i < strs.length; i++) {
+            html += "<div>" + strs[i] + "</div>";
+        }
+        html += "</div>";
+        $('#taskLogModalBody').html(html);
+    }
+    $('#taskLogModal').modal('show');
+}
+function multiDelete() {
+    var a = window.confirm("您确定删除这些任务吗？");
+    if (!a)
+        return;
+    var ids = "";
+    $('input[type=checkbox]').each(function () {
+        if (this.checked && this.name == "idchk") {
+            ids += ids == "" ? this.value : "," + this.value;
+        }
+    });
+
+    if (ids.length > 0) {
+        $.ajax({
+            method: "GET",
+            dataType: "json",
+            url: encodeURI('@Url.Action("TaskDeleteRange")' + "?ids=" + ids),
+            success: function (result) {
+                if (result) {
+                    alert("站点删除成功！");
+                    window.location.reload();
+                }
+                else {
+                    alert("站点删除失败，可能是数据库问题，请重新加载列表后重试~");
+                }
+            },
+            error: function () {
+                alert("服务器访问出错，可能是网络或API存在问题");
+            }
+        });
+    }
+}
+</script>
+}

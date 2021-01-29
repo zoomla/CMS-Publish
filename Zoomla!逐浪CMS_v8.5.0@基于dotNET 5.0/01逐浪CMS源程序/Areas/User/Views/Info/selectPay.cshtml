@@ -1,0 +1,105 @@
+﻿@*
+copyright file="selectPay.cshtml" company="上海Zoomla!逐浪CMS团队"
+版权所有:🏢江西逐浪软件科技有限公司  🏅🏅🏅20年专注研发==>商城|ERP|字库|高端门户与人工智能
+官方网站:🚀 www.z01.com
+联系方式:☎ 13177777714  😎 wechat: zoomla
+文件描述:🔧 充值金额页面
+创建时间:⏰2020年09月17日,15:35
+*@
+
+@using ZoomLa.Model;
+@using ZoomLa.BLL;
+@using ZoomLa.BLL.User
+@using ZoomLa.Common
+@using ZoomLa.BLL.Content
+@using ZoomLa.Model.Content
+@using ZoomLa.Model.Shop;
+@model ZoomLa.SQLDAL.SQL.PageSetting
+
+@{
+
+M_UserInfo mu = ViewBag.mu;
+//M_Group gpMod = ViewBag.gpMod;
+M_Shop_MoneyRegular mo = ViewBag.mo;
+}
+
+@section head{
+<title>充值金额</title>
+<script src="/js/Controls/ZL_Dialog.js"></script>
+<script src="/js/ZL_Content.js"></script>
+}
+@{
+ViewData["Title"] = "selectPay";
+}
+@section content{
+<div id="pageflag" data-nav="home" data-ban="UserInfo"></div>
+<nav aria-label="breadcrumb" role="navigation" class="container-xl">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a title="会员中心" href="@Url.Action("index","")">会员中心</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("UserInfo", "info")">账户管理</a></li>
+        <li class="breadcrumb-item active">充值金额</li>
+    </ol>
+</nav>
+<div class="container-xl">
+    <div class="u_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label class="weui-label">会员名：</label>
+            </div>
+            <div class="weui-cell__bd">
+                <span id="MCardNo_L"> @mu.UserName</span>
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label class="weui-label">现有余额：</label>
+            </div>
+            <div class="weui-cell__bd">
+                <span id="Purse_L">@mu.Purse.ToString("f2")</span>
+            </div>
+        </div>
+        @{Html.BeginForm(FormMethod.Post, new { action = "/Payonline/OrderPay?Money=" });}
+
+        @foreach (DataRow dr in Model.dt.Rows)
+        {
+            <label class="weui-cell weui-check__label" for="x1">
+                <div class="weui-cell__hd">
+                    <input type="radio" name="Money" value="@dr["Min"]" />
+                </div>
+                <div class="weui-cell__bd">
+                    <p style="position:relative;bottom:-8px;left:5px;">
+                        @dr["Alias"]
+                        (<span class="text-danger">
+                            <i class="zi zi_yensign"></i>
+                            @DataConverter.CDouble(dr["Min"]).ToString("F2")
+                        </span>)
+                    </p>
+                </div>
+            </label>
+        }
+        <div class="weui-btn-area d-grid">
+            <input type="submit" class="btn btn-info " value="确定充值" />
+        </div>
+        @{Html.EndForm();}
+        @{Html.BeginForm(FormMethod.Post, new { action = "/Payonline/OrderPay?Money=" });}
+    <div class="input-group p-3">
+        <span class="input-group-text">其它金额：</span>
+        <input type="text" name="Money" class="form-control " value="100" />
+        <input type="submit" class="input-group-text" value="确定充值" />
+        </div>
+    </div>
+        @{Html.EndForm();}
+
+    </div>
+</div>
+@{Html.EndForm();}
+}
+@section script{ 
+<script>
+$(".weui-check__label").bind("click",function(){
+        $("input:radio").attr("checked",false);
+        $(this).find(".weui-cell__hd").find("input:radio").attr("checked",true)
+    });
+</script>
+}

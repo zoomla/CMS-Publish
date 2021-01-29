@@ -1,0 +1,176 @@
+﻿@using ZoomLa.Model.Font
+@{ 
+    Layout = "_cms2020Layout";
+    var order = (int)ViewData["Order"];
+    var font = (M_Font_Write)ViewData["Font"];
+    var wordsCount = (int)ViewData["WordsCount"];
+    var freeWordsLimit = ViewData["FreeWordsLimit"];
+}
+@model IEnumerable<KeyValuePair<int, bool>>
+@functions{
+    char GetChar(int unicode)
+    {
+        return (char)unicode;
+    }
+}
+@section head{ 
+<title>@($"{font.FontName}的文字列表")</title>
+<style>
+body{background:#F1F1F1;}    
+.word{display:inline-flex;height:40px;width:40px;margin:1px;padding:2px;font-size:24px;color:#999999;border:1px solid #fff;border-radius:3px;justify-content:center;align-items:center;cursor:pointer;text-decoration:none;}
+.word_wrote{color:#0094ff;}
+.word:hover{background-color:#0094ff;text-decoration:none;}
+</style>
+}
+@section content{ 
+    <div class="container-fluid">
+       <div class="font_writecon">
+        @foreach (var word in Model)
+        {
+            <a href="javascript:;" onclick="goToWord(@word.Key, '@word.Value')" class="word@(word.Value ? " word_wrote" : "")"><span>@GetChar(word.Key)</span></a>
+        }
+    </div>
+</div>
+
+
+<div class="font_writecon_footer_box" >
+<div class="container-xl font_writecon_footer" >
+@* <strong>创作控制台</strong> *@
+    <div class="d-flex">
+        <form method="post" action="ChangeName" class="font_writecon_footer_l"> 
+            <input type="hidden" name="Id" asp-for="@font.ID" />
+            <div class="input-group">
+                <span class="input-group-text">字体名称:</span>
+                <button type="submit" class="btn btn-outline-info"><i class="zi zi_save"></i></button>
+
+                <input class="form-control" name="NewName" asp-for="@font.FontName" required maxlength="100" placeholder="字体名" />
+            </div>
+        </form>
+        <div class="btn-group ms-auto">
+            <button id="btn_publish" onclick="publish(this)" class="btn btn-outline-secondary" style="width:92px;">发布字体</button>
+            <a href="@Url.Action("Index")#/myfont" class="btn btn-outline-secondary" style="width:92px;">管理列表</a>
+        </div>
+        <div class="font_writecon_footer_r ms-auto">
+            <select name="order" asp-for="@order" onchange="window.location.href = '@Url.Action("WordList")?id=@font.ID&order=' + $(this).val()">
+                <option value="0">正常顺序</option>
+                <option value="1">写完在前</option>
+                <option value="2">写完在后</option>
+            </select>
+            <input type="search" onchange="filterWord()" id="word_search" placeholder="输字回车搜索-支持多字/跨字" />            
+            <label style=""><input type="checkbox" class="ms-2" onchange="filterWord()" id="word_only_wrote" />只显示已写</label>
+            <a href="javascript::"><i class="zi zi_circleQuestion"></i></a>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reminder" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">温馨提示</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="help_info"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <a href="@Url.Action("Index")#/pay" class="btn btn-outline-info">前往充值</a>
+            </div>
+        </div>
+    </div>
+</div>
+}
+@section script{ 
+<script>
+var modal = new bootstrap.Modal(document.getElementById('reminder'));
+var id = Number(@Html.Raw(font.ID));
+function publish(e) {
+    let el = $(e);
+    el.prop("disabled", true);
+    $.ajax({
+        method: "Get",
+        dataType: "json",
+        url: encodeURI('@Url.Action("CheckAndPublish")?id=' + id),
+        success: function (result) {
+            if (result.status) {
+                window.location.href = result.data;
+            }
+            else {
+                alert(result.error);
+            }
+            el.prop("disabled", false);
+        },
+        error: function () {
+            alert("出现错误！可能是网络或api存在问题");
+            el.prop("disabled", false);
+        }
+    });
+}
+function goToWord(word, wrote) {
+    if (wrote == "False") {
+        let viptype = Number(@Html.Raw(font.VipType));
+        let count = Number(@Html.Raw(wordsCount));
+        let freeWordsLimit = Number(@Html.Raw(freeWordsLimit));
+        if (viptype == 0 && count >= freeWordsLimit) {
+            $("#reminder .modal-body #help_info").text("您好，免费字体只能书写 " + freeWordsLimit + " 个字。当前已达上限，如需继续使用，可选择付费渠道。");
+            modal.show();
+            return;
+        }
+    }
+    window.location.href = "@Url.Action("WriteWord")" + "?writeId=" + id + "&word=" + word;
+}
+function filterWord() {
+    let str = $("#word_search").val().trim();
+    let onlyWrote = $("#word_only_wrote").is(':checked');
+    let eles = document.getElementsByClassName('word');
+    if (str == '') {
+        for (let i = 0; i < eles.length; i++) {
+            if (onlyWrote && !eles[i].classList.contains('word_wrote')) {
+                eles[i].classList.add('d-none');
+            }
+            else {
+                eles[i].classList.remove('d-none');
+            }
+        }
+    }
+    else {
+        var words = str.split(/(?=[\s\S])/u);
+        for (let i = 0; i < eles.length; i++) {
+            if (onlyWrote) {
+                if (words.indexOf(eles[i].text) != -1 && eles[i].classList.contains('word_wrote')) {
+                    eles[i].classList.remove('d-none');
+                }
+                else {
+                    eles[i].classList.add('d-none');
+                }
+            }
+            else {
+                if (words.indexOf(eles[i].text) != -1) {
+                    eles[i].classList.remove('d-none');
+                } else {
+                    eles[i].classList.add('d-none');
+                }
+            }
+        }
+    }
+}
+//fix foot
+$(document).ready(setToolClass);
+$(window).resize(setToolClass);
+function setToolClass() {
+    let div = document.body;
+    var hasVerticalScrollbar = div.scrollHeight > window.innerHeight;
+    if (hasVerticalScrollbar) {
+        $(".font_writecon_footer_box").css("position", "fixed");
+        $(".font_writecon_footer_box").css("bottom", "0");
+    }
+    else {
+        $(".font_writecon_footer_box").css("position", "relative");
+        $(".font_writecon_footer_box").css("bottom", "auto");
+    }
+}
+</script>
+}

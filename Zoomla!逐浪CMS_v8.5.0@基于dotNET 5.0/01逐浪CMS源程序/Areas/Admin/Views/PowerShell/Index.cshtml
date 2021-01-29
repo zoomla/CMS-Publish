@@ -1,0 +1,150 @@
+﻿@using ZoomLaCMS.Areas.Admin.Controllers.Label
+@using ZoomLa.Model.QuartzNet;
+@using ZoomLa.BLL.QuartzNet;
+@model List<PSScript>
+@section head{ <title>PowerShell应用</title> 
+<style type="text/css">
+.window {background-color: rgba(0, 0, 0, 0.5);position: fixed;display: none;border: 1px solid #E0DFDF;}
+.add_title {color: #FFFFFF;}
+.mask {position: absolute;display: none;}
+.add_title {width: 95px;height: 42px;line-height: 40px;float: left;text-align: center;border-radius: 5%;cursor: pointer;   }
+</style>}
+
+@section content{
+    @Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(Context.Request.RawUrl(), "控制面板") })
+<div class=" px-2">
+    <div class="ms-2 mt-1 small">
+        快捷键：
+        <span class="px-2"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> 执行指令</span>
+        <span class="px-2"><kbd>Ctrl</kbd> + <kbd>Delete</kbd> 清空指令</span>
+        <span class="px-2"><kbd>Shift</kbd> + <kbd>Delete</kbd> 清空输出</span>
+    </div>
+   @Html.Partial("Cm_information")
+        <input type="file" accept=".ps1" id="f_selectFile" style="display:none;" />
+        <form id="form_psconsoles" method="post" asp-action="Add">
+            <div class="m-2 py-2 btn-group">
+                <a class="btn btn-outline-info" href="javascript:;" onclick="addConsole()">添加</a>
+                <a class="btn btn-outline-info" href="javascript:;" onclick="deleteConsole()">删除</a>
+                <button class="btn btn-outline-info" type="submit" onclick="return validScript();">提交</button>
+            </div>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                @Html.Partial("_ConsolePartial", Model[i]);
+            }
+        </form>
+        <div class="d-flex mt-4 mb-1">
+            <div class="d-inline-block flex-grow-1">输出窗口</div>
+            <button class="btn btn-outline-info btn-sm" onclick="$('#ta_output').empty()"><i class="zi zi_undoalt"></i> 清空输出</button>
+        </div>
+        <div id="ta_output" class="form-control" style="background-color:rgb(233, 236, 239);height:320px;overflow-y:scroll;font-size:14px;">
+        </div>
+</div>
+}
+@section script{
+<script src="~/res/vue/vue.min.js"></script>
+<script src="~/res/vue/vue-route.js"></script>
+<script src="~/res/js/bootstrap5.min.js"></script>
+<script>
+var currentConsole = '0';
+$("#f_selectFile").on("change", function (e) {
+    var file = e.target.files[0];
+    if (file.name.match(/.ps1/gi)) {
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+            var str = $("#z" + currentConsole + "__Script").val().replace(/^\s*\n/g, "");
+            console.log(str);
+            if (str == null || str == "")
+                $("#z" + currentConsole + "__Script").val(evt.target.result);
+            else
+                $("#z" + currentConsole + "__Script").val(str.trim() + "\n" + evt.target.result);
+        };
+        reader.readAsText(file);
+    }
+    else
+        alert("不支持的文件格式！");
+    $("#f_selectFile").val("");
+});
+$("textarea").each(function () {
+    var el = $(this);
+    var index = el[0].id.replace(/z|__Script/gi, "");
+    //console.log(index);
+    el.on("keydown", (e) => {
+        if (e.ctrlKey && e.which == 13)
+            runScript(el.val(), index);
+        else if (e.ctrlKey && e.which == 46)
+            el.val("");
+        else if (e.shiftKey && e.which == 46)
+            $('#ta_output').empty();
+    });
+})
+function execute(index) {
+    runScript($("#z" + index + "__Script").val(), index);
+}
+function runScript(scpt, index) {
+    if (scpt == null || scpt.trim() == "") {
+        alert("请输入指令后提交!");
+        return;
+    }
+    $.ajax({
+        method: "POST",
+        dataType: "json",
+        url: encodeURI("@Url.Action("RunScript")"),
+        data: "s=" + scpt + "&p=" + $("#z" + index + "__WorkingDirectory").val(),
+        success: function (result) {
+            $("#z" + index + "__WorkingDirectory").val(result.path);
+            $("#swd_" + index).text(result.path);
+            for (var i = 0; i < result.data.length; i++) {
+                $("#ta_output").append("<div>" + result.data[i] + "</div>");
+            }
+            $("#ta_output").animate({ scrollTop: $('#ta_output').prop("scrollHeight")}, 1000);
+        },
+        error: function () {
+            alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function addConsole() {
+    var index = Number($('#form_psconsoles .ps-console').last().attr("data-index")) + 1;
+    //console.log("Next index is " + index);
+    $.ajax({
+        url: encodeURI("@Url.Action("AddScriptConsole")" + "?index=" + index),
+        success: function (data) {
+            $('#form_psconsoles').append(data);
+            var el = $("#z" + index + "__Script");
+            el.on("keydown", (e) => {
+                if (e.ctrlKey && e.which == 13)
+                    runScript(el.val(), index);
+                else if (e.ctrlKey && e.which == 46)
+                    el.val("");
+                else if (e.shiftKey && e.which == 46)
+                    $('#ta_output').empty();
+            });
+        },
+        error: function () {
+             alert("服务器访问出错，可能是网络或API存在问题");
+        }
+    });
+}
+function deleteConsole() {
+    var index = Number($('#form_psconsoles .ps-console').last().attr("data-index"));
+    if (index > 0) {
+        var a = window.confirm("确定删除最后一个命令窗口吗？");
+        if (!a)
+            return;
+        $("#console" + index).remove();
+    }
+    else
+        alert("不能移除默认命令窗口！");
+    }
+function validScript() {
+    var scpt = $("#z0__Script").val();
+    if (scpt == null || scpt.trim() == "") {
+        alert("请在第一个命令窗口输入指令后提交！");
+        return false;
+    }
+    return window.confirm("提交将过滤掉空命令窗口，该操作不可逆，确定提交吗？");
+}
+</script>
+}

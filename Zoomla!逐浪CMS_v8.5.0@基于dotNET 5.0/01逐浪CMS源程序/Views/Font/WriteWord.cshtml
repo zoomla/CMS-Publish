@@ -1,0 +1,285 @@
+﻿@using ZoomLa.Model.Font
+@{
+    Layout = "_cms2020Layout";
+    var prev = (int)ViewData["PrevWord"];
+    var next = (int)ViewData["NextWord"];
+    var wordsCount = (int)ViewData["WordsCount"];
+    var vipType = (int)ViewData["VipType"];
+    var freeWordsLimit = (int)ViewData["FreeWordsLimit"];
+}
+@model M_Font_WriteWord
+@functions{
+    string GetStringFromUnicode(string unicode)
+    {
+        var num = int.Parse(unicode.Substring(2), System.Globalization.NumberStyles.HexNumber);
+        return ((char)num).ToString();
+    }
+}
+@section head{<title>在线书写创作台- @Call.SiteName</title> 
+<style>
+.custom-file-label::after{content: unset;}
+</style>
+}
+
+@section content{ 
+<div class="font_write">
+<div class="font_write_bg"></div>
+<div class="font_write_con">
+    <form id="form_writeword" method="post" action="WriteWordPost" style="">
+        <input type="hidden" name="ID" asp-for="@Model.ID" />
+        <input type="hidden" name="WriteID" asp-for="@Model.WriteID" />
+        <input type="hidden" name="Unicode" asp-for="@Model.Unicode" />
+        <input type="hidden" name="CDate" asp-for="@Model.CDate" />
+        <input type="hidden" name="Status" asp-for="@Model.Status" />
+        <input type="hidden" name="Count" asp-for="@Model.Count" />
+        <textarea hidden name="FontSvg" asp-for="@Model.FontSvg"></textarea>
+        <textarea hidden name="Strokes" asp-for="@Model.Strokes"></textarea>
+    </form>
+    @*<div class="d-flex flex-column align-items-center justify-content-center">*@
+    <div class="container-xl font_write_box">
+        @Html.Partial("_PanelPartial")
+    </div>
+    <div class="container-xl  input-group">
+        <div class="col-md-2 offset-md-2 custom-file">
+            <label class="custom-file-label" for="formFile" id="l_formFile">上传svg\png\jpg\jpeg\bmp文件：</label>
+            <input type="file" class="custom-file-input" accept=".svg,.png,.jpg,.jpeg,.bmp" onchange="uploadImg()" name="formFile" id="formFile">
+        </div>
+    </div>
+    <div class="text-center mt-2">
+        <a href="javascript:;" onclick="goToWord(@Model.WriteID, @prev, -1)" class="mx-4"><i class="zi zi_arrowLeft"></i> 上一个</a>
+        <a href="javascript:;" onclick="goToWord(@Model.WriteID, @next, 1)" class="mx-4">下一个 <i class="zi zi_arrowRight"></i></a>
+    </div>
+</div>
+</div>
+<div class="modal fade" id="reminder" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">温馨提示</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="help_info"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <a href="@Url.Action("Index")#/pay" class="btn btn-outline-info">前往充值</a>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+@section script{ 
+<script src="~/js/Plugs/base64.js"></script>
+<script src="~/Plugins/Third/potrace.js"></script>
+<script>
+    var modal = new bootstrap.Modal(document.getElementById('reminder'));
+    var isUpload = false;
+    var isWrirte = false;
+    var strokesClone = [];
+    $(document).ready(function () {
+        hwrite.db.strokes = JSON.parse($("#Strokes").val() || "[]");
+        strokesClone = jQuery.extend([], hwrite.db.strokes);
+        // 判断字体是笔画构成还是上传的svg
+        //console.log($("#Strokes").val());
+        if (hwrite.db.strokes.length > 0) {
+            isWrirte = true;
+            hwrite.renderByStrokes();
+        }
+        else {
+            var svg = $("#FontSvg").val();
+            if (svg) {
+                isWrirte = true;
+                $("#svg_display").removeClass("d-none");
+                $("#svg_display").html(svg);
+                $("#svg_display svg").click(function () {
+                    let status = @Html.Raw(Model.Status);
+                    if (status == 0)
+                        clearUpload();
+                    else {
+                        var a = window.confirm("确定要重写这个字吗？重写将清空字形。\n重写请点击确认。");
+                        if (a) {
+                            clearUpload();
+                        }
+                    }
+                });
+            }
+        }
+        var char = "@Html.Raw(HttpUtility.JavaScriptStringEncode(GetStringFromUnicode(Model.Unicode)))";
+        $("#bg_word").text(char);
+        $("#word_show").text(char);
+        $("#canvas_bg").text(char);
+        $("#font_canvas_bg").text(char);
+        $("#gotolist").attr("href", "@Url.Action("WordList")" + "?id=" + "@Model.WriteID");
+    });
+    $("#draw_save").click(function () {
+        let wordsCount = Number(@Html.Raw(wordsCount));
+        wordsCount = isWrirte ? wordsCount - 1 : wordsCount;
+        let viptype = Number(@Html.Raw(vipType));
+        let freeWordsLimit = Number(@Html.Raw(freeWordsLimit));
+        if (viptype == 0 && wordsCount >= freeWordsLimit) {     
+            $("#reminder .modal-body #help_info").text("您好，免费字体只能保存 " + freeWordsLimit + " 个字。当前已达上限，如需继续使用，可选择付费渠道。");       
+            modal.show();
+            return;
+        }
+
+        if (!isUpload) {
+            let data = hwrite.db;
+            let base64 = data.canvas.toDataURL("image/png");
+            $("#Strokes").val(JSON.stringify(data.strokes));
+            $("#Count").val(data.strokes.length);
+            //--------获取Svg--------
+            $.ajax({
+                method: "Post",
+                dataType: "json",
+                url: encodeURI('@Url.Action("GetImgFromBase64")'),
+                data: "base64=" + base64,
+                success: function (result) {
+                    Potrace.loadImageFromUrl(result);
+                    Potrace.process(function () {
+                        let svg = Potrace.getSVG(1);
+                        $("#FontSvg").val(svg);
+                        $('#form_writeword')[0].submit();
+                    });
+                    //-----------------------
+                },
+                error: function () {
+                    alert("出现错误！可能是网络或api存在问题");
+                    return;
+                }
+            });
+        }
+        else {
+            console.log($("#Strokes").val());
+            console.log("Just submit uploaded svg");
+            $('#form_writeword')[0].submit();
+        }
+    });
+    $("#draw_getSvg").click(function () {
+        if (isUpload) {
+            copyText($("#FontSvg").val());
+        }
+        else {
+            var svg = hwrite.getSvg();
+            if (svg) {
+                copyText(hwrite.getSvg());
+            }
+            else {
+                alert("必须书写后才能获取");
+            }
+        }
+    });
+    $("#draw_pre").click(clearUpload);
+    $("#draw_next").click(clearUpload);
+    $("#draw_clear").click(clearUpload);
+    $("#draw_replay").click(clearUpload);
+
+    function clearUpload() {
+        isUpload = false;        
+        $("#svg_display").addClass("d-none");
+        $("#svg_display").html("");
+    }
+    function copyText(txt) {
+        let textarea = document.createElement("textarea");
+        textarea.value = txt;
+        textarea.style.top = "0";
+        textarea.style.left = "0";
+        textarea.style.position = "fixed";
+        textarea.clientWidth = "1px";
+        textarea.clientHeight = "1px";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        alert("已复制到剪切板");
+        document.body.removeChild(textarea);
+    }
+    function uploadImg() {
+        let input = document.getElementById('formFile');
+        if (input.files[0]) {
+            clearUpload();
+            let data = new FormData();
+            data.append("formFile", input.files[0]);
+            var control = $("#formFile");
+            //control.replaceWith( control = control.clone( true ) );
+            //console.log(data);
+            $.ajax({
+                method: "Post",
+                data: data,
+                processData: false,
+                contentType: false,
+                url: encodeURI('@Url.Action("UploadImage")'),
+                success: function (result) {
+                    if (result.status) {
+                        isUpload = true;
+                        hwrite.clear();
+                        hwrite.db.strokes_pop = [];
+                        $("#Strokes").val("");
+                        $("#Count").val(0);
+                        if (result.isSvg) {
+                            let svg = result.data;
+                            $("#FontSvg").val(svg);
+                            $("#svg_display").removeClass("d-none");
+                            $("#svg_display").html(svg);
+                        }
+                        else {
+                            //console.log(result.data);
+                            Potrace.loadImageFromUrl(result.data);
+                            Potrace.process(function () {
+                                let svg = Potrace.getSVG(1);
+                                //console.log(svg.length);
+                                if (svg.length > 1000000) {
+                                    alert("字库生成基于非常精确的操作，故平台限制最大文件格式，当前文件格式超过最高值（终极值不超过1MB），请重新上传合格的源。");
+                                }
+                                else {
+                                    $("#FontSvg").val(svg);
+                                    $("#svg_display").removeClass("d-none");
+                                    $("#svg_display").html(svg);
+                                }
+                            });
+                        }
+                    }
+                    else {
+                        alert(result.error);
+                    }
+                },
+                error: function () {
+                    alert("出现错误！可能是网络或api存在问题");
+                }
+            });
+        }
+    }
+    function goToWord(writeId, word, type) {
+        if (!arrayEquals(hwrite.db.strokes, strokesClone)) {
+            let a = window.confirm("你的画板有创作，是否保存？\n保存请点击确认。")
+            if (a) {
+                $("#draw_save").click();
+                return;
+            }
+        }
+        if(word != 0)
+            window.location = '@Html.Raw(Url.Action("WriteWord"))' + "?writeId=" + writeId + "&word=" + word;
+        else {
+            alert(type == -1 ? "已经是第一个字了！" : "这是最后一个字了！")
+        }
+    }
+    function arrayEquals(arr1, arr2) {
+        if (arr1.length != arr2.length) {
+            return false;
+        }
+        for (var i = 0; i < arr1.length; ++i) {
+            if (arr1[i].length != arr2[i].length) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+}

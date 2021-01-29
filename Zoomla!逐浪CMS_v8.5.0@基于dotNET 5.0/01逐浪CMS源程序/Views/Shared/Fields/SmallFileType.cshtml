@@ -1,0 +1,31 @@
+﻿@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Components
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using ZoomLa.BLL.Content
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+    string value = Model.GetValue();
+    string Name = Model.fieldMod.FieldName;
+    string accept = "";
+    if (Model.fieldMod.Content.Contains("=")) { accept = Model.fieldMod.Content.Split('=')[1]; }
+}
+<div class="input-group">
+  <input type="text" id="txt_@Name" name="txt_@Name" class="form-control"  placeholder="尚未上传文件" value="@value"/>
+    <input type="button" id="btn_@Name" class="input-group-text" value="选择需要上传的文件" />
+</div>
+<script>
+$(function () {
+    var up = new fileup({
+        accept: "@accept",
+        up_after: function (data) {
+            var data = data.replace("@SiteConfig.SiteOption.UploadDir", "");
+            $("#txt_@Name").val(data);
+        }
+    });
+    $("#btn_@Name").click(function () { up.sel(); });
+})
+</script>   

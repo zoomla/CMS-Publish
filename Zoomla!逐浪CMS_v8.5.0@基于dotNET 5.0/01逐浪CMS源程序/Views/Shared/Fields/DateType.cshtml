@@ -1,0 +1,35 @@
+﻿@using System.Text
+@using ZoomLa.Common
+@using ZoomLa.BLL
+@using ZoomLa.Model
+@using ZoomLa.Components
+@using ZoomLa.BLL.Content
+@model ZoomLaCMS.Models.Field.VM_FieldModel
+@{
+
+    string value = Model.GetValue();
+    string Name = Model.fieldMod.FieldName;
+    FieldModel fieldMod = new FieldModel(Model.fieldMod.Content);
+    string format = fieldMod.GetValue("format");
+    string sdate = fieldMod.GetValue("SDate");
+    string edate = fieldMod.GetValue("EDate");
+    // 日期时间,0:默认空,1:自抽取
+    if (fieldMod.GetValInt("value") == 1&&string.IsNullOrEmpty(value)){ value = DateTime.Now.ToString(format); }
+    string configStr = "";
+    if (!string.IsNullOrEmpty(format))
+    {
+        configStr += "dateFmt:'" + format + "',";
+    }
+    if (!string.IsNullOrEmpty(sdate))
+    {
+        configStr += "minDate:'" + sdate + "',";
+    }
+    if (!string.IsNullOrEmpty(edate))
+    {
+        configStr += "maxDate:'" + edate + "',";
+    }
+    configStr = configStr.Trim(',');
+}
+<div>
+    <input type="text" class="form-control" id="txt_@Name" name="txt_@Name" onclick="WdatePicker({ @configStr });" value="@value">@Model.fieldMod.Description
+</div>

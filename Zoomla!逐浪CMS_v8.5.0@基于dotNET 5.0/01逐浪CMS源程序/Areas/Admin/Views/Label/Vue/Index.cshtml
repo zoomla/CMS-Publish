@@ -1,0 +1,139 @@
+﻿@section head{<title>Vue模板管理</title>}
+@section content{
+    @Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Context.Request.RawUrl(),"Vue模板","[<a href='javascript:;' onclick='ShowComDiag(\"Config\",\"Vue配置\");'>Vue配置</a>]")
+    })
+    <div class="" id="app">
+        <table class="table table-bordered">
+            <thead><tr><td class="td_l">名称 </td><td>绑定模板</td><td>操作</td></tr></thead>
+            <tr v-for="item in list">
+                <td><input type="text" v-model="item.name" class="form-control" /></td>
+                <td>
+                    <div class="input-group">
+                        <input type="text" class="form-control" v-model="item.tlp" />
+                        <div class="input-group-append">
+                            <button type="button" class="input-group-text" @@click="tlp_sel(item);">手工绑定</button>
+                            <button type="button" class="input-group-text" @@click="tlp_edit(item);">编辑模板</button>
+                            <button type="button" class="input-group-text" v-if="!tlp_IsShowView(item)" onclick="alert('请设置好模板并保存');">前端浏览</button>
+                            <a :href="'TlpView?ID='+item.id" target="_blank" class="btn btn-info" v-if="tlp_IsShowView(item)">前端浏览</a>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <button type="button" @@click="release(item);" class="btn btn-info">发布</button>
+                    <button type="button" @@click="del(item);" class="btn btn-danger">删除</button>
+                </td>
+            </tr>
+        </table>
+        <div class="text-center">
+            <button class="btn btn-info btn-lg" @@click="add();"><i class="zi zi_plus"></i> 添加新设计</button>
+            <button class="btn btn-info btn-lg" @@click="save();"><i class="zi zi_save"></i> 保存信息</button>
+            <button class="btn btn-info btn-lg" @@click="cli();">拷贝入CLI目录</button>
+            @*<button class="btn btn-info btn-lg" @@click="releaseAll();">全部发布</button>*@
+        </div>
+    </div>
+}
+@section script{
+    <script src="~/res/vue/vue.min.js"></script>
+    <script>
+    var mask = new ZL_Dialog();
+    mask.maxbtn = false;
+    mask.close= false;
+    var vueApp = new Vue({
+        el: "#app",
+        data: {
+            list: [],
+            active: {},
+        },
+        methods: {
+            add: function () {
+                var ref = this;
+                ref.list.push(ref.newItem());
+            },
+            del: function (item) {
+                if (!confirm("确定要删除吗")) { return false; }
+                var ref = this;
+                for (var i = 0; i < ref.list.length; i++) {
+                    if (ref.list[i] == item) { ref.list.splice(i, 1); }
+                }
+            },
+            save: function () {
+                var ref = this;
+
+                for (i = 0; i < ref.list.length; i++) {
+                    if (ZL_Regex.isEmpty(ref.list[i].name)) { alert("取消保存--名称不能为空"); return false; }
+                }
+                 mask.ShowMask("");
+                $.post("vue_api?action=save", { "dt": JSON.stringify(ref.list) }, function (data) {
+                    var ret = APIResult.getModel(data);
+                    location = location;
+                })
+            },
+            release: function (item) {
+                var ref = this;
+                if (!ref.tlp_IsShowView(item)) { alert("请先设置好模板并保存"); return; }
+                $.post("vue_api?action=release&id=" + item.id, {}, function (data) {
+                    var ret = APIResult.getModel(data);
+                    if (APIResult.isok(ret)) {
+                        alert("发布成功");
+                    }
+                    else { alert("error:"+ret.retmsg); }
+                })
+            },
+            releaseAll: function () {
+                 if (!confirm("确定要全部发布吗")) { return false; }
+            },
+            cli: function () {
+                if (!confirm("确定将文件拷贝入cli")) { return false; }
+                mask.ShowMask("");
+                $.post("vue_api?action=cli", {}, function (data) {
+                    var ret = APIResult.getModel(data);
+                    mask.CloseModal();
+                    setTimeout(function () {
+                       alert(ret.retmsg)
+                     }, 500);
+                   // alert(ret.retmsg);
+                })
+            },
+            newItem: function () {
+                return { id: 0, name: "", tlp: "", remind: "" };
+            },
+            tlp_sel: function (item) {
+                this.active = item;
+                //Tlp_ShowSel(&quot;Template&quot;);
+                var url = siteconf.path + "Template/TemplateList?OpenerText=" + name + "&FilesDir=";
+                comdiag.maxbtn = false;
+                ShowComDiag(url, "选择模板");
+            },
+            tlp_edit: function (item) {
+                if (ZL_Regex.isEmpty(item.tlp)) { alert("请先指定模板"); return; }
+                //TemplateEdit?setTemplate=/template/v4/&filepath=/%u4F01%u4E1A%u9EC4%u9875/%u4F01%u4E1A%u65B0%u95FB.html
+                var editUrl = "/Admin/Template/TemplateEdit?setTemplate=@(SiteConfig.SiteOption.TemplateDir)&FilePath="+item.tlp;
+                ShowComDiag(editUrl, "编缉模板");
+                //onclick="Tlp_EditHtml("/Admin/Template/TemplateEdit?setTemplate=/template/v4/&amp;filepath=/&quot;,&quot;Template&quot;);"
+            },
+            tlp_IsShowView: function (item) {
+                return (item.id && !ZL_Regex.isEmpty(item.tlp));
+            },
+        },
+        mounted: function () {
+            var ref = this;
+            //this.list.push(this.newItem());
+            //this.list.push(this.newItem());
+            $.post("vue_api?action=list", {}, function (data) {
+                var ret = APIResult.getModel(data);
+                if (ret.result) {ref.list = ret.result; }
+            })
+        }
+    });
+    function Tlp_SetValByName(name, val) {
+
+        vueApp.active.tlp = val;
+        if (!vueApp.active.name) {
+            vueApp.active.name = GetFname(val).split('.')[0];
+        }
+        vueApp.$set(vueApp.list, vueApp.active, 0);
+    }
+    </script>
+}

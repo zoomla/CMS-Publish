@@ -1,0 +1,183 @@
+﻿@model ZoomLa.Model.M_UserRecei
+@{
+    Layout = "/Areas/User/Views/shared/_empty.cshtml";
+}
+@section head{<title>地址管理</title>
+}
+@section content{
+<form id="form1" method="post" action="@MVCHelper.GetAction("Address_Add",Context.Request)"class="table-responsive-md">
+    <table class="table table-bordered">
+        <tr>
+            <td>
+                <div class="input-group">
+                    <select id="province_dp" name="province_dp" class="form-control form-select"></select>
+                    <select id="city_dp" name="city_dp"class="form-control form-select"></select>
+                    <select id="county_dp"name="county_dp" class="form-control form-select"></select>
+                </div>
+                <input type="hidden" id="pro_hid" name="pro_hid" value="@Model.Provinces" />
+            </td>
+        </tr>
+        <tr>
+
+            <td>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">详细地址：</span>
+                    </div>
+                    <input type="text" id="street_t" name="street_t" class="form-control" autofocus="autofocus" value="@Model.Street"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" id="zipcode_t" name="zipcode_t" class="form-control" maxlength="6" value="@Model.Zipcode" placeholder="邮政编码"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" id="recename_t" name="recename_t" class="form-control" title="收货人姓名不能为空" value="@Model.ReceivName" placeholder="收货人姓名"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="text" id="mobilenum_t" name="mobilenum_t" class="form-control" maxlength="13" value="@Model.MobileNum" placeholder="手机号码"/>
+            </td>
+        </tr>
+        @*<tr>
+                <th class="text-end">电话号码：</th>
+                <td>
+                    <input type="text" id="area_t" name="area_t" class="form-control float-left num" placeholder="区号" maxlength="4" style="width:80px;" value="@(string.IsNullOrEmpty(Model.phone) ? "" : Model.phone.Split('-')[0])" />
+                    <input type="text" id="phone_t" name="phone_t" class="form-control float-left num" placeholder="号码" maxlength="8" style="width:210px;margin-left:10px;" value="@(string.IsNullOrEmpty(Model.phone) ? "":Model.phone.Split('-')[1])" />
+                </td>
+            </tr>*@
+        <tr>
+            <td><input type="checkbox" class="switchChk" id="Def_chk" name="Def_chk" value="1" @(Model.isDefault == 1 ? "checked=\"checked\"" : "") /></td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <input type="submit" class="btn btn-info" value="保存地址" />
+                @*<button type="button" class="btn btn-info">保存地址</button>*@
+            </td>
+        </tr>
+    </table>
+</form>	
+}
+@section script{
+    <link href="/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .control-sm {width: 120px;display: inline-block;}
+    </style>
+    <script src="/res/js/bootstrap-switch.js"></script>
+    <script src="/JS/ICMS/area.js"></script>
+    <script src="/JS/Controls/ZL_PCC.js"></script>
+    <script src="/JS/ZL_Regex.js"></script>
+    <script src="/JS/Controls/ZL_Dialog.js"></script>
+    <script>
+        $(function () {
+            ZL_Regex.B_Num(".num");
+            var pcc = new ZL_PCC("province_dp", "city_dp", "county_dp");
+            if ($("#pro_hid").val() == "") {
+                pcc.ProvinceInit();
+            }
+            else {
+                var attr = $("#pro_hid").val().split(' ');
+                pcc.SetDef(attr[0], attr[1], attr[2]);
+                pcc.ProvinceInit();
+            }
+            jQuery.validator.addMethod("isPhone", function (value) {
+                return ZL_Regex.isMobilePhone(value);
+            }, "请输入正确的手机号码!");
+
+            jQuery.validator.addMethod("isZipCode", function (value) {
+                return ZL_Regex.isZipCode(value);
+            }, "请输入正确的邮政编码!");
+
+            var validate = $("#form1").validate({
+                debug: true,
+                focusInvalid: false,  
+                onkeyup: false,  
+                submitHandler: function (form) {  
+                comdiag.ShowMask("正在提交中");
+                $("#pro_hid").val($("#province_dp option:selected").text() + " " + $("#city_dp option:selected").text() + " " + $("#county_dp option:selected").text());
+                form.submit();  
+                comdiag.CloseModal();
+                    Refresh();
+                },//校验规则  
+                rules: {
+                    province_dp: {
+                        required: true
+                    },
+                    city_dp: {
+                        required: true
+                    },
+                    county_dp: {
+                        required: true
+                    },
+                    street_t: {
+                        required: true
+                    },
+                    zipcode_t: {
+                        required: true,
+                        isZipCode: true
+                    },
+                    mobilenum_t: {
+                        required: true,
+                        isPhone: true
+                    }
+                    ,
+                    recename_t: {
+                        required: true
+                    }
+                },
+                //对应规则给出的提示信息  
+                messages: {
+                    province_dp: {
+                        required: '必选'
+                    },
+                    city_dp: {
+                        required: '必选'
+                    },
+                    county_dp: {
+                        required: '必选'
+                    },
+                    street_t: {
+                        required: '必填'
+                    },
+                    zipcode_t: {
+                        required: "必填",
+                        isZipCode: "请输入正确的邮政编码!"
+                    },
+                    mobilenum_t: {
+                        required: "必填",
+                        isPhone: "请输入正确的手机号码!",
+                    },
+                    recename_t: {
+                        required: "必填"
+                    }
+                }  
+            });
+        })
+
+        function Refresh() {
+            if (parent && parent.Refresh) { parent.Refresh(); }
+            if (parent && parent.exp) { parent.exp.addressBack(); }
+        }
+        //$(function () {
+        //    $("form").validate({});
+        //});
+        //function CheckForm() {
+        //    $("#pro_hid").val($("#province_dp option:selected").text() + " " + $("#city_dp option:selected").text() + " " + $("#county_dp option:selected").text());
+        //    var vaild = $("form").validate({ meta: "validate" });
+        //    return vaild.form();
+        //}
+        //function saveForm()
+        //{
+        //    var form = $("#form1").serialize();
+        //    comdiag.ShowMask("正在提交中");
+        //    $.post($("#form1").attr("action"), form, function (data) {
+        //        comdiag.CloseModal();
+        //        Refresh();
+        //    })
+        //}
+    </script>
+}

@@ -1,0 +1,56 @@
+﻿@using ZoomLa.Components
+@using ZoomLa.Common
+@model ZoomLa.Components.SiteOption
+@using System.IO;
+@using ZoomLa.Safe;
+@using System.Xml;
+@{
+//string apiUrl = "Zone_API?action=";
+}
+@section head{ <title>扩展附件</title>}
+@section content{
+@Call.SetBread(new Bread[] {
+new Bread("{admin}"),
+new Bread(){url=Context.Request.RawUrl(),text="扩展附件",/*addon="<a href='ZoneAdd'> ["+@L.添加版位+"]</a>"*/ }
+})
+@*},/* "{search}" */)*@
+<div class="Creat_tips">
+    <div class="alert alert-info alert-dismissible fade show">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+        <h5>引导：</h5>
+        <p class="mb-0">
+            请先指定<b>from</b>中的路径值为服务器上的有效目录！<br/>扩展附件功能是用于支持海量文件存储，传统网站文件必须限于当前网站所在目录，这就限定了其使用场景。例如：
+        </p>
+        <ol>
+            <li>分区满了，使网站存储文件受到制约。</li>
+            <li>附件存到D盘，而网站目录存在于E盘（或映射网络驱动器），二者互不影响。</li>
+            <li>文件对外访问目录为：<u>http://www.domain.com/jack/1.jpg</u>，实际网站目录为：<u>/网站根目录/tony/1.jpg</u>，从而增强安全，提升性能。</li>
+        </ol>
+        <p><i class="zi zi_bulbGlow"></i> 使用本功能注意路径设置严格采用“/”符，同时配置后要重启站点方可生效。</p>
+
+    </div>
+</div>
+<div class="">
+    <form method="post" action="FileExtend_Submit">
+        <table class="table table-bordered table-striped sys_table">
+            <tr>
+                <th scope="row" class="td_m">扩展文件设置</th>
+                <td><textarea type="text" name="File_Extend_T" ID="File_Extend_T" class="form-control m50rem_50">@Model.File_Extend</textarea>
+                    <small class="text-muted">设置成功后，即可以<u>http://网站地址/[call_url]</u>访问<u>from</u>目录的文件，如：@SiteConfig.SiteInfo.SiteUrl/test/。</small>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" ID="Button1" value="@L.保存设置" class="btn btn-outline-info" onclick="disBtn(this,2000);" />
+                </td>
+            </tr>
+        </table>
+    </form>
+}
+@section script{
+<script>
+
+</script>
+
+}

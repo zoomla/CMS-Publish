@@ -1,0 +1,63 @@
+﻿@using ZoomLa.Model.OCR
+@using ZoomLa.Components.OCR.Extensions
+@model M_OCR
+@section head{<title>OCR识别记录详情</title> }
+@section content{ 
+@Call.SetBread(new Bread[] {
+        new Bread("{admin}"),
+        new Bread(Url.Action("OCRList"), "OCR列表"),
+        new Bread(Context.Request.RawUrl(), "识别详情")}, "[<a href='OCR'>" + "OCR识别" + "</a>]")
+<div class="">
+<table class="table table-bordered sys_table">
+    <tr>
+        <th class="w12rem_lg">用户ID</th>
+        <td>@Model.UserID</td>
+    </tr>
+    <tr>
+        <th>用户名</th>
+        <td>@Model.UserName</td>
+    </tr>
+    <tr>
+        <th>识别语言</th>
+        <td>@Model.GetLangsString()</td>
+    </tr>
+    <tr>
+        <th>图片路径</th>
+        <td><a target="_blank" href="@Model.PicPath">@Model.PicPath</a></td>
+    </tr>
+    <tr>
+        <th>识别结果</th>
+        <td>
+            <div id="ocr_result">
+                @foreach (var p in Model.Content.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
+                {<p>@p</p>}
+            </div>
+        </td>
+    </tr>    
+</table>
+<div class="text-center">
+    <a class="mx-2 btn btn-info" href="javascript:;" onclick="deleteOCR(@Model.ID)" title="删除此记录">删除记录</a>
+    <a class="mx-2 btn btn-info" href="javascript:;" onclick="copyOCRText()" title="复制OCR识别结果">复制结果</a>
+    <a class="mx-2 btn btn-outline-info" href="OCRList" title="返回OCR管理列表">返回列表</a>
+</div>
+</div>
+}
+@section script{ 
+<script>
+function deleteOCR(id) {
+    var a = window.confirm("您确定要删除该OCR记录吗？");
+    if (!a)
+        return;
+    window.location.href = encodeURI('@Url.Action("OCRDelete")?ids=' + id);
+}
+function copyOCRText() {
+    var range = document.createRange();
+    range.selectNode(document.getElementById("ocr_result"));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+    alert("已复制到剪切板");
+}
+</script>
+}

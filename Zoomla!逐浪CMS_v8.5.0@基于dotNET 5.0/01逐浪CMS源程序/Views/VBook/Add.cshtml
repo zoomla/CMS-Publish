@@ -1,0 +1,40 @@
+﻿@model ZoomLa.Model.Content.H5.M_H5_Item
+@section head{<title>画册信息</title> }
+@section content{
+    <link type="text/css" href="/res/css/bootstrap-switch.min.css" rel="stylesheet" />
+    <script src="/res/js/bootstrap-switch.js"></script>
+    <form method="post" action="@MVCHelper.GetAction("Add_Submit",Context.Request)">
+        <table class="table table-bordered">
+            <tr><th style="width:100px;">画册名</th><td>@Html.TextBoxFor(m => m.title, new { @class = "form-control required", placeholder = "请输入标题", maxlength = "20" })</td></tr>
+            <tr>
+                <th>封面</th>
+                <td>
+                    @Html.Partial("C_SFileUP", new C_SFileUP() { ID = "coverImage", SaveType = "user", Value = Model.coverImage })
+                </td>
+            </tr>
+            <tr>
+                <th>发布</th>
+                <td>
+                    @MVCHelper.H_Check("isPublish", Model.isPublish == 1, new { @class = "switchChk", value = 1 })
+                </td>
+            </tr>
+            <tr>
+                <th>JS脚本</th>
+                <td>
+                    @Html.TextAreaFor(m => m.script, new { rows = 5, @class = "form-control", placeholder = "请输入JS脚本" })
+                </td>
+            </tr>
+            <tr>
+                <th></th>
+                <td>
+                    <input type="submit" class="btn btn-info" value="保存信息" />
+                </td>
+            </tr>
+        </table>
+    </form>
+}
+@section script{
+<script>
+    $("form").validate({});
+</script>
+}

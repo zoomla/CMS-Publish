@@ -1,0 +1,129 @@
+﻿@using ZoomLaCMS.Controllers
+@model ZoomLa.Model.Font.M_Font_Write
+@{ 
+    Layout = "_cms2020Layout";
+    var freeFontLimit = (int)ViewData["FreeFontLimit"];
+    var freeFontLeft = (int)ViewData["FreeLeft"];
+    var fullFontLeft = (int)ViewData["FullLeft"];
+}
+@section head{ 
+<title>创建字体</title>
+<link rel="stylesheet" href="~/res/css/animate.min.css"/>
+}
+@section content{ 
+<div class="font_create">
+<div class="container-xl font_create_box">
+<div class="row">
+<div class="col-6 font_create_box_l">
+    <h1>创建新字体</h1>
+    <ul>
+        <li><strong>一旦创建您将获得</strong></li>
+        <li>高清矢量的字库</li>
+        <li>在线创作自己原迹字体</li>
+        <li>临写名家字帖提升书写水平</li>
+        <li>广泛于用WEB创作等领域</li>
+        <li>原创字迹用于web创作避免侵权</li>
+        <li>进一步可发布为桌面字体传之于世</li>
+        <li>体验卓越的字体云</li>
+    </ul>
+</div>
+<div class="col-6 font_create_box_r">
+<form action="create" method="post" id="font_create">
+    <input type="hidden" name="VipType" asp-for="@Model.VipType" />
+<div class="row">
+    <input class="form-control" name="FontName" asp-for="@Model.FontName" placeholder="字体名称（不可空格）" required />
+</div>
+<div class="row">
+    <select class="form-select" name="ZType" asp-for="@Model.ZType" placeholder="基准字库">
+        <option value="0">英文字母符号集（共178字）</option>
+        <option value="1">小学语文350生字及字母（共457字）</option>
+        <option value="2">《现代汉语常用字表》中常用汉字2500字和次常用汉字1000字集合及英文字符（共3007字）</option>
+        <option value="3">GB2312国标规范6791汉字及英文字母符号（共6880字）</option>
+    </select>
+</div>
+<div class="row">
+@Html.TextAreaFor(m => m.Remind, new {@rows = "5", @class = "form-control", @placeholder = "对于所创字体的简单介绍（不少于6个汉字）" })
+</div>
+<div class="text-center">
+    <div class="btn-group">
+    <button class="btn btn-info" onclick="checkValid();" type="button">确定创建</button>
+    <a class="btn btn-outline-info" href="@Url.Action("Index")#/myfont">管理我的创作</a>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<div class="modal fade" id="reminder" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">温馨提示</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="help_info"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <a href="@Url.Action("Index")#/pay" class="btn btn-outline-info">前往充值</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+}
+@section script{ 
+<script>
+var modal = new bootstrap.Modal(document.getElementById('reminder'));
+var freeFontLimit = Number(@Html.Raw(freeFontLimit));
+var freeFontLeft = Number(@Html.Raw(freeFontLeft));
+var fullFontLeft = Number(@Html.Raw(fullFontLeft));
+function checkValid() {
+    if ($("#Remind").val().trim().length < 6) {
+        alert("字体介绍必须不少于6个字~");
+        return;
+    }
+
+    let select = Number($("#VipType").val());
+    if (select == 0) {
+        if (freeFontLeft <= 0) {
+            $("#reminder .modal-body #help_info").text("您好，您只能创建 " + freeFontLimit + " 个免费字体。当前已达上限，如需继续使用，可选择付费渠道。");
+            modal.show();
+            return;
+        }
+    }
+    else if (select == 1) {
+        if (fullFontLeft <= 0) {
+            $("#reminder .modal-body #help_info").text("您好，您创建的字库已达购买上限，如需继续使用，请前往购买。");
+            modal.show();
+            return;
+        }
+    }
+    else {
+        alert("您的操作有误，请刷新页面后重试。");
+        return;
+    }
+        
+    $.ajax({
+        method: "Get",
+        dataType: "json",
+        url: encodeURI('@Url.Action("CheckName")' + "?name=" + $("#FontName").val().trim()),
+        success: function (result) {
+            if (result) {
+                $("#font_create")[0].submit();
+            }
+            else {
+                alert("字体名重复，请重新填写~");
+                return;
+            }
+        },
+        error: function () {
+            alert("出现错误！可能是网络或api存在问题");
+            return;
+        }
+    });
+}
+</script>
+}

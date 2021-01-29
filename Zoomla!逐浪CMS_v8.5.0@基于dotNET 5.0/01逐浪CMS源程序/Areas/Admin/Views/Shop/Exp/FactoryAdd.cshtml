@@ -1,0 +1,18 @@
+﻿@model ZoomLa.Model.M_Manufacturers
+@section head {<title>@L.添加厂商</title>}
+@section content{
+@Call.SetBread( new Bread[] {
+	new Bread("{admin}"),
+    new Bread(Call.PathAdmin("Shop/exp/Factory"),@L.厂商管理),
+    new Bread(){url=Context.Request.RawUrl(), text=L.厂商管理 ,addon="<a href='FactoryAdd'>["+@L.添加厂商+"]</a>"}
+	})
+<div class="container-fluid">
+    <form method="post" action="@MVCHelper.GetAction("FactoryAdd_Submit",Context.Request)">
+       @Html.Partial(MVCHelper.ViewDir_Admin+ "Shop/Exp/FactoryAdd_Page.cshtml")
+    </form>
+</div>
+ }
+@section script{ 
+
+
+}

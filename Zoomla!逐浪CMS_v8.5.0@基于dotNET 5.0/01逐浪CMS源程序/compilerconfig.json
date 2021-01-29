@@ -1,0 +1,32 @@
+﻿[
+  {
+    "outputFile": "wwwroot/theme/css/V4user.css",
+    "inputFile": "wwwroot/theme/css/v4.scss",
+    "minify": {
+      "enabled": true
+    },
+    "options": {
+      "sourceMap": true
+    }
+  },
+  {
+    "outputFile": "wwwroot/theme/css/v4style.css",
+    "inputFile": "wwwroot/theme/css/v4style.scss",
+    "minify": {
+      "enabled": true
+    },
+    "options": {
+      "sourceMap": true
+    }
+  },
+  {
+    "outputFile": "wwwroot/theme/css/V4user.css",
+    "inputFile": "wwwroot/theme/css/V4user.scss",
+    "minify": {
+      "enabled": true
+    },
+    "options": {
+      "sourceMap": true
+    }
+  }
+  ]
